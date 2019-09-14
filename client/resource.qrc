@@ -1,0 +1,20 @@
+<RCC>
+    <qresource prefix="/rec">
+        <file>icone/copy-document.png</file>
+        <file>icone/icon.png</file>
+        <file>icone/new-file.png</file>
+        <file>icone/open-folder-outline.png</file>
+        <file>icone/paste-from-clipboard.png</file>
+        <file>icone/redo-arrow.png</file>
+        <file>icone/save-file-option.png</file>
+        <file>icone/scissors.png</file>
+        <file>icone/undo-arrow.png</file>
+        <file>icone/info.png</file>
+	<file>icone/italic.png</file>
+	<file>icone/bold.png</file>
+	<file>icone/underline.png</file>
+	<file>icone/font.png</file>
+	<file>icone/color.png</file>
+	<file>icone/backcolor.png</file>
+    </qresource>
+</RCC>
