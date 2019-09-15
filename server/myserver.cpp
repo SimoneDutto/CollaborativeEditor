@@ -1,21 +1,26 @@
-#include "server.h"
+#include "myserver.h"
+#include "filesystem.h"
 
 #include <QSignalMapper>
 #include <QTcpServer>
 #include <QTcpSocket>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
 
-Server::Server(QObject *parent) :
+MyServer::MyServer(QObject *parent) :
     QObject(parent),
     m_server(new QTcpServer(this)),
     m_readyReadSignalMapper(new QSignalMapper(this)),
     m_disconnectedSignalMapper(new QSignalMapper(this))
 {
+    fsys = FileSystem::getInstance();
     connect(m_server, SIGNAL(newConnection()), SLOT(onNewConnection()));
     connect(m_readyReadSignalMapper, SIGNAL(mapped(QObject*)), SLOT(onReadyRead(QObject*)));
     connect(m_disconnectedSignalMapper, SIGNAL(mapped(QObject*)), SLOT(onDisconnected(QObject*)));
 }
 
-bool Server::listen(const QHostAddress &address, quint16 port)
+bool MyServer::listen(const QHostAddress &address, quint16 port)
 {
     if (!m_server->listen(address, port)) {
         qCritical("Cannot start server: %s", qPrintable(m_server->errorString()));
@@ -27,7 +32,7 @@ bool Server::listen(const QHostAddress &address, quint16 port)
     return true;
 }
 
-void Server::onNewConnection()
+void MyServer::onNewConnection()
 {
     QTcpSocket *socket = m_server->nextPendingConnection();
     if (!socket)
@@ -43,22 +48,35 @@ void Server::onNewConnection()
     m_disconnectedSignalMapper->setMapping(socket, socket);
 }
 
-void Server::onReadyRead(QObject *socketObject)
+void MyServer::onReadyRead(QObject *socketObject)
 {
     QTcpSocket *socket = qobject_cast<QTcpSocket *>(socketObject);
     if (!socket || !socket->bytesAvailable())
         return;
 
-    QByteArray ba = socket->readAll();
-    if (ba.isEmpty())
-        return;
+    QString str = socket->readAll();
+    qDebug() << str.toLatin1().data();
 
-    qDebug("Received data from %s:%d.",
-           qPrintable(socket->peerAddress().toString()), socket->peerPort());
-    socket->write(ba);
+    QJsonDocument jsonResponse = QJsonDocument::fromJson(str.toLatin1());
+    QJsonArray jsonArray = jsonResponse.array();
+    if(!jsonArray.isEmpty())
+    {
+        QJsonObject jsonObject = jsonArray.first().toObject();
+        QString type = jsonObject.value(("type")).toString();
+        if(type.compare("open")){
+            std::string filename = jsonObject.value(("filename")).toString().toStdString();
+            fsys->sendFile(filename, socket);
+        }
+        else if(type.compare("insert")){
+
+        }
+        else if(type.compare("delete")){
+
+        }
+    }
 }
 
-void Server::onDisconnected(QObject *socketObject)
+void MyServer::onDisconnected(QObject *socketObject)
 {
     QTcpSocket *socket = qobject_cast<QTcpSocket *>(socketObject);
     if (!socket)

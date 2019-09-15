@@ -1,4 +1,5 @@
 Cose che ci vengono in mente di fare:
 - db che conserva gli user e le password
 - gestire timer su call bloccanti
--
+- gestire multithreading
+- classe FileSystem singleton

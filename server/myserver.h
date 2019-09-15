@@ -5,14 +5,16 @@
 #include <QHostAddress>
 #include <QObject>
 #include <QSignalMapper>
+#include <QTcpSocket>
 
 class QTcpServer;
+class FileSystem;
 
-class Server : public QObject
+class MyServer : public QObject
 {
     Q_OBJECT
 public:
-    explicit Server(QObject *parent = nullptr);
+    explicit MyServer(QObject *parent = nullptr);
 
     bool listen(const QHostAddress &address, quint16 port);
 
@@ -22,6 +24,7 @@ private slots:
     void onDisconnected(QObject *socketObject);
 
 private:
+    FileSystem *fsys;
     QTcpServer *m_server;
     QSignalMapper *m_readyReadSignalMapper;
     QSignalMapper *m_disconnectedSignalMapper;
