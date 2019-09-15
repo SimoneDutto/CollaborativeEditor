@@ -64,7 +64,7 @@ void MyServer::onReadyRead(QObject *socketObject)
         QJsonObject jsonObject = jsonArray.first().toObject();
         QString type = jsonObject.value(("type")).toString();
         if(type.compare("open")){
-            std::string filename = jsonObject.value(("filename")).toString().toStdString();
+            QString filename = jsonObject.value(("filename")).toString();
             fsys->sendFile(filename, socket);
         }
         else if(type.compare("insert")){

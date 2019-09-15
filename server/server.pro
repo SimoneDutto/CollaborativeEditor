@@ -18,13 +18,17 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    filehandler.cpp \
     filesystem.cpp \
+    letter.cpp \
     main.cpp \
     mainwindow.cpp \
     myserver.cpp
 
 HEADERS += \
+    filehandler.h \
     filesystem.h \
+    letter.h \
     mainwindow.h \
     myserver.h
 
