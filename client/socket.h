@@ -3,6 +3,13 @@
 
 #include <QDialog>
 #include <QTcpSocket>
+#include <QJsonObject>
+#include <QJsonValue>
+#include <QJsonValueRef>
+#include <QJsonDocument>
+#include <QJsonArray>
+#include <QSettings>
+#include <QFile>
 
 namespace Ui {
 class Socket;
@@ -20,6 +27,10 @@ public:
 private:
     Ui::Socket *ui;
     QTcpSocket *socket;
+    qint32 blockSize;
+
+public slots:
+    int openFile(QString name_file, QFile& file);
 
 private slots:
     void closeConnection();
