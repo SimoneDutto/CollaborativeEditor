@@ -10,6 +10,8 @@
 #include <QJsonArray>
 #include <QSettings>
 #include <QFile>
+#include "../server/letter.h"
+#include "iostream"
 
 namespace Ui {
 class Socket;
@@ -30,7 +32,7 @@ private:
     qint32 blockSize;
 
 public slots:
-    int openFile(QString name_file, QFile& file);
+    int openFile(QString name_file, QVector<Letter>& filePtr);
 
 private slots:
     void closeConnection();

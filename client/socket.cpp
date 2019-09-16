@@ -14,9 +14,9 @@ Socket::Socket(const QString &host, quint16 port):blockSize(0)
     socket = new QTcpSocket(this);
 
     connect( socket, SIGNAL(connected()), SLOT(socketConnected()) );
-    connect( socket, SIGNAL(connectionClosed()), SLOT(socketConnectionClosed()) );
+    connect( socket, SIGNAL(disconnected()), SLOT(socketConnectionClosed()) );
     connect( socket, SIGNAL(readyRead()),  SLOT(socketReadyRead()) );
-    connect( socket, SIGNAL(error(int)), SLOT(socketError(int)) );
+    //connect( socket, SIGNAL(error(SocketError socketError)), SLOT(socketError(int)) );
 
     socket->connectToHost(host, port);
 
@@ -51,7 +51,7 @@ void Socket::sendToServer()
         os << "Messaggio di prova\n";
     }
 
-int Socket::openFile(QString name_file, QFile& file)
+int Socket::openFile(QString name_file, QVector<Letter>& arrayFile)
 {
     /*RICHIESTA*/
     QJsonObject obj;
@@ -77,35 +77,48 @@ int Socket::openFile(QString name_file, QFile& file)
     QString fileName;
     in >>fileName;
 
-    /*Lettura file*/
-    QByteArray line = socket->readAll();
 
-    /*Cerco di creare il path*/
-    QSettings settings;
-    QString filePath = settings.value("Path/XmlTemporary", QVariant("")).toString(); //Mi ritorna sempre "" come il valore di default
+    /*LETTURA FILE*/
 
-    /*Considerare il caso in cui sia un path*/
-    fileName = fileName.section("/", -1); //Divide per "/" e prende l'ultimo campo
+    /*
+    EXAMPLE JSON FILE
+    {
+        "letterArray": [{
+            "value": "H",
+            "id": "1-1",
+            "pos_intera": 1,
+            "pos_decimale": 0},
+           {
+            "value": "i",
+            "id": "2-1",
+            "pos_intera": 2,
+            "pos_decimale": 0}
+        ]
+    }
+    */
 
-    //QFile thisFile(filePath + "/" + fileName); nome inviato dal server
+    QByteArray JsonFile = socket->readAll();
+    QJsonDocument document = QJsonDocument::fromJson(JsonFile);
+    QJsonObject object = document.object();
+    QJsonValue value = object.value("letterArray");
+    QJsonArray letterArray = value.toArray();
 
+    QVector<Letter> fileLikeLetterArray;
 
-    /*!!!Provo ad usare un QFile passato per riferimento, in modo tale da salvarlo nel chiamante, non so se funziona!!!*/
+    foreach (const QJsonValue& v, letterArray)
+    {
+        Letter letter_tmp = Letter(v.toObject().value("value").toString(),
+                 v.toObject().value("id").toString(),
+                 v.toObject().value("pos_intera").toInt(),
+                 v.toObject().value("pos_decimale").toInt());
 
-    //QFile thisFile(filePath + "/" + name_file);
-    file.setFileName(filePath + "/" + name_file);
+        fileLikeLetterArray.append(letter_tmp);
+        //fileLikeLetterArray.append(std::move(letter_tmp));
 
-    if (!file.open(QIODevice::WriteOnly)) {
-        qDebug() << "Can't open file for written";
-        return -1;
+        qDebug() << letter_tmp.getValue();
     }
 
-    /*Salvo il file arrivato dal server*/
-    file.write(line);
-    file.seek(0); //Puntatore all'inizio del file
-
-    file.close(); //Per ora CHIUDO, in realtà non dovrei perchè il file lo devo modificare
-                  //una volta scaricato lo devo mostrare nell'applicazione
+    arrayFile = std::move(fileLikeLetterArray);
 
     qDebug() << "Finished!";
     return 1;
