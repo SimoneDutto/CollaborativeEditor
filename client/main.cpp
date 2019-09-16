@@ -5,12 +5,16 @@
 
 int main(int argc, char *argv[])
 {
+    Socket sock("localhost", 8080);
+    QFile openFile;
+    int i = sock.openFile("text.txt", openFile);
+
     /*Socket sock("localhost", 8080);
     sock.openFile("text.txt");*/
 
-    QSettings settings;
+    /*QSettings settings;
     QString filePath = settings.value("Path/XmlTemporary", "").toString();
-    qDebug() << "FilePath is: " << filePath;
+    qDebug() << "FilePath is: " << filePath;*/
 
     /*QApplication a(argc, argv);
     Socket sock;
