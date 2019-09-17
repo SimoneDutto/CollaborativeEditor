@@ -20,15 +20,14 @@ Socket::Socket(const QString &host, quint16 port):blockSize(0)
 
     socket->connectToHost(host, port);
 
-    /*if(socket->waitForConnected(3000))
+    if(socket->waitForConnected(3000))
     {
-        //CONNESSO
-        //socket->close();
-        //socket->write("Prova");
+        qDebug() << "Connesso";
     }
     else {
         //NON CONNESSO
-    }*/
+        qDebug() << "non connesso";
+    }
 }
 
 void Socket::closeConnection()
@@ -55,11 +54,14 @@ int Socket::openFile(QString name_file, QVector<Letter>& arrayFile)
 {
     /*RICHIESTA*/
     QJsonObject obj;
-    obj.insert("OPEN", name_file);
+    obj.insert("type", "OPEN");
+    obj.insert("filename:", name_file);
 
     if(socket->state() == QAbstractSocket::ConnectedState){
+        qDebug() << "Richiesta:\n" << QJsonDocument(obj).toJson().data();
         socket->write(QJsonDocument(obj).toJson());
     }
+    socket->waitForBytesWritten();
 
     /*RICEZIONE*/
     qDebug() << "Inizio a leggere";
@@ -68,14 +70,15 @@ int Socket::openFile(QString name_file, QVector<Letter>& arrayFile)
 
     /*Leggo dimensione file*/
     if(blockSize == 0){
-        if(socket->bytesAvailable() < static_cast<qint64>(sizeof(quint32))) return -1; //!!!Controllare il cast se è corretto!!!
+        //if(socket->bytesAvailable() < static_cast<qint64>(sizeof(quint32))) return -1; //!!!Controllare il cast se è corretto!!!
         in >> blockSize;
+        qDebug() << blockSize;
     }
-    if(socket->bytesAvailable() < blockSize) return -1;
+    //if(socket->bytesAvailable() < blockSize) return -1;
 
     /*Ho già il nome, non so se il server lo manda, in caso negativo togliere queste righe*/
     QString fileName;
-    in >>fileName;
+    in >> fileName;
 
 
     /*LETTURA FILE*/

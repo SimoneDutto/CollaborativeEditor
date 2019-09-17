@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
     return a.exec();*/
 
     QApplication a(argc, argv);
-    Socket sock("localhost", 8080);
+    Socket sock("localhost", 4001);
 
     QVector<Letter> file;
     sock.openFile("text.txt", file);
@@ -22,8 +22,5 @@ int main(int argc, char *argv[])
     inFile.open(QIODevice::ReadOnly | QIODevice::Text);
     QByteArray data = inFile.readAll();
     inFile.close();*/
-
-    qDebug() << "Ciao";
-    qDebug() << "Siamo alla fine";
     return 1;
 }

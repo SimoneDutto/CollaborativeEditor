@@ -15,7 +15,7 @@ FileSystem* FileSystem::getInstance(){
     return FileSystem::instance;
 }
 
-int FileSystem::sFendile(QString filename, QTcpSocket *socket){
+int FileSystem::sendFile(QString filename, QTcpSocket *socket){
     QByteArray block;
     QDataStream out(&block, QIODevice::WriteOnly);
 

@@ -53,17 +53,17 @@ void MyServer::onReadyRead(QObject *socketObject)
     QTcpSocket *socket = qobject_cast<QTcpSocket *>(socketObject);
     if (!socket || !socket->bytesAvailable())
         return;
-
     QString str = socket->readAll();
     qDebug() << str.toLatin1().data();
-
     QJsonDocument jsonResponse = QJsonDocument::fromJson(str.toLatin1());
     QJsonArray jsonArray = jsonResponse.array();
     if(!jsonArray.isEmpty())
     {
         QJsonObject jsonObject = jsonArray.first().toObject();
         QString type = jsonObject.value(("type")).toString();
-        if(type.compare("open")){
+        qDebug() << "Tipo di richiesta: " << type;
+        if(type.compare("OPEN")){
+            qDebug() << "OPEN request";
             QString filename = jsonObject.value(("filename")).toString();
             fsys->sendFile(filename, socket);
         }
