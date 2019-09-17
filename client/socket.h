@@ -10,7 +10,7 @@
 #include <QJsonArray>
 #include <QSettings>
 #include <QFile>
-#include "../server/letter.h"
+#include "letter.h"
 #include "iostream"
 
 namespace Ui {
