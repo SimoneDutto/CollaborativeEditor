@@ -25,6 +25,7 @@ int FileSystem::sendFile(QString filename, QTcpSocket *socket){
         // serializzarlo
     }
     else{
+        qDebug() << "Inizio l'invio del file";
         // apre il file, lo scrive in un DataStream che poi invierà
         QFile *m_file = new QFile(filename);
         out.setVersion(QDataStream::Qt_5_4);

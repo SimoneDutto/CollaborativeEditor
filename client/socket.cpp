@@ -63,6 +63,11 @@ int Socket::openFile(QString name_file, QVector<Letter>& arrayFile)
     }
     socket->waitForBytesWritten();
 
+}
+
+void Socket::socketReadyRead()
+{
+        // read from the server
     /*RICEZIONE*/
     qDebug() << "Inizio a leggere";
     QDataStream in(socket);
@@ -70,7 +75,8 @@ int Socket::openFile(QString name_file, QVector<Letter>& arrayFile)
 
     /*Leggo dimensione file*/
     if(blockSize == 0){
-        //if(socket->bytesAvailable() < static_cast<qint64>(sizeof(quint32))) return -1; //!!!Controllare il cast se è corretto!!!
+        if(socket->bytesAvailable() < static_cast<qint64>(sizeof(quint32)))
+            return; //!!!Controllare il cast se è corretto!!!
         in >> blockSize;
         qDebug() << blockSize;
     }
@@ -121,19 +127,8 @@ int Socket::openFile(QString name_file, QVector<Letter>& arrayFile)
         qDebug() << letter_tmp.getValue();
     }
 
-    arrayFile = std::move(fileLikeLetterArray);
-
     qDebug() << "Finished!";
-    return 1;
-}
-
-void Socket::socketReadyRead()
-    {
-        // read from the server
-        qDebug() << "Leggo:\n";
-        while ( socket->canReadLine() ) {
-            qDebug() << socket->readLine();
-        }
+    return;
     }
 
 void Socket::socketConnected()

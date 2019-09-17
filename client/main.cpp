@@ -22,5 +22,5 @@ int main(int argc, char *argv[])
     inFile.open(QIODevice::ReadOnly | QIODevice::Text);
     QByteArray data = inFile.readAll();
     inFile.close();*/
-    return 1;
+    return 0;
 }
