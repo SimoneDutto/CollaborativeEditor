@@ -30,14 +30,17 @@ private:
     Ui::Socket *ui;
     QTcpSocket *socket;
     qint32 blockSize;
+    QVector<Letter>* lastFilePtr;
 
 public slots:
-    int openFile(QString name_file, QVector<Letter>& filePtr);
+    int openFile(QString name_file);
+    /*int openFile(QString name_file, QVector<Letter>& filePtr);
+    openFile(QString name_file, QVector<Letter>& arrayFile)*/
 
 private slots:
     void closeConnection();
     void sendToServer();
-    void socketReadyRead();
+    void socketReadyReadFile();
     void socketConnected();
     void socketConnectionClosed();
     void socketClosed();
