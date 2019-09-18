@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
     Socket sock("localhost", 4001);
 
     QVector<Letter> file;
-    sock.openFile("text.txt", file);
+    sock.openFile("text.txt");
 
     /*  PER TESTATE JSON FILE
     QFile inFile("/Users/vitotassielli/Desktop/document.json");
