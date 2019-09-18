@@ -26,18 +26,23 @@ int FileSystem::sendFile(QString filename, QTcpSocket *socket){
     else{
         qDebug() << "Inizio l'invio del file";
         // apre il file, lo scrive in un DataStream che poi invierà
-        QFile *m_file = new QFile(filename);
-        QByteArray q = m_file->readAll();
+        QFile m_file (filename);
+        m_file.open(QFile::ReadOnly);
 
+        QByteArray q = m_file.readAll();
         if(socket->state() == QAbstractSocket::ConnectedState)
         {
+            qDebug() << "Invio file";
             socket->write(IntToArray(q.size())); //write size of data
             if(socket->write(q) == -1){
+                qDebug() << "File failed to send";
                 return -1;
             } //write the data itself
             socket->waitForBytesWritten();
         }
-        m_file->close();
+        m_file.close();
+
+        qDebug() << "File sent";
 
         QJsonDocument document = QJsonDocument::fromJson(q);
         QJsonObject object = document.object();
@@ -61,7 +66,8 @@ int FileSystem::sendFile(QString filename, QTcpSocket *socket){
         FileHandler *fh = new FileHandler(std::move(fileLikeLetterArray));
         fh->insertActiveUser(socket);
         // TODO:: da file a array di Letter con la deserializzazione
-        files.insert(std::pair<QString, FileHandler*> (filename, fh));
+        //files.insert(std::pair<QString, FileHandler*> (filename, fh));
+        qDebug() << "File saved in the file system";
     }
     return 0;
 }

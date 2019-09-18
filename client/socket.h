@@ -29,8 +29,9 @@ public:
 private:
     Ui::Socket *ui;
     QTcpSocket *socket;
-    qint32 blockSize;
+    qint32 size;
     QVector<Letter>* lastFilePtr;
+    QByteArray buffer;
 
 public slots:
     int openFile(QString name_file);
