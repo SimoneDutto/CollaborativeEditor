@@ -4,6 +4,15 @@
 #include <map>
 #include <string>
 #include <QString>
+#include <QTcpSocket>
+#include <QDataStream>
+#include <QFile>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
+
+#include "letter.h"
+#include "filehandler.h"
 
 class FileHandler;
 class QTcpSocket;

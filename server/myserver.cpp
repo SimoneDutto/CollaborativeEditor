@@ -4,9 +4,6 @@
 #include <QSignalMapper>
 #include <QTcpServer>
 #include <QTcpSocket>
-#include <QJsonArray>
-#include <QJsonDocument>
-#include <QJsonObject>
 
 MyServer::MyServer(QObject *parent) :
     QObject(parent),
@@ -64,10 +61,10 @@ void MyServer::onReadyRead(QObject *socketObject)
         QString filename = rootObject.value(("filename")).toString();
         fsys->sendFile(filename, socket);
     }
-    else if(type.compare("insert")){
+    else if(type.compare("INSERT")){
 
     }
-    else if(type.compare("delete")){
+    else if(type.compare("DELETE")){
 
     }
 }
