@@ -15,7 +15,6 @@ Socket::Socket(const QString &host, quint16 port):blockSize(0)
 
     connect( socket, SIGNAL(connected()), SLOT(socketConnected()) );
     connect( socket, SIGNAL(disconnected()), SLOT(socketConnectionClosed()) );
-    connect( socket, SIGNAL(readyRead()),  SLOT(socketReadyRead()) );
     //connect( socket, SIGNAL(error(SocketError socketError)), SLOT(socketError(int)) );
 
     socket->connectToHost(host, port);
@@ -26,7 +25,7 @@ Socket::Socket(const QString &host, quint16 port):blockSize(0)
     }
     else {
         //NON CONNESSO
-        qDebug() << "non connesso";
+        qDebug() << "Non connesso";
     }
 }
 
@@ -50,7 +49,7 @@ void Socket::sendToServer()
         os << "Messaggio di prova\n";
     }
 
-int Socket::openFile(QString name_file, QVector<Letter>& arrayFile)
+int Socket::openFile(QString name_file)
 {
     /*RICHIESTA*/
     QJsonObject obj;
@@ -61,25 +60,25 @@ int Socket::openFile(QString name_file, QVector<Letter>& arrayFile)
         qDebug() << "Richiesta:\n" << QJsonDocument(obj).toJson().data();
         socket->write(QJsonDocument(obj).toJson());
     }
-    socket->waitForBytesWritten();
 
+    connect( socket, SIGNAL(readyRead()),  SLOT(socketReadyReadFile()));
+    return socket->waitForBytesWritten();
 }
 
-void Socket::socketReadyRead()
+void Socket::socketReadyReadFile()
 {
-        // read from the server
-    /*RICEZIONE*/
+    /*RICEZIONE FILE DAL SERVER*/
+    disconnect(socket, SIGNAL(readyRead()), this, SLOT(socketReadyReadFile()));
+
     qDebug() << "Inizio a leggere";
     QDataStream in(socket);
     in.setVersion(QDataStream::Qt_5_12);
 
     /*Leggo dimensione file*/
-    if(blockSize == 0){
-        if(socket->bytesAvailable() < static_cast<qint64>(sizeof(quint32)))
-            return; //!!!Controllare il cast se è corretto!!!
-        in >> blockSize;
-        qDebug() << blockSize;
-    }
+    if(socket->bytesAvailable() < static_cast<qint64>(sizeof(quint32)))
+        return; //!!!Controllare il cast se è corretto!!!
+    in >> blockSize;
+    qDebug() << blockSize;
     //if(socket->bytesAvailable() < blockSize) return -1;
 
     /*Ho già il nome, non so se il server lo manda, in caso negativo togliere queste righe*/
@@ -112,7 +111,6 @@ void Socket::socketReadyRead()
     QJsonValue value = object.value("letterArray");
     QJsonArray letterArray = value.toArray();
 
-    QVector<Letter> fileLikeLetterArray;
 
     foreach (const QJsonValue& v, letterArray)
     {
@@ -121,8 +119,7 @@ void Socket::socketReadyRead()
                  v.toObject().value("pos_intera").toInt(),
                  v.toObject().value("pos_decimale").toInt());
 
-        fileLikeLetterArray.append(letter_tmp);
-        //fileLikeLetterArray.append(std::move(letter_tmp));
+        this->lastFilePtr->append(std::move(letter_tmp));
 
         qDebug() << letter_tmp.getValue();
     }
