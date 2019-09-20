@@ -9,11 +9,25 @@ static inline QByteArray IntToArray(qint32 source);
 FileSystem* FileSystem::getInstance(){
     if(!instance){
         instance = new FileSystem();
+        const QString DRIVER("QSQLITE");
+        if(QSqlDatabase::isDriverAvailable(DRIVER)){
+            instance->db = QSqlDatabase::addDatabase(DRIVER);
+            instance->db.setDatabaseName("user.db");
+            if (!instance->db.open())
+            {
+                 qDebug() << "Error: connection with database fail";
+            }
+            else
+            {
+                qDebug() << "Database: connection ok";
+            }
+
+        }
     }
     return FileSystem::instance;
 }
 
-int FileSystem::sendFile(QString filename, QTcpSocket *socket){
+void FileSystem::sendFile(QString filename, QTcpSocket *socket){
     QByteArray block;
     QDataStream out(&block, QIODevice::WriteOnly);
 
@@ -21,6 +35,7 @@ int FileSystem::sendFile(QString filename, QTcpSocket *socket){
     if (it != files.end()){
         // il file è già in memoria principale e può essere mandato
         // serializzarlo
+        it->second->insertActiveUser(socket);
 
     }
     else{
@@ -80,4 +95,45 @@ QByteArray IntToArray(qint32 source) //Use qint32 to ensure that the number have
     data << source;
     return temp;
 }
+
+void checkLogin(QString username, QString password, QTcpSocket *socket){
+
+    QSqlQuery query;
+    QVector<QString> files;
+    QJsonArray files_array;
+
+    query.prepare("SELECT userid FROM people WHERE username = (:username) AND password = (:password)");
+    query.bindValue(":username", username);
+    query.bindValue(":password", password);
+    int id = -1;
+    if (query.exec())
+    {
+        if (query.next())
+        {
+            id =  query.value("username").toInt();
+        }
+    }
+
+    QJsonObject final_object;
+    if(id != -1){
+        QSqlQuery query("SELECT filename FROM files WHERE username = (:username)");
+        query.bindValue(":username", username);
+        while (query.next())
+        {
+           QJsonObject item_data;
+           QString name = query.value("filename").toString();
+           item_data.insert("filename", QJsonValue(name));
+        }
+        final_object.insert(QString("files"), QJsonValue(plot_array));
+    }
+    final_object.insert("id", QJsonValue(id));
+
+    if(socket->state() == QAbstractSocket::ConnectedState){
+        qDebug() << "Risposta al LOGIN:\n" << QJsonDocument(final_object).toJson().data();
+        socket->write(QJsonDocument(final_object).toJson());
+    }
+
+}
+
+
 
