@@ -161,3 +161,13 @@ void MainWindow::on_actionBackgorund_Color_triggered()
     if(color.isValid())
         ui->textEdit->setTextBackgroundColor(color);
 }
+
+void MainWindow::on_textEdit_textChanged()
+{
+    QTextCursor cursor(ui->textEdit->textCursor());
+    int pos = cursor.position();
+    //ui->statusBar->showMessage(QString::number(pos));
+    cursor.select(QTextCursor::LineUnderCursor);
+    QString c = cursor.selectedText().right(1);
+    //ui->statusBar->showMessage(c);
+}
