@@ -18,7 +18,9 @@ Socket::Socket(const QString &host, quint16 port)
     connect( socket, SIGNAL(connected()), SLOT(socketConnected()) );
     connect( socket, SIGNAL(disconnected()), SLOT(socketConnectionClosed()) );
     //connect( socket, SIGNAL(error(SocketError socketError)), SLOT(socketError(int)) );
-    connect( socket, SIGNAL(readyRead()),  SLOT(socketReadyReadFile()));
+
+    //connect( socket, SIGNAL(readyRead()),  SLOT(socketReadyReadFile()));
+    connect( socket, SIGNAL(readyRead()),  SLOT(socketReadyReadListFiles()));
 
     socket->connectToHost(host, port);
 
@@ -45,11 +47,72 @@ void Socket::closeConnection()
     }
 }
 
-void Socket::sendToServer()
+void Socket::socketReadyReadListFiles()
 {
-    // write to the server
-    QTextStream os(socket);
-    os << "Messaggio di prova\n";
+    //RICEZIONE LISTA FILES DAL SERVER
+
+    qDebug() << "Inizio a leggere";
+    QByteArray data;
+
+    while (socket->bytesAvailable() > 0)
+    {
+       buffer.append(socket->readAll());
+       while ((size == 0 && buffer.size() >= 4) || (size > 0 && buffer.size() >= size)) //While can process data, process it
+       {
+           if (size == 0 && buffer.size() >= 4) //if size of data has received completely, then store it on our global variable
+           {
+               size = ArrayToInt(buffer.mid(0, 4));
+               buffer.remove(0, 4);
+           }
+           if (size > 0 && buffer.size() >= size) // If data has received completely, then emit our SIGNAL with the data
+           {
+               data = buffer.mid(0, size);
+               buffer.remove(0, size);
+               size = 0;
+           }
+       }
+    }
+
+    QJsonDocument document = QJsonDocument::fromJson(data);
+    QJsonObject object = document.object();
+
+    QJsonValue value_id = object.value("id");
+    clientID = value_id.toInt();
+
+    if(clientID == -1){
+        emit loginError();
+        return;
+    }
+
+    QJsonValue value = object.value("files");
+    QJsonArray nameFilesArray = value.toArray();
+    foreach (const QJsonValue& v, nameFilesArray)
+    {
+        listFiles.append(v.toObject().value("filename").toString());
+    }
+
+    disconnect(socket, SIGNAL(readyRead()), this, SLOT(socketReadyReadListFiles()));
+    connect( socket, SIGNAL(readyRead()),  SLOT(socketReadyReadFile()));
+
+    emit loginSuccess();
+    qDebug() << "Finished!";
+    return;
+}
+
+int Socket::checkLogin(QString username, QString hash_password)
+{
+    //RICHIESTA
+    QJsonObject obj;
+    obj.insert("type", "LOGIN");
+    obj.insert("nickname", username);
+    obj.insert("password", hash_password);
+
+    if(socket->state() == QAbstractSocket::ConnectedState){
+        qDebug() << "Richiesta:\n" << QJsonDocument(obj).toJson().data();
+        socket->write(QJsonDocument(obj).toJson());
+    }
+
+    return socket->waitForBytesWritten(1000);
 }
 
 int Socket::openFile(QString name_file)
@@ -108,8 +171,6 @@ void Socket::socketReadyReadFile()
                  v.toObject().value("id").toString(),
                  v.toObject().value("pos_intera").toInt(),
                  v.toObject().value("pos_decimale").toInt());
-
-
 
         qDebug() << "Lettera:" << letter_tmp.getValue();
     }
