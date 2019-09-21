@@ -1,0 +1,1 @@
+- se non sono connesso al server avvisare nella schermata di Login e prendere le dovute precauzioni
