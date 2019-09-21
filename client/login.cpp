@@ -37,6 +37,6 @@ void Login::resumeLogin()
 void Login::redoLogin()
 {
     hide();
-    mainWindow = new MainWindow(this);
+    mainWindow = new MainWindow(this->socket, this);
     mainWindow->show();
 }

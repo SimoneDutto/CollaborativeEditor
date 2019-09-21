@@ -34,6 +34,22 @@ Socket::Socket(const QString &host, quint16 port)
     }
 }
 
+int Socket::sendInsert(int pos, QString value)
+{
+    /*RICHIESTA*/
+    QJsonObject obj;
+    obj.insert("type", "INSERT");
+    obj.insert("value", value);
+    obj.insert("position", pos);
+
+    if(socket->state() == QAbstractSocket::ConnectedState){
+        qDebug() << "Richiesta:\n" << QJsonDocument(obj).toJson().data();
+        socket->write(QJsonDocument(obj).toJson());
+    }
+
+    return socket->waitForBytesWritten(1000);
+}
+
 void Socket::closeConnection()
 {
     socket->close();

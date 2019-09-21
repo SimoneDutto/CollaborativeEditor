@@ -9,13 +9,15 @@
 #include <QColor>
 #include <QColorDialog>
 
-MainWindow::MainWindow(QWidget *parent) :
+MainWindow::MainWindow(Socket *sock, QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow)
+    ui(new Ui::MainWindow),
+    socket(sock)
 {
     ui->setupUi(this);
     setWindowTitle("Notepad dei Povery");
     this->setCentralWidget(ui->textEdit);
+    connect( this, SIGNAL(forNowInsert(int pos, QString value)), socket, SLOT(sendInsert(int pos, QString value)) );
 }
 
 MainWindow::~MainWindow()
@@ -170,4 +172,5 @@ void MainWindow::on_textEdit_textChanged()
     cursor.select(QTextCursor::LineUnderCursor);
     QString c = cursor.selectedText().right(1);
     //ui->statusBar->showMessage(c);
+    emit forNowInsert(pos, c);
 }

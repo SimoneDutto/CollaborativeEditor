@@ -38,6 +38,7 @@ private:
 public slots:
     int openFile(QString name_file);
     int checkLogin(QString username, QString password);
+    int sendInsert(int pos, QString value);
 
 private slots:
     void closeConnection();

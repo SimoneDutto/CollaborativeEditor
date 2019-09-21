@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include "socket.h"
 
 namespace Ui {
 class MainWindow;
@@ -12,7 +13,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget *parent = nullptr);
+    explicit MainWindow(Socket *sock = nullptr, QWidget *parent = nullptr);
     ~MainWindow();
 
 private slots:
@@ -52,7 +53,11 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
+    Socket *socket;
     QString file_path;
+
+signals:
+    void forNowInsert(int pos, QString value);
 };
 
 #endif // MAINWINDOW_H
