@@ -47,6 +47,8 @@ private slots:
     void on_actionColor_triggered();
 
     void on_actionBackgorund_Color_triggered();
+    
+    void on_textEdit_textChanged();
 
 private:
     Ui::MainWindow *ui;
