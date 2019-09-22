@@ -9,7 +9,7 @@
 class FileHandler
 {
     QVector<Letter> letters;
-    QVector<QTcpSocket*> users;
+    QVector<QTcpSocket*> active_users;
 
 public:
     FileHandler(QVector<Letter> lecters): letters(lecters){}

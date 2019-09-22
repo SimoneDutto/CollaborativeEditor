@@ -61,11 +61,16 @@ void MyServer::onReadyRead(QObject *socketObject)
         QString filename = rootObject.value(("filename")).toString();
         fsys->sendFile(filename, socket);
     }
-    else if(type.compare("INSERT")){
+    else if(type.compare("INSERT")==0){
+        fsys->
+    }
+    else if(type.compare("DELETE")==0){
 
     }
-    else if(type.compare("DELETE")){
-
+    else if(type.compare("LOGIN")==0){
+        QString username = rootObject.value(("nickname")).toString();
+        QString password = rootObject.value(("password")).toString();
+        fsys->checkLogin(username, password, socket);
     }
 }
 
