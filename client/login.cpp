@@ -2,11 +2,13 @@
 #include "ui_login.h"
 #include <QMessageBox>
 
-Login::Login(QWidget *parent)
+Login::Login(Socket *sock, QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::Login)
+    , socket(sock)
 {
     ui->setupUi(this);
+    connect(socket, SIGNAL(readyRead()), this, SLOT(socketReadyReadListFile()));
 }
 
 Login::~Login()
@@ -18,18 +20,23 @@ Login::~Login()
 void Login::on_pushButton_clicked()
 {
     QString username = ui->lineEdit_username->text();
-    QString password = ui->lineEdit_password->text();
+    QByteArray password = ui->lineEdit_password->text().toLatin1();
+    QString hash_me = QString(QCryptographicHash::hash((password),QCryptographicHash::Md5).toHex());
 
-    //SEND username and password to server
-    //WAIT server answer: CORRECT or NOT CORRECT
+    connect(socket, SIGNAL(loginSuccess()), this, SLOT(resumeLogin()));
+    connect(socket, SIGNAL(loginError()), this, SLOT(redoLogin()));
 
-    if(username == "Vito" && password == "ciao2000"){
-        //QMessageBox::information(this, "Login", "Username and password are correct");
-        hide();
-        mainWindow = new MainWindow(this);
-        mainWindow->show();
-    }
-    else {
-        QMessageBox::warning(this, "Error Login", "Username or password not correct");
-    }
+    socket->checkLogin(username, hash_me);
+}
+
+void Login::resumeLogin()
+{
+    QMessageBox::warning(this, "Error Login", "Username or password not correct");
+}
+
+void Login::redoLogin()
+{
+    hide();
+    mainWindow = new MainWindow(this->socket, this);
+    mainWindow->show();
 }
