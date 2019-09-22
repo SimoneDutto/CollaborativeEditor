@@ -8,7 +8,7 @@ Login::Login(Socket *sock, QWidget *parent)
     , socket(sock)
 {
     ui->setupUi(this);
-    connect(socket, SIGNAL(readyRead()), this, SLOT(socketReadyReadListFile()));
+
 }
 
 Login::~Login()
@@ -26,12 +26,12 @@ void Login::on_pushButton_clicked()
     connect(socket, SIGNAL(loginSuccess()), this, SLOT(resumeLogin()));
     connect(socket, SIGNAL(loginError()), this, SLOT(redoLogin()));
 
-    socket->checkLogin(username, hash_me);
+    socket->checkLogin(username, password);
 }
 
 void Login::resumeLogin()
 {
-    QMessageBox::warning(this, "Error Login", "Username or password not correct");
+    QMessageBox::warning(this, "Login Success", "ciao");
 }
 
 void Login::redoLogin()

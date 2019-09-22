@@ -55,14 +55,14 @@ void MyServer::onReadyRead(QObject *socketObject)
     QJsonObject rootObject = jsonResponse.object();
 
     QString type = rootObject.value(("type")).toString();
-    qDebug() << "Tipo di richiesta: " << type;
+    qDebug() << "Tipo di richiesta: " << str.data();
     if(type.compare("OPEN")==0){
         qDebug() << "OPEN request";
         QString filename = rootObject.value(("filename")).toString();
         fsys->sendFile(filename, socket);
     }
     else if(type.compare("INSERT")==0){
-        fsys->
+
     }
     else if(type.compare("DELETE")==0){
 

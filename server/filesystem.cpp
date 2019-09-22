@@ -101,7 +101,7 @@ void FileSystem::checkLogin(QString username, QString password, QTcpSocket *sock
     QVector<QString> files;
     QJsonArray files_array;
 
-    query.prepare("SELECT userid FROM people WHERE username = (:username) AND password = (:password)");
+    query.prepare("SELECT userid FROM password WHERE username = (:username) AND password = (:password)");
     query.bindValue(":username", username);
     query.bindValue(":password", password);
     int id = -1;
@@ -109,21 +109,34 @@ void FileSystem::checkLogin(QString username, QString password, QTcpSocket *sock
     {
         if (query.next())
         {
-            id =  query.value("username").toInt();
+            id =  query.value("userid").toInt();
         }
     }
-
-    QJsonObject final_object, item_data;
+    else{
+        qDebug() << "Query not executed";
+    }
+    QJsonArray file_array;
+    QJsonObject final_object;
     if(id != -1){
-        QSqlQuery query("SELECT filename FROM files WHERE username = (:username)");
+        QSqlQuery query;
+        query.prepare("SELECT filename FROM files WHERE username = (:username)");
         query.bindValue(":username", username);
-        while (query.next())
+        if (query.exec())
         {
+            while (query.next())
+            {
+               QJsonObject item_data;
+               QString name = query.value("filename").toString();
+               qDebug() << name;
+               item_data.insert("filename", QJsonValue(name));
 
-           QString name = query.value("filename").toString();
-           item_data.insert("filename", QJsonValue(name));
+               file_array.push_back(QJsonValue(item_data));
+            }
+            final_object.insert(QString("files"), QJsonValue(file_array));
         }
-        final_object.insert(QString("files"), QJsonValue(item_data));
+        else{
+            qDebug() << "Query not executed";
+        }
     }
     final_object.insert("id", QJsonValue(id));
 
