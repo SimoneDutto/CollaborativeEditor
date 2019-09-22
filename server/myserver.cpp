@@ -62,7 +62,7 @@ void MyServer::onReadyRead(QObject *socketObject)
         fsys->sendFile(filename, socket);
     }
     else if(type.compare("INSERT")==0){
-
+        fsys->
     }
     else if(type.compare("DELETE")==0){
 
@@ -72,8 +72,6 @@ void MyServer::onReadyRead(QObject *socketObject)
         QString password = rootObject.value(("password")).toString();
         fsys->checkLogin(username, password, socket);
     }
-
-
 }
 
 void MyServer::onDisconnected(QObject *socketObject)

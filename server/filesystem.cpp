@@ -51,7 +51,7 @@ void FileSystem::sendFile(QString filename, QTcpSocket *socket){
             socket->write(IntToArray(q.size())); //write size of data
             if(socket->write(q) == -1){
                 qDebug() << "File failed to send";
-                return -1;
+                return;
             } //write the data itself
             socket->waitForBytesWritten();
         }
@@ -84,7 +84,6 @@ void FileSystem::sendFile(QString filename, QTcpSocket *socket){
         //files.insert(std::pair<QString, FileHandler*> (filename, fh));
         qDebug() << "File saved in the file system";
     }
-    return 0;
 }
 
 QByteArray IntToArray(qint32 source) //Use qint32 to ensure that the number have 4 bytes
@@ -96,7 +95,7 @@ QByteArray IntToArray(qint32 source) //Use qint32 to ensure that the number have
     return temp;
 }
 
-void checkLogin(QString username, QString password, QTcpSocket *socket){
+void FileSystem::checkLogin(QString username, QString password, QTcpSocket *socket){
 
     QSqlQuery query;
     QVector<QString> files;
@@ -114,17 +113,17 @@ void checkLogin(QString username, QString password, QTcpSocket *socket){
         }
     }
 
-    QJsonObject final_object;
+    QJsonObject final_object, item_data;
     if(id != -1){
         QSqlQuery query("SELECT filename FROM files WHERE username = (:username)");
         query.bindValue(":username", username);
         while (query.next())
         {
-           QJsonObject item_data;
+
            QString name = query.value("filename").toString();
            item_data.insert("filename", QJsonValue(name));
         }
-        final_object.insert(QString("files"), QJsonValue(plot_array));
+        final_object.insert(QString("files"), QJsonValue(item_data));
     }
     final_object.insert("id", QJsonValue(id));
 
