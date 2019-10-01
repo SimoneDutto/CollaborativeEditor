@@ -1,24 +1,17 @@
 #include "letter.h"
 
-Letter::Letter(QChar letter, int index, QVector<int> fractionals, QString letterID)
-{
-    this->letter = letter;
-    this->fractionalIndexes.insert(0, index);
-    for(int fractional : fractionals)
-        this->fractionalIndexes.append(fractional);
-    this->letterID = letterID;
-    //this->fractionals.insert(0, 0); // first fractional digit: 0
+Letter::Letter(QChar letter, QVector<int> fractionals, QString letterID) : letter(letter), fractionalIndexes(fractionals), letterID(letterID) {
+    //this->fractionalIndexes.insert(0, index);
+    // index già presente nella posizione 0 di fractionals
 }
 
-/*int Letter::getCounter() {
-    return this->counter;
-}
+/*Letter::Letter(const Letter& other) {
+    this->letter = other.letter;
+    this->letterID = other.letterID;
+    for(auto f : other.fractionalIndexes)
+       this->fractionalIndexes.append(f);
+}*/
 
-void Letter::incrementCounter() {
-    this->counter++;
-}
-
-*/
 
 QChar Letter::getLetterValue() {
     return this->letter;
@@ -54,7 +47,6 @@ void Letter::addFractionalDigit(int value) {
 }
 
 bool Letter::hasSameFractionals(Letter other) {
-    bool equals = true;
     QVector<int> otherFractionals = other.getFractionalIndexes();
 
     if(this->fractionalIndexes.size() == otherFractionals.size()) {

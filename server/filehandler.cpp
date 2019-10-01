@@ -27,9 +27,9 @@ void FileHandler::remoteInsert(QJsonArray position, QChar newLetterValue, int ex
         }
 
         QString letterID = QString::number(siteID).append("-").append(siteCounter);
-        Letter *newLetter = new Letter(newLetterValue, fractionals, letterID);
+        Letter newLetter(newLetterValue, fractionals, letterID);
 
-        this->letters.insert(this->letters.begin()+externalIndex, *newLetter);
+        this->letters.insert(this->letters.begin()+externalIndex, newLetter);
 
         /*
         Letter lastLetter = this->letters.at(letters.size()-1);
