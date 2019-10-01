@@ -51,3 +51,7 @@ int FileSystem::sendFile(QString filename, QTcpSocket *socket){
     return 0;
 }
 
+std::map<QString, FileHandler*> FileSystem::getFiles() {
+    return this->files;
+}
+

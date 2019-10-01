@@ -11,18 +11,23 @@ private:
     //int siteID;
     //int counter;
     QVector<int> fractionalIndexes;
+    QString letterID;
 
 public:
     //Letter(int socketID);
-    Letter(QChar letter, int index, QVector<int> fractionals);
+    Letter(QChar letter, QVector<int> fractionals, QString letterID);
     QChar getLetterValue();
     QVector<int> getFractionalIndexes();
+    QString getLetterID();
+    int getSiteID();
     int getIndex();
+    int getNumberOfFractionals();
     //int getCounter();
     //void incrementCounter();
     void setIndex(int index);
     void addFractionalDigit(int value);
-    QChar getLetterID();
+    bool hasSameFractionals(Letter other);
+    bool comesFirst(Letter other);
 };
 
 #endif // LECTER_H

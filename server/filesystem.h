@@ -16,7 +16,7 @@ class FileSystem
 public:
     int sendFile(QString filename, QTcpSocket *socket);
     static FileSystem* getInstance();
-
+    std::map<QString, FileHandler*> getFiles();
 };
 
 #endif // FILESYSTEM_H

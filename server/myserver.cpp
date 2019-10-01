@@ -1,5 +1,7 @@
 #include "myserver.h"
 #include "filesystem.h"
+#include "letter.h"
+#include "filehandler.h"
 
 #include <QSignalMapper>
 #include <QTcpServer>
@@ -65,10 +67,27 @@ void MyServer::onReadyRead(QObject *socketObject)
         fsys->sendFile(filename, socket);
     }
     else if(type.compare("insert")){
+        qDebug() << "INSERT request";
+        QString filename = rootObject.value(("filename")).toString();
+        if(fsys->getFiles().find(filename) != fsys->getFiles().end()) {     // file exists
+            FileHandler* fHandler = fsys->getFiles().at(filename);
+            QChar newLetterValue = rootObject.value("letter").toString().at(0);
+            QJsonArray position = rootObject.value("position").toArray();
+            int externalIndex = rootObject.value("externalIndex").toInt();
+            int siteID = rootObject.value("siteID").toInt();
+            int siteCounter = rootObject.value("siteCounter").toInt();
+            fHandler->remoteInsert(position, newLetterValue, externalIndex, siteID, siteCounter);
+        }
 
     }
     else if(type.compare("delete")){
-
+        qDebug() << "DELETE request";
+        QString filename = rootObject.value("filename").toString();
+        if(fsys->getFiles().find(filename) != fsys->getFiles().end()) {     // file exists
+            FileHandler* fHandler = fsys->getFiles().at(filename);
+            QString deletedLetterID = rootObject.value("letterID").toString();
+            fHandler->remoteDelete(deletedLetterID);
+        }
     }
 }
 
