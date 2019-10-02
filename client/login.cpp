@@ -31,12 +31,12 @@ void Login::on_pushButton_clicked()
 
 void Login::resumeLogin()
 {
-    QMessageBox::warning(this, "Login Success", "ciao");
+    hide();
+    mainWindow = new MainWindow(this->socket, this);
+    mainWindow->show();
 }
 
 void Login::redoLogin()
 {
-    hide();
-    mainWindow = new MainWindow(this->socket, this);
-    mainWindow->show();
+    QMessageBox::warning(this, "Login Failed", "Retry");
 }
