@@ -2,6 +2,7 @@
 #define LECTER_H
 
 #include <QString>
+#include <QStringList>
 #include <QVector>
 #include <QChar>
 

@@ -2,6 +2,7 @@
 #define LECTER_H
 #include <QString>
 #include <QVector>
+#include <QStringList>
 
 class Letter
 {

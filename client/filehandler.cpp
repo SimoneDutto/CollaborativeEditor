@@ -46,6 +46,7 @@ void fileHandler::localInsert(int externalIndex, QChar newLetterValue, int clien
 
     //insertLetterInArray(&newLetter);
     // invia messaggio a server
+
 }
 
 QVector<int> fileHandler::calculateInternalIndex(QVector<int> prevPos, QVector<int> nextPos) {

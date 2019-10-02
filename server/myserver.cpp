@@ -74,6 +74,8 @@ void MyServer::onReadyRead(QObject *socketObject)
             int siteID = rootObject.value("siteID").toInt();
             int siteCounter = rootObject.value("siteCounter").toInt();
             fHandler->remoteInsert(position, newLetterValue, externalIndex, siteID, siteCounter);
+
+
         }
 
     }

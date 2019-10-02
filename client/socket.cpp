@@ -164,12 +164,13 @@ void Socket::socketReadyReadFile()
 
     foreach (const QJsonValue& v, letterArray)
     {
-        Letter letter_tmp = Letter(v.toObject().value("value").toString(),
+        /*Letter letter_tmp = Letter(v.toObject().value("value").toString(),
                  v.toObject().value("id").toString(),
                  v.toObject().value("pos_intera").toInt(),
                  v.toObject().value("pos_decimale").toInt());
 
         qDebug() << "Lettera:" << letter_tmp.getValue();
+        */
     }
 
 
