@@ -1,8 +1,7 @@
 #include "filehandler.h"
 
-FileHandler::FileHandler()
-{
-
+void FileHandler::insertActiveUser(QTcpSocket *user){
+    active_users.append(user);
 }
 
 /**

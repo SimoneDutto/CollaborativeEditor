@@ -29,19 +29,29 @@ public:
 private:
     Ui::Socket *ui;
     QTcpSocket *socket;
-    qint32 blockSize;
+    qint32 size;
+    QByteArray buffer;
+
+    int clientID;
+    QVector<QString> listFiles;
 
 public slots:
-    int openFile(QString name_file, QVector<Letter>& filePtr);
+    int openFile(QString name_file);
+    void checkLogin(QString username, QString password);
+    int sendInsert(int pos, QString value);
 
 private slots:
     void closeConnection();
-    void sendToServer();
-    void socketReadyRead();
+    void socketReadyReadFile();
     void socketConnected();
     void socketConnectionClosed();
     void socketClosed();
     void socketError(int e);
+    void socketReadyReadListFiles();
+
+signals:
+    void loginSuccess();
+    void loginError();
 };
 
 

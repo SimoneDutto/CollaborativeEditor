@@ -1,21 +1,33 @@
 #include "filesystem.h"
-#include <QTcpSocket>
-#include <QDataStream>
-#include <QFile>
-
 
 // class to handle all files in a map
 
 FileSystem *FileSystem::instance = nullptr;
 
+static inline QByteArray IntToArray(qint32 source);
+
 FileSystem* FileSystem::getInstance(){
     if(!instance){
         instance = new FileSystem();
+        const QString DRIVER("QSQLITE");
+        if(QSqlDatabase::isDriverAvailable(DRIVER)){
+            instance->db = QSqlDatabase::addDatabase(DRIVER);
+            instance->db.setDatabaseName("user.db");
+            if (!instance->db.open())
+            {
+                 qDebug() << "Error: connection with database fail";
+            }
+            else
+            {
+                qDebug() << "Database: connection ok";
+            }
+
+        }
     }
     return FileSystem::instance;
 }
 
-int FileSystem::sendFile(QString filename, QTcpSocket *socket){
+void FileSystem::sendFile(QString filename, QTcpSocket *socket){
     QByteArray block;
     QDataStream out(&block, QIODevice::WriteOnly);
 
@@ -23,35 +35,122 @@ int FileSystem::sendFile(QString filename, QTcpSocket *socket){
     if (it != files.end()){
         // il file è già in memoria principale e può essere mandato
         // serializzarlo
+        it->second->insertActiveUser(socket);
+
     }
     else{
         qDebug() << "Inizio l'invio del file";
         // apre il file, lo scrive in un DataStream che poi invierà
-        QFile *m_file = new QFile(filename);
-        out.setVersion(QDataStream::Qt_5_4);
+        QFile m_file (filename);
+        m_file.open(QFile::ReadOnly);
 
-        out << (quint32)0 << m_file->fileName();
-
-        QByteArray q = m_file->readAll();
-        block.append(q);
-        m_file->close();
-
-        out.device()->seek(0);
-        out << (quint32)(block.size() - sizeof(quint32));
-
-        qint64 x = 0;
-        while (x < block.size()) {
-            qint64 y = socket->write(block);
-            x += y;
-            //qDebug() << x;    // summary size
+        QByteArray q = m_file.readAll();
+        if(socket->state() == QAbstractSocket::ConnectedState)
+        {
+            qDebug() << "Invio file";
+            socket->write(IntToArray(q.size())); //write size of data
+            if(socket->write(q) == -1){
+                qDebug() << "File failed to send";
+                return;
+            } //write the data itself
+            socket->waitForBytesWritten();
         }
+        m_file.close();
+
+        qDebug() << "File sent";
+
+        QJsonDocument document = QJsonDocument::fromJson(q);
+        QJsonObject object = document.object();
+        QJsonValue value = object.value("letterArray");
+        QJsonArray letterArray = value.toArray();
+
+        QVector<Letter> fileLikeLetterArray;
+
+        foreach (const QJsonValue& v, letterArray)
+        {
+            // TODO: cambiare costruttore
+         /*  Letter letter_tmp = Letter(v.toObject().value("value").toString()[0],
+                    v.toObject().value("id").toString(),
+                    v.toObject().value("pos_intera").toInt(),
+                    v.toObject().value("pos_decimale").toInt());
+
+           fileLikeLetterArray.append(letter_tmp);
+           //fileLikeLetterArray.append(std::move(letter_tmp));
+            qDebug() << letter_tmp.getLetterValue();
+          */
+
+        }
+        FileHandler *fh = new FileHandler(std::move(fileLikeLetterArray));
+        fh->insertActiveUser(socket);
         // TODO:: da file a array di Letter con la deserializzazione
-        //files.insert(std::pair<QString, FileHandler> (filename, ));
+        //files.insert(std::pair<QString, FileHandler*> (filename, fh));
+        qDebug() << "File saved in the file system";
     }
-    return 0;
+}
+
+QByteArray IntToArray(qint32 source) //Use qint32 to ensure that the number have 4 bytes
+{
+    //Avoid use of cast, this is the Qt way to serialize objects
+    QByteArray temp;
+    QDataStream data(&temp, QIODevice::ReadWrite);
+    data << source;
+    return temp;
+}
+
+void FileSystem::checkLogin(QString username, QString password, QTcpSocket *socket){
+
+    QSqlQuery query;
+    QVector<QString> files;
+    QJsonArray files_array;
+
+    query.prepare("SELECT userid FROM password WHERE username = (:username) AND password = (:password)");
+    query.bindValue(":username", username);
+    query.bindValue(":password", password);
+    int id = -1;
+    if (query.exec())
+    {
+        if (query.next())
+        {
+            id =  query.value("userid").toInt();
+        }
+    }
+    else{
+        qDebug() << "Query not executed";
+    }
+    QJsonArray file_array;
+    QJsonObject final_object;
+    if(id != -1){
+        QSqlQuery query;
+        query.prepare("SELECT filename FROM files WHERE username = (:username)");
+        query.bindValue(":username", username);
+        if (query.exec())
+        {
+            while (query.next())
+            {
+               QJsonObject item_data;
+               QString name = query.value("filename").toString();
+               qDebug() << name;
+               item_data.insert("filename", QJsonValue(name));
+
+               file_array.push_back(QJsonValue(item_data));
+            }
+            final_object.insert(QString("files"), QJsonValue(file_array));
+        }
+        else{
+            qDebug() << "Query not executed";
+        }
+    }
+    final_object.insert("id", QJsonValue(id));
+
+    if(socket->state() == QAbstractSocket::ConnectedState){
+        qDebug() << "Risposta al LOGIN:\n" << QJsonDocument(final_object).toJson().data();
+        socket->write(QJsonDocument(final_object).toJson());
+    }
+
 }
 
 std::map<QString, FileHandler*> FileSystem::getFiles() {
     return this->files;
 }
+
 

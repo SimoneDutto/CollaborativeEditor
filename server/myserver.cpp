@@ -6,9 +6,6 @@
 #include <QSignalMapper>
 #include <QTcpServer>
 #include <QTcpSocket>
-#include <QJsonArray>
-#include <QJsonDocument>
-#include <QJsonObject>
 
 MyServer::MyServer(QObject *parent) :
     QObject(parent),
@@ -60,7 +57,7 @@ void MyServer::onReadyRead(QObject *socketObject)
     QJsonObject rootObject = jsonResponse.object();
 
     QString type = rootObject.value(("type")).toString();
-    qDebug() << "Tipo di richiesta: " << type;
+    qDebug() << "Tipo di richiesta: " << str.data();
     if(type.compare("OPEN")==0){
         qDebug() << "OPEN request";
         QString filename = rootObject.value(("filename")).toString();
@@ -88,6 +85,11 @@ void MyServer::onReadyRead(QObject *socketObject)
             QString deletedLetterID = rootObject.value("letterID").toString();
             fHandler->remoteDelete(deletedLetterID);
         }
+    }
+    else if(type.compare("LOGIN")==0){
+        QString username = rootObject.value(("nickname")).toString();
+        QString password = rootObject.value(("password")).toString();
+        fsys->checkLogin(username, password, socket);
     }
 }
 

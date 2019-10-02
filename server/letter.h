@@ -1,6 +1,6 @@
 #ifndef LECTER_H
 #define LECTER_H
-
+#include <QString>
 #include <QVector>
 
 class Letter
@@ -29,6 +29,7 @@ public:
     void addFractionalDigit(int value);
     bool hasSameFractionals(Letter other);
     bool comesFirst(Letter other);
+
 };
 
 #endif // LECTER_H
