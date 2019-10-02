@@ -68,15 +68,17 @@ void FileSystem::sendFile(QString filename, QTcpSocket *socket){
 
         foreach (const QJsonValue& v, letterArray)
         {
-           Letter letter_tmp = Letter(v.toObject().value("value").toString(),
+            // TODO: cambiare costruttore
+         /*  Letter letter_tmp = Letter(v.toObject().value("value").toString()[0],
                     v.toObject().value("id").toString(),
                     v.toObject().value("pos_intera").toInt(),
                     v.toObject().value("pos_decimale").toInt());
 
            fileLikeLetterArray.append(letter_tmp);
            //fileLikeLetterArray.append(std::move(letter_tmp));
+            qDebug() << letter_tmp.getLetterValue();
+          */
 
-           qDebug() << letter_tmp.getValue();
         }
         FileHandler *fh = new FileHandler(std::move(fileLikeLetterArray));
         fh->insertActiveUser(socket);
@@ -147,5 +149,8 @@ void FileSystem::checkLogin(QString username, QString password, QTcpSocket *sock
 
 }
 
+std::map<QString, FileHandler*> FileSystem::getFiles() {
+    return this->files;
+}
 
 

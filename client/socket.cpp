@@ -172,6 +172,7 @@ void Socket::socketReadyReadFile()
         qDebug() << "Lettera:" << letter_tmp.getValue();
     }
 
+
     qDebug() << "Finished!";
     return;
 }

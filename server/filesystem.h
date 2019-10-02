@@ -32,7 +32,7 @@ public:
     void sendFile(QString filename, QTcpSocket *socket);
     void checkLogin(QString username, QString password, QTcpSocket *socket);
     static FileSystem* getInstance();
-
+    std::map<QString, FileHandler*> getFiles();
 };
 
 #endif // FILESYSTEM_H
