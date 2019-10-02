@@ -29,6 +29,19 @@ void FileHandler::remoteInsert(QJsonArray position, QChar newLetterValue, int ex
         QString letterID = QString::number(siteID).append("-").append(siteCounter);
         Letter newLetter(newLetterValue, fractionals, letterID);
 
+        if(externalIndex < this->letters.size()) {
+            if(newLetter.hasSameFractionals(this->letters[externalIndex])) {
+                if(newLetterValue == this->letters[externalIndex].getLetterValue())
+                    // stessa lettera inserita nella stessa posizione da utenti diversi => ignora insert
+                    return;
+                else if (siteID > this->letters[externalIndex].getSiteID()) {  // lettera diversa inserita nella stessa posizione => inserimento in ordine di siteID
+                    this->letters.insert(this->letters.begin()+externalIndex+1, newLetter);
+                    // propaga informazione con indice modificato
+                    return;
+                }
+            }
+        }
+
         this->letters.insert(this->letters.begin()+externalIndex, newLetter);
 
         /*

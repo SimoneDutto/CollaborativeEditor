@@ -14,7 +14,7 @@ class FileHandler
 
 public:
     FileHandler();
-    void remoteInsert(QJsonArray position, QChar newLetter, int externalIndex, int siteID, int siteCounter);
+    void remoteInsert(QJsonArray position, QChar newLetterValue, int externalIndex, int siteID, int siteCounter);
     void remoteDelete(QString deletedLetterID);
 };
 

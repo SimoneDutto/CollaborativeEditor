@@ -127,6 +127,7 @@ void Socket::socketReadyRead()
         qDebug() << letter_tmp.getValue();
     }
 
+
     qDebug() << "Finished!";
     return;
     }
