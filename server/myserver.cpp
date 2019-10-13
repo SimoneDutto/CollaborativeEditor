@@ -1,9 +1,14 @@
 #include "myserver.h"
 #include "filesystem.h"
+#include "letter.h"
+#include "filehandler.h"
 
 #include <QSignalMapper>
 #include <QTcpServer>
 #include <QTcpSocket>
+
+
+void propNotification(QVector<QTcpSocket*> users, QByteArray message);
 
 MyServer::MyServer(QObject *parent) :
     QObject(parent),
@@ -55,17 +60,40 @@ void MyServer::onReadyRead(QObject *socketObject)
     QJsonObject rootObject = jsonResponse.object();
 
     QString type = rootObject.value(("type")).toString();
-    qDebug() << "Tipo di richiesta: " << type;
+    qDebug() << "Tipo di richiesta: " << str.data();
     if(type.compare("OPEN")==0){
         qDebug() << "OPEN request";
         QString filename = rootObject.value(("filename")).toString();
         fsys->sendFile(filename, socket);
     }
-    else if(type.compare("INSERT")){
-
+    else if(type.compare("insert")){
+        qDebug() << "INSERT request";
+        QString filename = rootObject.value(("filename")).toString();
+        if(fsys->getFiles().find(filename) != fsys->getFiles().end()) {     // file exists
+            FileHandler* fHandler = fsys->getFiles().at(filename);
+            QChar newLetterValue = rootObject.value("letter").toString().at(0);
+            QJsonArray position = rootObject.value("position").toArray();
+            int externalIndex = rootObject.value("externalIndex").toInt();
+            int siteID = rootObject.value("siteID").toInt();
+            int siteCounter = rootObject.value("siteCounter").toInt();
+            fHandler->remoteInsert(position, newLetterValue, externalIndex, siteID, siteCounter);
+            propNotification(fHandler->getUsers(), str);
+        }
     }
-    else if(type.compare("DELETE")){
-
+    else if(type.compare("delete")){
+        qDebug() << "DELETE request";
+        QString filename = rootObject.value("filename").toString();
+        if(fsys->getFiles().find(filename) != fsys->getFiles().end()) {     // file exists
+            FileHandler* fHandler = fsys->getFiles().at(filename);
+            QString deletedLetterID = rootObject.value("letterID").toString();
+            fHandler->remoteDelete(deletedLetterID);
+            propNotification(fHandler->getUsers(), str);
+        }
+    }
+    else if(type.compare("LOGIN")==0){
+        QString username = rootObject.value(("nickname")).toString();
+        QString password = rootObject.value(("password")).toString();
+        fsys->checkLogin(username, password, socket);
     }
 }
 
@@ -79,4 +107,13 @@ void MyServer::onDisconnected(QObject *socketObject)
            qPrintable(socket->peerAddress().toString()), socket->peerPort());
 
     socket->deleteLater();
+}
+
+void propNotification(QVector<QTcpSocket*> users, QByteArray message){
+    QVectorIterator<QTcpSocket*> i(users);
+    while (i.hasNext()){
+        QTcpSocket* socket = i.next();
+        socket->write(message);
+        socket->waitForBytesWritten(1000);
+    }
 }

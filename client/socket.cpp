@@ -78,16 +78,20 @@ void Socket::socketReadyReadListFiles()
         emit loginError();
         return;
     }
+    this->fileh = new FileHandler(clientID);
     QJsonValue value = object.value("files");
     QJsonArray nameFilesArray = value.toArray();
 
     qDebug() << "Accessed files:";
+
+    QVector<QString> listFiles_tmp;
     foreach (const QJsonValue& v, nameFilesArray)
     {
         QString q = v.toObject().value("filename").toString();
         qDebug() << q;
-        listFiles.append(q);
+        listFiles_tmp.append(q);
     }
+    this->fileh->setListFiles(listFiles_tmp);
 
     disconnect(socket, SIGNAL(readyRead()), this, SLOT(socketReadyReadListFiles()));
     connect( socket, SIGNAL(readyRead()),  SLOT(socketReadyReadFile()));
@@ -137,6 +141,7 @@ void Socket::socketReadyReadFile()
     qDebug() << "Inizio a leggere";
 
     QByteArray data;
+    QVector<Letter> letters;
 
     while (socket->bytesAvailable() > 0)
     {
@@ -164,14 +169,22 @@ void Socket::socketReadyReadFile()
 
     foreach (const QJsonValue& v, letterArray)
     {
-        /*Letter letter_tmp = Letter(v.toObject().value("value").toString(),
-                 v.toObject().value("id").toString(),
-                 v.toObject().value("pos_intera").toInt(),
-                 v.toObject().value("pos_decimale").toInt());
+        QChar letter = v.toObject().value("letter").toString().at(0);
+        QString ID = v.toObject().value("externalIndex").toString();
 
+        QJsonArray array_tmp = v.toObject().value("position").toArray();
+        QVector<int> fractionals;
+        for(auto fractional : array_tmp) {
+            fractionals.append(fractional.toInt());
+        }
+
+        Letter letter_tmp = Letter(letter, fractionals, ID);
+        letters.append(std::move(letter_tmp));
         qDebug() << "Lettera:" << letter_tmp.getValue();
         */
     }
+    // definisco il filehandler con il vettore dentro
+    this->fileh->insertLetters(letters);
 
 
     qDebug() << "Finished!";
@@ -209,4 +222,8 @@ void Socket::socketError(int e)
 Socket::~Socket()
 {
     delete ui;
+}
+
+void Socket::updateLocalInsert(int externalIndex, QChar newLetterValue){
+    this->fileh->localInsert(externalIndex, newLetterValue, this->clientID);
 }

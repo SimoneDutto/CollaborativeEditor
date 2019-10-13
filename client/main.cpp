@@ -10,7 +10,7 @@ int main(int argc, char *argv[])
     //sock.openFile("text.txt");
 
     //Login w(&sock);
-   //w.show();
+    //w.show();
 
     MainWindow m(&sock);
     m.show();
