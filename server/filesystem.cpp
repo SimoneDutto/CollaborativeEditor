@@ -145,6 +145,7 @@ void FileSystem::checkLogin(QString username, QString password, QTcpSocket *sock
     if(socket->state() == QAbstractSocket::ConnectedState){
         qDebug() << "Risposta al LOGIN:\n" << QJsonDocument(final_object).toJson().data();
         socket->write(QJsonDocument(final_object).toJson());
+        socket->waitForBytesWritten(1000);
     }
 
 }
