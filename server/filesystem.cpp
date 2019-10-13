@@ -35,7 +35,9 @@ void FileSystem::sendFile(QString filename, QTcpSocket *socket){
     if (it != files.end()){
         // il file è già in memoria principale e può essere mandato
         // serializzarlo
+
         it->second->insertActiveUser(socket);
+
 
     }
     else{
@@ -64,26 +66,26 @@ void FileSystem::sendFile(QString filename, QTcpSocket *socket){
         QJsonValue value = object.value("letterArray");
         QJsonArray letterArray = value.toArray();
 
-        QVector<Letter> fileLikeLetterArray;
+        QVector<Letter> letters;
 
         foreach (const QJsonValue& v, letterArray)
         {
-            // TODO: cambiare costruttore
-         /*  Letter letter_tmp = Letter(v.toObject().value("value").toString()[0],
-                    v.toObject().value("id").toString(),
-                    v.toObject().value("pos_intera").toInt(),
-                    v.toObject().value("pos_decimale").toInt());
+            QChar letter = v.toObject().value("letter").toString().at(0);
+            QString ID = v.toObject().value("externalIndex").toString();
 
-           fileLikeLetterArray.append(letter_tmp);
-           //fileLikeLetterArray.append(std::move(letter_tmp));
-            qDebug() << letter_tmp.getLetterValue();
-          */
+            QJsonArray array_tmp = v.toObject().value("position").toArray();
+            QVector<int> fractionals;
+            for(auto fractional : array_tmp) {
+                fractionals.append(fractional.toInt());
+            }
 
+            Letter letter_tmp = Letter(letter, fractionals, ID);
+            letters.append(std::move(letter_tmp));
         }
-        FileHandler *fh = new FileHandler(std::move(fileLikeLetterArray));
+        FileHandler *fh = new FileHandler(std::move(letters));
         fh->insertActiveUser(socket);
-        // TODO:: da file a array di Letter con la deserializzazione
-        //files.insert(std::pair<QString, FileHandler*> (filename, fh));
+
+        files.insert(std::pair<QString, FileHandler*> (filename, fh));
         qDebug() << "File saved in the file system";
     }
 }

@@ -6,7 +6,7 @@
 #include <QJsonArray>
 #include "letter.h"
 
-class fileHandler
+class FileHandler
 {
 private:
     QVector<QString> listFiles;
@@ -17,12 +17,13 @@ private:
     //void insertLetterInArray(Letter *newLetter);
 
 public:
-    fileHandler();
+    FileHandler(int siteid);
     void localInsert(int externalIndex, QChar newLetterValue, int clientID);
     void localDelete(int externalIndex);
     void remoteInsert(QJsonArray position, QChar newLetterValue, int externalIndex, int siteID, int siteCounter);
     void remoteDelete(QString deletedLetterID);
     void setListFiles(QVector<QString> listFiles);
+    void insertLetters(QVector<Letter> letters);
 };
 
 #endif // FILEHANDLER_H

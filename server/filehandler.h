@@ -13,13 +13,13 @@ class FileHandler
     QVector<QTcpSocket*> users;
 
 public:
-    FileHandler();
+
     void remoteInsert(QJsonArray position, QChar newLetterValue, int externalIndex, int siteID, int siteCounter);
     void remoteDelete(QString deletedLetterID);
     QVector<QTcpSocket*> active_users;
 
 public:
-    FileHandler(QVector<Letter> lecters): letters(lecters){}
+    FileHandler(const QVector<Letter>&& lett);
     void insertActiveUser(QTcpSocket* user);
     QVector<QTcpSocket*> getUsers();
 
