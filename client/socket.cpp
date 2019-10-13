@@ -181,9 +181,11 @@ void Socket::socketReadyReadFile()
         Letter letter_tmp = Letter(letter, fractionals, ID);
         letters.append(std::move(letter_tmp));
         qDebug() << "Lettera:" << letter_tmp.getValue();
+        */
     }
     // definisco il filehandler con il vettore dentro
     this->fileh->insertLetters(letters);
+
 
     qDebug() << "Finished!";
     return;

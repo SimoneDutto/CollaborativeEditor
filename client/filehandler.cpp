@@ -1,18 +1,16 @@
 #include "filehandler.h"
 
-
-
 FileHandler::FileHandler(int siteid)
 {
     siteCounter = siteid;
 }
-
 
 /**
   0. Incrementa contatore delle modifiche sul file (siteCounter)
   1. Se la lettera inserita si trova alla fine del file, l'indice interno corrisponderà al primo indice disponibile (lastIndex+1)
   2. Altrimenti, calcola l'indice interno intero e frazionario, accedendo al vettore di lettere del file
 */
+
 void FileHandler::localInsert(int externalIndex, QChar newLetterValue, int clientID) {
     Letter lastLetter = this->letters.at(letters.size()-1);
     int lastIndex = lastLetter.getIndex();
@@ -138,4 +136,3 @@ void FileHandler::insertLetters(QVector<Letter> lett){
     }
     this->letters = lett;
 }
-

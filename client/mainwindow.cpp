@@ -16,7 +16,7 @@ MainWindow::MainWindow(Socket *sock, QWidget *parent) :
 {
     ui->setupUi(this);
     setWindowTitle("Notepad dei Povery");
-    this->setCentralWidget(ui->textEdit);
+    //this->setCentralWidget(ui->textEdit);
     connect( this, SIGNAL(forNowInsert(int externalIndex, QChar newLetterValue)),
              socket, SLOT(updateLocalInsert(int externalIndex, QChar newLetterValue)));
 }
@@ -30,57 +30,61 @@ void MainWindow::on_actionNew_triggered()
 {
     file_path = "";
     ui->textEdit->setText("");
+    ui->lineEdit->setText("Nuovo Documento");
+    //emit newFile();
 }
 
 void MainWindow::on_actionOpen_triggered()
 {
-    QString file_name = QFileDialog::getOpenFileName(this,"Open the file");
-    QFile file(file_name);
-    file_path = file_name;
-    if(!file.open(QFile::ReadOnly | QFile::Text)){
-        QMessageBox::warning(this, "..", "file not open");
-        return;
-    }
-    QTextStream in(&file);
-    QString text = in.readAll();
-    ui->textEdit->setText(text);
-    file.close();
+    //QString file_name = QFileDialog::getOpenFileName(this,"Open the file");
+    dialog = new Dialog(this);
+    dialog->show();
+//    QFile file(file_name);
+//    file_path = file_name;
+//    if(!file.open(QFile::ReadOnly | QFile::Text)){
+//        QMessageBox::warning(this, "..", "file not open");
+//        return;
+//    }
+//    QTextStream in(&file);
+//    QString text = in.readAll();
+//    ui->textEdit->setText(text);
+//    file.close();
 }
 
-void MainWindow::on_actionSave_triggered()
-{
-    if(file_path == ""){
-        on_actionSave_As_triggered();
-        return;
-    }else{
-    QFile file(file_path);
-    if(!file.open(QFile::WriteOnly | QFile::Text)){
-        QMessageBox::warning(this, "..", "file not saved!");
-        return;
-    }
-    QTextStream out(&file);
-    QString text = ui->textEdit->toPlainText();
-    out << text;
-    file.flush();
-    file.close();
-    }
-}
+//void MainWindow::on_actionSave_triggered()
+//{
+//    if(file_path == ""){
+//        on_actionSave_As_triggered();
+//        return;
+//    }else{
+//    QFile file(file_path);
+//    if(!file.open(QFile::WriteOnly | QFile::Text)){
+//        QMessageBox::warning(this, "..", "file not saved!");
+//        return;
+//    }
+//    QTextStream out(&file);
+//    QString text = ui->textEdit->toPlainText();
+//    out << text;
+//   file.flush();
+//    file.close();
+//    }
+//}
 
-void MainWindow::on_actionSave_As_triggered()
-{
-    QString file_name = QFileDialog::getSaveFileName(this,"Save the file");
-    QFile file(file_name);
-    file_path = file_name;
-    if(!file.open(QFile::WriteOnly | QFile::Text)){
-        QMessageBox::warning(this, "..", "file not saved!");
-        return;
-    }
-    QTextStream out(&file);
-    QString text = ui->textEdit->toPlainText();
-    out << text;
-    file.flush();
-    file.close();
-}
+//void MainWindow::on_actionSave_As_triggered()
+//{
+//    QString file_name = QFileDialog::getSaveFileName(this,"Save the file");
+//    QFile file(file_name);
+//    file_path = file_name;
+//    if(!file.open(QFile::WriteOnly | QFile::Text)){
+//        QMessageBox::warning(this, "..", "file not saved!");
+//        return;
+//    }
+//    QTextStream out(&file);
+//    QString text = ui->textEdit->toPlainText();
+//    out << text;
+//    file.flush();
+//    file.close();
+//}
 
 void MainWindow::on_actionCut_triggered()
 {
@@ -174,4 +178,10 @@ void MainWindow::on_textEdit_textChanged()
     QChar c = cursor.selectedText().right(1).at(0);
     //ui->statusBar->showMessage(c);
     emit forNowInsert(pos, c);
+}
+
+
+void MainWindow::on_lineEdit_editingFinished()
+{
+    //emit sendNameFile(ui->lineEdit->text());
 }

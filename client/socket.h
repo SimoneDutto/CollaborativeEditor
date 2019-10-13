@@ -36,6 +36,9 @@ private:
 
     int clientID;
 
+    int clientID;
+    QVector<QString> listFiles;
+
 public slots:
     int openFile(QString name_file);
     void checkLogin(QString username, QString password);

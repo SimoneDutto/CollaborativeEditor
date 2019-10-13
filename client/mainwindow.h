@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include "socket.h"
+#include "dialog.h"
 
 namespace Ui {
 class MainWindow;
@@ -21,9 +22,9 @@ private slots:
 
     void on_actionOpen_triggered();
 
-    void on_actionSave_triggered();
+//    void on_actionSave_triggered();
 
-    void on_actionSave_As_triggered();
+//    void on_actionSave_As_triggered();
 
     void on_actionCut_triggered();
 
@@ -51,10 +52,13 @@ private slots:
     
     void on_textEdit_textChanged();
 
+    void on_lineEdit_editingFinished();
+
 private:
     Ui::MainWindow *ui;
     Socket *socket;
     QString file_path;
+    Dialog *dialog;
 
 signals:
     void forNowInsert(int pos, QChar value);
