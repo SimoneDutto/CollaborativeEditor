@@ -78,6 +78,7 @@ void Socket::socketReadyReadListFiles()
         emit loginError();
         return;
     }
+    this->fileh = new FileHandler(clientID);
     QJsonValue value = object.value("files");
     QJsonArray nameFilesArray = value.toArray();
 
@@ -90,7 +91,7 @@ void Socket::socketReadyReadListFiles()
         qDebug() << q;
         listFiles_tmp.append(q);
     }
-    this->fHandler.setListFiles(listFiles_tmp);
+    this->fileh->setListFiles(listFiles_tmp);
 
     disconnect(socket, SIGNAL(readyRead()), this, SLOT(socketReadyReadListFiles()));
     connect( socket, SIGNAL(readyRead()),  SLOT(socketReadyReadFile()));
@@ -140,6 +141,7 @@ void Socket::socketReadyReadFile()
     qDebug() << "Inizio a leggere";
 
     QByteArray data;
+    QVector<Letter> letters;
 
     while (socket->bytesAvailable() > 0)
     {
@@ -177,9 +179,11 @@ void Socket::socketReadyReadFile()
         }
 
         Letter letter_tmp = Letter(letter, fractionals, ID);
+        letters.append(std::move(letter_tmp));
         qDebug() << "Lettera:" << letter_tmp.getValue();
     }
-
+    // definisco il filehandler con il vettore dentro
+    this->fileh->insertLetters(letters);
 
     qDebug() << "Finished!";
     return;
@@ -219,5 +223,5 @@ Socket::~Socket()
 }
 
 void Socket::updateLocalInsert(int externalIndex, QChar newLetterValue){
-    this->fHandler.localInsert(externalIndex, newLetterValue, this->clientID);
+    this->fileh->localInsert(externalIndex, newLetterValue, this->clientID);
 }

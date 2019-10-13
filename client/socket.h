@@ -32,9 +32,9 @@ private:
     QTcpSocket *socket;
     qint32 size;
     QByteArray buffer;
+    FileHandler* fileh;
 
     int clientID;
-    fileHandler fHandler;
 
 public slots:
     int openFile(QString name_file);

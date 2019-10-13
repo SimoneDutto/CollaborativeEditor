@@ -1,5 +1,9 @@
 #include "filehandler.h"
 
+FileHandler::FileHandler(const QVector<Letter>&& lett){
+    this->letters = lett;
+}
+
 void FileHandler::insertActiveUser(QTcpSocket *user){
     active_users.append(user);
 }
@@ -90,3 +94,8 @@ void FileHandler::remoteDelete(QString deletedLetterID) {
     }
     // Notifica gli altri client inviando lo stesso messaggio
 }
+
+QVector<QTcpSocket*> FileHandler::getUsers(){
+    return this->users;
+}
+
