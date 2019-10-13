@@ -9,6 +9,7 @@
 class fileHandler
 {
 private:
+    QVector<QString> listFiles;
     QVector<Letter> letters;
     int siteCounter;
 
@@ -21,6 +22,7 @@ public:
     void localDelete(int externalIndex);
     void remoteInsert(QJsonArray position, QChar newLetterValue, int externalIndex, int siteID, int siteCounter);
     void remoteDelete(QString deletedLetterID);
+    void setListFiles(QVector<QString> listFiles);
 };
 
 #endif // FILEHANDLER_H

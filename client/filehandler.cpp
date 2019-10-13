@@ -1,10 +1,10 @@
 #include "filehandler.h"
-#include<bits/stdc++.h>
 
 fileHandler::fileHandler()
 {
     siteCounter = 0;
 }
+
 
 /**
   0. Incrementa contatore delle modifiche sul file (siteCounter)
@@ -124,5 +124,9 @@ void fileHandler::remoteDelete(QString deletedLetterID) {
         }
         i++;
     }
+}
+
+void fileHandler::setListFiles(QVector<QString> listFiles){
+    this->listFiles = listFiles;
 }
 

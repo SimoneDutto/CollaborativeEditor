@@ -17,7 +17,8 @@ MainWindow::MainWindow(Socket *sock, QWidget *parent) :
     ui->setupUi(this);
     setWindowTitle("Notepad dei Povery");
     this->setCentralWidget(ui->textEdit);
-    connect( this, SIGNAL(forNowInsert(int pos, QString value)), socket, SLOT(sendInsert(int pos, QString value)) );
+    connect( this, SIGNAL(forNowInsert(int externalIndex, QChar newLetterValue)),
+             socket, SLOT(updateLocalInsert(int externalIndex, QChar newLetterValue)));
 }
 
 MainWindow::~MainWindow()
@@ -170,7 +171,7 @@ void MainWindow::on_textEdit_textChanged()
     int pos = cursor.position();
     //ui->statusBar->showMessage(QString::number(pos));
     cursor.select(QTextCursor::LineUnderCursor);
-    QString c = cursor.selectedText().right(1);
+    QChar c = cursor.selectedText().right(1).at(0);
     //ui->statusBar->showMessage(c);
     emit forNowInsert(pos, c);
 }

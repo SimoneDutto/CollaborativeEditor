@@ -57,7 +57,7 @@ private:
     QString file_path;
 
 signals:
-    void forNowInsert(int pos, QString value);
+    void forNowInsert(int pos, QChar value);
 };
 
 #endif // MAINWINDOW_H

@@ -12,6 +12,7 @@
 #include <QFile>
 #include "letter.h"
 #include "iostream"
+#include "filehandler.h"
 
 namespace Ui {
 class Socket;
@@ -33,7 +34,7 @@ private:
     QByteArray buffer;
 
     int clientID;
-    QVector<QString> listFiles;
+    fileHandler fHandler;
 
 public slots:
     int openFile(QString name_file);
@@ -48,6 +49,7 @@ private slots:
     void socketClosed();
     void socketError(int e);
     void socketReadyReadListFiles();
+    void updateLocalInsert(int externalIndex, QChar newLetterValue);
 
 signals:
     void loginSuccess();
