@@ -33,9 +33,6 @@ private:
     qint32 size;
     QByteArray buffer;
     FileHandler* fileh;
-
-    int clientID;
-
     int clientID;
     QVector<QString> listFiles;
 
