@@ -30,22 +30,28 @@ private:
     Ui::Socket *ui;
     QTcpSocket *socket;
     qint32 size;
-    QVector<Letter>* lastFilePtr;
     QByteArray buffer;
+
+    int clientID;
+    QVector<QString> listFiles;
 
 public slots:
     int openFile(QString name_file);
-    /*int openFile(QString name_file, QVector<Letter>& filePtr);
-    openFile(QString name_file, QVector<Letter>& arrayFile)*/
+    void checkLogin(QString username, QString password);
+    int sendInsert(int pos, QString value);
 
 private slots:
     void closeConnection();
-    void sendToServer();
     void socketReadyReadFile();
     void socketConnected();
     void socketConnectionClosed();
     void socketClosed();
     void socketError(int e);
+    void socketReadyReadListFiles();
+
+signals:
+    void loginSuccess();
+    void loginError();
 };
 
 

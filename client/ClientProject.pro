@@ -18,6 +18,8 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    dialog.cpp \
+    filehandler.cpp \
     letter.cpp \
     main.cpp \
     login.cpp \
@@ -25,12 +27,15 @@ SOURCES += \
     socket.cpp
 
 HEADERS += \
+    dialog.h \
+    filehandler.h \
     letter.h \
     login.h \
     mainwindow.h \
     socket.h
 
 FORMS += \
+    dialog.ui \
     login.ui \
     mainwindow.ui \
     socket.ui
