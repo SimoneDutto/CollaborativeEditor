@@ -90,3 +90,8 @@ void FileHandler::remoteDelete(QString deletedLetterID) {
     }
     // Notifica gli altri client inviando lo stesso messaggio
 }
+
+QVector<QTcpSocket> FileHandler::getUsers(){
+    return this->users;
+}
+

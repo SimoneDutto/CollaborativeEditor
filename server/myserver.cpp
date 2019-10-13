@@ -7,6 +7,9 @@
 #include <QTcpServer>
 #include <QTcpSocket>
 
+
+void propNotification(QVector<QTcpSocket*> users, QByteArray message);
+
 MyServer::MyServer(QObject *parent) :
     QObject(parent),
     m_server(new QTcpServer(this)),
@@ -74,10 +77,8 @@ void MyServer::onReadyRead(QObject *socketObject)
             int siteID = rootObject.value("siteID").toInt();
             int siteCounter = rootObject.value("siteCounter").toInt();
             fHandler->remoteInsert(position, newLetterValue, externalIndex, siteID, siteCounter);
-
-
+            propNotification(fHandler->getUsers(), str);
         }
-
     }
     else if(type.compare("delete")){
         qDebug() << "DELETE request";
@@ -86,6 +87,7 @@ void MyServer::onReadyRead(QObject *socketObject)
             FileHandler* fHandler = fsys->getFiles().at(filename);
             QString deletedLetterID = rootObject.value("letterID").toString();
             fHandler->remoteDelete(deletedLetterID);
+            propNotification(fHandler->getUsers(), str);
         }
     }
     else if(type.compare("LOGIN")==0){
@@ -105,4 +107,13 @@ void MyServer::onDisconnected(QObject *socketObject)
            qPrintable(socket->peerAddress().toString()), socket->peerPort());
 
     socket->deleteLater();
+}
+
+void propNotification(QVector<QTcpSocket*> users, QByteArray message){
+    QVectorIterator<QTcpSocket*> i(users);
+    while (i.hasNext()){
+        QTcpSocket* socket = i.next();
+        socket->write(message);
+        socket->waitForBytesWritten(1000);
+    }
 }
