@@ -12,13 +12,19 @@
 MainWindow::MainWindow(Socket *sock, QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
-    socket(sock)
+    socket(sock),
+    fHandler(sock->getFHandler())
 {
     ui->setupUi(this);
     setWindowTitle("Notepad dei Povery");
     //this->setCentralWidget(ui->textEdit);
-    connect( this, SIGNAL(forNowInsert(int externalIndex, QChar newLetterValue)),
+
+
+    connect( this, SIGNAL(myInsert(int externalIndex, QChar newLetterValue)),
              socket, SLOT(updateLocalInsert(int externalIndex, QChar newLetterValue)));
+
+    connect( this, SIGNAL(sendNameFile(QString fileNameTmp);),
+             socket, SLOT(checkFileName(QString fileNameTmp)));
 }
 
 MainWindow::~MainWindow()
@@ -28,7 +34,6 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_actionNew_triggered()
 {
-    file_path = "";
     ui->textEdit->setText("");
     ui->lineEdit->setText("Nuovo Documento");
     //emit newFile();
@@ -37,7 +42,7 @@ void MainWindow::on_actionNew_triggered()
 void MainWindow::on_actionOpen_triggered()
 {
     //QString file_name = QFileDialog::getOpenFileName(this,"Open the file");
-    dialog = new Dialog(this);
+    dialog = new Dialog(this->socket, this->fHandler, this);
     dialog->show();
 //    QFile file(file_name);
 //    file_path = file_name;
@@ -177,11 +182,11 @@ void MainWindow::on_textEdit_textChanged()
     cursor.select(QTextCursor::LineUnderCursor);
     QChar c = cursor.selectedText().right(1).at(0);
     //ui->statusBar->showMessage(c);
-    emit forNowInsert(pos, c);
+    emit myInsert(pos, c);
 }
 
 
 void MainWindow::on_lineEdit_editingFinished()
 {
-    //emit sendNameFile(ui->lineEdit->text());
+    emit sendNameFile(ui->lineEdit->text());
 }

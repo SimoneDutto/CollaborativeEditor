@@ -1,9 +1,8 @@
 #include "filehandler.h"
-
-FileHandler::FileHandler(int siteid)
-{
-    siteCounter = siteid;
-}
+FileHandler::FileHandler(int siteid, QObject *parent)
+  : QObject(parent),
+    siteCounter(siteid)
+{}
 
 /**
   0. Incrementa contatore delle modifiche sul file (siteCounter)
@@ -130,9 +129,13 @@ void FileHandler::setListFiles(QVector<QString> listFiles){
     this->listFiles = listFiles;
 }
 
-void FileHandler::insertLetters(QVector<Letter> lett){
+void FileHandler::setVectorLettersFile(QVector<Letter> lett){
     if(!this->letters.empty()){
         this->letters.clear();
     }
     this->letters = lett;
+}
+
+QVector<QString> FileHandler::getListFiles(){
+    return this->listFiles;
 }

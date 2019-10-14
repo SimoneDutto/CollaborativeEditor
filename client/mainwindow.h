@@ -57,11 +57,12 @@ private slots:
 private:
     Ui::MainWindow *ui;
     Socket *socket;
-    QString file_path;
     Dialog *dialog;
+    FileHandler *fHandler;
 
 signals:
-    void forNowInsert(int pos, QChar value);
+    void myInsert(int externalIndex, QChar newLetterValue);
+    void sendNameFile(QString fileNameTmp);
 };
 
 #endif // MAINWINDOW_H

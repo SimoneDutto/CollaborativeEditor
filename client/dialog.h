@@ -2,6 +2,7 @@
 #define DIALOG_H
 
 #include <QDialog>
+#include "socket.h"
 
 namespace Ui {
 class Dialog;
@@ -12,7 +13,7 @@ class Dialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit Dialog(QWidget *parent = nullptr);
+    explicit Dialog(Socket *sock = nullptr, FileHandler *fHandler = nullptr, QWidget *parent = nullptr);
     ~Dialog();
 
 private slots:
@@ -20,7 +21,10 @@ private slots:
 
 private:
     Ui::Dialog *ui;
-    QVector<QString> listFiles;
+    Socket *socket;
+
+signals:
+    void openThisFile(QString fileName);
 };
 
 #endif // DIALOG_H
