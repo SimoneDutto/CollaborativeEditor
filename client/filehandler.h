@@ -22,12 +22,17 @@ public:
     void setListFiles(QVector<QString> listFiles);
     void setVectorLettersFile(QVector<Letter> letters);
     QVector<QString> getListFiles();
+    QVector<Letter> getVectorFile();
 
 public slots:
     void localInsert(int externalIndex, QChar newLetterValue, int clientID);
     void localDelete(int externalIndex);
     void remoteInsert(QJsonArray position, QChar newLetterValue, int externalIndex, int siteID, int siteCounter);
     void remoteDelete(QString deletedLetterID);
+
+signals:
+    void localInsertNotify(int pos, QString value);
+    void localDeleteNotify(int externalIndex);
 };
 
 #endif // FILEHANDLER_H

@@ -27,6 +27,7 @@ public:
     Socket(const QString &host, quint16 port);
     ~Socket();
     FileHandler* getFHandler();
+    int getClientID();
 
 private:
     Ui::Socket *ui;
@@ -38,7 +39,7 @@ private:
     QVector<QString> listFiles;
 
 public slots:
-    void checkLogin(QString username, QString password);
+    void sendLogin(QString username, QString password);
 
 private slots:
     void closeConnection();
@@ -47,13 +48,14 @@ private slots:
     void socketClosed();
     void socketError(int e);
 
-    void checkAccountAndGetListFileName();
+    void checkLoginAndGetListFileName();
     void notificationsHandler();
 
     int sendOpenFile(QString name_file);
     int sendInsert(int pos, QString value);
-    void updateLocalInsert(int externalIndex, QChar newLetterValue);
-    void sendCheckFileName(QString fileNameTmp);
+    int sendDelete(int externalIndex);
+    int sendCheckFileName(QString fileNameTmp);
+    int sendNewFile();
 
 signals:
     void loginSuccess();

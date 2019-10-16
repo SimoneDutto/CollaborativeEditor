@@ -21,7 +21,7 @@ Dialog::Dialog(Socket *sock, FileHandler *fHandler, QWidget *parent) :
     }
 
     connect( this, SIGNAL(openThisFile(QString fileName)),
-             this->socket, SLOT(openFile(QString fileName)));
+             this->socket, SLOT(sendOpenFile(QString fileName)));
 }
 
 Dialog::~Dialog()

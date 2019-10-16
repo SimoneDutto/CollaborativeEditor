@@ -16,9 +16,9 @@ Socket::Socket(const QString &host, quint16 port)
     socket = new QTcpSocket(this);
     size = 0;
     connect( socket, SIGNAL(connected()), SLOT(socketConnected()) );
-    connect( socket, SIGNAL(disconnected()), SLOT(socketConnectionClosed()));
+    connect( socket, SIGNAL(disconnected()), SLOT(socketConnectionClosed()) );
     //connect( socket, SIGNAL(error(SocketError socketError)), SLOT(socketError(int)) );
-    connect( socket, SIGNAL(readyRead()),  SLOT(checkAccountAndGetListFileName()));
+    connect( socket, SIGNAL(readyRead()),  SLOT(checkLoginAndGetListFileName()) );
 
     socket->connectToHost(host, port);
 
@@ -78,9 +78,17 @@ inline qint32 ArrayToInt(QByteArray source)
     return temp;
 }
 
+FileHandler* Socket::getFHandler(){
+    return this->fileh;
+}
+
+int Socket::getClientID(){
+    return this->clientID;
+}
 
 
-void Socket::checkLogin(QString username, QString password)
+
+void Socket::sendLogin(QString username, QString password)
 {
     //RICHIESTA
     QJsonObject obj;
@@ -95,7 +103,7 @@ void Socket::checkLogin(QString username, QString password)
     socket->waitForBytesWritten(1000);
 }
 
-void Socket::checkAccountAndGetListFileName()
+void Socket::checkLoginAndGetListFileName()
 {
     qDebug() << "Inizio a leggere i file a cui ho accesso e controllo i dati del login";
     QByteArray data = socket->readAll();
@@ -110,6 +118,10 @@ void Socket::checkAccountAndGetListFileName()
     }
 
     this->fileh = new FileHandler(clientID);
+    /*connect della DELETE dovrebbe essere giusta, quella della INSERT serve capire cosa server al server*/
+    connect( fileh, SIGNAL(localInsertNotify(int pos, QString value)), socket, SLOT(sendInsert(int pos, QString value)) );
+    connect( fileh, SIGNAL(localDeleteNotify(int externalIndex)), socket, SLOT(sendDelete(int externalIndex)) );
+
     QJsonValue value = object.value("files");
     QJsonArray nameFilesArray = value.toArray();
 
@@ -125,15 +137,9 @@ void Socket::checkAccountAndGetListFileName()
     this->fileh->setListFiles(listFiles_tmp);
 
 
-    /*Setto le connect per gestire le notifiche che arrivano dal server*/
-    disconnect(socket, SIGNAL(readyRead()), this, SLOT(checkAccountAndGetListFileName()));
-
+    /*Le connect per gestire le notifiche che arrivano dal server le setto nel costruttore di MainWindow*/
+    disconnect(socket, SIGNAL(readyRead()), this, SLOT(checkLoginAndGetListFileName()));
     connect( socket, SIGNAL(readyRead()),  SLOT(notificationsHandler()));
-    connect( socket, SIGNAL(readyInsert(QJsonArray position, QChar newLetterValue, int externalIndex, int siteID, int siteCounter)),
-             fileh,  SLOT(remoteInsert(QJsonArray position, QChar newLetterValue, int externalIndex, int siteID, int siteCounter)));
-    connect( socket, SIGNAL(readyDelete(QString deletedLetterID)),
-             fileh, SLOT(remoteDelete(QString deletedLetterID)));
-    connect( socket, SIGNAL(readyFile()), SLOT());
 
     emit loginSuccess();
     qDebug() << "Finished!";
@@ -173,6 +179,7 @@ void Socket::notificationsHandler(){
      * OPEN
      * INSERT
      * DELETE
+     * CHECKNAME
     */
 
     if(type.compare("OPEN")==0){
@@ -220,6 +227,10 @@ void Socket::notificationsHandler(){
         emit readyDelete(deletedLetterID);
     }
 
+    else if (type.compare("CHECKNAME")==0) {
+
+    }
+
     qDebug() << "Finished!";
     return;
 }
@@ -240,28 +251,11 @@ int Socket::sendInsert(int pos, QString value)
     return socket->waitForBytesWritten(1000);
 }
 
-void Socket::sendCheckFileName(QString fileNameTmp){
-    //RICHIESTA
-    QJsonObject obj;
-    obj.insert("type", "CHECKFILENAME");
-    obj.insert("filename", fileNameTmp);
-
-    if(socket->state() == QAbstractSocket::ConnectedState){
-        qDebug() << "Richiesta:\n" << QJsonDocument(obj).toJson().data();
-        socket->write(QJsonDocument(obj).toJson());
-    }
-    socket->waitForBytesWritten(1000);
-}
-
-int Socket::sendOpenFile(QString name_file)
-{
+int Socket::sendDelete(int externalIndex){
     /*RICHIESTA*/
     QJsonObject obj;
-    obj.insert("type", "OPEN");
-    obj.insert("filename", name_file);
-
-    //disconnect(socket, SIGNAL(readyRead()), this, SLOT(socketReadyReadFile()));
-    //connect( socket, SIGNAL(readyRead()),  SLOT(socketReadyReadFile()));
+    obj.insert("type", "DELETE");
+    obj.insert("externalIndex", externalIndex);
 
     if(socket->state() == QAbstractSocket::ConnectedState){
         qDebug() << "Richiesta:\n" << QJsonDocument(obj).toJson().data();
@@ -271,10 +265,43 @@ int Socket::sendOpenFile(QString name_file)
     return socket->waitForBytesWritten(1000);
 }
 
-void Socket::updateLocalInsert(int externalIndex, QChar newLetterValue){
-    this->fileh->localInsert(externalIndex, newLetterValue, this->clientID);
+int Socket::sendCheckFileName(QString fileNameTmp){
+    //RICHIESTA
+    QJsonObject obj;
+    obj.insert("type", "CHECKFILENAME");
+    obj.insert("filename", fileNameTmp);
+
+    if(socket->state() == QAbstractSocket::ConnectedState){
+        qDebug() << "Richiesta:\n" << QJsonDocument(obj).toJson().data();
+        socket->write(QJsonDocument(obj).toJson());
+    }
+    return socket->waitForBytesWritten(1000);
 }
 
-FileHandler* Socket::getFHandler(){
-    return this->fileh;
+int Socket::sendOpenFile(QString name_file)
+{
+    /*RICHIESTA*/
+    QJsonObject obj;
+    obj.insert("type", "OPEN");
+    obj.insert("filename", name_file);
+
+    if(socket->state() == QAbstractSocket::ConnectedState){
+        qDebug() << "Richiesta:\n" << QJsonDocument(obj).toJson().data();
+        socket->write(QJsonDocument(obj).toJson());
+    }
+
+    return socket->waitForBytesWritten(1000);
+}
+
+int Socket::sendNewFile(){
+    /*RICHIESTA*/
+    QJsonObject obj;
+    obj.insert("type", "NEWFILE");
+
+    if(socket->state() == QAbstractSocket::ConnectedState){
+        qDebug() << "Richiesta:\n" << QJsonDocument(obj).toJson().data();
+        socket->write(QJsonDocument(obj).toJson());
+    }
+
+    return socket->waitForBytesWritten(1000);
 }

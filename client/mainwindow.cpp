@@ -17,14 +17,30 @@ MainWindow::MainWindow(Socket *sock, QWidget *parent) :
 {
     ui->setupUi(this);
     setWindowTitle("Notepad dei Povery");
-    //this->setCentralWidget(ui->textEdit);
 
+    /*
+void Socket::updateLocalInsert(int externalIndex, QChar newLetterValue){
+    this->fileh->localInsert(externalIndex, newLetterValue, this->clientID);
+}
+*/
 
-    connect( this, SIGNAL(myInsert(int externalIndex, QChar newLetterValue)),
-             socket, SLOT(updateLocalInsert(int externalIndex, QChar newLetterValue)));
-
+    /*CONNECT per segnali uscenti, inoltrare le modifiche fatte*/
+    connect( this, SIGNAL(myInsert(int externalIndex, QChar newLetterValue, int clientID)),
+             fHandler, SLOT(localInsert(int externalIndex, QChar newLetterValue, int clientID)));
+    connect( this, SIGNAL(myDelete(int externalIndex)),
+             fHandler, SLOT(localDelete(int externalIndex)));
     connect( this, SIGNAL(sendNameFile(QString fileNameTmp);),
-             socket, SLOT(checkFileName(QString fileNameTmp)));
+             socket, SLOT(sendCheckFileName(QString fileNameTmp)));
+    connect( this, SIGNAL(newFile();),
+             socket, SLOT(sendNewFile()));
+
+
+    /*CONNECT per segnali entranti, applicare sulla GUI le modifiche che arrivano sul socket*/
+    connect( socket, SIGNAL(readyInsert(QJsonArray position, QChar newLetterValue, int externalIndex, int siteID, int siteCounter)),
+             fHandler,  SLOT(remoteInsert(QJsonArray position, QChar newLetterValue, int externalIndex, int siteID, int siteCounter)));
+    connect( socket, SIGNAL(readyDelete(QString deletedLetterID)),
+             fHandler, SLOT(remoteDelete(QString deletedLetterID)));
+    connect( socket, SIGNAL(readyFile()),  SLOT(fileIsHere()));
 }
 
 MainWindow::~MainWindow()
@@ -36,7 +52,7 @@ void MainWindow::on_actionNew_triggered()
 {
     ui->textEdit->setText("");
     ui->lineEdit->setText("Nuovo Documento");
-    //emit newFile();
+    emit newFile();
 }
 
 void MainWindow::on_actionOpen_triggered()
@@ -176,17 +192,28 @@ void MainWindow::on_actionBackgorund_Color_triggered()
 
 void MainWindow::on_textEdit_textChanged()
 {
+    /*Testo cambiato con INSERT o DELETE?*/
+
     QTextCursor cursor(ui->textEdit->textCursor());
-    int pos = cursor.position();
+    int externalIndex = cursor.position();
     //ui->statusBar->showMessage(QString::number(pos));
     cursor.select(QTextCursor::LineUnderCursor);
-    QChar c = cursor.selectedText().right(1).at(0);
+    QChar newLetterValue = cursor.selectedText().right(1).at(0);
     //ui->statusBar->showMessage(c);
-    emit myInsert(pos, c);
+
+    emit myInsert(externalIndex, newLetterValue, socket->getClientID());
+    emit myDelete(externalIndex);
 }
 
 
 void MainWindow::on_lineEdit_editingFinished()
 {
+    /*Cambio il nome del documento, solo dopo l'OK*/
     emit sendNameFile(ui->lineEdit->text());
+}
+
+void MainWindow::fileIsHere(){
+    /*Aggiornare la GUI con il file appena arrivato*/
+    QVector<Letter> vectorFile = this->fHandler->getVectorFile();
+
 }

@@ -10,43 +10,6 @@ FileHandler::FileHandler(int siteid, QObject *parent)
   2. Altrimenti, calcola l'indice interno intero e frazionario, accedendo al vettore di lettere del file
 */
 
-void FileHandler::localInsert(int externalIndex, QChar newLetterValue, int clientID) {
-    Letter lastLetter = this->letters.at(letters.size()-1);
-    int lastIndex = lastLetter.getIndex();
-    QVector<int> position, previousLetterPos, nextLetterPos;
-    int internalIndex = -1;
-
-    this->siteCounter++;
-
-    QString letterID = QString::number(clientID).append("-").append(this->siteCounter);
-
-    if(externalIndex >= this->letters.size()) {
-        // la lettera inserita si trova alla fine del file
-        internalIndex = lastIndex+1;
-        position.insert(0, internalIndex);
-    } else {
-        if(externalIndex > 0)
-            previousLetterPos = this->letters[externalIndex-1].getFractionalIndexes();
-        nextLetterPos = this->letters[externalIndex].getFractionalIndexes();
-
-        position = calculateInternalIndex(previousLetterPos, nextLetterPos);
-        if(position.size() == 1 && position.at(0) == 0) {
-            int last = nextLetterPos.size()-1;
-            int value = this->letters[externalIndex].getFractionalIndexes()[last];
-            if(value < INT_MAX)
-                this->letters[externalIndex].editIndex(last, value+1);
-            else
-                this->letters[externalIndex].addFractionalDigit(INT_MAX/2);
-        }
-    }
-
-    Letter newLetter(newLetterValue, position, letterID);
-    this->letters.insert(externalIndex, newLetter);
-
-    //insertLetterInArray(&newLetter);
-    // invia messaggio a server
-
-}
 
 QVector<int> FileHandler::calculateInternalIndex(QVector<int> prevPos, QVector<int> nextPos) {
     QVector<int> position;
@@ -89,9 +52,49 @@ QVector<int> FileHandler::calculateInternalIndex(QVector<int> prevPos, QVector<i
     return position;
 }
 
+void FileHandler::localInsert(int externalIndex, QChar newLetterValue, int clientID) {
+    Letter lastLetter = this->letters.at(letters.size()-1);
+    int lastIndex = lastLetter.getIndex();
+    QVector<int> position, previousLetterPos, nextLetterPos;
+    int internalIndex = -1;
+
+    this->siteCounter++;
+
+    QString letterID = QString::number(clientID).append("-").append(this->siteCounter);
+
+    if(externalIndex >= this->letters.size()) {
+        // la lettera inserita si trova alla fine del file
+        internalIndex = lastIndex+1;
+        position.insert(0, internalIndex);
+    } else {
+        if(externalIndex > 0)
+            previousLetterPos = this->letters[externalIndex-1].getFractionalIndexes();
+        nextLetterPos = this->letters[externalIndex].getFractionalIndexes();
+
+        position = calculateInternalIndex(previousLetterPos, nextLetterPos);
+        if(position.size() == 1 && position.at(0) == 0) {
+            int last = nextLetterPos.size()-1;
+            int value = this->letters[externalIndex].getFractionalIndexes()[last];
+            if(value < INT_MAX)
+                this->letters[externalIndex].editIndex(last, value+1);
+            else
+                this->letters[externalIndex].addFractionalDigit(INT_MAX/2);
+        }
+    }
+
+    Letter newLetter(newLetterValue, position, letterID);
+    this->letters.insert(externalIndex, newLetter);
+
+    //insertLetterInArray(&newLetter);
+    /*Inviare notifica via socket*/
+    /*Cosa server al server?*/
+    //emit localInsertNotify(position, newLetterValue);
+}
+
 void FileHandler::localDelete(int externalIndex) {
     this->letters.remove(externalIndex);
-    // invio messaggio al server
+    /*Inviare notifica via socket*/
+    emit localDeleteNotify(externalIndex);
 }
 
 void FileHandler::remoteInsert(QJsonArray position, QChar newLetterValue, int externalIndex, int siteID, int siteCounter) {
@@ -111,6 +114,9 @@ void FileHandler::remoteInsert(QJsonArray position, QChar newLetterValue, int ex
 
         this->letters.insert(this->letters.begin()+externalIndex, newLetter);
     }
+
+    /*Aggiornare la GUI*/
+
 }
 
 void FileHandler::remoteDelete(QString deletedLetterID) {
@@ -123,6 +129,9 @@ void FileHandler::remoteDelete(QString deletedLetterID) {
         }
         i++;
     }
+
+    /*Aggiornare la GUI*/
+
 }
 
 void FileHandler::setListFiles(QVector<QString> listFiles){
@@ -138,4 +147,8 @@ void FileHandler::setVectorLettersFile(QVector<Letter> lett){
 
 QVector<QString> FileHandler::getListFiles(){
     return this->listFiles;
+}
+
+QVector<Letter> FileHandler::getVectorFile(){
+    return this->letters;
 }
