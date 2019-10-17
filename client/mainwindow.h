@@ -37,12 +37,15 @@ private slots:
     void on_textEdit_textChanged();
     void on_lineEdit_editingFinished();
     void fileIsHere();
+//    void changeViewAfterInsert();
+//    void changeViewAfterDelete();
 
 private:
     Ui::MainWindow *ui;
     Socket *socket;
     Dialog *dialog;
     FileHandler *fHandler;
+    int letterCounter = 0;
 
 signals:
     void myInsert(int externalIndex, QChar newLetterValue, int clientID);
