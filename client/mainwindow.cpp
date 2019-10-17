@@ -192,17 +192,22 @@ void MainWindow::on_actionBackgorund_Color_triggered()
 
 void MainWindow::on_textEdit_textChanged()
 {
-    /*Testo cambiato con INSERT o DELETE?*/
+    /*Testo cambiato con INSERT */
 
     QTextCursor cursor(ui->textEdit->textCursor());
     int externalIndex = cursor.position();
     //ui->statusBar->showMessage(QString::number(pos));
-    cursor.select(QTextCursor::LineUnderCursor);
-    QChar newLetterValue = cursor.selectedText().right(1).at(0);
+    if(externalIndex>=letterCounter){
+        cursor.select(QTextCursor::LineUnderCursor);
+        QChar newLetterValue = cursor.selectedText().right(1).at(0);
+        letterCounter++;
     //ui->statusBar->showMessage(c);
-
-    emit myInsert(externalIndex, newLetterValue, socket->getClientID());
-    emit myDelete(externalIndex);
+        emit myInsert(externalIndex, newLetterValue, socket->getClientID());
+    }
+    else{  /*Testo cambiato con DELETE */
+        letterCounter--;
+        emit myDelete(externalIndex);
+    }
 }
 
 
@@ -218,7 +223,30 @@ void MainWindow::fileIsHere(){
     QString text = "";
     for(Letter l : vectorFile){
         QChar c = l.getValue();
+        letterCounter++;
         text.append(c);
     }
     ui->textEdit->setText(text);
 }
+
+//void MainWindow::changeViewAfterInsert(Letter l, int pos)
+//{
+//    QTextCursor cursor(ui->textEdit->textCursor());
+//    cursor.setPosition(pos);
+//    ui->textEdit->insertPlainText(l.getValue());
+//    letterCounter++;
+//}
+
+//void MainWindow::changeViewAfterDelete(Letter l, int pos)
+//{
+//    QTextCursor cursor(ui->textEdit->textCursor());
+//    cursor.setPosition(pos);
+//    cursor.select(QTextCursor::LineUnderCursor);
+//    QChar old = cursor.selectedText().right(1).at(0); 
+//    if (old == l.getValue()){
+//        cursor.removeSelectedText();
+//        ui->textEdit->setTextCursor(cursor);
+//        letterCounter--;
+//    }
+      
+//}
