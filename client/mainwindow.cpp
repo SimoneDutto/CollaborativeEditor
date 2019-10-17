@@ -215,5 +215,10 @@ void MainWindow::on_lineEdit_editingFinished()
 void MainWindow::fileIsHere(){
     /*Aggiornare la GUI con il file appena arrivato*/
     QVector<Letter> vectorFile = this->fHandler->getVectorFile();
-
+    QString text = "";
+    for(Letter l : vectorFile){
+        QChar c = l.getValue();
+        text.append(c);
+    }
+    ui->textEdit->setText(text);
 }
