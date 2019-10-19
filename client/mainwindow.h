@@ -19,49 +19,39 @@ public:
 
 private slots:
     void on_actionNew_triggered();
-
     void on_actionOpen_triggered();
-
 //    void on_actionSave_triggered();
-
 //    void on_actionSave_As_triggered();
-
     void on_actionCut_triggered();
-
     void on_actionCopy_triggered();
-
     void on_actionRedo_triggered();
-
     void on_actionPaste_triggered();
-
     void on_actionUndo_triggered();
-
     void on_actionAbout_us_triggered();
-
     void on_actionBold_triggered();
-
     void on_actionItalic_triggered();
-
     void on_actionUnderlined_triggered();
-
     void on_actionFont_triggered();
-
     void on_actionColor_triggered();
-
     void on_actionBackgorund_Color_triggered();
-    
     void on_textEdit_textChanged();
-
     void on_lineEdit_editingFinished();
+    void fileIsHere();
+//    void changeViewAfterInsert();
+//    void changeViewAfterDelete();
 
 private:
     Ui::MainWindow *ui;
     Socket *socket;
-    QString file_path;
     Dialog *dialog;
+    FileHandler *fHandler;
+    int letterCounter = 0;
 
 signals:
-    void forNowInsert(int pos, QChar value);
+    void myInsert(int externalIndex, QChar newLetterValue, int clientID);
+    void myDelete(int externalIndex);
+    void sendNameFile(QString fileNameTmp);
+    void newFile();
 };
 
 #endif // MAINWINDOW_H

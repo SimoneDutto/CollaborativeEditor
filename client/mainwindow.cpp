@@ -12,13 +12,35 @@
 MainWindow::MainWindow(Socket *sock, QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
-    socket(sock)
+    socket(sock),
+    fHandler(sock->getFHandler())
 {
     ui->setupUi(this);
     setWindowTitle("Notepad dei Povery");
-    //this->setCentralWidget(ui->textEdit);
-    connect( this, SIGNAL(forNowInsert(int externalIndex, QChar newLetterValue)),
-             socket, SLOT(updateLocalInsert(int externalIndex, QChar newLetterValue)));
+
+    /*
+void Socket::updateLocalInsert(int externalIndex, QChar newLetterValue){
+    this->fileh->localInsert(externalIndex, newLetterValue, this->clientID);
+}
+*/
+
+    /*CONNECT per segnali uscenti, inoltrare le modifiche fatte*/
+    connect( this, SIGNAL(myInsert(int externalIndex, QChar newLetterValue, int clientID)),
+             fHandler, SLOT(localInsert(int externalIndex, QChar newLetterValue, int clientID)));
+    connect( this, SIGNAL(myDelete(int externalIndex)),
+             fHandler, SLOT(localDelete(int externalIndex)));
+    connect( this, SIGNAL(sendNameFile(QString fileNameTmp);),
+             socket, SLOT(sendCheckFileName(QString fileNameTmp)));
+    connect( this, SIGNAL(newFile();),
+             socket, SLOT(sendNewFile()));
+
+
+    /*CONNECT per segnali entranti, applicare sulla GUI le modifiche che arrivano sul socket*/
+    connect( socket, SIGNAL(readyInsert(QJsonArray position, QChar newLetterValue, int externalIndex, int siteID, int siteCounter)),
+             fHandler,  SLOT(remoteInsert(QJsonArray position, QChar newLetterValue, int externalIndex, int siteID, int siteCounter)));
+    connect( socket, SIGNAL(readyDelete(QString deletedLetterID)),
+             fHandler, SLOT(remoteDelete(QString deletedLetterID)));
+    connect( socket, SIGNAL(readyFile()),  SLOT(fileIsHere()));
 }
 
 MainWindow::~MainWindow()
@@ -28,16 +50,15 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_actionNew_triggered()
 {
-    file_path = "";
     ui->textEdit->setText("");
     ui->lineEdit->setText("Nuovo Documento");
-    //emit newFile();
+    emit newFile();
 }
 
 void MainWindow::on_actionOpen_triggered()
 {
     //QString file_name = QFileDialog::getOpenFileName(this,"Open the file");
-    dialog = new Dialog(this);
+    dialog = new Dialog(this->socket, this->fHandler, this);
     dialog->show();
 //    QFile file(file_name);
 //    file_path = file_name;
@@ -171,17 +192,61 @@ void MainWindow::on_actionBackgorund_Color_triggered()
 
 void MainWindow::on_textEdit_textChanged()
 {
+    /*Testo cambiato con INSERT */
+
     QTextCursor cursor(ui->textEdit->textCursor());
-    int pos = cursor.position();
+    int externalIndex = cursor.position();
     //ui->statusBar->showMessage(QString::number(pos));
-    cursor.select(QTextCursor::LineUnderCursor);
-    QChar c = cursor.selectedText().right(1).at(0);
+    if(externalIndex>=letterCounter){
+        cursor.select(QTextCursor::LineUnderCursor);
+        QChar newLetterValue = cursor.selectedText().right(1).at(0);
+        letterCounter++;
     //ui->statusBar->showMessage(c);
-    emit forNowInsert(pos, c);
+        emit myInsert(externalIndex, newLetterValue, socket->getClientID());
+    }
+    else{  /*Testo cambiato con DELETE */
+        letterCounter--;
+        emit myDelete(externalIndex);
+    }
 }
 
 
 void MainWindow::on_lineEdit_editingFinished()
 {
-    //emit sendNameFile(ui->lineEdit->text());
+    /*Cambio il nome del documento, solo dopo l'OK*/
+    emit sendNameFile(ui->lineEdit->text());
 }
+
+void MainWindow::fileIsHere(){
+    /*Aggiornare la GUI con il file appena arrivato*/
+    QVector<Letter> vectorFile = this->fHandler->getVectorFile();
+    QString text = "";
+    for(Letter l : vectorFile){
+        QChar c = l.getValue();
+        letterCounter++;
+        text.append(c);
+    }
+    ui->textEdit->setText(text);
+}
+
+//void MainWindow::changeViewAfterInsert(Letter l, int pos)
+//{
+//    QTextCursor cursor(ui->textEdit->textCursor());
+//    cursor.setPosition(pos);
+//    ui->textEdit->insertPlainText(l.getValue());
+//    letterCounter++;
+//}
+
+//void MainWindow::changeViewAfterDelete(Letter l, int pos)
+//{
+//    QTextCursor cursor(ui->textEdit->textCursor());
+//    cursor.setPosition(pos);
+//    cursor.select(QTextCursor::LineUnderCursor);
+//    QChar old = cursor.selectedText().right(1).at(0); 
+//    if (old == l.getValue()){
+//        cursor.removeSelectedText();
+//        ui->textEdit->setTextCursor(cursor);
+//        letterCounter--;
+//    }
+      
+//}
