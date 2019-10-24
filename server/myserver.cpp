@@ -66,7 +66,7 @@ void MyServer::onReadyRead(QObject *socketObject)
         QString filename = rootObject.value(("filename")).toString();
         fsys->sendFile(filename, socket);
     }
-    else if(type.compare("INSERT")==0){
+    else if(type.compare("insert")){
         qDebug() << "INSERT request";
         QString filename = rootObject.value(("filename")).toString();
         if(fsys->getFiles().find(filename) != fsys->getFiles().end()) {     // file exists
@@ -80,7 +80,7 @@ void MyServer::onReadyRead(QObject *socketObject)
             propNotification(fHandler->getUsers(), str);
         }
     }
-    else if(type.compare("INSERT")==0){
+    else if(type.compare("delete")){
         qDebug() << "DELETE request";
         QString filename = rootObject.value("filename").toString();
         if(fsys->getFiles().find(filename) != fsys->getFiles().end()) {     // file exists

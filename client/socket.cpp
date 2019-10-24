@@ -119,8 +119,8 @@ void Socket::checkLoginAndGetListFileName()
 
     this->fileh = new FileHandler(clientID);
     /*connect della DELETE dovrebbe essere giusta, quella della INSERT serve capire cosa server al server*/
-    //connect( fileh, SIGNAL(localInsertNotify(int pos, QString value)), socket, SLOT(sendInsert(int pos, QString value)) );
-    //connect( fileh, SIGNAL(localDeleteNotify(int externalIndex)), socket, SLOT(sendDelete(int externalIndex)) );
+    connect( fileh, SIGNAL(localInsertNotify(int pos, QString value)), socket, SLOT(sendInsert(int pos, QString value)) );
+    connect( fileh, SIGNAL(localDeleteNotify(int externalIndex)), socket, SLOT(sendDelete(int externalIndex)) );
 
     QJsonValue value = object.value("files");
     QJsonArray nameFilesArray = value.toArray();
@@ -139,7 +139,7 @@ void Socket::checkLoginAndGetListFileName()
 
     /*Le connect per gestire le notifiche che arrivano dal server le setto nel costruttore di MainWindow*/
     disconnect(socket, SIGNAL(readyRead()), this, SLOT(checkLoginAndGetListFileName()));
-    connect(socket, SIGNAL(readyRead()),  SLOT(notificationsHandler()));
+    connect( socket, SIGNAL(readyRead()),  SLOT(notificationsHandler()));
 
     emit loginSuccess();
     qDebug() << "Finished!";
