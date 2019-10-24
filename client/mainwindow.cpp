@@ -25,22 +25,22 @@ void Socket::updateLocalInsert(int externalIndex, QChar newLetterValue){
 */
 
     /*CONNECT per segnali uscenti, inoltrare le modifiche fatte*/
-    connect( this, SIGNAL(myInsert(int, QChar, int)),
-             fHandler, SLOT(localInsert(int, QChar, int)));
-    connect( this, SIGNAL(myDelete(int)),
-             fHandler, SLOT(localDelete(int)));
-    connect( this, SIGNAL(sendNameFile(QString)),
-             socket, SLOT(sendCheckFileName(QString)));
-    connect( this, SIGNAL(newFile()),
+    connect( this, SIGNAL(myInsert(int externalIndex, QChar newLetterValue, int clientID)),
+             fHandler, SLOT(localInsert(int externalIndex, QChar newLetterValue, int clientID)));
+    connect( this, SIGNAL(myDelete(int externalIndex)),
+             fHandler, SLOT(localDelete(int externalIndex)));
+    connect( this, SIGNAL(sendNameFile(QString fileNameTmp);),
+             socket, SLOT(sendCheckFileName(QString fileNameTmp)));
+    connect( this, SIGNAL(newFile();),
              socket, SLOT(sendNewFile()));
 
 
     /*CONNECT per segnali entranti, applicare sulla GUI le modifiche che arrivano sul socket*/
-    connect( socket, SIGNAL(readyInsert(QJsonArray, QChar, int, int, int)),
-             fHandler,  SLOT(remoteInsert(QJsonArray, QChar, int, int, int)));
-    connect( socket, SIGNAL(readyDelete(QString)),
-             fHandler, SLOT(remoteDelete(QString)));
-    connect( socket, SIGNAL(readyFile()),  this, SLOT(fileIsHere()));
+    connect( socket, SIGNAL(readyInsert(QJsonArray position, QChar newLetterValue, int externalIndex, int siteID, int siteCounter)),
+             fHandler,  SLOT(remoteInsert(QJsonArray position, QChar newLetterValue, int externalIndex, int siteID, int siteCounter)));
+    connect( socket, SIGNAL(readyDelete(QString deletedLetterID)),
+             fHandler, SLOT(remoteDelete(QString deletedLetterID)));
+    connect( socket, SIGNAL(readyFile()),  SLOT(fileIsHere()));
 }
 
 MainWindow::~MainWindow()
@@ -50,7 +50,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_actionNew_triggered()
 {
-    ui->textEdit->clear();
+    ui->textEdit->setText("");
     ui->lineEdit->setText("Nuovo Documento");
     emit newFile();
 }
@@ -214,7 +214,7 @@ void MainWindow::on_textEdit_textChanged()
 void MainWindow::on_lineEdit_editingFinished()
 {
     /*Cambio il nome del documento, solo dopo l'OK*/
-    //emit sendNameFile(ui->lineEdit->text());
+    emit sendNameFile(ui->lineEdit->text());
 }
 
 void MainWindow::fileIsHere(){
