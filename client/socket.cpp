@@ -119,8 +119,9 @@ void Socket::checkLoginAndGetListFileName()
 
     this->fileh = new FileHandler(clientID);
     /*connect della DELETE dovrebbe essere giusta, quella della INSERT serve capire cosa server al server*/
-    //connect( fileh, SIGNAL(localInsertNotify(int pos, QString value)), socket, SLOT(sendInsert(int pos, QString value)) );
-    //connect( fileh, SIGNAL(localDeleteNotify(int externalIndex)), socket, SLOT(sendDelete(int externalIndex)) );
+    connect( this->fileh, SIGNAL(localInsertNotify(QChar, QJsonArray, int, int, int)),
+             this, SLOT(sendInsert(QChar, QJsonArray, int, int, int)) );
+    connect( this->fileh, SIGNAL(localDeleteNotify(int)), this, SLOT(sendDelete(int)) );
 
     QJsonValue value = object.value("files");
     QJsonArray nameFilesArray = value.toArray();
@@ -189,7 +190,7 @@ void Socket::notificationsHandler(){
         foreach (const QJsonValue& v, letterArray)
         {
             QChar letter = v.toObject().value("letter").toString().at(0);
-            QString ID = v.toObject().value("externalIndex").toString();
+            QString ID = v.toObject().value("letterID").toString();
 
             QJsonArray array_tmp = v.toObject().value("position").toArray();
             QVector<int> fractionals;
@@ -233,13 +234,16 @@ void Socket::notificationsHandler(){
     qDebug() << "Finished!";
 }
 
-int Socket::sendInsert(int pos, QString value)
+int Socket::sendInsert(QChar newLetterValue, QJsonArray position, int siteID, int siteCounter, int externalIndex)
 {
     /*RICHIESTA*/
     QJsonObject obj;
     obj.insert("type", "INSERT");
-    obj.insert("value", value);
-    obj.insert("position", pos);
+    obj.insert("letter", QJsonValue(newLetterValue));
+    obj.insert("position", position);
+    obj.insert("siteID", siteID);
+    obj.insert("siteCounter", siteCounter);
+    obj.insert("externalIndex", externalIndex);
 
     if(socket->state() == QAbstractSocket::ConnectedState){
         qDebug() << "Richiesta:\n" << QJsonDocument(obj).toJson().data();

@@ -31,7 +31,7 @@ public slots:
     void remoteDelete(QString deletedLetterID);
 
 signals:
-    void localInsertNotify(int pos, QString value);
+    void localInsertNotify(QChar newLetterValue, QJsonArray position, int siteID, int siteCounter, int externalIndex);
     void localDeleteNotify(int externalIndex);
 };
 
