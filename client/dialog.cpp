@@ -20,8 +20,8 @@ Dialog::Dialog(Socket *sock, FileHandler *fHandler, QWidget *parent) :
         ui->listWidget->addItem(s);
     }
 
-    connect( this, SIGNAL(openThisFile(QString fileName)),
-             this->socket, SLOT(sendOpenFile(QString fileName)));
+    connect( this, SIGNAL(openThisFile(QString)),
+             this->socket, SLOT(sendOpenFile(QString)));
 }
 
 Dialog::~Dialog()

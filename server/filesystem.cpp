@@ -47,11 +47,18 @@ void FileSystem::sendFile(QString filename, QTcpSocket *socket){
         m_file.open(QFile::ReadOnly);
 
         QByteArray q = m_file.readAll();
+
+        QJsonDocument document = QJsonDocument::fromJson(q);
+        QJsonObject object = document.object();
+        QJsonValue value = object.value("letterArray");
+        QJsonArray letterArray = value.toArray();
+        object.insert("type", "OPEN");
+
         if(socket->state() == QAbstractSocket::ConnectedState)
         {
             qDebug() << "Invio file";
-            socket->write(IntToArray(q.size())); //write size of data
-            if(socket->write(q) == -1){
+            socket->write(IntToArray(QJsonDocument(object).toJson().size())); //write size of data
+            if(socket->write(QJsonDocument(object).toJson()) == -1){
                 qDebug() << "File failed to send";
                 return;
             } //write the data itself
@@ -60,11 +67,6 @@ void FileSystem::sendFile(QString filename, QTcpSocket *socket){
         m_file.close();
 
         qDebug() << "File sent";
-
-        QJsonDocument document = QJsonDocument::fromJson(q);
-        QJsonObject object = document.object();
-        QJsonValue value = object.value("letterArray");
-        QJsonArray letterArray = value.toArray();
 
         QVector<Letter> letters;
 
