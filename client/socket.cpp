@@ -143,6 +143,7 @@ void Socket::checkLoginAndGetListFileName()
 
     emit loginSuccess();
     qDebug() << "Finished!";
+    return;
 }
 
 void Socket::notificationsHandler(){
@@ -174,7 +175,6 @@ void Socket::notificationsHandler(){
     QString type = object.value("type").toString();
     qDebug() << "Tipo di richiesta: " << type;
 
-
     /*
      * OPEN
      * INSERT
@@ -189,18 +189,14 @@ void Socket::notificationsHandler(){
 
         foreach (const QJsonValue& v, letterArray)
         {
-            QChar letter = v.toObject().value("value").toString().at(0);
-            QString ID = v.toObject().value("id").toString();
+            QChar letter = v.toObject().value("letter").toString().at(0);
+            QString ID = v.toObject().value("externalIndex").toString();
 
-            /*QJsonArray array_tmp = v.toObject().value("position").toArray();
+            QJsonArray array_tmp = v.toObject().value("position").toArray();
             QVector<int> fractionals;
             for(auto fractional : array_tmp) {
                 fractionals.append(fractional.toInt());
-            }*/
-
-            QVector<int> fractionals;
-            fractionals.append(v.toObject().value("pos_intera").toInt());
-            fractionals.append(v.toObject().value("pos_decimale").toInt());
+            }
 
             Letter letter_tmp = Letter(letter, fractionals, ID);
             letters.append(std::move(letter_tmp));
@@ -208,8 +204,7 @@ void Socket::notificationsHandler(){
         }
 
         /*Salvo il file come vettore di Letters nel fileHandler*/
-        this->fileh->setVectorLettersFile(std::move(letters));
-        //this->fileh->setVectorLettersFile(letters);
+        this->fileh->setVectorLettersFile(letters);
         emit readyFile();
     }
 
@@ -237,6 +232,7 @@ void Socket::notificationsHandler(){
     }
 
     qDebug() << "Finished!";
+    return;
 }
 
 int Socket::sendInsert(int pos, QString value)

@@ -1,5 +1,4 @@
 #include "myserver.h"
-#include <QDir>
 
 #include <QCoreApplication>
 #include <QScopedPointer>
