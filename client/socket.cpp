@@ -143,7 +143,6 @@ void Socket::checkLoginAndGetListFileName()
 
     emit loginSuccess();
     qDebug() << "Finished!";
-    return;
 }
 
 void Socket::notificationsHandler(){
@@ -204,7 +203,7 @@ void Socket::notificationsHandler(){
         }
 
         /*Salvo il file come vettore di Letters nel fileHandler*/
-        this->fileh->setVectorLettersFile(letters);
+        this->fileh->setVectorLettersFile(std::move(letters));
         emit readyFile();
     }
 
@@ -232,7 +231,6 @@ void Socket::notificationsHandler(){
     }
 
     qDebug() << "Finished!";
-    return;
 }
 
 int Socket::sendInsert(int pos, QString value)
