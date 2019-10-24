@@ -1,4 +1,6 @@
 #include "filehandler.h"
+#include <QDebug>
+
 FileHandler::FileHandler(int siteid, QObject *parent)
   : QObject(parent),
     siteCounter(siteid)
@@ -7,7 +9,18 @@ FileHandler::FileHandler(int siteid, QObject *parent)
 /**
   0. Incrementa contatore delle modifiche sul file (siteCounter)
   1. Se la lettera inserita si trova alla fine del file, l'indice interno corrisponderà al primo indice disponibile (lastIndex+1)
-  2. Altrimenti, calcola l'indice interno intero e frazionario, accedendo al vettore di lettere del file
+  2. Altrimenti, calcola l'indice interno intero e frazionario, accedendo al vettore di lettere del file:
+    2.1 Calcolo indice intero:
+        Se la lettera è stata inserita all'inizio del file, indice interno intero = 0 (nextPos.at(0))
+        Altrimenti, indice interno intero è uguale a quello della lettera precedente (prevPos.at(0))
+    2.2 Calcolo indici frazionari:
+        Se la lettera precedente ha indici frazionari, questi vengono copiati nel vettore di posizioni della nuova lettera inserita, tranne l'ultimo
+        Se non li ha, viene considerato l'ultimo indice frazionario pari a 0
+    2.3 Calcolo ultimo indice frazionario (determina la posizione differente rispetto alle lettere circostanti):
+        Se gli indici esterni delle lettere a dx e sx sono diversi, il nuovo indice frazionario è (INT_MAX-ultimoIndiceLetteraPrecedente): se risultano uguali,
+        viene aggiunta una nuova posizione frazionaria, pari a INT_MAX/2
+        Altrimenti, se sono uguali, il nuovo indice è la media tra i due a dx e sx: se risulta uguale a 0 o uguale all'indice precedente, viene aggiutna una nuova posizione
+        frazionaria, pari a INT_MAX/2.
 */
 
 
@@ -34,8 +47,8 @@ QVector<int> FileHandler::calculateInternalIndex(QVector<int> prevPos, QVector<i
         } else lastFractionalNext = 0;
 
         if(prevPos.at(0) < nextPos.at(0)) {
-            newIndex = (lastFractionalPrev+INT_MAX)/2;
-            if(newIndex == lastFractionalPrev) {
+            newIndex = INT_MAX-lastFractionalPrev;
+            if(newIndex == lastFractionalPrev || newIndex == INT_MAX) {
                 position.append(lastFractionalPrev);
                 position.append(INT_MAX/2);
             }
@@ -53,8 +66,16 @@ QVector<int> FileHandler::calculateInternalIndex(QVector<int> prevPos, QVector<i
 }
 
 void FileHandler::localInsert(int externalIndex, QChar newLetterValue, int clientID) {
-    Letter lastLetter = this->letters.at(letters.size()-1);
-    int lastIndex = lastLetter.getIndex();
+    int lastIndex = 0;
+    qDebug() << "Calcolo l'indice della lettera inserita localmente...";
+
+    if(this->letters.size() > 0) {
+        Letter lastLetter = this->letters.at(letters.size()-1);
+        lastIndex = lastLetter.getIndex();
+    }
+
+    qDebug() << "Indice dell'ultima lettera del file: " << lastIndex;
+
     QVector<int> position, previousLetterPos, nextLetterPos;
     int internalIndex = -1;
 
@@ -64,21 +85,34 @@ void FileHandler::localInsert(int externalIndex, QChar newLetterValue, int clien
 
     if(externalIndex >= this->letters.size()) {
         // la lettera inserita si trova alla fine del file
-        internalIndex = lastIndex+1;
-        position.insert(0, internalIndex);
+        if(this->letters.size() == 0) // caso prima lettera inserita
+            internalIndex = 0;
+        else
+            internalIndex = lastIndex+1;
+        position.insert(0, internalIndex);  //position = {internalIndex}
+        qDebug() << "Lettera inserita alla fine del file in posizione " << internalIndex;
     } else {
-        if(externalIndex > 0)
+        if(externalIndex > 0)   // lettera NON inserita all'inizio del file
             previousLetterPos = this->letters[externalIndex-1].getFractionalIndexes();
         nextLetterPos = this->letters[externalIndex].getFractionalIndexes();
 
         position = calculateInternalIndex(previousLetterPos, nextLetterPos);
-        if(position.size() == 1 && position.at(0) == 0) {
-            int last = nextLetterPos.size()-1;
-            int value = this->letters[externalIndex].getFractionalIndexes()[last];
-            if(value < INT_MAX)
-                this->letters[externalIndex].editIndex(last, value+1);
-            else
-                this->letters[externalIndex].addFractionalDigit(INT_MAX/2);
+        if(position.size() == 1 && position.at(0) == 0) {   // position = {0}
+            //  Lettera inserita all'inizio del file: avrà indici {0,0}. Devo modificare la lettera che inizialmente aveva questi indici
+            int last = nextLetterPos.size()-1;  // ultimo indice valido di nextLetterPos
+            int value = this->letters[0].getFractionalIndexes()[last];  // prendo ultimo frazionario della lettera all'inizio del file
+            if(value < INT_MAX) {
+                this->letters[0].editIndex(last, value+1);
+                // check che la seconda lettera non abbia gli stessi indici dopo la modifica
+                if(this->letters.size() >= 2) {
+                    if(this->letters[0].hasSameFractionals(this->letters[1])) {
+                        this->letters[0].editIndex(last, value);
+                        this->letters[0].addFractionalDigit(INT_MAX/2);
+                    }
+                }
+
+            } else
+                this->letters[0].addFractionalDigit(INT_MAX/2);
         }
     }
 
