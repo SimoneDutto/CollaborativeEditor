@@ -40,6 +40,8 @@ private:
 
 public slots:
     void sendLogin(QString username, QString password);
+//    int sendCheckFileName(QString fileNameTmp);
+  //  int sendNewFile();
 
 private slots:
     void closeConnection();

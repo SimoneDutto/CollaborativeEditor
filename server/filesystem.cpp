@@ -47,41 +47,42 @@ void FileSystem::sendFile(QString filename, QTcpSocket *socket){
         m_file.open(QFile::ReadOnly);
 
         QByteArray q = m_file.readAll();
-        if(socket->state() == QAbstractSocket::ConnectedState)
-        {
-            qDebug() << "Invio file";
-            socket->write(IntToArray(q.size())); //write size of data
-            if(socket->write(q) == -1){
-                qDebug() << "File failed to send";
-                return;
-            } //write the data itself
-            socket->waitForBytesWritten();
-        }
-        m_file.close();
-
-        qDebug() << "File sent";
 
         QJsonDocument document = QJsonDocument::fromJson(q);
         QJsonObject object = document.object();
         QJsonValue value = object.value("letterArray");
         QJsonArray letterArray = value.toArray();
 
+        object.insert("type", "OPEN");
+
+        if(socket->state() == QAbstractSocket::ConnectedState)
+        {
+            qDebug() << "Invio file";
+            socket->write(IntToArray(QJsonDocument(object).toJson().size())); //write size of data
+            if(socket->write(QJsonDocument(object).toJson()) == -1){
+                qDebug() << "File failed to send";
+                return;
+            } //write the data itself
+            socket->waitForBytesWritten();
+        }
+        m_file.close();
+        qDebug() << "File sent";
+
         QVector<Letter> letters;
 
         foreach (const QJsonValue& v, letterArray)
         {
-            QChar letter = v.toObject().value("letter").toString().at(0);
-            QString ID = v.toObject().value("externalIndex").toString();
+            QChar letter = v.toObject().value("value").toString().at(0);
+            QString ID = v.toObject().value("id").toString();
 
-            QJsonArray array_tmp = v.toObject().value("position").toArray();
             QVector<int> fractionals;
-            for(auto fractional : array_tmp) {
-                fractionals.append(fractional.toInt());
-            }
+            fractionals.append(v.toObject().value("pos_intera").toInt());
+            fractionals.append(v.toObject().value("pos_decimale").toInt());
 
             Letter letter_tmp = Letter(letter, fractionals, ID);
             letters.append(std::move(letter_tmp));
         }
+
         FileHandler *fh = new FileHandler(std::move(letters));
         fh->insertActiveUser(socket);
 
@@ -109,6 +110,7 @@ void FileSystem::checkLogin(QString username, QString password, QTcpSocket *sock
     query.bindValue(":username", username);
     query.bindValue(":password", password);
     int id = -1;
+
     if (query.exec())
     {
         if (query.next())
@@ -117,7 +119,7 @@ void FileSystem::checkLogin(QString username, QString password, QTcpSocket *sock
         }
     }
     else{
-        qDebug() << "Query not executed";
+        qDebug() << "Query not executed -prima";
     }
     QJsonArray file_array;
     QJsonObject final_object;
@@ -139,7 +141,7 @@ void FileSystem::checkLogin(QString username, QString password, QTcpSocket *sock
             final_object.insert(QString("files"), QJsonValue(file_array));
         }
         else{
-            qDebug() << "Query not executed";
+            qDebug() << "Query not executed -secondo";
         }
     }
     final_object.insert("id", QJsonValue(id));
