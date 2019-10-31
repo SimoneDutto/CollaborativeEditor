@@ -73,7 +73,7 @@ void FileSystem::sendFile(QString filename, QTcpSocket *socket){
         foreach (const QJsonValue& v, letterArray)
         {
             QChar letter = v.toObject().value("letter").toString().at(0);
-            QString ID = v.toObject().value("externalIndex").toString();
+            QString ID = v.toObject().value("letterID").toString();
 
             QJsonArray array_tmp = v.toObject().value("position").toArray();
             QVector<int> fractionals;

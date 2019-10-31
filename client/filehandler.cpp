@@ -123,7 +123,10 @@ void FileHandler::localInsert(int externalIndex, QChar newLetterValue, int clien
     //insertLetterInArray(&newLetter);
     /*Inviare notifica via socket*/
     /*Cosa server al server?*/
-    //emit localInsertNotify(position, newLetterValue);
+
+    QJsonArray positionJsonArray;
+    std::copy (position.begin(), position.end(), std::back_inserter(positionJsonArray));
+    emit localInsertNotify(newLetterValue, positionJsonArray, clientID, siteCounter, externalIndex);
 
 }
 
