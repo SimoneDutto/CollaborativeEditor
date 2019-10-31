@@ -1,9 +1,9 @@
 #include "filehandler.h"
 #include <QDebug>
 
-FileHandler::FileHandler(int siteid, QObject *parent)
+FileHandler::FileHandler(QObject *parent)
   : QObject(parent),
-    siteCounter(siteid)     // ??
+    siteCounter(0)
 {}
 
 /**

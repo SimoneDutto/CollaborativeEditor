@@ -19,7 +19,7 @@ private:
     //void insertLetterInArray(Letter *newLetter);
 
 public:
-    explicit FileHandler(int siteid, QObject *parent = nullptr);
+    explicit FileHandler(QObject *parent = nullptr);
     void setListFiles(QVector<QString> listFiles);
     void setVectorLettersFile(QVector<Letter*> letters);
     void setFileName(QString fileName);

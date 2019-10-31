@@ -117,7 +117,7 @@ void Socket::checkLoginAndGetListFileName()
         return;
     }
 
-    this->fileh = new FileHandler(clientID);
+    this->fileh = new FileHandler();
     /*connect della DELETE dovrebbe essere giusta, quella della INSERT serve capire cosa server al server*/
     connect( this->fileh, SIGNAL(localInsertNotify(QChar, QJsonArray, int, int, int)),
              this, SLOT(sendInsert(QChar, QJsonArray, int, int, int)) );
