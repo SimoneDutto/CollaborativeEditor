@@ -28,6 +28,7 @@ public:
     ~Socket();
     FileHandler* getFHandler();
     int getClientID();
+    QVector<QString> getListFiles();
 
 private:
     Ui::Socket *ui;

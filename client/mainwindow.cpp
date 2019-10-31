@@ -58,7 +58,7 @@ void MainWindow::on_actionNew_triggered()
 void MainWindow::on_actionOpen_triggered()
 {
     //QString file_name = QFileDialog::getOpenFileName(this,"Open the file");
-    dialog = new Dialog(this->socket, this->fHandler, this);
+    dialog = new Dialog(this->socket, this);
     dialog->show();
 //    QFile file(file_name);
 //    file_path = file_name;

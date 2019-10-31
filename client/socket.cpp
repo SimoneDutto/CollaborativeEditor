@@ -86,6 +86,9 @@ int Socket::getClientID(){
     return this->clientID;
 }
 
+QVector<QString> Socket::getListFiles(){
+    return this->listFiles;
+}
 
 
 void Socket::sendLogin(QString username, QString password)
@@ -117,12 +120,6 @@ void Socket::checkLoginAndGetListFileName()
         return;
     }
 
-    this->fileh = new FileHandler(clientID);
-    /*connect della DELETE dovrebbe essere giusta, quella della INSERT serve capire cosa server al server*/
-    connect( this->fileh, SIGNAL(localInsertNotify(QChar, QJsonArray, int, int, int)),
-             this, SLOT(sendInsert(QChar, QJsonArray, int, int, int)) );
-    connect( this->fileh, SIGNAL(localDeleteNotify(int)), this, SLOT(sendDelete(int)) );
-
     QJsonValue value = object.value("files");
     QJsonArray nameFilesArray = value.toArray();
 
@@ -135,7 +132,7 @@ void Socket::checkLoginAndGetListFileName()
         qDebug() << q;
         listFiles_tmp.append(q);
     }
-    this->fileh->setListFiles(listFiles_tmp);
+    this->listFiles = listFiles_tmp;
 
 
     /*Le connect per gestire le notifiche che arrivano dal server le setto nel costruttore di MainWindow*/
@@ -183,6 +180,15 @@ void Socket::notificationsHandler(){
     */
 
     if(type.compare("OPEN")==0){
+
+        /*Creo il FileHandler*/
+        QString fileName = object.value("filename").toString();
+
+        this->fileh = new FileHandler(fileName);
+        connect( this->fileh, SIGNAL(localInsertNotify(QChar, QJsonArray, int, int, int)),
+                 this, SLOT(sendInsert(QChar, QJsonArray, int, int, int)) );
+        connect( this->fileh, SIGNAL(localDeleteNotify(int)), this, SLOT(sendDelete(int)) );
+
         QVector<Letter*> letters;
         QJsonValue value = object.value("letterArray");
         QJsonArray letterArray = value.toArray();
@@ -282,9 +288,6 @@ int Socket::sendCheckFileName(QString fileNameTmp){
 
 int Socket::sendOpenFile(QString name_file)
 {
-    /*Salvo il nome del file che sto aprendo*/
-    this->fileh->setFileName(name_file);
-
     /*RICHIESTA*/
     QJsonObject obj;
     obj.insert("type", "OPEN");
