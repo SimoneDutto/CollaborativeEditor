@@ -5,10 +5,6 @@
 
 #include <QSignalMapper>
 #include <QTcpServer>
-#include <QTcpSocket>
-
-
-void propNotification(QVector<QTcpSocket*> users, QByteArray message);
 
 MyServer::MyServer(QObject *parent) :
     QObject(parent),
@@ -65,6 +61,16 @@ void MyServer::onReadyRead(QObject *socketObject)
         qDebug() << "OPEN request";
         QString filename = rootObject.value(("filename")).toString();
         fsys->sendFile(filename, socket);
+
+        FileHandler *fh = fsys->getFiles().at(filename);
+
+        /* Connect socket to signals for remote insert and delete */
+
+        connect(fh, SIGNAL(remoteInsertNotify(QVector<QTcpSocket*>, QByteArray, bool, int)),
+                this, SLOT(sendInsert(QVector<QTcpSocket*>, QByteArray, bool, int)));
+
+        connect(fh, SIGNAL(remoteDeleteNotify(QVector<QTcpSocket*>, QByteArray)),
+                this, SLOT(sendDelete(QVector<QTcpSocket*>, QByteArray)));
     }
     else if(type.compare("INSERT")==0){
         qDebug() << "INSERT request";
@@ -76,8 +82,8 @@ void MyServer::onReadyRead(QObject *socketObject)
             int externalIndex = rootObject.value("externalIndex").toInt();
             int siteID = rootObject.value("siteID").toInt();
             int siteCounter = rootObject.value("siteCounter").toInt();
-            fHandler->remoteInsert(position, newLetterValue, externalIndex, siteID, siteCounter);
-            propNotification(fHandler->getUsers(), str);
+            fHandler->remoteInsert(position, newLetterValue, externalIndex, siteID, siteCounter, str);
+            //propNotification(fHandler->getUsers(), str);
         }
     }
     else if(type.compare("INSERT")==0){
@@ -86,8 +92,8 @@ void MyServer::onReadyRead(QObject *socketObject)
         if(fsys->getFiles().find(filename) != fsys->getFiles().end()) {     // file exists
             FileHandler* fHandler = fsys->getFiles().at(filename);
             QString deletedLetterID = rootObject.value("letterID").toString();
-            fHandler->remoteDelete(deletedLetterID);
-            propNotification(fHandler->getUsers(), str);
+            fHandler->remoteDelete(deletedLetterID, str);
+            //propNotification(fHandler->getUsers(), str);
         }
     }
     else if(type.compare("LOGIN")==0){
@@ -109,7 +115,30 @@ void MyServer::onDisconnected(QObject *socketObject)
     socket->deleteLater();
 }
 
-void propNotification(QVector<QTcpSocket*> users, QByteArray message){
+void MyServer::sendInsert(QVector<QTcpSocket*> users, QByteArray message, bool modifiedIndex, int newIndex) {
+    if(modifiedIndex) {
+        // Edit json file
+        QJsonDocument jsonResponse = QJsonDocument::fromJson(message);
+        QJsonObject rootObject = jsonResponse.object();
+        QJsonObject obj;
+        obj.insert("type", "INSERT");
+        obj.insert("filename", rootObject.value("filename").toString());
+        obj.insert("letter", rootObject.value("letter").toString());
+        obj.insert("position", rootObject.value("position").toArray());
+        obj.insert("siteID", rootObject.value("siteID").toString());
+        obj.insert("siteCounter", rootObject.value("siteCounter").toInt());
+        obj.insert("externalIndex", newIndex);
+    }
+
+    QVectorIterator<QTcpSocket*> i(users);
+    while (i.hasNext()){
+        QTcpSocket* socket = i.next();
+        socket->write(message);
+        socket->waitForBytesWritten(1000);
+    }
+}
+
+void MyServer::sendDelete(QVector<QTcpSocket*> users, QByteArray message){
     QVectorIterator<QTcpSocket*> i(users);
     while (i.hasNext()){
         QTcpSocket* socket = i.next();

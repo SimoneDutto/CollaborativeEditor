@@ -3,7 +3,8 @@
 
 FileHandler::FileHandler(QString filename, QObject *parent)
   : QObject(parent),
-    fileName(filename)
+    fileName(filename),
+    siteCounter(0)
 {}
 
 /**
