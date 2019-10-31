@@ -52,7 +52,7 @@ private slots:
     void notificationsHandler();
 
     int sendOpenFile(QString name_file);
-    int sendInsert(int pos, QString value);
+    int sendInsert(QChar newLetterValue, QJsonArray position, int siteID, int siteCounter, int externalIndex);
     int sendDelete(int externalIndex);
     int sendCheckFileName(QString fileNameTmp);
     int sendNewFile();

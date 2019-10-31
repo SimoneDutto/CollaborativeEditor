@@ -117,12 +117,15 @@ void FileHandler::localInsert(int externalIndex, QChar newLetterValue, int clien
     }
 
     Letter newLetter(newLetterValue, position, letterID);
-    this->letters.insert(externalIndex, newLetter);
+    //this->letters.insert(externalIndex, newLetter);
 
     //insertLetterInArray(&newLetter);
     /*Inviare notifica via socket*/
     /*Cosa server al server?*/
-    //emit localInsertNotify(position, newLetterValue);
+
+    QJsonArray positionJsonArray;
+    std::copy (position.begin(), position.end(), std::back_inserter(positionJsonArray));
+    emit localInsertNotify(newLetterValue, positionJsonArray, clientID, siteCounter, externalIndex);
 }
 
 void FileHandler::localDelete(int externalIndex) {
