@@ -238,6 +238,7 @@ int Socket::sendInsert(QChar newLetterValue, QJsonArray position, int siteID, in
     /*RICHIESTA*/
     QJsonObject obj;
     obj.insert("type", "INSERT");
+    obj.insert("filename", this->fileh->getFileName());
     obj.insert("letter", QJsonValue(newLetterValue));
     obj.insert("position", position);
     obj.insert("siteID", siteID);
@@ -281,6 +282,9 @@ int Socket::sendCheckFileName(QString fileNameTmp){
 
 int Socket::sendOpenFile(QString name_file)
 {
+    /*Salvo il nome del file che sto aprendo*/
+    this->fileh->setFileName(name_file);
+
     /*RICHIESTA*/
     QJsonObject obj;
     obj.insert("type", "OPEN");
