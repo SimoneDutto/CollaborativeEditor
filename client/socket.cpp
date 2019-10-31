@@ -183,7 +183,7 @@ void Socket::notificationsHandler(){
     */
 
     if(type.compare("OPEN")==0){
-        QVector<Letter> letters;
+        QVector<Letter*> letters;
         QJsonValue value = object.value("letterArray");
         QJsonArray letterArray = value.toArray();
 
@@ -198,9 +198,8 @@ void Socket::notificationsHandler(){
                 fractionals.append(fractional.toInt());
             }
 
-            Letter letter_tmp = Letter(letter, fractionals, ID);
-            letters.append(std::move(letter_tmp));
-            qDebug() << "Lettera:" << letter_tmp.getValue();
+            letters.append(std::move(new Letter(letter, fractionals, ID)));
+            qDebug() << "Lettera:" << letter;
         }
 
         /*Salvo il file come vettore di Letters nel fileHandler*/

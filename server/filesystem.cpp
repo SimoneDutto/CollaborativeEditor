@@ -68,7 +68,7 @@ void FileSystem::sendFile(QString filename, QTcpSocket *socket){
 
         qDebug() << "File sent";
 
-        QVector<Letter> letters;
+        QVector<Letter*> letters;
 
         foreach (const QJsonValue& v, letterArray)
         {
@@ -81,7 +81,7 @@ void FileSystem::sendFile(QString filename, QTcpSocket *socket){
                 fractionals.append(fractional.toInt());
             }
 
-            Letter letter_tmp = Letter(letter, fractionals, ID);
+            Letter *letter_tmp = new Letter(letter, fractionals, ID);
             letters.append(std::move(letter_tmp));
         }
         FileHandler *fh = new FileHandler(std::move(letters));

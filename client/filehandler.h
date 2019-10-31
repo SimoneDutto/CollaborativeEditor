@@ -12,7 +12,7 @@ class FileHandler : public QObject
 private:
     QString fileName;
     QVector<QString> listFiles;
-    QVector<Letter> letters;
+    QVector<Letter*> letters;
     int siteCounter;
 
     QVector<int> calculateInternalIndex(QVector<int> prevPos, QVector<int> nextPos);
@@ -21,10 +21,10 @@ private:
 public:
     explicit FileHandler(int siteid, QObject *parent = nullptr);
     void setListFiles(QVector<QString> listFiles);
-    void setVectorLettersFile(QVector<Letter> letters);
+    void setVectorLettersFile(QVector<Letter*> letters);
     void setFileName(QString fileName);
     QVector<QString> getListFiles();
-    QVector<Letter> getVectorFile();
+    QVector<Letter*> getVectorFile();
     QString getFileName();
 
 public slots:
