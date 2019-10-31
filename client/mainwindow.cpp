@@ -219,10 +219,10 @@ void MainWindow::on_lineEdit_editingFinished()
 
 void MainWindow::fileIsHere(){
     /*Aggiornare la GUI con il file appena arrivato*/
-    QVector<Letter> vectorFile = this->fHandler->getVectorFile();
+    QVector<Letter*> vectorFile = this->fHandler->getVectorFile();
     QString text = "";
-    for(Letter l : vectorFile){
-        QChar c = l.getValue();
+    for(Letter *l : vectorFile){
+        QChar c = l->getValue();
         letterCounter++;
         text.append(c);
     }

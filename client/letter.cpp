@@ -1,5 +1,5 @@
 #include "letter.h"
-
+/*
 Letter::Letter(QString value, QString id, int intera, int decimale):
     letterID(id)
 {
@@ -7,7 +7,7 @@ Letter::Letter(QString value, QString id, int intera, int decimale):
     this->fractionalIndexes.insert(0, intera);
     this->fractionalIndexes.insert(1, decimale);
 }
-/*
+
 QVector<int> Letter::getPos()
 {
     return this->pos;
@@ -27,6 +27,36 @@ QString Letter::getValue()
 Letter::Letter(QChar letter, QVector<int> fractionals, QString letterID) : letter(letter), fractionalIndexes(fractionals), letterID(letterID) {
     //this->fractionalIndexes.insert(0, index);
     // index già presente nella posizione 0 di fractionals
+}
+
+// Costruttore di copia
+Letter::Letter(const Letter& l) {
+    this->letter = std::move(l.letter);
+    this->letterID = std::move(l.letterID);
+    this->fractionalIndexes.append(std::move(l.fractionalIndexes));
+    // costruttore di movimento e assegnazione
+}
+
+// Overload operatore di assegnazione
+Letter& Letter::operator=(const Letter& source) {
+    if(this != &source) {
+        this->letter = std::move(source.letter);
+        this->letterID = std::move(source.letterID);
+        this->fractionalIndexes.erase(this->fractionalIndexes.begin(), this->fractionalIndexes.end());
+        this->fractionalIndexes.append(std::move(source.fractionalIndexes));
+    }
+    return *this;
+}
+
+// Overload operatore di movimento
+Letter& Letter::operator=(const Letter && source) {
+    if(this != &source) {
+        this->letter = std::move(source.letter);
+        this->letterID = std::move(source.letterID);
+        this->fractionalIndexes.erase(this->fractionalIndexes.begin(), this->fractionalIndexes.end());
+        this->fractionalIndexes.append(std::move(source.fractionalIndexes));
+    }
+    return *this;
 }
 
 QChar Letter::getValue() {

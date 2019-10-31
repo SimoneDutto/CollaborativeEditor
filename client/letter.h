@@ -17,9 +17,12 @@ private:
     QString letterID;
 
 public:
-    Letter(QString value = QString(), QString id  = QString(), int intera = 0, int decimale = 0);
+    //Letter(QString value = QString(), QString id  = QString(), int intera = 0, int decimale = 0);
     //Letter() {}
     Letter(QChar letter, QVector<int> fractionals, QString letterID);
+    Letter(const Letter& l);
+    Letter& operator=(const Letter && source);
+    Letter& operator=(const Letter& source);
     QChar getValue();
     QVector<int> getFractionalIndexes();
     QString getLetterID();
@@ -31,6 +34,7 @@ public:
     void addFractionalDigit(int value);
     bool hasSameFractionals(Letter other);
     bool comesFirst(Letter other);
+    ~Letter(){}
 };
 
 #endif // LECTER_H

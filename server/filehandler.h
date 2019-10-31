@@ -9,7 +9,7 @@
 
 class FileHandler
 {
-    QVector<Letter> letters;
+    QVector<Letter*> letters;
     QVector<QTcpSocket*> users;
 
 public:
@@ -19,9 +19,9 @@ public:
     QVector<QTcpSocket*> active_users;
 
 public:
-    FileHandler(const QVector<Letter>&& lett);
+    FileHandler(const QVector<Letter*>&& lett);
     void insertActiveUser(QTcpSocket* user);
-    QVector<QTcpSocket*> getUsers();
+    QVector<QTcpSocket*> getUsers();  
 
 };
 
