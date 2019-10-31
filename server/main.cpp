@@ -11,5 +11,6 @@ int main(int argc, char *argv[])
     if (!server->listen(QHostAddress::LocalHost, 4001))
         return 1;
 
+    //qDebug() << "App path : " << app->applicationDirPath();
     return app->exec();
 }

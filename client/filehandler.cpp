@@ -182,10 +182,18 @@ void FileHandler::setVectorLettersFile(QVector<Letter> lett){
     this->letters = lett;
 }
 
+void FileHandler::setFileName(QString fileName){
+    this->fileName = fileName;
+}
+
 QVector<QString> FileHandler::getListFiles(){
     return this->listFiles;
 }
 
 QVector<Letter> FileHandler::getVectorFile(){
     return this->letters;
+}
+
+QString FileHandler::getFileName(){
+    return this->fileName;
 }
