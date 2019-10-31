@@ -1,6 +1,6 @@
 #include "filehandler.h"
 
-FileHandler::FileHandler(const QVector<Letter>&& lett){
+FileHandler::FileHandler(const QVector<Letter*>&& lett){
     this->letters = lett;
 }
 
@@ -30,14 +30,14 @@ void FileHandler::remoteInsert(QJsonArray position, QChar newLetterValue, int ex
         }
 
         QString letterID = QString::number(siteID).append("-").append(siteCounter);
-        Letter newLetter(newLetterValue, fractionals, letterID);
+        Letter *newLetter = new Letter(newLetterValue, fractionals, letterID);
 
         if(externalIndex < this->letters.size()) {
-            if(newLetter.hasSameFractionals(this->letters[externalIndex])) {
-                if(newLetterValue == this->letters[externalIndex].getLetterValue())
+            if(newLetter->hasSameFractionals(*(this->letters[externalIndex]))) {
+                if(newLetterValue == this->letters[externalIndex]->getLetterValue())
                     // stessa lettera inserita nella stessa posizione da utenti diversi => ignora insert
                     return;
-                else if (siteID > this->letters[externalIndex].getSiteID()) {  // lettera diversa inserita nella stessa posizione => inserimento in ordine di siteID
+                else if (siteID > this->letters[externalIndex]->getSiteID()) {  // lettera diversa inserita nella stessa posizione => inserimento in ordine di siteID
                     this->letters.insert(this->letters.begin()+externalIndex+1, newLetter);
                     // propaga informazione con indice modificato
                     return;
@@ -85,8 +85,8 @@ void FileHandler::remoteInsert(QJsonArray position, QChar newLetterValue, int ex
 void FileHandler::remoteDelete(QString deletedLetterID) {
     int i = 0;
 
-    for (Letter l : this->letters) {
-        if(l.getLetterID().compare(deletedLetterID) == 0) {
+    for (Letter *l : this->letters) {
+        if(l->getLetterID().compare(deletedLetterID) == 0) {
             this->letters.remove(i);
             break;
         }

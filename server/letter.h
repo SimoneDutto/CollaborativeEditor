@@ -15,7 +15,7 @@ private:
     QString letterID;
 
 public:
-    Letter() {}
+    //Letter() {}
     Letter(QChar letter, QVector<int> fractionals, QString letterID);
     //Letter(const Letter& letter);
     QChar getLetterValue();
