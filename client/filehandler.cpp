@@ -1,8 +1,9 @@
 #include "filehandler.h"
 #include <QDebug>
 
-FileHandler::FileHandler(QObject *parent)
+FileHandler::FileHandler(QString filename, QObject *parent)
   : QObject(parent),
+    fileName(filename),
     siteCounter(0)
 {}
 
@@ -177,10 +178,6 @@ void FileHandler::remoteDelete(QString deletedLetterID) {
 
 }
 
-void FileHandler::setListFiles(QVector<QString> listFiles){
-    this->listFiles = listFiles;
-}
-
 void FileHandler::setVectorLettersFile(QVector<Letter*> lett){
     if(!this->letters.empty()){
         this->letters.clear();
@@ -190,10 +187,6 @@ void FileHandler::setVectorLettersFile(QVector<Letter*> lett){
 
 void FileHandler::setFileName(QString fileName){
     this->fileName = fileName;
-}
-
-QVector<QString> FileHandler::getListFiles(){
-    return this->listFiles;
 }
 
 QVector<Letter*> FileHandler::getVectorFile(){

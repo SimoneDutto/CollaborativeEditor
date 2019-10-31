@@ -13,7 +13,7 @@ class Dialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit Dialog(Socket *sock = nullptr, FileHandler *fHandler = nullptr, QWidget *parent = nullptr);
+    explicit Dialog(Socket *sock = nullptr, QWidget *parent = nullptr);
     ~Dialog();
 
 private slots:

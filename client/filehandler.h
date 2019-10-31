@@ -11,7 +11,6 @@ class FileHandler : public QObject
     Q_OBJECT
 private:
     QString fileName;
-    QVector<QString> listFiles;
     QVector<Letter*> letters;
     int siteCounter;
 
@@ -19,11 +18,9 @@ private:
     //void insertLetterInArray(Letter *newLetter);
 
 public:
-    explicit FileHandler(QObject *parent = nullptr);
-    void setListFiles(QVector<QString> listFiles);
+    explicit FileHandler(QString filename, QObject *parent = nullptr);
     void setVectorLettersFile(QVector<Letter*> letters);
     void setFileName(QString fileName);
-    QVector<QString> getListFiles();
     QVector<Letter*> getVectorFile();
     QString getFileName();
 
