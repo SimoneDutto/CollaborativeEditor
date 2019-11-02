@@ -18,9 +18,8 @@ private:
     //void insertLetterInArray(Letter *newLetter);
 
 public:
-    explicit FileHandler(QString filename, QObject *parent = nullptr);
-    void setVectorLettersFile(QVector<Letter*> letters);
-    void setFileName(QString fileName);
+    explicit FileHandler(QObject *parent = nullptr);
+    void setValues(QVector<Letter*> letters, QString fileName);
     QVector<Letter*> getVectorFile();
     QString getFileName();
 
