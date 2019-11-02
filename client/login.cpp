@@ -31,8 +31,8 @@ void Login::on_pushButton_clicked()
 
 void Login::resumeLogin()
 {
+    mainWindow = new MainWindow(this->socket, this->socket->getFHandler(), this);
     hide();
-    mainWindow = new MainWindow(this->socket, this);
     mainWindow->show();
 }
 

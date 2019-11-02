@@ -15,6 +15,9 @@ Socket::Socket(const QString &host, quint16 port)
 {
     socket = new QTcpSocket(this);
     size = 0;
+    fileh = new FileHandler();
+
+    /*Setto le connect del socket*/
     connect( socket, SIGNAL(connected()), SLOT(socketConnected()) );
     connect( socket, SIGNAL(disconnected()), SLOT(socketConnectionClosed()) );
     //connect( socket, SIGNAL(error(SocketError socketError)), SLOT(socketError(int)) );
@@ -113,8 +116,7 @@ void Socket::checkLoginAndGetListFileName()
     QJsonDocument document = QJsonDocument::fromJson(data);
     QJsonObject object = document.object();
 
-    QJsonValue value_id = object.value("id");
-    clientID = value_id.toInt();
+    clientID = object.value("id").toInt();
     if(clientID == -1){
         emit loginError();
         return;
@@ -138,6 +140,16 @@ void Socket::checkLoginAndGetListFileName()
     /*Le connect per gestire le notifiche che arrivano dal server le setto nel costruttore di MainWindow*/
     disconnect(socket, SIGNAL(readyRead()), this, SLOT(checkLoginAndGetListFileName()));
     connect(socket, SIGNAL(readyRead()),  SLOT(notificationsHandler()));
+
+    /*Creo il FileHandler*/
+    connect( this->fileh, SIGNAL(localInsertNotify(QChar, QJsonArray, int, int, int)),
+             this, SLOT(sendInsert(QChar, QJsonArray, int, int, int)) );
+    connect( this->fileh, SIGNAL(localDeleteNotify(int)), this, SLOT(sendDelete(int)) );
+
+    /*Salvo il file come vettore di Letters nel fileHandler*/
+    QVector<Letter*> letters;
+    letters.clear();
+    this->fileh->setValues(std::move(letters), "newFile");
 
     emit loginSuccess();
     qDebug() << "Finished!";
@@ -181,13 +193,7 @@ void Socket::notificationsHandler(){
 
     if(type.compare("OPEN")==0){
 
-        /*Creo il FileHandler*/
         QString fileName = object.value("filename").toString();
-
-        this->fileh = new FileHandler(fileName);
-        connect( this->fileh, SIGNAL(localInsertNotify(QChar, QJsonArray, int, int, int)),
-                 this, SLOT(sendInsert(QChar, QJsonArray, int, int, int)) );
-        connect( this->fileh, SIGNAL(localDeleteNotify(int)), this, SLOT(sendDelete(int)) );
 
         QVector<Letter*> letters;
         QJsonValue value = object.value("letterArray");
@@ -208,8 +214,13 @@ void Socket::notificationsHandler(){
             qDebug() << "Lettera:" << letter;
         }
 
+        /*Creo il FileHandler*/
+        connect( this->fileh, SIGNAL(localInsertNotify(QChar, QJsonArray, int, int, int)),
+                 this, SLOT(sendInsert(QChar, QJsonArray, int, int, int)) );
+        connect( this->fileh, SIGNAL(localDeleteNotify(int)), this, SLOT(sendDelete(int)) );
+
         /*Salvo il file come vettore di Letters nel fileHandler*/
-        this->fileh->setVectorLettersFile(std::move(letters));
+        this->fileh->setValues(std::move(letters), fileName);
         emit readyFile();
     }
 

@@ -9,20 +9,14 @@
 #include <QColor>
 #include <QColorDialog>
 
-MainWindow::MainWindow(Socket *sock, QWidget *parent) :
+MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
     socket(sock),
-    fHandler(sock->getFHandler())
+    fHandler(fileHand)
 {
     ui->setupUi(this);
     setWindowTitle("Notepad dei Povery");
-
-    /*
-void Socket::updateLocalInsert(int externalIndex, QChar newLetterValue){
-    this->fileh->localInsert(externalIndex, newLetterValue, this->clientID);
-}
-*/
 
     /*CONNECT per segnali uscenti, inoltrare le modifiche fatte*/
     connect( this, SIGNAL(myInsert(int, QChar, int)),
@@ -33,7 +27,6 @@ void Socket::updateLocalInsert(int externalIndex, QChar newLetterValue){
               socket, SLOT(sendCheckFileName(QString)));
     connect( this, SIGNAL(newFile()),
              socket, SLOT(sendNewFile()));
-
 
     /*CONNECT per segnali entranti, applicare sulla GUI le modifiche che arrivano sul socket*/
     connect( socket, SIGNAL(readyInsert(QJsonArray, QChar, int, int, int)),
@@ -193,7 +186,6 @@ void MainWindow::on_actionBackgorund_Color_triggered()
 void MainWindow::on_textEdit_textChanged()
 {
     /*Testo cambiato con INSERT */
-
     QTextCursor cursor(ui->textEdit->textCursor());
     int externalIndex = cursor.position();
     //ui->statusBar->showMessage(QString::number(pos));
