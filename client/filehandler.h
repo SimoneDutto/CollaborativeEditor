@@ -9,13 +9,13 @@
 class FileHandler : public QObject
 {
     Q_OBJECT
+
 private:
     QString fileName;
     QVector<Letter*> letters;
     int siteCounter;
 
     QVector<int> calculateInternalIndex(QVector<int> prevPos, QVector<int> nextPos);
-    //void insertLetterInArray(Letter *newLetter);
 
 public:
     explicit FileHandler(QString filename, QObject *parent = nullptr);

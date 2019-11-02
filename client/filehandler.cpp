@@ -121,9 +121,7 @@ void FileHandler::localInsert(int externalIndex, QChar newLetterValue, int clien
     qDebug() << "ext-1" << externalIndex-1;
     this->letters.insert(this->letters.begin()+(externalIndex-1), newLetter);
 
-    //insertLetterInArray(&newLetter);
     /*Inviare notifica via socket*/
-    /*Cosa server al server?*/
 
     QJsonArray positionJsonArray;
     std::copy (position.begin(), position.end(), std::back_inserter(positionJsonArray));
