@@ -197,7 +197,7 @@ void MainWindow::on_textEdit_textChanged()
 
     if(numberOfLetters >= letterCounter) {   // Compare actual number of letters in editor to the previous situation
         cursor.select(QTextCursor::LineUnderCursor);
-        QChar newLetterValue = cursor.selectedText().right(1).at(0);
+        QChar newLetterValue = cursor.selectedText().right(1).at(0);    // CREA CRASH DOPO OPEN FILE
         letterCounter++;
     //ui->statusBar->showMessage(c);
         emit myInsert(externalIndex, newLetterValue, socket->getClientID());

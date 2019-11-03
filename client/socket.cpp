@@ -221,7 +221,7 @@ void Socket::notificationsHandler(){
 
         /*Salvo il file come vettore di Letters nel fileHandler*/
         this->fileh->setValues(std::move(letters), fileName);
-        emit readyFile();
+        emit readyFile();   //CREA CRASH QUANDO CHIAMA MAINWINDOW
     }
 
     else if (type.compare("INSERT")==0) {
