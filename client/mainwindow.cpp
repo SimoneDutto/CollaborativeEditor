@@ -188,8 +188,14 @@ void MainWindow::on_textEdit_textChanged()
     /*Testo cambiato con INSERT */
     QTextCursor cursor(ui->textEdit->textCursor());
     int externalIndex = cursor.position();
+    int numberOfLetters = ui->textEdit->toPlainText().size();
+
     //ui->statusBar->showMessage(QString::number(pos));
-    if(externalIndex>=letterCounter){
+    /*qDebug() << "External index = " << externalIndex;
+    qDebug() << "Letter cnt prev = " << letterCounter;
+    qDebug() << "Letter cnt post = " << numberOfLetters;*/
+
+    if(numberOfLetters >= letterCounter) {   // Compare actual number of letters in editor to the previous situation
         cursor.select(QTextCursor::LineUnderCursor);
         QChar newLetterValue = cursor.selectedText().right(1).at(0);
         letterCounter++;

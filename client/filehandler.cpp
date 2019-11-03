@@ -2,7 +2,7 @@
 #include <QDebug>
 
 FileHandler::FileHandler(QObject *parent)
-  : QObject(parent)
+  : QObject(parent), siteCounter(0)
 {}
 
 /**
@@ -16,7 +16,7 @@ FileHandler::FileHandler(QObject *parent)
         Se la lettera precedente ha indici frazionari, questi vengono copiati nel vettore di posizioni della nuova lettera inserita, tranne l'ultimo
         Se non li ha, viene considerato l'ultimo indice frazionario pari a 0
     2.3 Calcolo ultimo indice frazionario (determina la posizione differente rispetto alle lettere circostanti):
-        Se gli indici esterni delle lettere a dx e sx sono diversi, il nuovo indice frazionario è (INT_MAX-ultimoIndiceLetteraPrecedente): se risultano uguali,
+        Se gli indici interi delle lettere a dx e sx sono diversi, il nuovo indice frazionario è (INT_MAX-ultimoIndiceLetteraPrecedente): se risultano uguali,
         viene aggiunta una nuova posizione frazionaria, pari a INT_MAX/2
         Altrimenti, se sono uguali, il nuovo indice è la media tra i due a dx e sx: se risulta uguale a 0 o uguale all'indice precedente, viene aggiutna una nuova posizione
         frazionaria, pari a INT_MAX/2.
@@ -30,13 +30,14 @@ QVector<int> FileHandler::calculateInternalIndex(QVector<int> prevPos, QVector<i
     if(prevPos.isEmpty()) { // externalIndex == 0
         position.insert(0, nextPos.at(0));
     } else {
-        position.insert(0, prevPos.at(0));
+        position.insert(0, prevPos.at(0));  // indice intero pari a quello della lettera che precede
 
         int lastFractionalPrev, lastFractionalNext, newIndex;
-        if(prevPos.size() > 1) {
+        if(prevPos.size() > 1) {    // indici frazionari presenti
+            qDebug() << "prePos.size() > 1";
             lastFractionalPrev = prevPos[prevPos.size()-1];
-            if(prevPos.size() > 2) {
-                for(int i=1; i<prevPos.size(); i++)
+            if(prevPos.size() > 2) {    // copia gli indici frazionari della lettera precedente
+                for(int i=1; i<prevPos.size(); i++) // size-1?
                     position.append(prevPos[i]);
             }
         } else lastFractionalPrev = 0;
@@ -45,15 +46,23 @@ QVector<int> FileHandler::calculateInternalIndex(QVector<int> prevPos, QVector<i
             lastFractionalNext = nextPos[nextPos.size()-1];
         } else lastFractionalNext = 0;
 
-        if(prevPos.at(0) < nextPos.at(0)) {
-            newIndex = INT_MAX-lastFractionalPrev;
-            if(newIndex == lastFractionalPrev || newIndex == INT_MAX) {
+        if(prevPos.at(0) < nextPos.at(0)) { // indici interi diversi
+            if(lastFractionalNext == 0 && lastFractionalPrev == 0) {
+                newIndex = INT_MAX/2;
+            } else {
+                newIndex = INT_MAX/2 + lastFractionalPrev/2;    // media
+                qDebug() << "New = " << newIndex << ", last = " << lastFractionalPrev;
+            }
+
+            if(newIndex == lastFractionalPrev) {    // || newIndex == INT_MAX
+                qDebug() << "Doppia append";
                 position.append(lastFractionalPrev);
                 position.append(INT_MAX/2);
             }
             else position.append(newIndex);
-        } else {
-            newIndex = (lastFractionalPrev + lastFractionalNext)/2;
+        } else {    // indici uguali
+            newIndex = lastFractionalNext/2 + lastFractionalPrev/2;
+
             if(newIndex == 0 || newIndex == lastFractionalPrev) {
                 position.append(lastFractionalPrev);
                 position.append(INT_MAX/2);
@@ -61,6 +70,10 @@ QVector<int> FileHandler::calculateInternalIndex(QVector<int> prevPos, QVector<i
                 position.append(newIndex);
         }
     }
+    qDebug() << "Position calculated: ";
+    for (auto p : position)
+        qDebug() << p <<"-";
+
     return position;
 }
 
@@ -82,7 +95,7 @@ void FileHandler::localInsert(int externalIndex, QChar newLetterValue, int clien
 
     QString letterID = QString::number(clientID).append("-").append(QString::number(this->siteCounter));
 
-    if(externalIndex > this->letters.size()) {  //CHECK >=
+    if(externalIndex > this->letters.size()) {
         // la lettera inserita si trova alla fine del file
         if(this->letters.size() == 0) // caso prima lettera inserita
             internalIndex = 0;
@@ -97,11 +110,23 @@ void FileHandler::localInsert(int externalIndex, QChar newLetterValue, int clien
 
         position = calculateInternalIndex(previousLetterPos, nextLetterPos);
         if(position.size() == 1 && position.at(0) == 0) {   // position = {0}
-            //  Lettera inserita all'inizio del file: avrà indici {0,0}. Devo modificare la lettera che inizialmente aveva questi indici
-            int last = nextLetterPos.size()-1;  // ultimo indice valido di nextLetterPos
-            int value = this->letters[0]->getFractionalIndexes()[last];  // prendo ultimo frazionario della lettera all'inizio del file
+            //  Lettera inserita all'inizio del file: avrà indici {0}. Devo modificare la lettera che inizialmente aveva questi indici
+            int last, value;
+            bool sizeIsOne = false;
+            if(nextLetterPos.size() == 1) {
+                last = 1;
+                value = this->letters[0]->getFractionalIndexes()[0];
+                sizeIsOne = true;
+            } else {
+                last = nextLetterPos.size()-1;  // ultimo indice valido di nextLetterPos
+                value = this->letters[0]->getFractionalIndexes()[last];  // prendo ultimo frazionario della lettera all'inizio del file
+            }
+
             if(value < INT_MAX) {
-                this->letters[0]->editIndex(last, value+1);
+                if(sizeIsOne)
+                    this->letters[0]->addFractionalDigit(1);
+                else
+                    this->letters[0]->editIndex(last, value+1);
                 // check che la seconda lettera non abbia gli stessi indici dopo la modifica
                 if(this->letters.size() >= 2) {
                     if(this->letters[0]->hasSameFractionals(*this->letters[1])) {
@@ -116,7 +141,7 @@ void FileHandler::localInsert(int externalIndex, QChar newLetterValue, int clien
     }
 
     Letter *newLetter = new Letter(newLetterValue, position, letterID);
-    qDebug() << "ext-1" << externalIndex-1;
+    qDebug() << "Letter inserted in position:" << position;
     this->letters.insert(this->letters.begin()+(externalIndex-1), newLetter);
 
     /*Inviare notifica via socket*/
@@ -128,6 +153,7 @@ void FileHandler::localInsert(int externalIndex, QChar newLetterValue, int clien
 }
 
 void FileHandler::localDelete(int externalIndex) {
+    qDebug() << "Removing letter at index " << externalIndex << "...";
     this->letters.remove(externalIndex);
     /*Inviare notifica via socket*/
     emit localDeleteNotify(externalIndex);
