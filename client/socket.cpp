@@ -15,6 +15,9 @@ Socket::Socket(const QString &host, quint16 port)
 {
     socket = new QTcpSocket(this);
     size = 0;
+    fileh = new FileHandler();
+
+    /*Setto le connect del socket*/
     connect( socket, SIGNAL(connected()), SLOT(socketConnected()) );
     connect( socket, SIGNAL(disconnected()), SLOT(socketConnectionClosed()) );
     //connect( socket, SIGNAL(error(SocketError socketError)), SLOT(socketError(int)) );
@@ -86,6 +89,9 @@ int Socket::getClientID(){
     return this->clientID;
 }
 
+QVector<QString> Socket::getListFiles(){
+    return this->listFiles;
+}
 
 
 void Socket::sendLogin(QString username, QString password)
@@ -110,18 +116,11 @@ void Socket::checkLoginAndGetListFileName()
     QJsonDocument document = QJsonDocument::fromJson(data);
     QJsonObject object = document.object();
 
-    QJsonValue value_id = object.value("id");
-    clientID = value_id.toInt();
+    clientID = object.value("id").toInt();
     if(clientID == -1){
         emit loginError();
         return;
     }
-
-    this->fileh = new FileHandler(clientID);
-    /*connect della DELETE dovrebbe essere giusta, quella della INSERT serve capire cosa server al server*/
-    connect( this->fileh, SIGNAL(localInsertNotify(QChar, QJsonArray, int, int, int)),
-             this, SLOT(sendInsert(QChar, QJsonArray, int, int, int)) );
-    connect( this->fileh, SIGNAL(localDeleteNotify(int)), this, SLOT(sendDelete(int)) );
 
     QJsonValue value = object.value("files");
     QJsonArray nameFilesArray = value.toArray();
@@ -135,12 +134,22 @@ void Socket::checkLoginAndGetListFileName()
         qDebug() << q;
         listFiles_tmp.append(q);
     }
-    this->fileh->setListFiles(listFiles_tmp);
+    this->listFiles = listFiles_tmp;
 
 
     /*Le connect per gestire le notifiche che arrivano dal server le setto nel costruttore di MainWindow*/
     disconnect(socket, SIGNAL(readyRead()), this, SLOT(checkLoginAndGetListFileName()));
     connect(socket, SIGNAL(readyRead()),  SLOT(notificationsHandler()));
+
+    /*Creo il FileHandler*/
+    connect( this->fileh, SIGNAL(localInsertNotify(QChar, QJsonArray, int, int, int)),
+             this, SLOT(sendInsert(QChar, QJsonArray, int, int, int)) );
+    connect( this->fileh, SIGNAL(localDeleteNotify(int)), this, SLOT(sendDelete(int)) );
+
+    /*Salvo il file come vettore di Letters nel fileHandler*/
+    QVector<Letter*> letters;
+    letters.clear();
+    this->fileh->setValues(std::move(letters), "newFile");
 
     emit loginSuccess();
     qDebug() << "Finished!";
@@ -183,6 +192,9 @@ void Socket::notificationsHandler(){
     */
 
     if(type.compare("OPEN")==0){
+
+        QString fileName = object.value("filename").toString();
+
         QVector<Letter*> letters;
         QJsonValue value = object.value("letterArray");
         QJsonArray letterArray = value.toArray();
@@ -202,9 +214,14 @@ void Socket::notificationsHandler(){
             qDebug() << "Lettera:" << letter;
         }
 
+        /*Creo il FileHandler*/
+        connect( this->fileh, SIGNAL(localInsertNotify(QChar, QJsonArray, int, int, int)),
+                 this, SLOT(sendInsert(QChar, QJsonArray, int, int, int)) );
+        connect( this->fileh, SIGNAL(localDeleteNotify(int)), this, SLOT(sendDelete(int)) );
+
         /*Salvo il file come vettore di Letters nel fileHandler*/
-        this->fileh->setVectorLettersFile(std::move(letters));
-        emit readyFile();
+        this->fileh->setValues(std::move(letters), fileName);
+        emit readyFile();   //CREA CRASH QUANDO CHIAMA MAINWINDOW
     }
 
     else if (type.compare("INSERT")==0) {
@@ -282,9 +299,6 @@ int Socket::sendCheckFileName(QString fileNameTmp){
 
 int Socket::sendOpenFile(QString name_file)
 {
-    /*Salvo il nome del file che sto aprendo*/
-    this->fileh->setFileName(name_file);
-
     /*RICHIESTA*/
     QJsonObject obj;
     obj.insert("type", "OPEN");

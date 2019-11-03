@@ -53,6 +53,7 @@ void FileSystem::sendFile(QString filename, QTcpSocket *socket){
         QJsonValue value = object.value("letterArray");
         QJsonArray letterArray = value.toArray();
         object.insert("type", "OPEN");
+        object.insert("filename", filename);
 
         if(socket->state() == QAbstractSocket::ConnectedState)
         {
@@ -87,7 +88,7 @@ void FileSystem::sendFile(QString filename, QTcpSocket *socket){
         FileHandler *fh = new FileHandler(std::move(letters));
         fh->insertActiveUser(socket);
 
-        files.insert(std::pair<QString, FileHandler*> (filename, fh));
+        files.insert(std::pair<QString, FileHandler*> (filename, fh));      
         qDebug() << "File saved in the file system";
     }
 }

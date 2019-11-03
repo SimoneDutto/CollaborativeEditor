@@ -1,7 +1,7 @@
 #include "dialog.h"
 #include "ui_dialog.h"
 
-Dialog::Dialog(Socket *sock, FileHandler *fHandler, QWidget *parent) :
+Dialog::Dialog(Socket *sock, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::Dialog),
     socket(sock)
@@ -16,7 +16,7 @@ Dialog::Dialog(Socket *sock, FileHandler *fHandler, QWidget *parent) :
     listFiles.append("Prova5");
     */
 
-    for (QString s : fHandler->getListFiles()){
+    for (QString s : this->socket->getListFiles()){
         ui->listWidget->addItem(s);
     }
 

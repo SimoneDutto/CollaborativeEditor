@@ -9,21 +9,17 @@
 class FileHandler : public QObject
 {
     Q_OBJECT
+
 private:
     QString fileName;
-    QVector<QString> listFiles;
     QVector<Letter*> letters;
     int siteCounter;
 
     QVector<int> calculateInternalIndex(QVector<int> prevPos, QVector<int> nextPos);
-    //void insertLetterInArray(Letter *newLetter);
 
 public:
-    explicit FileHandler(int siteid, QObject *parent = nullptr);
-    void setListFiles(QVector<QString> listFiles);
-    void setVectorLettersFile(QVector<Letter*> letters);
-    void setFileName(QString fileName);
-    QVector<QString> getListFiles();
+    explicit FileHandler(QObject *parent = nullptr);
+    void setValues(QVector<Letter*> letters, QString fileName);
     QVector<Letter*> getVectorFile();
     QString getFileName();
 

@@ -9,20 +9,14 @@
 #include <QColor>
 #include <QColorDialog>
 
-MainWindow::MainWindow(Socket *sock, QWidget *parent) :
+MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
     socket(sock),
-    fHandler(sock->getFHandler())
+    fHandler(fileHand)
 {
     ui->setupUi(this);
     setWindowTitle("Notepad dei Povery");
-
-    /*
-void Socket::updateLocalInsert(int externalIndex, QChar newLetterValue){
-    this->fileh->localInsert(externalIndex, newLetterValue, this->clientID);
-}
-*/
 
     /*CONNECT per segnali uscenti, inoltrare le modifiche fatte*/
     connect( this, SIGNAL(myInsert(int, QChar, int)),
@@ -33,7 +27,6 @@ void Socket::updateLocalInsert(int externalIndex, QChar newLetterValue){
               socket, SLOT(sendCheckFileName(QString)));
     connect( this, SIGNAL(newFile()),
              socket, SLOT(sendNewFile()));
-
 
     /*CONNECT per segnali entranti, applicare sulla GUI le modifiche che arrivano sul socket*/
     connect( socket, SIGNAL(readyInsert(QJsonArray, QChar, int, int, int)),
@@ -58,7 +51,7 @@ void MainWindow::on_actionNew_triggered()
 void MainWindow::on_actionOpen_triggered()
 {
     //QString file_name = QFileDialog::getOpenFileName(this,"Open the file");
-    dialog = new Dialog(this->socket, this->fHandler, this);
+    dialog = new Dialog(this->socket, this);
     dialog->show();
 //    QFile file(file_name);
 //    file_path = file_name;
@@ -193,13 +186,18 @@ void MainWindow::on_actionBackgorund_Color_triggered()
 void MainWindow::on_textEdit_textChanged()
 {
     /*Testo cambiato con INSERT */
-
     QTextCursor cursor(ui->textEdit->textCursor());
     int externalIndex = cursor.position();
+    int numberOfLetters = ui->textEdit->toPlainText().size();
+
     //ui->statusBar->showMessage(QString::number(pos));
-    if(externalIndex>=letterCounter){
+    /*qDebug() << "External index = " << externalIndex;
+    qDebug() << "Letter cnt prev = " << letterCounter;
+    qDebug() << "Letter cnt post = " << numberOfLetters;*/
+
+    if(numberOfLetters >= letterCounter) {   // Compare actual number of letters in editor to the previous situation
         cursor.select(QTextCursor::LineUnderCursor);
-        QChar newLetterValue = cursor.selectedText().right(1).at(0);
+        QChar newLetterValue = cursor.selectedText().right(1).at(0);    // CREA CRASH DOPO OPEN FILE
         letterCounter++;
     //ui->statusBar->showMessage(c);
         emit myInsert(externalIndex, newLetterValue, socket->getClientID());
