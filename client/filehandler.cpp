@@ -148,6 +148,7 @@ void FileHandler::localInsert(int externalIndex, QChar newLetterValue, int clien
 
     QJsonArray positionJsonArray;
     std::copy (position.begin(), position.end(), std::back_inserter(positionJsonArray));
+    qDebug() << "Letter inserted in position:";
     emit localInsertNotify(newLetterValue, positionJsonArray, clientID, siteCounter, externalIndex);
 
 }
