@@ -196,15 +196,15 @@ void MainWindow::on_textEdit_textChanged()
     qDebug() << "Letter cnt post = " << numberOfLetters;*/
 
     if(numberOfLetters >= letterCounter) {   // Compare actual number of letters in editor to the previous situation
-        cursor.select(QTextCursor::LineUnderCursor);
-        QChar newLetterValue = cursor.selectedText().right(1).at(0);    // CREA CRASH DOPO OPEN FILE
+
+        QChar newLetterValue = ui->textEdit->toPlainText().at(externalIndex-1);
         letterCounter++;
     //ui->statusBar->showMessage(c);
         emit myInsert(externalIndex, newLetterValue, socket->getClientID());
     }
     else{  /*Testo cambiato con DELETE */
         letterCounter--;
-        emit myDelete(externalIndex);
+        emit myDelete(externalIndex+1);
     }
 }
 
@@ -216,6 +216,9 @@ void MainWindow::on_lineEdit_editingFinished()
 }
 
 void MainWindow::fileIsHere(){
+    qDebug() << "FileIsHere";
+    disconnect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
+
     /*Aggiornare la GUI con il file appena arrivato*/
     QVector<Letter*> vectorFile = this->fHandler->getVectorFile();
     QString text = "";
@@ -224,7 +227,9 @@ void MainWindow::fileIsHere(){
         letterCounter++;
         text.append(c);
     }
+
     ui->textEdit->setText(text);
+    connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
 }
 
 //void MainWindow::changeViewAfterInsert(Letter l, int pos)
