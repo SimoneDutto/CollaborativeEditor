@@ -9,15 +9,31 @@
 #include <QColor>
 #include <QColorDialog>
 
-MainWindow::MainWindow(Socket *sock, QWidget *parent) :
+MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
-    socket(sock)
+    socket(sock),
+    fHandler(fileHand)
 {
     ui->setupUi(this);
     setWindowTitle("Notepad dei Povery");
-    this->setCentralWidget(ui->textEdit);
-    connect( this, SIGNAL(forNowInsert(int pos, QString value)), socket, SLOT(sendInsert(int pos, QString value)) );
+
+    /*CONNECT per segnali uscenti, inoltrare le modifiche fatte*/
+    connect( this, SIGNAL(myInsert(int, QChar, int)),
+              fHandler, SLOT(localInsert(int, QChar, int)));
+    connect( this, SIGNAL(myDelete(int)),
+              fHandler, SLOT(localDelete(int)));
+    connect( this, SIGNAL(sendNameFile(QString)),
+              socket, SLOT(sendCheckFileName(QString)));
+    connect( this, SIGNAL(newFile()),
+             socket, SLOT(sendNewFile()));
+
+    /*CONNECT per segnali entranti, applicare sulla GUI le modifiche che arrivano sul socket*/
+    connect( socket, SIGNAL(readyInsert(QJsonArray, QChar, int, int, int)),
+              fHandler,  SLOT(remoteInsert(QJsonArray, QChar, int, int, int)));
+    connect( socket, SIGNAL(readyDelete(QString)),
+              fHandler, SLOT(remoteDelete(QString)));
+    connect( socket, SIGNAL(readyFile()),  this, SLOT(fileIsHere()));
 }
 
 MainWindow::~MainWindow()
@@ -27,59 +43,62 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_actionNew_triggered()
 {
-    file_path = "";
-    ui->textEdit->setText("");
+    ui->textEdit->clear();
+    ui->lineEdit->setText("Nuovo Documento");
+    emit newFile();
 }
 
 void MainWindow::on_actionOpen_triggered()
 {
-    QString file_name = QFileDialog::getOpenFileName(this,"Open the file");
-    QFile file(file_name);
-    file_path = file_name;
-    if(!file.open(QFile::ReadOnly | QFile::Text)){
-        QMessageBox::warning(this, "..", "file not open");
-        return;
-    }
-    QTextStream in(&file);
-    QString text = in.readAll();
-    ui->textEdit->setText(text);
-    file.close();
+    //QString file_name = QFileDialog::getOpenFileName(this,"Open the file");
+    dialog = new Dialog(this->socket, this);
+    dialog->show();
+//    QFile file(file_name);
+//    file_path = file_name;
+//    if(!file.open(QFile::ReadOnly | QFile::Text)){
+//        QMessageBox::warning(this, "..", "file not open");
+//        return;
+//    }
+//    QTextStream in(&file);
+//    QString text = in.readAll();
+//    ui->textEdit->setText(text);
+//    file.close();
 }
 
-void MainWindow::on_actionSave_triggered()
-{
-    if(file_path == ""){
-        on_actionSave_As_triggered();
-        return;
-    }else{
-    QFile file(file_path);
-    if(!file.open(QFile::WriteOnly | QFile::Text)){
-        QMessageBox::warning(this, "..", "file not saved!");
-        return;
-    }
-    QTextStream out(&file);
-    QString text = ui->textEdit->toPlainText();
-    out << text;
-    file.flush();
-    file.close();
-    }
-}
+//void MainWindow::on_actionSave_triggered()
+//{
+//    if(file_path == ""){
+//        on_actionSave_As_triggered();
+//        return;
+//    }else{
+//    QFile file(file_path);
+//    if(!file.open(QFile::WriteOnly | QFile::Text)){
+//        QMessageBox::warning(this, "..", "file not saved!");
+//        return;
+//    }
+//    QTextStream out(&file);
+//    QString text = ui->textEdit->toPlainText();
+//    out << text;
+//   file.flush();
+//    file.close();
+//    }
+//}
 
-void MainWindow::on_actionSave_As_triggered()
-{
-    QString file_name = QFileDialog::getSaveFileName(this,"Save the file");
-    QFile file(file_name);
-    file_path = file_name;
-    if(!file.open(QFile::WriteOnly | QFile::Text)){
-        QMessageBox::warning(this, "..", "file not saved!");
-        return;
-    }
-    QTextStream out(&file);
-    QString text = ui->textEdit->toPlainText();
-    out << text;
-    file.flush();
-    file.close();
-}
+//void MainWindow::on_actionSave_As_triggered()
+//{
+//    QString file_name = QFileDialog::getSaveFileName(this,"Save the file");
+//    QFile file(file_name);
+//    file_path = file_name;
+//    if(!file.open(QFile::WriteOnly | QFile::Text)){
+//        QMessageBox::warning(this, "..", "file not saved!");
+//        return;
+//    }
+//    QTextStream out(&file);
+//    QString text = ui->textEdit->toPlainText();
+//    out << text;
+//    file.flush();
+//    file.close();
+//}
 
 void MainWindow::on_actionCut_triggered()
 {
@@ -166,11 +185,71 @@ void MainWindow::on_actionBackgorund_Color_triggered()
 
 void MainWindow::on_textEdit_textChanged()
 {
+    /*Testo cambiato con INSERT */
     QTextCursor cursor(ui->textEdit->textCursor());
-    int pos = cursor.position();
+    int externalIndex = cursor.position();
+    int numberOfLetters = ui->textEdit->toPlainText().size();
+
     //ui->statusBar->showMessage(QString::number(pos));
-    cursor.select(QTextCursor::LineUnderCursor);
-    QString c = cursor.selectedText().right(1);
+    /*qDebug() << "External index = " << externalIndex;
+    qDebug() << "Letter cnt prev = " << letterCounter;
+    qDebug() << "Letter cnt post = " << numberOfLetters;*/
+
+    if(numberOfLetters >= letterCounter) {   // Compare actual number of letters in editor to the previous situation
+
+        QChar newLetterValue = ui->textEdit->toPlainText().at(externalIndex-1);
+        letterCounter++;
     //ui->statusBar->showMessage(c);
-    emit forNowInsert(pos, c);
+        emit myInsert(externalIndex, newLetterValue, socket->getClientID());
+    }
+    else{  /*Testo cambiato con DELETE */
+        letterCounter--;
+        emit myDelete(externalIndex+1);
+    }
 }
+
+
+void MainWindow::on_lineEdit_editingFinished()
+{
+    /*Cambio il nome del documento, solo dopo l'OK*/
+    //emit sendNameFile(ui->lineEdit->text());
+}
+
+void MainWindow::fileIsHere(){
+    qDebug() << "FileIsHere";
+    disconnect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
+
+    /*Aggiornare la GUI con il file appena arrivato*/
+    QVector<Letter*> vectorFile = this->fHandler->getVectorFile();
+    QString text = "";
+    for(Letter *l : vectorFile){
+        QChar c = l->getValue();
+        letterCounter++;
+        text.append(c);
+    }
+
+    ui->textEdit->setText(text);
+    connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
+}
+
+//void MainWindow::changeViewAfterInsert(Letter l, int pos)
+//{
+//    QTextCursor cursor(ui->textEdit->textCursor());
+//    cursor.setPosition(pos);
+//    ui->textEdit->insertPlainText(l.getValue());
+//    letterCounter++;
+//}
+
+//void MainWindow::changeViewAfterDelete(Letter l, int pos)
+//{
+//    QTextCursor cursor(ui->textEdit->textCursor());
+//    cursor.setPosition(pos);
+//    cursor.select(QTextCursor::LineUnderCursor);
+//    QChar old = cursor.selectedText().right(1).at(0);
+//    if (old == l.getValue()){
+//        cursor.removeSelectedText();
+//        ui->textEdit->setTextCursor(cursor);
+//        letterCounter--;
+//    }
+
+//}

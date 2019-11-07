@@ -6,21 +6,32 @@
 #include <QJsonArray>
 #include "letter.h"
 
-class fileHandler
+class FileHandler : public QObject
 {
+    Q_OBJECT
+
 private:
-    QVector<Letter> letters;
+    QString fileName;
+    QVector<Letter*> letters;
     int siteCounter;
 
     QVector<int> calculateInternalIndex(QVector<int> prevPos, QVector<int> nextPos);
-    //void insertLetterInArray(Letter *newLetter);
 
 public:
-    fileHandler();
+    explicit FileHandler(QObject *parent = nullptr);
+    void setValues(QVector<Letter*> letters, QString fileName);
+    QVector<Letter*> getVectorFile();
+    QString getFileName();
+
+public slots:
     void localInsert(int externalIndex, QChar newLetterValue, int clientID);
     void localDelete(int externalIndex);
     void remoteInsert(QJsonArray position, QChar newLetterValue, int externalIndex, int siteID, int siteCounter);
     void remoteDelete(QString deletedLetterID);
+
+signals:
+    void localInsertNotify(QChar newLetterValue, QJsonArray position, int siteID, int siteCounter, int externalIndex);
+    void localDeleteNotify(int externalIndex);
 };
 
 #endif // FILEHANDLER_H

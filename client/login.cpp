@@ -26,13 +26,13 @@ void Login::on_pushButton_clicked()
     connect(socket, SIGNAL(loginSuccess()), this, SLOT(resumeLogin()));
     connect(socket, SIGNAL(loginError()), this, SLOT(redoLogin()));
 
-    socket->checkLogin(username, password);
+    socket->sendLogin(username, password);
 }
 
 void Login::resumeLogin()
 {
+    mainWindow = new MainWindow(this->socket, this->socket->getFHandler(), this);
     hide();
-    mainWindow = new MainWindow(this->socket, this);
     mainWindow->show();
 }
 

@@ -12,6 +12,7 @@
 #include <QFile>
 #include "letter.h"
 #include "iostream"
+#include "filehandler.h"
 
 namespace Ui {
 class Socket;
@@ -25,33 +26,46 @@ public:
     explicit Socket(QWidget *parent = nullptr);
     Socket(const QString &host, quint16 port);
     ~Socket();
+    FileHandler* getFHandler();
+    int getClientID();
+    QVector<QString> getListFiles();
 
 private:
     Ui::Socket *ui;
     QTcpSocket *socket;
     qint32 size;
     QByteArray buffer;
-
+    FileHandler* fileh;
     int clientID;
     QVector<QString> listFiles;
 
 public slots:
-    int openFile(QString name_file);
-    void checkLogin(QString username, QString password);
-    int sendInsert(int pos, QString value);
+    void sendLogin(QString username, QString password);
 
 private slots:
     void closeConnection();
-    void socketReadyReadFile();
     void socketConnected();
     void socketConnectionClosed();
     void socketClosed();
     void socketError(int e);
-    void socketReadyReadListFiles();
+
+    void checkLoginAndGetListFileName();
+    void notificationsHandler();
+
+    int sendOpenFile(QString name_file);
+    int sendInsert(QChar newLetterValue, QJsonArray position, int siteID, int siteCounter, int externalIndex);
+    int sendDelete(int externalIndex);
+    int sendCheckFileName(QString fileNameTmp);
+    int sendNewFile();
 
 signals:
     void loginSuccess();
     void loginError();
+
+    /*Notifiche durante l'uso*/
+    void readyFile();
+    void readyInsert(QJsonArray position, QChar newLetterValue, int externalIndex, int siteID, int siteCounter);
+    void readyDelete(QString deletedLetterID);
 };
 
 
