@@ -27,7 +27,48 @@ FileSystem* FileSystem::getInstance(){
     return FileSystem::instance;
 }
 
-void FileSystem::sendFile(QString filename, QTcpSocket *socket){
+FileHandler* FileSystem::createFile(QString filename, QTcpSocket *socket){
+    auto id = sock_id.find(socket);
+    if(id == sock_id.end()){ //il socket è autenticato o no
+        auto file = sock_file.find(socket);
+        if(file == sock_file.end()){
+            sock_file.insert(std::pair<QTcpSocket*, QString> (socket, file->second)); //associate file to socket
+        }
+        else{
+           // disconnessione di un client da un file
+
+           sock_file.insert(std::pair<QTcpSocket*, QString> (socket, file->second)); //associate file to socket
+        }
+        QSqlQuery query;
+
+        query.prepare("INSERT INTO files(FileId,Filename) VALUES ((:userid), (:filename))");
+        query.bindValue(":filename", filename);
+        query.bindValue(":userid", id->second);
+        if (query.exec()){
+            QString pathfile = QString(id->second+("/")+filename);
+            QFile m_file (pathfile);
+            QDir().mkdir(file->second);
+            m_file.open(QFile::ReadOnly);
+
+            QVector<Letter*> letters;
+            FileHandler *fh = new FileHandler(std::move(letters));
+            fh->insertActiveUser(socket);
+
+            files.insert(std::pair<QString, FileHandler*> (filename, fh));
+
+            qDebug() << "Insert executed";
+            return fh;
+        }
+        else{
+            qDebug() << "Insert not executed";
+        }
+
+
+    }
+    return nullptr;
+}
+
+FileHandler* FileSystem::sendFile(QString filename, QTcpSocket *socket){
     QByteArray block;
     QDataStream out(&block, QIODevice::WriteOnly);
 
@@ -61,7 +102,7 @@ void FileSystem::sendFile(QString filename, QTcpSocket *socket){
             socket->write(IntToArray(QJsonDocument(object).toJson().size())); //write size of data
             if(socket->write(QJsonDocument(object).toJson()) == -1){
                 qDebug() << "File failed to send";
-                return;
+                return nullptr;
             } //write the data itself
             socket->waitForBytesWritten();
         }
@@ -90,6 +131,7 @@ void FileSystem::sendFile(QString filename, QTcpSocket *socket){
 
         files.insert(std::pair<QString, FileHandler*> (filename, fh));      
         qDebug() << "File saved in the file system";
+        return fh;
     }
 }
 
@@ -126,6 +168,7 @@ void FileSystem::checkLogin(QString username, QString password, QTcpSocket *sock
     QJsonObject final_object;
     if(id != -1){
         QSqlQuery query;
+        sock_id.insert(std::pair<QTcpSocket*, int> (socket, id)); //associate id to socket
         query.prepare("SELECT filename FROM files WHERE username = (:username)");
         query.bindValue(":username", username);
         if (query.exec())

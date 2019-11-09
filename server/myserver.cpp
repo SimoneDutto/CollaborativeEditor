@@ -60,12 +60,22 @@ void MyServer::onReadyRead(QObject *socketObject)
     if(type.compare("OPEN")==0){
         qDebug() << "OPEN request";
         QString filename = rootObject.value(("filename")).toString();
-        fsys->sendFile(filename, socket);
-
-        FileHandler *fh = fsys->getFiles().at(filename);
-
+        FileHandler *fh = fsys->sendFile(filename, socket);
+        if(fh == nullptr) return;
         /* Connect socket to signals for remote insert and delete */
 
+        connect(fh, SIGNAL(remoteInsertNotify(QVector<QTcpSocket*>, QByteArray, bool, int)),
+                this, SLOT(sendInsert(QVector<QTcpSocket*>, QByteArray, bool, int)));
+
+        connect(fh, SIGNAL(remoteDeleteNotify(QVector<QTcpSocket*>, QByteArray)),
+                this, SLOT(sendDelete(QVector<QTcpSocket*>, QByteArray)));
+    }
+    else if(type.compare("NEW")==0){
+        qDebug() << "NEW request";
+        QString filename = rootObject.value(("filename")).toString();
+
+        FileHandler *fh = fsys->createFile(filename, socket);
+        if(fh == nullptr) return;
         connect(fh, SIGNAL(remoteInsertNotify(QVector<QTcpSocket*>, QByteArray, bool, int)),
                 this, SLOT(sendInsert(QVector<QTcpSocket*>, QByteArray, bool, int)));
 
