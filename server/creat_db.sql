@@ -16,8 +16,8 @@ CREATE TABLE IF NOT EXISTS Password (
 DROP TABLE IF EXISTS Files ;
 
 CREATE TABLE IF NOT EXISTS Files (
- Filename VARCHAR(255) NOT NULL,
+ FileId INT NOT NULL,
  Username VARCHAR(255) NOT NULL,
- PRIMARY KEY (Filename,Username));
+ PRIMARY KEY (FileId,Username));
 
 

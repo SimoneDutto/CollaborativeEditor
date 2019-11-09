@@ -15,14 +15,15 @@ class FileHandler : public QObject
 private:
     QVector<Letter*> letters;
     QVector<QTcpSocket*> users;
+    int counter_user = 0;
 
 public:
     void remoteInsert(QJsonArray position, QChar newLetterValue, int externalIndex, int siteID, int siteCounter,  QByteArray message);
     void remoteDelete(QString deletedLetterID,  QByteArray message);
-    QVector<QTcpSocket*> active_users;
 
     explicit FileHandler(const QVector<Letter*>&& lett, QObject *parent = nullptr);
     void insertActiveUser(QTcpSocket* user);
+    void removeActiveUser(QTcpSocket *user);
     QVector<QTcpSocket*> getUsers();  
 
 signals:

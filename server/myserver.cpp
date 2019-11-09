@@ -118,7 +118,7 @@ void MyServer::onDisconnected(QObject *socketObject)
     QTcpSocket *socket = qobject_cast<QTcpSocket *>(socketObject);
     if (!socket)
         return;
-
+    fsys->disconnectClient(socket);
     qDebug("Client %s:%d has disconnected.",
            qPrintable(socket->peerAddress().toString()), socket->peerPort());
 

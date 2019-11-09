@@ -31,13 +31,10 @@ FileHandler* FileSystem::createFile(QString filename, QTcpSocket *socket){
     auto id = sock_id.find(socket);
     if(id == sock_id.end()){ //il socket è autenticato o no
         auto file = sock_file.find(socket);
-        if(file == sock_file.end()){
-            sock_file.insert(std::pair<QTcpSocket*, QString> (socket, file->second)); //associate file to socket
-        }
-        else{
-           // disconnessione di un client da un file
-
-           sock_file.insert(std::pair<QTcpSocket*, QString> (socket, file->second)); //associate file to socket
+        if(file != sock_file.end()){
+            // disconnessione di un client da un file
+            FileHandler *fh = files.at(filename);
+            fh->removeActiveUser(socket);
         }
         QSqlQuery query;
 
@@ -54,6 +51,7 @@ FileHandler* FileSystem::createFile(QString filename, QTcpSocket *socket){
             FileHandler *fh = new FileHandler(std::move(letters));
             fh->insertActiveUser(socket);
 
+            sock_file.insert(std::pair<QTcpSocket*, QString> (socket, file->second)); //associate file to socket
             files.insert(std::pair<QString, FileHandler*> (filename, fh));
 
             qDebug() << "Insert executed";
@@ -72,14 +70,21 @@ FileHandler* FileSystem::sendFile(QString filename, QTcpSocket *socket){
     QByteArray block;
     QDataStream out(&block, QIODevice::WriteOnly);
 
+
+    if(sock_id.find(socket) == sock_id.end()) return nullptr;//il socket è autenticato o no
+    auto file = sock_file.find(socket);
+
+    if(file != sock_file.end()){
+        // disconnessione di un client da un file
+        FileHandler *fh = files.at(filename);
+        fh->removeActiveUser(socket);
+    }
     auto it = files.find(filename);
     if (it != files.end()){
         // il file è già in memoria principale e può essere mandato
         // serializzarlo
 
-        it->second->insertActiveUser(socket);
-
-
+        return nullptr;
     }
     else{
         qDebug() << "Inizio l'invio del file";
@@ -129,7 +134,8 @@ FileHandler* FileSystem::sendFile(QString filename, QTcpSocket *socket){
         FileHandler *fh = new FileHandler(std::move(letters));
         fh->insertActiveUser(socket);
 
-        files.insert(std::pair<QString, FileHandler*> (filename, fh));      
+        files.insert(std::pair<QString, FileHandler*> (filename, fh));
+        sock_file.insert(std::pair<QTcpSocket*, QString> (socket, file->second)); //associate file to socket
         qDebug() << "File saved in the file system";
         return fh;
     }
@@ -200,6 +206,10 @@ void FileSystem::checkLogin(QString username, QString password, QTcpSocket *sock
 
 std::map<QString, FileHandler*> FileSystem::getFiles() {
     return this->files;
+}
+
+void FileSystem::disconnectClient(QTcpSocket* socket){
+    files.at(sock_file.at(socket))->removeActiveUser(socket);
 }
 
 

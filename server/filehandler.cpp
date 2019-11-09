@@ -5,7 +5,17 @@ FileHandler::FileHandler(const QVector<Letter*>&& lett, QObject *parent) : QObje
 }
 
 void FileHandler::insertActiveUser(QTcpSocket *user){
-    active_users.append(user);
+    users.append(user);
+    counter_user++;
+}
+
+void FileHandler::removeActiveUser(QTcpSocket *user){
+    users.removeOne(user);
+    counter_user--;
+    if(counter_user == 0){
+        // Salvarlo in memoria secondaria, io lo farei con un segnale
+
+    }
 }
 
 /**
@@ -20,6 +30,7 @@ void FileHandler::insertActiveUser(QTcpSocket *user){
 void FileHandler::remoteInsert(QJsonArray position, QChar newLetterValue, int externalIndex, int siteID, int siteCounter, QByteArray message) {
     // Get index and fractionals vector
     QVector<int> fractionals;
+
 
     if(!position.isEmpty()) {
         //int index = position.at(0).toInt();
