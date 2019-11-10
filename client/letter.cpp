@@ -1,28 +1,4 @@
 #include "letter.h"
-/*
-Letter::Letter(QString value, QString id, int intera, int decimale):
-    letterID(id)
-{
-    this->letter = value.at(0);
-    this->fractionalIndexes.insert(0, intera);
-    this->fractionalIndexes.insert(1, decimale);
-}
-
-QVector<int> Letter::getPos()
-{
-    return this->pos;
-}
-
-QString Letter::getId()
-{
-    return this->id;
-}
-
-QString Letter::getValue()
-{
-    return this->value;
-}
-*/
 
 Letter::Letter(QChar letter, QVector<int> fractionals, QString letterID) : letter(letter), fractionalIndexes(fractionals), letterID(letterID) {
     //this->fractionalIndexes.insert(0, index);
@@ -34,7 +10,6 @@ Letter::Letter(const Letter& l) {
     this->letter = std::move(l.letter);
     this->letterID = std::move(l.letterID);
     this->fractionalIndexes.append(std::move(l.fractionalIndexes));
-    // costruttore di movimento e assegnazione
 }
 
 // Overload operatore di assegnazione

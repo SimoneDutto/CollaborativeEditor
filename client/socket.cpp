@@ -141,11 +141,6 @@ void Socket::checkLoginAndGetListFileName()
     disconnect(socket, SIGNAL(readyRead()), this, SLOT(checkLoginAndGetListFileName()));
     connect(socket, SIGNAL(readyRead()),  SLOT(notificationsHandler()));
 
-    /*Creo il FileHandler*/
-    connect( this->fileh, SIGNAL(localInsertNotify(QChar, QJsonArray, int, int, int)),
-             this, SLOT(sendInsert(QChar, QJsonArray, int, int, int)) );
-    connect( this->fileh, SIGNAL(localDeleteNotify(int)), this, SLOT(sendDelete(int)) );
-
     /*Salvo il file come vettore di Letters nel fileHandler*/
     QVector<Letter*> letters;
     letters.clear();
@@ -221,7 +216,7 @@ void Socket::notificationsHandler(){
 
         /*Salvo il file come vettore di Letters nel fileHandler*/
         this->fileh->setValues(std::move(letters), fileName);
-        emit readyFile();
+        emit readyFile();   //CREA CRASH QUANDO CHIAMA MAINWINDOW
     }
 
     else if (type.compare("INSERT")==0) {

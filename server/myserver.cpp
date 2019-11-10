@@ -59,11 +59,9 @@ void MyServer::onReadyRead(QObject *socketObject)
     qDebug() << "Tipo di richiesta: " << str.data();
     if(type.compare("OPEN")==0){
         qDebug() << "OPEN request";
-        QString filename = rootObject.value(("filename")).toString();
-        fsys->sendFile(filename, socket);
-
-        FileHandler *fh = fsys->getFiles().at(filename);
-
+        int fileid = rootObject.value(("fileid")).toInt();
+        FileHandler *fh = fsys->sendFile(fileid, socket);
+        if(fh == nullptr) return;
         /* Connect socket to signals for remote insert and delete */
 
         connect(fh, SIGNAL(remoteInsertNotify(QVector<QTcpSocket*>, QByteArray, bool, int)),
@@ -72,11 +70,23 @@ void MyServer::onReadyRead(QObject *socketObject)
         connect(fh, SIGNAL(remoteDeleteNotify(QVector<QTcpSocket*>, QByteArray)),
                 this, SLOT(sendDelete(QVector<QTcpSocket*>, QByteArray)));
     }
+    else if(type.compare("NEW")==0){
+        qDebug() << "NEW request";
+        QString filename = rootObject.value(("filename")).toString();
+
+        FileHandler *fh = fsys->createFile(filename, socket);
+        if(fh == nullptr) return;
+        connect(fh, SIGNAL(remoteInsertNotify(QVector<QTcpSocket*>, QByteArray, bool, int)),
+                this, SLOT(sendInsert(QVector<QTcpSocket*>, QByteArray, bool, int)));
+
+        connect(fh, SIGNAL(remoteDeleteNotify(QVector<QTcpSocket*>, QByteArray)),
+                this, SLOT(sendDelete(QVector<QTcpSocket*>, QByteArray)));
+    }
     else if(type.compare("INSERT")==0){
         qDebug() << "INSERT request";
-        QString filename = rootObject.value(("filename")).toString();
-        if(fsys->getFiles().find(filename) != fsys->getFiles().end()) {     // file exists
-            FileHandler* fHandler = fsys->getFiles().at(filename);
+        int fileid = rootObject.value(("fileid")).toInt();
+        if(fsys->getFiles().find(fileid) != fsys->getFiles().end()) {     // file exists
+            FileHandler* fHandler = fsys->getFiles().at(fileid);
             QChar newLetterValue = rootObject.value("letter").toString().at(0);
             QJsonArray position = rootObject.value("position").toArray();
             int externalIndex = rootObject.value("externalIndex").toInt();
@@ -86,11 +96,11 @@ void MyServer::onReadyRead(QObject *socketObject)
             //propNotification(fHandler->getUsers(), str);
         }
     }
-    else if(type.compare("INSERT")==0){
+    else if(type.compare("DELETE")==0){
         qDebug() << "DELETE request";
-        QString filename = rootObject.value("filename").toString();
-        if(fsys->getFiles().find(filename) != fsys->getFiles().end()) {     // file exists
-            FileHandler* fHandler = fsys->getFiles().at(filename);
+        int fileid = rootObject.value(("fileid")).toInt();
+        if(fsys->getFiles().find(fileid) != fsys->getFiles().end()) {     // file exists
+            FileHandler* fHandler = fsys->getFiles().at(fileid);
             QString deletedLetterID = rootObject.value("letterID").toString();
             fHandler->remoteDelete(deletedLetterID, str);
             //propNotification(fHandler->getUsers(), str);
@@ -108,7 +118,7 @@ void MyServer::onDisconnected(QObject *socketObject)
     QTcpSocket *socket = qobject_cast<QTcpSocket *>(socketObject);
     if (!socket)
         return;
-
+    fsys->disconnectClient(socket);
     qDebug("Client %s:%d has disconnected.",
            qPrintable(socket->peerAddress().toString()), socket->peerPort());
 
