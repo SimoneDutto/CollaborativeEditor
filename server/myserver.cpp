@@ -59,8 +59,8 @@ void MyServer::onReadyRead(QObject *socketObject)
     qDebug() << "Tipo di richiesta: " << str.data();
     if(type.compare("OPEN")==0){
         qDebug() << "OPEN request";
-        QString filename = rootObject.value(("filename")).toString();
-        FileHandler *fh = fsys->sendFile(filename, socket);
+        int fileid = rootObject.value(("fileid")).toInt();
+        FileHandler *fh = fsys->sendFile(fileid, socket);
         if(fh == nullptr) return;
         /* Connect socket to signals for remote insert and delete */
 
@@ -84,9 +84,9 @@ void MyServer::onReadyRead(QObject *socketObject)
     }
     else if(type.compare("INSERT")==0){
         qDebug() << "INSERT request";
-        QString filename = rootObject.value(("filename")).toString();
-        if(fsys->getFiles().find(filename) != fsys->getFiles().end()) {     // file exists
-            FileHandler* fHandler = fsys->getFiles().at(filename);
+        int fileid = rootObject.value(("fileid")).toInt();
+        if(fsys->getFiles().find(fileid) != fsys->getFiles().end()) {     // file exists
+            FileHandler* fHandler = fsys->getFiles().at(fileid);
             QChar newLetterValue = rootObject.value("letter").toString().at(0);
             QJsonArray position = rootObject.value("position").toArray();
             int externalIndex = rootObject.value("externalIndex").toInt();
@@ -98,9 +98,9 @@ void MyServer::onReadyRead(QObject *socketObject)
     }
     else if(type.compare("DELETE")==0){
         qDebug() << "DELETE request";
-        QString filename = rootObject.value("filename").toString();
-        if(fsys->getFiles().find(filename) != fsys->getFiles().end()) {     // file exists
-            FileHandler* fHandler = fsys->getFiles().at(filename);
+        int fileid = rootObject.value(("fileid")).toInt();
+        if(fsys->getFiles().find(fileid) != fsys->getFiles().end()) {     // file exists
+            FileHandler* fHandler = fsys->getFiles().at(fileid);
             QString deletedLetterID = rootObject.value("letterID").toString();
             fHandler->remoteDelete(deletedLetterID, str);
             //propNotification(fHandler->getUsers(), str);

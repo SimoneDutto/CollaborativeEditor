@@ -24,7 +24,7 @@ public:
     void remoteInsert(QJsonArray position, QChar newLetterValue, int externalIndex, int siteID, int siteCounter,  QByteArray message);
     void remoteDelete(QString deletedLetterID,  QByteArray message);
 
-    explicit FileHandler(const QVector<Letter*>&& lett, QObject *parent = nullptr);
+    explicit FileHandler(const QVector<Letter*>&& lett, int fileid, QObject *parent = nullptr);
     void insertActiveUser(QTcpSocket* user);
     void removeActiveUser(QTcpSocket *user);
     QVector<QTcpSocket*> getUsers();

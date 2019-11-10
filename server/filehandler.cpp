@@ -1,7 +1,8 @@
 ﻿#include "filehandler.h"
 
-FileHandler::FileHandler(const QVector<Letter*>&& lett, QObject *parent) : QObject(parent) {
+FileHandler::FileHandler(const QVector<Letter*>&& lett, int fileid, QObject *parent) : QObject(parent) {
     this->letters = lett;
+    id = fileid;
 }
 
 void FileHandler::insertActiveUser(QTcpSocket *user){

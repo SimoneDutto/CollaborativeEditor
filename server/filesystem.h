@@ -25,17 +25,17 @@ class QTcpSocket;
 class FileSystem
 {
     static FileSystem* instance;
-    std::map<QString, FileHandler*> files;
+    std::map<int, FileHandler*> files;
     std::map<QTcpSocket*, int> sock_id;
-    std::map<QTcpSocket*, QString> sock_file;
+    std::map<QTcpSocket*, int> sock_file;
     QSqlDatabase db;
     FileSystem() {}
 public:
-    FileHandler* sendFile(QString filename, QTcpSocket *socket);
+    FileHandler* sendFile(int fileid, QTcpSocket *socket);
     FileHandler* createFile(QString filename, QTcpSocket *socket);
     void checkLogin(QString username, QString password, QTcpSocket *socket);
     static FileSystem* getInstance();
-    std::map<QString, FileHandler*> getFiles();
+    std::map<int, FileHandler*> getFiles();
     void disconnectClient(QTcpSocket* socket);
 };
 
