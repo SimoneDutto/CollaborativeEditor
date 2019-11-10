@@ -42,9 +42,7 @@ FileHandler* FileSystem::createFile(QString filename, QTcpSocket *socket){
         query.bindValue(":filename", filename);
         query.bindValue(":userid", id->second);
         if (query.exec()){
-            QString pathfile = QString(id->second+("/")+filename);
-            QFile m_file (pathfile);
-            QDir().mkdir(file->second);
+            QFile m_file (filename);
             m_file.open(QFile::ReadOnly);
 
             QVector<Letter*> letters;
@@ -84,7 +82,32 @@ FileHandler* FileSystem::sendFile(QString filename, QTcpSocket *socket){
         // il file è già in memoria principale e può essere mandato
         // serializzarlo
 
-        return nullptr;
+        QJsonObject object;
+        QJsonArray array;
+        for(Letter* lett: it->second->getLetter()){
+           array.append(lett->toJSon());
+        }
+        object.insert("letterArray",array);
+        object.insert("type", "OPEN");
+        object.insert("filename", filename);
+
+        if(socket->state() == QAbstractSocket::ConnectedState)
+        {
+            qDebug() << "Invio file";
+            socket->write(IntToArray(QJsonDocument(object).toJson().size())); //write size of data
+            if(socket->write(QJsonDocument(object).toJson()) == -1){
+                qDebug() << "File failed to send";
+                return nullptr;
+            } //write the data itself
+            socket->waitForBytesWritten();
+        }
+
+        qDebug() << "File sent";
+        FileHandler *fh = it->second;
+        fh->insertActiveUser(socket);
+        sock_file.insert(std::pair<QTcpSocket*, QString> (socket, file->second)); //associate file to socket
+
+        return fh;
     }
     else{
         qDebug() << "Inizio l'invio del file";

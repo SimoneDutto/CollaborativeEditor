@@ -6,6 +6,8 @@
 #include <QJsonArray>
 #include <QByteArray>
 #include <QObject>
+#include <QFile>
+#include <QJsonDocument>
 #include "letter.h"
 
 
@@ -16,6 +18,7 @@ private:
     QVector<Letter*> letters;
     QVector<QTcpSocket*> users;
     int counter_user = 0;
+    int id;
 
 public:
     void remoteInsert(QJsonArray position, QChar newLetterValue, int externalIndex, int siteID, int siteCounter,  QByteArray message);
@@ -24,7 +27,8 @@ public:
     explicit FileHandler(const QVector<Letter*>&& lett, QObject *parent = nullptr);
     void insertActiveUser(QTcpSocket* user);
     void removeActiveUser(QTcpSocket *user);
-    QVector<QTcpSocket*> getUsers();  
+    QVector<QTcpSocket*> getUsers();
+    QVector<Letter*> getLetter();
 
 signals:
     void remoteInsertNotify(QVector<QTcpSocket*> users, QByteArray message, bool modifiedIndex, int newIndex);
