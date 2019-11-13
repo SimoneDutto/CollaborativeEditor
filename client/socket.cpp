@@ -141,11 +141,6 @@ void Socket::checkLoginAndGetListFileName()
     disconnect(socket, SIGNAL(readyRead()), this, SLOT(checkLoginAndGetListFileName()));
     connect(socket, SIGNAL(readyRead()),  SLOT(notificationsHandler()));
 
-    /*Salvo il file come vettore di Letters nel fileHandler*/
-    QVector<Letter*> letters;
-    letters.clear();
-    this->fileh->setValues(std::move(letters), "newFile");
-
     emit loginSuccess();
     qDebug() << "Finished!";
 }
