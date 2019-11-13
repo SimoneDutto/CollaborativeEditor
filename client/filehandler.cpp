@@ -48,24 +48,24 @@ QVector<int> FileHandler::calculateInternalIndex(QVector<int> prevPos, QVector<i
 
         if(prevPos.at(0) < nextPos.at(0)) { // indici interi diversi
             if(lastFractionalNext == 0 && lastFractionalPrev == 0) {
-                newIndex = INT_MAX/2;
+                newIndex = int(INT_MAX/2);
             } else {
-                newIndex = INT_MAX/2 + lastFractionalPrev/2;    // media
+                newIndex = int(INT_MAX/2 + lastFractionalPrev/2);    // media
                 qDebug() << "New = " << newIndex << ", last = " << lastFractionalPrev;
             }
 
             if(newIndex == lastFractionalPrev) {    // || newIndex == INT_MAX
                 qDebug() << "Doppia append";
                 position.append(lastFractionalPrev);
-                position.append(INT_MAX/2);
+                position.append(int(INT_MAX/2));
             }
             else position.append(newIndex);
         } else {    // indici uguali
-            newIndex = lastFractionalNext/2 + lastFractionalPrev/2;
+            newIndex = int(lastFractionalNext/2 + lastFractionalPrev/2);
 
             if(newIndex == 0 || newIndex == lastFractionalPrev) {
                 position.append(lastFractionalPrev);
-                position.append(INT_MAX/2);
+                position.append(int(INT_MAX/2));
             } else
                 position.append(newIndex);
         }

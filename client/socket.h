@@ -56,7 +56,7 @@ private slots:
     int sendInsert(QChar newLetterValue, QJsonArray position, int siteID, int siteCounter, int externalIndex);
     int sendDelete(int externalIndex);
     int sendCheckFileName(QString fileNameTmp);
-    int sendNewFile();
+    int sendNewFile(QString filename);
 
 signals:
     void loginSuccess();

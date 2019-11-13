@@ -51,7 +51,7 @@ signals:
     void myInsert(int externalIndex, QChar newLetterValue, int clientID);
     void myDelete(int externalIndex);
     void sendNameFile(QString fileNameTmp);
-    void newFile();
+    void newFile(QString filename);
 };
 
 #endif // MAINWINDOW_H

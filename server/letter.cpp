@@ -78,4 +78,15 @@ bool Letter::comesFirst(Letter other) {
     return comesFirst;
 }
 
+QJsonObject Letter::toJSon(){
+    QJsonArray positionJsonArray;
+    std::copy (fractionalIndexes.begin(), fractionalIndexes.end(), std::back_inserter(positionJsonArray));
+    QJsonObject obj;
+    obj.insert("letter", QJsonValue(letter));
+    obj.insert("letterID", QJsonValue(letterID));
+    obj.insert("position", positionJsonArray);
+
+    return obj;
+}
+
 
