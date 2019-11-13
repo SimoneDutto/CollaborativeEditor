@@ -238,8 +238,8 @@ void Socket::notificationsHandler(){
         emit readyDelete(deletedLetterID);
     }
 
-    else if (type.compare("CHECKNAME")==0) {
-
+    else if (type.compare("NEW")==0) {
+        qDebug() << "Il file è stato creato correttamente!";
     }
 
     qDebug() << "Finished!";
@@ -292,12 +292,12 @@ int Socket::sendCheckFileName(QString fileNameTmp){
     return socket->waitForBytesWritten(1000);
 }
 
-int Socket::sendOpenFile(QString name_file)
+int Socket::sendOpenFile(QString filename)
 {
     /*RICHIESTA*/
     QJsonObject obj;
     obj.insert("type", "OPEN");
-    obj.insert("filename", name_file);
+    obj.insert("filename", filename);
 
     if(socket->state() == QAbstractSocket::ConnectedState){
         qDebug() << "Richiesta:\n" << QJsonDocument(obj).toJson().data();
@@ -307,10 +307,14 @@ int Socket::sendOpenFile(QString name_file)
     return socket->waitForBytesWritten(1000);
 }
 
-int Socket::sendNewFile(){
+int Socket::sendNewFile(QString filename){
     /*RICHIESTA*/
     QJsonObject obj;
-    obj.insert("type", "NEWFILE");
+    obj.insert("type", "NEW");
+    obj.insert("filename", filename);
+
+    //Aggiungo il file che sto creando alla lista di file che posso aprire (ATTENZIONE: va controllata la conferma)
+    this->listFiles.append(filename);
 
     if(socket->state() == QAbstractSocket::ConnectedState){
         qDebug() << "Richiesta:\n" << QJsonDocument(obj).toJson().data();

@@ -25,8 +25,8 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent) :
               fHandler, SLOT(localDelete(int)));
     connect( this, SIGNAL(sendNameFile(QString)),
               socket, SLOT(sendCheckFileName(QString)));
-    connect( this, SIGNAL(newFile()),
-             socket, SLOT(sendNewFile()));
+    connect( this, SIGNAL(newFile(QString)),
+             socket, SLOT(sendNewFile(QString)));
 
     /*CONNECT per segnali entranti, applicare sulla GUI le modifiche che arrivano sul socket*/
     connect( socket, SIGNAL(readyInsert(QJsonArray, QChar, int, int, int)),
@@ -43,9 +43,14 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_actionNew_triggered()
 {
-    ui->textEdit->clear();
+    if(ui->textEdit->toPlainText().size() > 0){
+        ui->textEdit->clear();
+    }
+
     ui->lineEdit->setText("Nuovo Documento");
-    emit newFile();
+
+    QString filename = "NOME_DEL_FILE";
+    emit newFile(filename);
 }
 
 void MainWindow::on_actionOpen_triggered()
