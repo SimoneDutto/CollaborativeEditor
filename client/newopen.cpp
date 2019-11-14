@@ -24,14 +24,18 @@ NewOpen::~NewOpen()
 
 void NewOpen::on_pushButton_2_clicked() //Bottone: new Document
 {
-    mainwindow = new MainWindow(this->socket, this->socket->getFHandler(), this);
+    /*mainwindow = new MainWindow(this->socket, this->socket->getFHandler(), this);
     hide();
-    mainwindow->show();
+    mainwindow->show();*/
+    form = new Form(this, this->socket);
+    hide();
+    form->show();
 }
 
 void NewOpen::on_pushButton_clicked() //Bottone: open Document
 {
     mainwindow = new MainWindow(this->socket, this->socket->getFHandler(), this);
+    hide();
     mainwindow->show();
     emit openThisFile(ui->listWidget->currentItem()->text());
     hide();

@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include "socket.h"
 #include "dialog.h"
+#include "form.h"
 
 namespace Ui {
 class MainWindow;
