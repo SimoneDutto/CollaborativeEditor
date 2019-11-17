@@ -3,6 +3,8 @@
 #include <QString>
 #include <QVector>
 #include <QStringList>
+#include <QJsonObject>
+#include <QJsonArray>
 
 class Letter
 {
@@ -30,6 +32,7 @@ public:
     void addFractionalDigit(int value);
     bool hasSameFractionals(Letter other);
     bool comesFirst(Letter other);
+    QJsonObject toJSon();
 
 };
 
