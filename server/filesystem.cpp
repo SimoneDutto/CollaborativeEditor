@@ -1,4 +1,7 @@
 #include "filesystem.h"
+#include <QCryptographicHash>
+
+#define STR_SALT_KEY "qwerty"
 
 // class to handle all files in a map
 
@@ -199,7 +202,9 @@ void FileSystem::checkLogin(QString username, QString password, QTcpSocket *sock
 
     query.prepare("SELECT userid FROM password WHERE username = (:username) AND password = (:password)");
     query.bindValue(":username", username);
-    query.bindValue(":password", password);
+    QByteArray saltedPsw = password.append(STR_SALT_KEY).toUtf8();
+    QString encryptedPsw = QString(QCryptographicHash::hash(saltedPsw, QCryptographicHash::Md5));
+    query.bindValue(":password", encryptedPsw);
     int id = -1;
     if (query.exec())
     {
@@ -245,6 +250,55 @@ void FileSystem::checkLogin(QString username, QString password, QTcpSocket *sock
         socket->waitForBytesWritten(1000);
     }
 
+}
+
+void FileSystem::storeNewUser(QString username, QString psw, QTcpSocket *socket) {
+    QSqlQuery sqlQuery;
+
+    // check che username non sia gia' stato preso
+    sqlQuery.prepare("SELECT COUNT(*) FROM PASSWORD WHERE username=(:username)");
+    sqlQuery.bindValue(":username", username);
+    int count = -1;
+    if (sqlQuery.exec())
+    {
+        if (sqlQuery.next())
+        {
+            count = sqlQuery.value(0).toInt();
+        }
+    }
+    else{
+        qDebug() << "Query not executed";
+        // EMIT SEGNALE PROBLEMA SERVER FAILED TO RESPOND
+        emit signUpResponse("SERVER_FAILURE", false, socket);
+        return;
+    }
+    if(count > 0){
+        qDebug("Username already taken");
+        // EMIT SEGNALE CAMBIA USERNAME
+        emit signUpResponse("INVALID_USERNAME", false, socket);
+        return;
+    }
+
+    int userID = count + 1;     // last USERID used = count + 1
+    // Encrypt password (sale + md5 hash)
+    QByteArray saltedPsw = psw.append(STR_SALT_KEY).toUtf8();
+    QString encryptedPsw = QString(QCryptographicHash::hash(saltedPsw, QCryptographicHash::Md5));
+
+    /* Insert new user in DB */
+    sqlQuery.prepare("INSERT INTO PASSWORD(userid, username, password) VALUES ((:userID),(:username),(:password))");    // safe for SQL injection
+    sqlQuery.bindValue(":userID", userID);
+    sqlQuery.bindValue(":username", username);
+    sqlQuery.bindValue(":password", encryptedPsw);
+
+    if (sqlQuery.exec()){
+        // EMIT SIGN UP SUCCESSFUL
+        emit signUpResponse("SUCCESS", true, socket);
+    } else {
+        qDebug() << "INSERT new user not executed!";
+        // EMIT segnale server failed to respond
+        emit signUpResponse("SERVER_FAILURE", false, socket);
+        return;
+    }
 }
 
 std::map<int, FileHandler*> FileSystem::getFiles() {

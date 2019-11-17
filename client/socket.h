@@ -40,6 +40,7 @@ private:
     QVector<QString> listFiles;
 
 public slots:
+    void sendSignUpRequest(QString username, QString password);
     void sendLogin(QString username, QString password);
 
 private slots:
@@ -59,6 +60,12 @@ private slots:
     int sendNewFile(QString filename);
 
 signals:
+    /* Registrazione */
+    void signUpSuccess();
+    void signUpError();
+    void invalidUsername();
+
+    /* Login */
     void loginSuccess();
     void loginError();
 

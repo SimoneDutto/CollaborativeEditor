@@ -26,6 +26,7 @@ SOURCES += \
     main.cpp \
     login.cpp \
     mainwindow.cpp \
+    signup.cpp \
     socket.cpp
 
 HEADERS += \
@@ -36,6 +37,7 @@ HEADERS += \
     letter.h \
     login.h \
     mainwindow.h \
+    signup.h \
     socket.h
 
 FORMS += \
@@ -44,6 +46,7 @@ FORMS += \
     newopen.ui \
     login.ui \
     mainwindow.ui \
+    signup.ui \
     socket.ui
 
 # Default rules for deployment.
