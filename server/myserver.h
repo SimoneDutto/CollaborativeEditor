@@ -24,6 +24,7 @@ private slots:
     void onDisconnected(QObject *socketObject);
     void sendInsert(QVector<QTcpSocket*> users, QByteArray message, bool modifiedIndex, int newIndex);
     void sendDelete(QVector<QTcpSocket*> users, QByteArray message);
+    void sendSignUpResponse(QString message, bool success, QTcpSocket* socket);
 
 private:
     FileSystem *fsys;

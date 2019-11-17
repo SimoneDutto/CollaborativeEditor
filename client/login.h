@@ -2,7 +2,7 @@
 #define LOGIN_H
 
 #include <QMainWindow>
-#include <QCryptographicHash>
+//#include <QCryptographicHash>
 #include "mainwindow.h"
 #include "socket.h"
 

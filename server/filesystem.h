@@ -15,6 +15,7 @@
 #include <QSqlError>
 #include <QSqlQuery>
 #include <QDir>
+#include <QObject>
 
 #include "letter.h"
 #include "filehandler.h"
@@ -22,21 +23,28 @@
 class FileHandler;
 class QTcpSocket;
 
-class FileSystem
+class FileSystem : public QObject
 {
+    Q_OBJECT
+private:
     static FileSystem* instance;
     std::map<int, FileHandler*> files;
     std::map<QTcpSocket*, int> sock_id;
     std::map<QTcpSocket*, int> sock_file;
     QSqlDatabase db;
-    FileSystem() {}
+    explicit FileSystem() {}
+
 public:
     FileHandler* sendFile(int fileid, QTcpSocket *socket);
     FileHandler* createFile(QString filename, QTcpSocket *socket);
     void checkLogin(QString username, QString password, QTcpSocket *socket);
+    void storeNewUser(QString username, QString psw, QTcpSocket *socket);
     static FileSystem* getInstance();
     std::map<int, FileHandler*> getFiles();
     void disconnectClient(QTcpSocket* socket);
+
+signals:
+    void signUpResponse(QString message, bool success, QTcpSocket* socket);
 };
 
 #endif // FILESYSTEM_H
