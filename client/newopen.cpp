@@ -24,9 +24,6 @@ NewOpen::~NewOpen()
 
 void NewOpen::on_pushButton_2_clicked() //Bottone: new Document
 {
-    /*mainwindow = new MainWindow(this->socket, this->socket->getFHandler(), this);
-    hide();
-    mainwindow->show();*/
     form = new Form(this, this->socket);
     hide();
     form->show();

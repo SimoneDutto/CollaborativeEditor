@@ -46,6 +46,7 @@ private:
     Socket *socket;
     Dialog *dialog;
     FileHandler *fHandler;
+    Form *form;
     int letterCounter = 0;
 
 signals:

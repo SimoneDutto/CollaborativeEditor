@@ -47,10 +47,10 @@ void MainWindow::on_actionNew_triggered()
         ui->textEdit->clear();
     }
 
-    ui->lineEdit->setText("Nuovo Documento");
-
-    QString filename = "NOME_DEL_FILE";
-    emit newFile(filename);
+    form = new Form(this, this->socket);
+    hide();
+    form->show();
+    //ui->lineEdit->setText(filename);
 }
 
 void MainWindow::on_actionOpen_triggered()
