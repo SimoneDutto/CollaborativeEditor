@@ -44,6 +44,8 @@ public:
     static FileSystem* getInstance();
     std::map<int, FileHandler*> getFiles();
     void disconnectClient(QTcpSocket* socket);
+    static inline QByteArray IntToArray(qint32 source);
+
 
 signals:
     void signUpResponse(QString message, bool success, QTcpSocket* socket);

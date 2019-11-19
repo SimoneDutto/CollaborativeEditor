@@ -34,7 +34,7 @@ public:
 private:
     Ui::Socket *ui;
     QTcpSocket *socket;
-    QByteArray buffer;
+    QByteArray json_buffer;
     int fileid;
     FileHandler* fileh;
     int clientID;

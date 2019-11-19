@@ -8,8 +8,6 @@
 
 FileSystem *FileSystem::instance = nullptr;
 
-static inline QByteArray IntToArray(qint32 source);
-
 FileSystem* FileSystem::getInstance(){
     if(!instance){
         instance = new FileSystem();
@@ -107,7 +105,7 @@ FileHandler* FileSystem::sendFile(int fileid, QTcpSocket *socket){
     if (it != files.end()){
         // il file è già in memoria principale e può essere mandato
         // serializzarlo
-        int size = inFile.size();
+        int size = (int)inFile.size();
         QJsonObject object;
         QJsonArray array;
         for(Letter* lett: it->second->getLetter()){
@@ -150,6 +148,8 @@ FileHandler* FileSystem::sendFile(int fileid, QTcpSocket *socket){
         //manda il file info
         if(socket->state() == QAbstractSocket::ConnectedState){
             qDebug() << "Invio file";
+            socket->write(IntToArray(QJsonDocument(file_info).toJson().size()), sizeof (int));
+            socket->waitForBytesWritten(sizeof(int));
             if(socket->write(QJsonDocument(file_info).toJson()) == -1){
                 qDebug() << "File info failed to send";
                 return nullptr;
@@ -202,7 +202,7 @@ FileHandler* FileSystem::sendFile(int fileid, QTcpSocket *socket){
     }
 }
 
-QByteArray IntToArray(qint32 source) //Use qint32 to ensure that the number have 4 bytes
+QByteArray FileSystem::IntToArray(qint32 source) //Use qint32 to ensure that the number have 4 bytes
 {
     //Avoid use of cast, this is the Qt way to serialize objects
     QByteArray temp;
