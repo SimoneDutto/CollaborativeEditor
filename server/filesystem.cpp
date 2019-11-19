@@ -86,11 +86,12 @@ FileHandler* FileSystem::createFile(QString filename, QTcpSocket *socket){
     return nullptr;
 }
 
-FileHandler* FileSystem::sendFile(int fileid, QTcpSocket *socket, int seek){
+FileHandler* FileSystem::sendFile(int fileid, QTcpSocket *socket){
     QByteArray block;
     QDataStream out(&block, QIODevice::WriteOnly);
 
     QFile inFile(QString::number(fileid));
+    inFile.open(QFile::ReadOnly);
 
     //TODO: controllare che il client ha accesso
 
@@ -121,7 +122,7 @@ FileHandler* FileSystem::sendFile(int fileid, QTcpSocket *socket, int seek){
 
         while(!inFile.atEnd())
         {
-            int chunk = remaining%DATA_SIZE;
+            int chunk = remaining%(DATA_SIZE);
             QByteArray qa = inFile.read(chunk);
             qDebug() << "emitting dataRead()";
             remaining -= chunk;
@@ -138,31 +139,42 @@ FileHandler* FileSystem::sendFile(int fileid, QTcpSocket *socket, int seek){
     else{
         qDebug() << "Inizio l'invio del file";
         // apre il file, lo scrive in un DataStream che poi invierà
-        QFile m_file (QString::number(fileid));
-        m_file.open(QFile::ReadOnly);
-
-        QByteArray q = m_file.readAll();
-
-        QJsonDocument document = QJsonDocument::fromJson(q);
-        QJsonObject object = document.object();
-        QJsonValue value = object.value("letterArray");
-        QJsonArray letterArray = value.toArray();
-        object.insert("type", "OPEN");
-        object.insert("fileid", fileid);
-
-        if(socket->state() == QAbstractSocket::ConnectedState)
-        {
+        QByteArray buffer_tot;
+        int size = (int)inFile.size();
+        qDebug() << size;
+        QJsonObject file_info;
+        file_info.insert("type", "OPEN");
+        file_info.insert("fileid", fileid);
+        file_info.insert("size", size);
+        int remaining = size;
+        //manda il file info
+        if(socket->state() == QAbstractSocket::ConnectedState){
             qDebug() << "Invio file";
-            socket->write(IntToArray(QJsonDocument(object).toJson().size())); //write size of data
-            if(socket->write(QJsonDocument(object).toJson()) == -1){
-                qDebug() << "File failed to send";
+            if(socket->write(QJsonDocument(file_info).toJson()) == -1){
+                qDebug() << "File info failed to send";
                 return nullptr;
             } //write the data itself
             socket->waitForBytesWritten();
         }
-        m_file.close();
+        // manda i chunk
+        while(remaining > 0)
+        {
+            int chunk = remaining % (DATA_SIZE);
+            QByteArray qa = inFile.read(chunk);
+            buffer_tot.append(qa);
+            qDebug() << "emitting dataRead()";
+            remaining -= chunk;
+            emit dataRead(qa, socket, remaining);
+        }
+        inFile.close();
 
         qDebug() << "File sent";
+
+        // lo salva in memoria ram
+        QJsonDocument document = QJsonDocument::fromJson(buffer_tot);
+        QJsonObject object = document.object();
+        QJsonValue value = object.value("letterArray");
+        QJsonArray letterArray = value.toArray();
 
         QVector<Letter*> letters;
 
@@ -185,7 +197,7 @@ FileHandler* FileSystem::sendFile(int fileid, QTcpSocket *socket, int seek){
 
         files.insert(std::pair<int, FileHandler*> (fileid, fh));
         sock_file.insert(std::pair<QTcpSocket*, int> (socket, fileid)); //associate file to socket
-        qDebug() << "File saved in the file system";
+        qDebug() << "File saved in RAM";
         return fh;
     }
 }

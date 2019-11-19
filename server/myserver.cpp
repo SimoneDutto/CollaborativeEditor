@@ -17,6 +17,7 @@ MyServer::MyServer(QObject *parent) :
     connect(m_readyReadSignalMapper, SIGNAL(mapped(QObject*)), SLOT(onReadyRead(QObject*)));
     connect(m_disconnectedSignalMapper, SIGNAL(mapped(QObject*)), SLOT(onDisconnected(QObject*)));
     connect(fsys, SIGNAL(signUpResponse(QString,bool,QTcpSocket*)), this, SLOT(sendSignUpResponse(QString,bool,QTcpSocket*)));
+    connect(fsys, SIGNAL(dataRead(QByteArray, QTcpSocket*, int)),this, SLOT(sendFileChunk(QByteArray, QTcpSocket*, int)));
 }
 
 bool MyServer::listen(const QHostAddress &address, quint16 port)
@@ -61,18 +62,16 @@ void MyServer::onReadyRead(QObject *socketObject)
     if(type.compare("OPEN")==0){
         qDebug() << "OPEN request";
         int fileid = rootObject.value(("fileid")).toInt();
+
         FileHandler *fh = fsys->sendFile(fileid, socket);
         if(fh == nullptr) return;
         /* Connect socket to signals for remote insert and delete */
 
-        connect(fh, SIGNAL(remoteInsertNotify(QVector<QTcpSocket*>, QByteArray, bool, int)),
-                this, SLOT(sendInsert(QVector<QTcpSocket*>, QByteArray, bool, int)));
+        connect(fh, SIGNAL(remoteInsertNotify(QVector<QTcpSocket*>, QByteArray, bool, int, QTcpSocket*)),
+                this, SLOT(sendInsert(QVector<QTcpSocket*>, QByteArray, bool, int, QTcpSocket*)));
 
         connect(fh, SIGNAL(remoteDeleteNotify(QVector<QTcpSocket*>, QByteArray)),
                 this, SLOT(sendDelete(QVector<QTcpSocket*>, QByteArray)));
-
-        connect(fsys, SIGNAL(dataRead(QByteArray, QTcpSocket*, int)),
-                this, SIGNAL(sendFileChunk(QByteArray, QTcpSocket*, int)));
     }
     else if(type.compare("NEW")==0){
         qDebug() << "NEW request";
@@ -132,7 +131,7 @@ void MyServer::onDisconnected(QObject *socketObject)
     socket->deleteLater();
 }
 
-void MyServer::sendInsert(QVector<QTcpSocket*> users, QByteArray message, bool modifiedIndex, int newIndex) {
+void MyServer::sendInsert(QVector<QTcpSocket*> users, QByteArray message, bool modifiedIndex, int newIndex, QTcpSocket *client) {
     QJsonObject obj;
     if(modifiedIndex) {
         // Edit json file
@@ -150,7 +149,7 @@ void MyServer::sendInsert(QVector<QTcpSocket*> users, QByteArray message, bool m
     QVectorIterator<QTcpSocket*> i(users);
     while (i.hasNext()){
         QTcpSocket* socket = i.next();
-        if(i == ) continue;
+        if(socket == client) continue;
         if(socket->state() == QAbstractSocket::ConnectedState) {
             if(modifiedIndex) {
                 socket->write(QJsonDocument(obj).toJson()); //write size of data
@@ -186,10 +185,9 @@ void MyServer::sendSignUpResponse(QString message, bool success, QTcpSocket* soc
 void MyServer::sendFileChunk(QByteArray chunk, QTcpSocket* socket, int remainingSize) {
     QJsonObject object;
     QJsonArray array;
+    qDebug() <<"Sono qui";
 
-
-    QString s_data = QString::fromUtf8(chunk.data());
-
+    QString s_data = chunk.data();
     object.insert("type", "FILE");
     object.insert("chunk", s_data);
     object.insert("remaining", remainingSize);

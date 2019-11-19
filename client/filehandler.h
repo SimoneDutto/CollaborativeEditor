@@ -14,6 +14,7 @@ private:
     int fileid;
     QVector<Letter*> letters;
     int siteCounter;
+    int size;
 
     QVector<int> calculateInternalIndex(QVector<int> prevPos, QVector<int> nextPos);
 
@@ -22,6 +23,9 @@ public:
     void setValues(QVector<Letter*> letters, int fileid);
     QVector<Letter*> getVectorFile();
     int getFileId();
+    void setFileId(int fileid);
+    int getSize();
+    void setSize(int size);
 
 public slots:
     void localInsert(int externalIndex, QChar newLetterValue, int clientID);

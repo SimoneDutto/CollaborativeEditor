@@ -14,7 +14,6 @@ Socket::Socket(QWidget *parent) :
 Socket::Socket(const QString &host, quint16 port)
 {
     socket = new QTcpSocket(this);
-    size = 0;
     fileh = new FileHandler();
 
     /*Setto le connect del socket*/
@@ -109,90 +108,105 @@ void Socket::notificationsHandler(){
     QByteArray buffer;
 
     buffer.append(socket->readAll());
-    qDebug() << buffer;
+    qDebug().noquote() << buffer;
     QJsonDocument document = QJsonDocument::fromJson(buffer);
-    QJsonObject object = document.object();
-    QString type = object.value("type").toString();
-    qDebug() << "Tipo di richiesta: " << type;
+    QJsonArray jsonarray = document.array();
+    qDebug() << jsonarray.size();
+    foreach(QJsonValue value, jsonarray){
+        QJsonObject object = value.toObject();
+        QString type = object.value("type").toString();
+        qDebug() << "Tipo di richiesta: " << type;
 
-    /*
-     * OPEN
-     * INSERT
-     * DELETE
-     * CHECKNAME
-     * SIGNUP_RESPONSE
-    */
+        /*
+         * OPEN
+         * INSERT
+         * DELETE
+         * CHECKNAME
+         * SIGNUP_RESPONSE
+         * FILE
+        */
 
-    if(type.compare("OPEN")==0){
+        if(type.compare("OPEN")==0){
+            this->fileh->setFileId(object.value("fileid").toInt());
+            this->fileh->setSize(object.value("size").toInt());
+            // fileid < 0 non puoi aprire il file
+        }
+        else if(type.compare("FILE")){
+            int remaining = object.value("remaining").toInt();
+            QString chunk = object.value("chunk").toString();
+            buffer.append(chunk);
+            if(remaining == 0){
+                QJsonDocument document = QJsonDocument::fromJson(buffer);
+                QJsonObject object = document.object();
+                QVector<Letter*> letters;
+                QJsonValue value = object.value("letterArray");
+                QJsonArray letterArray = value.toArray();
+                qDebug().noquote() << buffer.data();
 
-        int fileid = object.value("fileid").toInt();
+                foreach (const QJsonValue& v, letterArray)
+                {
+                    QChar letter = v.toObject().value("letter").toString().at(0);
+                    QString ID = v.toObject().value("letterID").toString();
 
-        QVector<Letter*> letters;
-        QJsonValue value = object.value("letterArray");
-        QJsonArray letterArray = value.toArray();
+                    QJsonArray array_tmp = v.toObject().value("position").toArray();
+                    QVector<int> fractionals;
+                    for(auto fractional : array_tmp) {
+                        fractionals.append(fractional.toInt());
+                    }
 
-        foreach (const QJsonValue& v, letterArray)
-        {
-            QChar letter = v.toObject().value("letter").toString().at(0);
-            QString ID = v.toObject().value("letterID").toString();
+                    letters.append(std::move(new Letter(letter, fractionals, ID)));
+                    qDebug() << "Lettera:" << letter;
+                }
 
-            QJsonArray array_tmp = v.toObject().value("position").toArray();
-            QVector<int> fractionals;
-            for(auto fractional : array_tmp) {
-                fractionals.append(fractional.toInt());
+                /*Creo il FileHandler*/
+                connect( this->fileh, SIGNAL(localInsertNotify(QChar, QJsonArray, int, int, int)),
+                         this, SLOT(sendInsert(QChar, QJsonArray, int, int, int)) );
+                connect( this->fileh, SIGNAL(localDeleteNotify(int)), this, SLOT(sendDelete(int)) );
+
+                /*Salvo il file come vettore di Letters nel fileHandler*/
+                this->fileh->setValues(std::move(letters), fileid);
+                emit readyFile();
             }
 
-            letters.append(std::move(new Letter(letter, fractionals, ID)));
-            qDebug() << "Lettera:" << letter;
+        }
+        else if (type.compare("INSERT")==0) {
+            QChar newLetterValue = object.value("letter").toString().at(0);
+            QJsonArray position = object.value("position").toArray();
+            int siteID = object.value("siteID").toInt();
+            int siteCounter = object.value("siteCounter").toInt();
+            int externalIndex = object.value("externalIndex").toInt();
+
+            /*Inserire nel modello questa lettera e aggiornare la UI*/
+            emit readyInsert(position, newLetterValue, externalIndex, siteID, siteCounter);
         }
 
-        /*Creo il FileHandler*/
-        connect( this->fileh, SIGNAL(localInsertNotify(QChar, QJsonArray, int, int, int)),
-                 this, SLOT(sendInsert(QChar, QJsonArray, int, int, int)) );
-        connect( this->fileh, SIGNAL(localDeleteNotify(int)), this, SLOT(sendDelete(int)) );
+        else if (type.compare("DELETE")==0) {
+            QString deletedLetterID = object.value("letterID").toString();
 
-        /*Salvo il file come vettore di Letters nel fileHandler*/
-        this->fileh->setValues(std::move(letters), fileid);
-        emit readyFile();   //CREA CRASH QUANDO CHIAMA MAINWINDOW
+            /*Cancellare dal modello questa lettera e aggiornare la UI*/
+            qDebug() << "LetterID da cancellare: " << deletedLetterID;
+            emit readyDelete(deletedLetterID);
+        }
+
+        else if (type.compare("NEW")==0) {
+            qDebug() << "Il file è stato creato correttamente!";
+        }
+        else if (type.compare("SIGNUP_RESPONSE")==0) {
+            bool successful = object.value("success").toBool();
+            QString message = object.value("msg").toString();
+            if(!successful) {
+                if(message.compare("INVALID_USERNAME"))
+                    emit invalidUsername();
+                // emit segnale sign up not successful
+                else if (message.compare("SERVER_FAILURE"))
+                    emit signUpError();
+            } else
+                // emit segnale sign up successful
+                emit signUpSuccess();
+        }
+
+        qDebug() << "Finished!";
     }
-
-    else if (type.compare("INSERT")==0) {
-        QChar newLetterValue = object.value("letter").toString().at(0);
-        QJsonArray position = object.value("position").toArray();
-        int siteID = object.value("siteID").toInt();
-        int siteCounter = object.value("siteCounter").toInt();
-        int externalIndex = object.value("externalIndex").toInt();
-
-        /*Inserire nel modello questa lettera e aggiornare la UI*/
-        emit readyInsert(position, newLetterValue, externalIndex, siteID, siteCounter);
-    }
-
-    else if (type.compare("DELETE")==0) {
-        QString deletedLetterID = object.value("letterID").toString();
-
-        /*Cancellare dal modello questa lettera e aggiornare la UI*/
-        qDebug() << "LetterID da cancellare: " << deletedLetterID;
-        emit readyDelete(deletedLetterID);
-    }
-
-    else if (type.compare("NEW")==0) {
-        qDebug() << "Il file è stato creato correttamente!";
-    }
-    else if (type.compare("SIGNUP_RESPONSE")==0) {
-        bool successful = object.value("success").toBool();
-        QString message = object.value("msg").toString();
-        if(!successful) {
-            if(message.compare("INVALID_USERNAME"))
-                emit invalidUsername();
-            // emit segnale sign up not successful
-            else if (message.compare("SERVER_FAILURE"))
-                emit signUpError();
-        } else
-            // emit segnale sign up successful
-            emit signUpSuccess();
-    }
-
-    qDebug() << "Finished!";
 }
 
 int Socket::sendInsert(QChar newLetterValue, QJsonArray position, int siteID, int siteCounter, int externalIndex)

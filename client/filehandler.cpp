@@ -217,3 +217,12 @@ QVector<Letter*> FileHandler::getVectorFile(){
 int FileHandler::getFileId(){
     return this->fileid;
 }
+void FileHandler::setFileId(int fileid){
+    this->fileid = fileid;
+}
+int FileHandler::getSize(){
+    return this->size;
+}
+void FileHandler::setSize(int size){
+    this->size = size;
+}

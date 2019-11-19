@@ -11,7 +11,7 @@ void FileHandler::insertActiveUser(QTcpSocket *user){
 }
 
 void FileHandler::removeActiveUser(QTcpSocket *user){
-    users.removeOne(user);
+    /*users.removeOne(user);
     counter_user--;
     if(counter_user == 0){
         // Salvarlo in memoria secondaria, io lo farei con un segnale
@@ -31,6 +31,7 @@ void FileHandler::removeActiveUser(QTcpSocket *user){
             stream << QJsonDocument(object).toJson() << endl;
         }
     }
+    */
 }
 
 /**
@@ -67,7 +68,7 @@ void FileHandler::remoteInsert(QJsonArray position, QChar newLetterValue, int ex
                 else if (siteID > this->letters[externalIndex]->getSiteID()) {  // lettera diversa inserita nella stessa posizione => inserimento in ordine di siteID
                     this->letters.insert(this->letters.begin()+externalIndex+1, newLetter);
                     // propaga informazione con indice modificato
-                    emit remoteInsertNotify(this->users, message, true, externalIndex+1);
+                    emit remoteInsertNotify(this->users, message, true, externalIndex+1, client);
                     return;
                 }
             }

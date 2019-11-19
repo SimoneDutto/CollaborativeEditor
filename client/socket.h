@@ -34,7 +34,8 @@ public:
 private:
     Ui::Socket *ui;
     QTcpSocket *socket;
-    qint32 size;
+    QByteArray buffer;
+    int fileid;
     FileHandler* fileh;
     int clientID;
     QMap<QString, int> mapFiles;
