@@ -201,19 +201,19 @@ void FileHandler::remoteDelete(QString deletedLetterID) {
 
 }
 
-void FileHandler::setValues(QVector<Letter *> letters, QString fileName){
+void FileHandler::setValues(QVector<Letter *> letters, int fileid){
     if(!this->letters.empty()){
         this->letters.clear();
     }
     this->letters = letters;
     this->siteCounter=0;
-    this->fileName = fileName;
+    this->fileid = fileid;
 }
 
 QVector<Letter*> FileHandler::getVectorFile(){
     return this->letters;
 }
 
-QString FileHandler::getFileName(){
-    return this->fileName;
+int FileHandler::getFileId(){
+    return this->fileid;
 }

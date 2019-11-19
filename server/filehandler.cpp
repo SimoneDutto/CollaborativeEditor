@@ -42,7 +42,8 @@ void FileHandler::removeActiveUser(QTcpSocket *user){
  * Casi particolari:
  * - inserimento equivalente da parte di utenti diversi.
  * */
-void FileHandler::remoteInsert(QJsonArray position, QChar newLetterValue, int externalIndex, int siteID, int siteCounter, QByteArray message) {
+void FileHandler::remoteInsert(QJsonArray position, QChar newLetterValue, int externalIndex,
+                               int siteID, int siteCounter, QByteArray message, QTcpSocket *client) {
     // Get index and fractionals vector
     QVector<int> fractionals;
 
@@ -72,7 +73,7 @@ void FileHandler::remoteInsert(QJsonArray position, QChar newLetterValue, int ex
             }
         }
 
-        this->letters.insert(this->letters.begin()+externalIndex, newLetter);
+        this->letters.insert(this->letters.begin()+externalIndex-1, newLetter);
 
         /*
         Letter lastLetter = this->letters.at(letters.size()-1);
@@ -106,7 +107,7 @@ void FileHandler::remoteInsert(QJsonArray position, QChar newLetterValue, int ex
         }*/
 
         // Notifica gli altri client inviando lo stesso messaggio
-        emit remoteInsertNotify(this->users, message, false, 0);
+        emit remoteInsertNotify(this->users, message, false, 0, client);
     }
 }
 

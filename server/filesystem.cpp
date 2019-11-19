@@ -2,6 +2,7 @@
 #include <QCryptographicHash>
 
 #define STR_SALT_KEY "qwerty"
+#define DATA_SIZE 1024*1024
 
 // class to handle all files in a map
 
@@ -60,11 +61,11 @@ FileHandler* FileSystem::createFile(QString filename, QTcpSocket *socket){
         qDebug("This filename is already taken by the user");
     }
 
-    query.prepare("INSERT INTO files(FileId,Filename) VALUES ((:userid), (:filename))");
+    query.prepare("INSERT INTO files(Username,Filename) VALUES ((:userid), (:filename))");
     query.bindValue(":filename", filename);
     query.bindValue(":userid", id->second);
     if (query.exec()){
-        QFile m_file (filename);
+        QFile m_file (filename); // crea il file col nome id
         m_file.open(QFile::ReadOnly);
 
         QVector<Letter*> letters;
@@ -85,10 +86,13 @@ FileHandler* FileSystem::createFile(QString filename, QTcpSocket *socket){
     return nullptr;
 }
 
-FileHandler* FileSystem::sendFile(int fileid, QTcpSocket *socket){
+FileHandler* FileSystem::sendFile(int fileid, QTcpSocket *socket, int seek){
     QByteArray block;
     QDataStream out(&block, QIODevice::WriteOnly);
 
+    QFile inFile(QString::number(fileid));
+
+    //TODO: controllare che il client ha accesso
 
     if(sock_id.find(socket) == sock_id.end()) return nullptr;//il socket è autenticato o no
     auto file = sock_file.find(socket);
@@ -102,7 +106,7 @@ FileHandler* FileSystem::sendFile(int fileid, QTcpSocket *socket){
     if (it != files.end()){
         // il file è già in memoria principale e può essere mandato
         // serializzarlo
-
+        int size = inFile.size();
         QJsonObject object;
         QJsonArray array;
         for(Letter* lett: it->second->getLetter()){
@@ -111,16 +115,17 @@ FileHandler* FileSystem::sendFile(int fileid, QTcpSocket *socket){
         object.insert("letterArray",array);
         object.insert("type", "OPEN");
         object.insert("fileid", fileid);
+        object.insert("size", size);
 
-        if(socket->state() == QAbstractSocket::ConnectedState)
+        int remaining = size;
+
+        while(!inFile.atEnd())
         {
-            qDebug() << "Invio file";
-            socket->write(IntToArray(QJsonDocument(object).toJson().size())); //write size of data
-            if(socket->write(QJsonDocument(object).toJson()) == -1){
-                qDebug() << "File failed to send";
-                return nullptr;
-            } //write the data itself
-            socket->waitForBytesWritten();
+            int chunk = remaining%DATA_SIZE;
+            QByteArray qa = inFile.read(chunk);
+            qDebug() << "emitting dataRead()";
+            remaining -= chunk;
+            emit dataRead(qa, socket, remaining);
         }
 
         qDebug() << "File sent";
@@ -202,9 +207,10 @@ void FileSystem::checkLogin(QString username, QString password, QTcpSocket *sock
 
     query.prepare("SELECT userid FROM password WHERE username = (:username) AND password = (:password)");
     query.bindValue(":username", username);
-    QByteArray saltedPsw = password.append(STR_SALT_KEY).toUtf8();
-    QString encryptedPsw = QString(QCryptographicHash::hash(saltedPsw, QCryptographicHash::Md5));
-    query.bindValue(":password", encryptedPsw);
+    //QByteArray saltedPsw = password.append(STR_SALT_KEY).toUtf8();
+    //QString encryptedPsw = QString(QCryptographicHash::hash(saltedPsw, QCryptographicHash::Md5));
+    //query.bindValue(":password", encryptedPsw);
+    query.bindValue(":password", password);
     int id = -1;
     if (query.exec())
     {
@@ -289,6 +295,7 @@ void FileSystem::storeNewUser(QString username, QString psw, QTcpSocket *socket)
     sqlQuery.bindValue(":userID", userID);
     sqlQuery.bindValue(":username", username);
     sqlQuery.bindValue(":password", encryptedPsw);
+    //sqlQuery.bindValue(":password", psw);
 
     if (sqlQuery.exec()){
         // EMIT SIGN UP SUCCESSFUL

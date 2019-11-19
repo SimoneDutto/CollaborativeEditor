@@ -70,6 +70,9 @@ void MyServer::onReadyRead(QObject *socketObject)
 
         connect(fh, SIGNAL(remoteDeleteNotify(QVector<QTcpSocket*>, QByteArray)),
                 this, SLOT(sendDelete(QVector<QTcpSocket*>, QByteArray)));
+
+        connect(fsys, SIGNAL(dataRead(QByteArray, QTcpSocket*, int)),
+                this, SIGNAL(sendFileChunk(QByteArray, QTcpSocket*, int)));
     }
     else if(type.compare("NEW")==0){
         qDebug() << "NEW request";
@@ -93,7 +96,7 @@ void MyServer::onReadyRead(QObject *socketObject)
             int externalIndex = rootObject.value("externalIndex").toInt();
             int siteID = rootObject.value("siteID").toInt();
             int siteCounter = rootObject.value("siteCounter").toInt();
-            fHandler->remoteInsert(position, newLetterValue, externalIndex, siteID, siteCounter, str);
+            fHandler->remoteInsert(position, newLetterValue, externalIndex, siteID, siteCounter, str, socket);
         }
     }
     else if(type.compare("DELETE")==0){
@@ -147,6 +150,7 @@ void MyServer::sendInsert(QVector<QTcpSocket*> users, QByteArray message, bool m
     QVectorIterator<QTcpSocket*> i(users);
     while (i.hasNext()){
         QTcpSocket* socket = i.next();
+        if(i == ) continue;
         if(socket->state() == QAbstractSocket::ConnectedState) {
             if(modifiedIndex) {
                 socket->write(QJsonDocument(obj).toJson()); //write size of data
@@ -176,5 +180,23 @@ void MyServer::sendSignUpResponse(QString message, bool success, QTcpSocket* soc
     if(socket->state() == QAbstractSocket::ConnectedState) {
         socket->write(QJsonDocument(json).toJson());
         socket->waitForBytesWritten(1000);
+    }
+}
+
+void MyServer::sendFileChunk(QByteArray chunk, QTcpSocket* socket, int remainingSize) {
+    QJsonObject object;
+    QJsonArray array;
+
+
+    QString s_data = QString::fromUtf8(chunk.data());
+
+    object.insert("type", "FILE");
+    object.insert("chunk", s_data);
+    object.insert("remaining", remainingSize);
+    if(socket->state() == QAbstractSocket::ConnectedState)
+    {
+        qDebug() << "Invio file";
+        socket->write(QJsonDocument(object).toJson());
+        socket->waitForBytesWritten();
     }
 }

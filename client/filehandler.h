@@ -11,7 +11,7 @@ class FileHandler : public QObject
     Q_OBJECT
 
 private:
-    QString fileName;
+    int fileid;
     QVector<Letter*> letters;
     int siteCounter;
 
@@ -19,9 +19,9 @@ private:
 
 public:
     explicit FileHandler(QObject *parent = nullptr);
-    void setValues(QVector<Letter*> letters, QString fileName);
+    void setValues(QVector<Letter*> letters, int fileid);
     QVector<Letter*> getVectorFile();
-    QString getFileName();
+    int getFileId();
 
 public slots:
     void localInsert(int externalIndex, QChar newLetterValue, int clientID);

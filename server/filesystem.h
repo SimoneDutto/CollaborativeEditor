@@ -16,9 +16,11 @@
 #include <QSqlQuery>
 #include <QDir>
 #include <QObject>
+#include <QFile>
 
 #include "letter.h"
 #include "filehandler.h"
+
 
 class FileHandler;
 class QTcpSocket;
@@ -45,6 +47,7 @@ public:
 
 signals:
     void signUpResponse(QString message, bool success, QTcpSocket* socket);
+    void dataRead(QByteArray chunk, QTcpSocket* socket, int remainingSize);
 };
 
 #endif // FILESYSTEM_H
