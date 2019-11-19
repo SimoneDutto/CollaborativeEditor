@@ -93,10 +93,23 @@ QVector<QString> Socket::getListFiles(){
     return this->listFiles;
 }
 
+void Socket::sendSignUpRequest(QString username, QString password) {
+    // RICHIESTA DI REGISTRAZIONE NUOVO UTENTE
+    QJsonObject obj;
+    obj.insert("type", "SIGNUP");
+    obj.insert("username", username);
+    obj.insert("password", password);
+    if(socket->state() == QAbstractSocket::ConnectedState){
+        qDebug() << "Richiesta di registrazione:\n" << QJsonDocument(obj).toJson().data();
+        socket->write(QJsonDocument(obj).toJson());
+        socket->waitForBytesWritten(1000);
+    }
+}
+
 
 void Socket::sendLogin(QString username, QString password)
 {
-    //RICHIESTA
+    //RICHIESTA DI LOGIN
     QJsonObject obj;
     obj.insert("type", "LOGIN");
     obj.insert("nickname", username);
@@ -105,8 +118,8 @@ void Socket::sendLogin(QString username, QString password)
     if(socket->state() == QAbstractSocket::ConnectedState){
         qDebug() << "Richiesta:\n" << QJsonDocument(obj).toJson().data();
         socket->write(QJsonDocument(obj).toJson());
+        socket->waitForBytesWritten(1000);
     }
-    socket->waitForBytesWritten(1000);
 }
 
 void Socket::checkLoginAndGetListFileName()
@@ -135,7 +148,6 @@ void Socket::checkLoginAndGetListFileName()
         listFiles_tmp.append(q);
     }
     this->listFiles = listFiles_tmp;
-
 
     /*Le connect per gestire le notifiche che arrivano dal server le setto nel costruttore di MainWindow*/
     disconnect(socket, SIGNAL(readyRead()), this, SLOT(checkLoginAndGetListFileName()));
@@ -179,6 +191,7 @@ void Socket::notificationsHandler(){
      * INSERT
      * DELETE
      * CHECKNAME
+     * SIGNUP_RESPONSE
     */
 
     if(type.compare("OPEN")==0){
@@ -229,12 +242,25 @@ void Socket::notificationsHandler(){
         QString deletedLetterID = object.value("letterID").toString();
 
         /*Cancellare dal modello questa lettera e aggiornare la UI*/
-        qDebug() << "LettedID da cancellare: " << deletedLetterID;
+        qDebug() << "LetterID da cancellare: " << deletedLetterID;
         emit readyDelete(deletedLetterID);
     }
 
     else if (type.compare("NEW")==0) {
         qDebug() << "Il file è stato creato correttamente!";
+    }
+    else if (type.compare("SIGNUP_RESPONSE")==0) {
+        bool successful = object.value("success").toBool();
+        QString message = object.value("msg").toString();
+        if(!successful) {
+            if(message.compare("INVALID_USERNAME"))
+                emit invalidUsername();
+            // emit segnale sign up not successful
+            else if (message.compare("SERVER_FAILURE"))
+                emit signUpError();
+        } else
+            // emit segnale sign up successful
+            emit signUpSuccess();
     }
 
     qDebug() << "Finished!";

@@ -16,6 +16,7 @@ MyServer::MyServer(QObject *parent) :
     connect(m_server, SIGNAL(newConnection()), SLOT(onNewConnection()));
     connect(m_readyReadSignalMapper, SIGNAL(mapped(QObject*)), SLOT(onReadyRead(QObject*)));
     connect(m_disconnectedSignalMapper, SIGNAL(mapped(QObject*)), SLOT(onDisconnected(QObject*)));
+    connect(fsys, SIGNAL(signUpResponse(QString,bool,QTcpSocket*)), this, SLOT(sendSignUpResponse(QString,bool,QTcpSocket*)));
 }
 
 bool MyServer::listen(const QHostAddress &address, quint16 port)
@@ -93,7 +94,6 @@ void MyServer::onReadyRead(QObject *socketObject)
             int siteID = rootObject.value("siteID").toInt();
             int siteCounter = rootObject.value("siteCounter").toInt();
             fHandler->remoteInsert(position, newLetterValue, externalIndex, siteID, siteCounter, str);
-            //propNotification(fHandler->getUsers(), str);
         }
     }
     else if(type.compare("DELETE")==0){
@@ -103,13 +103,17 @@ void MyServer::onReadyRead(QObject *socketObject)
             FileHandler* fHandler = fsys->getFiles().at(fileid);
             QString deletedLetterID = rootObject.value("letterID").toString();
             fHandler->remoteDelete(deletedLetterID, str);
-            //propNotification(fHandler->getUsers(), str);
         }
     }
     else if(type.compare("LOGIN")==0){
         QString username = rootObject.value(("nickname")).toString();
         QString password = rootObject.value(("password")).toString();
         fsys->checkLogin(username, password, socket);
+    }
+    else if(type.compare("SIGNUP")==0) {
+        QString username = rootObject.value("username").toString();
+        QString psw = rootObject.value("password").toString();
+        fsys->storeNewUser(username, psw, socket);
     }
 }
 
@@ -126,11 +130,11 @@ void MyServer::onDisconnected(QObject *socketObject)
 }
 
 void MyServer::sendInsert(QVector<QTcpSocket*> users, QByteArray message, bool modifiedIndex, int newIndex) {
+    QJsonObject obj;
     if(modifiedIndex) {
         // Edit json file
         QJsonDocument jsonResponse = QJsonDocument::fromJson(message);
         QJsonObject rootObject = jsonResponse.object();
-        QJsonObject obj;
         obj.insert("type", "INSERT");
         obj.insert("filename", rootObject.value("filename").toString());
         obj.insert("letter", rootObject.value("letter").toString());
@@ -143,8 +147,13 @@ void MyServer::sendInsert(QVector<QTcpSocket*> users, QByteArray message, bool m
     QVectorIterator<QTcpSocket*> i(users);
     while (i.hasNext()){
         QTcpSocket* socket = i.next();
-        socket->write(message);
-        socket->waitForBytesWritten(1000);
+        if(socket->state() == QAbstractSocket::ConnectedState) {
+            if(modifiedIndex) {
+                socket->write(QJsonDocument(obj).toJson()); //write size of data
+            } else
+                socket->write(message);
+            socket->waitForBytesWritten(1000);
+        }
     }
 }
 
@@ -152,7 +161,20 @@ void MyServer::sendDelete(QVector<QTcpSocket*> users, QByteArray message){
     QVectorIterator<QTcpSocket*> i(users);
     while (i.hasNext()){
         QTcpSocket* socket = i.next();
-        socket->write(message);
+        if(socket->state() == QAbstractSocket::ConnectedState) {
+            socket->write(message);
+            socket->waitForBytesWritten(1000);
+        }
+    }
+}
+
+void MyServer::sendSignUpResponse(QString message, bool success, QTcpSocket* socket) {
+    QJsonObject json;
+    json.insert("type", "SIGNUP_RESPONSE");
+    json.insert("success", success);
+    json.insert("msg", message);
+    if(socket->state() == QAbstractSocket::ConnectedState) {
+        socket->write(QJsonDocument(json).toJson());
         socket->waitForBytesWritten(1000);
     }
 }
