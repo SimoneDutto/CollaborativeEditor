@@ -27,7 +27,8 @@ SOURCES += \
     login.cpp \
     mainwindow.cpp \
     signup.cpp \
-    socket.cpp
+    socket.cpp \
+    welcome.cpp
 
 HEADERS += \
     dialog.h \
@@ -38,7 +39,8 @@ HEADERS += \
     login.h \
     mainwindow.h \
     signup.h \
-    socket.h
+    socket.h \
+    welcome.h
 
 FORMS += \
     dialog.ui \
@@ -47,7 +49,8 @@ FORMS += \
     login.ui \
     mainwindow.ui \
     signup.ui \
-    socket.ui
+    socket.ui \
+    welcome.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
