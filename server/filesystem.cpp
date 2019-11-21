@@ -3,7 +3,7 @@
 #include <QtEndian>
 
 #define STR_SALT_KEY "qwerty"
-#define DATA_SIZE 1024*1024
+#define DATA_SIZE 1024
 
 // class to handle all files in a map
 

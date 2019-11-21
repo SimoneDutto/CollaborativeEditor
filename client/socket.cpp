@@ -113,7 +113,7 @@ void Socket::notificationsHandler(){
         char json_size[sizeof(int)];
         socket->read(json_size, sizeof (int));
         int c = atoi(json_size);
-        while(socket->bytesAvailable() < c);
+        //while(socket->bytesAvailable() < c);
         buffer.append(socket->read(c));
 
         //int json_size;
@@ -218,6 +218,8 @@ void Socket::notificationsHandler(){
         //if(socket->bytesAvailable())
           //  emit myReadyRead();
         qDebug() << "Finished!";
+        buffer.clear();
+
     }
 }
 
