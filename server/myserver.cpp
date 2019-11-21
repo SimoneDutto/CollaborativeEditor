@@ -5,6 +5,7 @@
 
 #include <QSignalMapper>
 #include <QTcpServer>
+#include <QDataStream>
 
 MyServer::MyServer(QObject *parent) :
     QObject(parent),
@@ -185,6 +186,7 @@ void MyServer::sendSignUpResponse(QString message, bool success, QTcpSocket* soc
 void MyServer::sendFileChunk(QByteArray chunk, QTcpSocket* socket, int remainingSize) {
     QJsonObject object;
     QJsonArray array;
+    QByteArray toSend;
     qDebug() <<"Sono qui";
 
     QString s_data = chunk.data();
@@ -194,7 +196,7 @@ void MyServer::sendFileChunk(QByteArray chunk, QTcpSocket* socket, int remaining
     if(socket->state() == QAbstractSocket::ConnectedState)
     {
         qDebug() << "Invio file";
-        socket->write(FileSystem::IntToArray(QJsonDocument(object).toJson().size()));
+        socket->write(toSend.number(QJsonDocument(object).toJson().size()));
         socket->write(QJsonDocument(object).toJson());
         socket->waitForBytesWritten();
     }

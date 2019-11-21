@@ -1,5 +1,6 @@
 #include "filesystem.h"
 #include <QCryptographicHash>
+#include <QtEndian>
 
 #define STR_SALT_KEY "qwerty"
 #define DATA_SIZE 1024*1024
@@ -140,21 +141,34 @@ FileHandler* FileSystem::sendFile(int fileid, QTcpSocket *socket){
         QByteArray buffer_tot;
         int size = (int)inFile.size();
         qDebug() << size;
+
         QJsonObject file_info;
         file_info.insert("type", "OPEN");
         file_info.insert("fileid", fileid);
         file_info.insert("size", size);
         int remaining = size;
+
         //manda il file info
         if(socket->state() == QAbstractSocket::ConnectedState){
             qDebug() << "Invio file";
-            socket->write(IntToArray(QJsonDocument(file_info).toJson().size()), sizeof (int));
-            socket->waitForBytesWritten(sizeof(int));
+            QDataStream stream(socket);
+            qint32 msg_size = QJsonDocument(file_info).toJson().size();
+            QByteArray toSend;
+            socket->write(toSend.number(msg_size), sizeof (int));
+            socket->waitForBytesWritten();
             if(socket->write(QJsonDocument(file_info).toJson()) == -1){
                 qDebug() << "File info failed to send";
                 return nullptr;
             } //write the data itself
             socket->waitForBytesWritten();
+            /*const QByteArray dataToSend = QJsonDocument(file_info).toJson();
+            stream << msg_size;
+            qDebug() << msg_size;
+            if(socket->write(QJsonDocument(file_info).toJson()) == -1){
+                qDebug() << "File info failed to send";
+                return nullptr;
+            } //write the data itself
+            socket->waitForBytesWritten();*/
         }
         // manda i chunk
         while(remaining > 0)
@@ -202,14 +216,14 @@ FileHandler* FileSystem::sendFile(int fileid, QTcpSocket *socket){
     }
 }
 
-QByteArray FileSystem::IntToArray(qint32 source) //Use qint32 to ensure that the number have 4 bytes
+/*QByteArray FileSystem::IntToArray(qint32 source) //Use qint32 to ensure that the number have 4 bytes
 {
     //Avoid use of cast, this is the Qt way to serialize objects
     QByteArray temp;
     QDataStream data(&temp, QIODevice::ReadWrite);
     data << source;
     return temp;
-}
+}*/
 
 void FileSystem::checkLogin(QString username, QString password, QTcpSocket *socket){
 

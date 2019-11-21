@@ -74,6 +74,9 @@ signals:
     void readyFile();
     void readyInsert(QJsonArray position, QChar newLetterValue, int externalIndex, int siteID, int siteCounter);
     void readyDelete(QString deletedLetterID);
+
+    /*Signal connected to readyReady()*/
+    void myReadyRead();
 };
 
 
