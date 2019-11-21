@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>323</width>
-    <height>333</height>
+    <width>199</width>
+    <height>228</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,8 +17,8 @@
    <widget class="QGroupBox" name="LoginBox">
     <property name="geometry">
      <rect>
-      <x>70</x>
-      <y>30</y>
+      <x>20</x>
+      <y>20</y>
       <width>161</width>
       <height>171</height>
      </rect>
@@ -35,7 +35,7 @@
        <x>10</x>
        <y>10</y>
        <width>139</width>
-       <height>147</height>
+       <height>152</height>
       </rect>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -44,7 +44,7 @@
         <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
          <widget class="QLabel" name="label_username">
           <property name="text">
-           <string>username</string>
+           <string>Username</string>
           </property>
          </widget>
         </item>
@@ -58,7 +58,7 @@
         <item alignment="Qt::AlignHCenter">
          <widget class="QLabel" name="label_password">
           <property name="text">
-           <string>password</string>
+           <string>Password</string>
           </property>
          </widget>
         </item>
@@ -76,6 +76,15 @@
         <property name="text">
          <string>Login</string>
         </property>
+        <property name="autoDefault">
+         <bool>false</bool>
+        </property>
+        <property name="default">
+         <bool>true</bool>
+        </property>
+        <property name="flat">
+         <bool>false</bool>
+        </property>
        </widget>
       </item>
      </layout>
@@ -87,7 +96,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>323</width>
+     <width>199</width>
      <height>22</height>
     </rect>
    </property>

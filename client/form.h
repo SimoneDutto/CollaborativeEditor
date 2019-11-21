@@ -14,7 +14,7 @@ class Form : public QDialog
     Q_OBJECT
 
 public:
-    explicit Form(QWidget *parent = nullptr, Socket *sock = nullptr);
+    explicit Form(Socket *sock = nullptr, QWidget *parent = nullptr);
     ~Form();
 
 private slots:
@@ -22,6 +22,7 @@ private slots:
 
 private:
     Ui::Form *ui;
+    Socket *socket;
 
 signals:
     void newFile(QString filename);

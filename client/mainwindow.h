@@ -41,6 +41,8 @@ private slots:
 //    void changeViewAfterInsert();
 //    void changeViewAfterDelete();
 
+    void on_textEdit_cursorPositionChanged();
+
 private:
     Ui::MainWindow *ui;
     Socket *socket;

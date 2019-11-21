@@ -16,7 +16,7 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent) :
     fHandler(fileHand)
 {
     ui->setupUi(this);
-    setWindowTitle("Notepad dei Povery");
+    setWindowTitle("Google Fake Docs");
 
     /*CONNECT per segnali uscenti, inoltrare le modifiche fatte*/
     connect( this, SIGNAL(myInsert(int, QChar, int)),
@@ -47,8 +47,7 @@ void MainWindow::on_actionNew_triggered()
         ui->textEdit->clear();
     }
 
-    form = new Form(this, this->socket);
-    hide();
+    form = new Form(this->socket, this);
     form->show();
     //ui->lineEdit->setText(filename);
 }
@@ -237,24 +236,42 @@ void MainWindow::fileIsHere(){
     connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
 }
 
-//void MainWindow::changeViewAfterInsert(Letter l, int pos)
-//{
-//    QTextCursor cursor(ui->textEdit->textCursor());
-//    cursor.setPosition(pos);
-//    ui->textEdit->insertPlainText(l.getValue());
-//    letterCounter++;
-//}
+/*void MainWindow::changeViewAfterInsert(Letter l, int pos)
+{
+    QTextCursor cursor(ui->textEdit->textCursor());
+    cursor.setPosition(pos);
+    ui->textEdit->insertPlainText(l.getValue());
+    letterCounter++;
+}*/
 
-//void MainWindow::changeViewAfterDelete(Letter l, int pos)
-//{
-//    QTextCursor cursor(ui->textEdit->textCursor());
-//    cursor.setPosition(pos);
-//    cursor.select(QTextCursor::LineUnderCursor);
-//    QChar old = cursor.selectedText().right(1).at(0);
-//    if (old == l.getValue()){
-//        cursor.removeSelectedText();
-//        ui->textEdit->setTextCursor(cursor);
-//        letterCounter--;
-//    }
+/*void MainWindow::changeViewAfterDelete(Letter l, int pos)
+{
+    QTextCursor cursor(ui->textEdit->textCursor());
+    cursor.setPosition(pos);
+    cursor.select(QTextCursor::LineUnderCursor);
+    QChar old = cursor.selectedText().right(1).at(0);
+    if (old == l.getValue()){
+        cursor.removeSelectedText();
+        ui->textEdit->setTextCursor(cursor);
+        letterCounter--;
+    }
 
-//}
+}*/
+
+void MainWindow::on_textEdit_cursorPositionChanged()
+{
+    QTextCursor cursor(ui->textEdit->textCursor());
+    //emit sendCursor(cursor.position());
+
+}
+
+/*void MainWindow::setCursor(int pos, QString color)
+{
+    QString cursore = "|";
+    QString colore = "<span style=\" font-size:8pt; font-weight:600; color:" + color + '"' + ";\" >";
+    colore.append(cursore);
+    colore.append("</span>");
+    QTextCursor c;
+    c.setPosition(pos);
+    c.insertHtml(colore);
+}*/

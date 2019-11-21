@@ -1,5 +1,6 @@
 #include "newopen.h"
 #include "ui_newopen.h"
+#include <QShortcut>
 
 NewOpen::NewOpen(Socket *sock, FileHandler *fHandler, QWidget *parent) :
     QDialog(parent),
@@ -15,6 +16,9 @@ NewOpen::NewOpen(Socket *sock, FileHandler *fHandler, QWidget *parent) :
 
     connect( this, SIGNAL(openThisFile(QString)),
              this->socket, SLOT(sendOpenFile(QString)));
+
+    QShortcut *sc = new QShortcut(QKeySequence("Return"),this);
+    connect(sc, SIGNAL(activated()), ui->pushButton, SLOT(click()));
 }
 
 NewOpen::~NewOpen()
@@ -24,8 +28,10 @@ NewOpen::~NewOpen()
 
 void NewOpen::on_pushButton_2_clicked() //Bottone: new Document
 {
-    form = new Form(this, this->socket);
+    mainwindow = new MainWindow(this->socket, this->socket->getFHandler(), this);
+    form = new Form(this->socket, this);
     hide();
+    mainwindow->show();
     form->show();
 }
 

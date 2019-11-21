@@ -1,13 +1,15 @@
 #include "form.h"
 #include "ui_form.h"
+#include <QShortcut>
 
-Form::Form(QWidget *parent, Socket *s) :
+Form::Form(Socket *sock, QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::Form)
+    ui(new Ui::Form),
+    socket(sock)
 {
     ui->setupUi(this);
-    connect( this, SIGNAL(newFile(QString)),
-             s, SLOT(sendNewFile(QString)));
+    QShortcut *sc = new QShortcut(QKeySequence("Return"),this);
+    connect(sc, SIGNAL(activated()), ui->pushButton, SLOT(click()));
 }
 
 Form::~Form()
@@ -19,4 +21,6 @@ void Form::on_pushButton_clicked()
 {
     QString filename = ui->lineEdit->text();
     emit newFile(filename);
+    qDebug() << "Inviata la richiesta a socket.cpp di creazione nuovo file: " << filename;
+    hide();
 }
