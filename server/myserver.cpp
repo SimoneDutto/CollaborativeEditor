@@ -60,6 +60,7 @@ void MyServer::onReadyRead(QObject *socketObject)
 
     QString type = rootObject.value(("type")).toString();
     qDebug() << "Tipo di richiesta: " << str.data();
+
     if(type.compare("OPEN")==0){
         qDebug() << "OPEN request";
         int fileid = rootObject.value(("fileid")).toInt();
@@ -148,24 +149,35 @@ void MyServer::sendInsert(QVector<QTcpSocket*> users, QByteArray message, bool m
     }
 
     QVectorIterator<QTcpSocket*> i(users);
+    QByteArray sendSize;
     while (i.hasNext()){
         QTcpSocket* socket = i.next();
         if(socket == client) continue;
         if(socket->state() == QAbstractSocket::ConnectedState) {
             if(modifiedIndex) {
+                socket->write(sendSize.number(QJsonDocument(obj).toJson().size()), sizeof (long int));
+                socket->waitForBytesWritten();
                 socket->write(QJsonDocument(obj).toJson()); //write size of data
-            } else
+            } else {
+                socket->write(sendSize.number(message.size()), sizeof (long int));
+                socket->waitForBytesWritten();
                 socket->write(message);
+            }
             socket->waitForBytesWritten(1000);
+            sendSize.clear();
         }
     }
 }
 
 void MyServer::sendDelete(QVector<QTcpSocket*> users, QByteArray message){
     QVectorIterator<QTcpSocket*> i(users);
+    QByteArray sendSize;
+
     while (i.hasNext()){
         QTcpSocket* socket = i.next();
         if(socket->state() == QAbstractSocket::ConnectedState) {
+            socket->write(sendSize.number(message.size()), sizeof (long int));
+            socket->waitForBytesWritten();
             socket->write(message);
             socket->waitForBytesWritten(1000);
         }
@@ -174,10 +186,15 @@ void MyServer::sendDelete(QVector<QTcpSocket*> users, QByteArray message){
 
 void MyServer::sendSignUpResponse(QString message, bool success, QTcpSocket* socket) {
     QJsonObject json;
+    QByteArray sendSize;
+
     json.insert("type", "SIGNUP_RESPONSE");
     json.insert("success", success);
     json.insert("msg", message);
+
     if(socket->state() == QAbstractSocket::ConnectedState) {
+        socket->write(sendSize.number(message.size()), sizeof (long int));
+        socket->waitForBytesWritten();
         socket->write(QJsonDocument(json).toJson());
         socket->waitForBytesWritten(1000);
     }
@@ -185,7 +202,6 @@ void MyServer::sendSignUpResponse(QString message, bool success, QTcpSocket* soc
 
 void MyServer::sendFileChunk(QByteArray chunk, QTcpSocket* socket, int remainingSize) {
     QJsonObject object;
-    QJsonArray array;
     QByteArray toSend;
     qDebug() <<"Sono qui";
 
@@ -195,9 +211,10 @@ void MyServer::sendFileChunk(QByteArray chunk, QTcpSocket* socket, int remaining
     object.insert("remaining", remainingSize);
     if(socket->state() == QAbstractSocket::ConnectedState)
     {
-        qDebug() << "Invio file";
+        //qDebug() << "Invio file";
         qDebug() << "size: " << QJsonDocument(object).toJson().size();
-        socket->write(toSend.number(QJsonDocument(object).toJson().size()), sizeof (int));
+        qDebug() << "Sending file with content: " << object;
+        socket->write(toSend.number(QJsonDocument(object).toJson().size()), sizeof (long int));
         socket->waitForBytesWritten();
         socket->write(QJsonDocument(object).toJson());
         socket->waitForBytesWritten();

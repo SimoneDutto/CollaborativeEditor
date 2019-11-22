@@ -106,26 +106,46 @@ FileHandler* FileSystem::sendFile(int fileid, QTcpSocket *socket){
     if (it != files.end()){
         // il file è già in memoria principale e può essere mandato
         // serializzarlo
-        int size = (int)inFile.size();
-        QJsonObject object;
-        QJsonArray array;
-        for(Letter* lett: it->second->getLetter()){
-           array.append(lett->toJSon());
+
+        int size = static_cast<int>(inFile.size());
+        QJsonObject file_info;
+        file_info.insert("type", "OPEN");
+        file_info.insert("fileid", fileid);
+        file_info.insert("size", size);
+
+        // Send size of message "OPEN"
+        if(socket->state() == QAbstractSocket::ConnectedState) {
+            qDebug() << "Invio file";
+            qint32 msg_size = QJsonDocument(file_info).toJson().size();
+            QByteArray toSend;
+            socket->write(toSend.number(msg_size), sizeof (long int));
+            socket->waitForBytesWritten();
+            if(socket->write(QJsonDocument(file_info).toJson()) == -1){
+                qDebug() << "File info failed to send";
+                return nullptr;
+            } //write the data itself
+            socket->waitForBytesWritten();
         }
-        object.insert("letterArray",array);
-        object.insert("type", "OPEN");
-        object.insert("fileid", fileid);
-        object.insert("size", size);
+
+        QJsonArray file_array;
+        for(Letter* lett: it->second->getLetter()){
+           file_array.append(lett->toJSon());
+        }
 
         int remaining = size;
+        QByteArray splitToSend = QJsonDocument(file_array).toJson();
+        int from = 0, to = 0;
 
-        while(!inFile.atEnd())
-        {
-            int chunk = remaining%(DATA_SIZE);
+        while(remaining > 0){
+            int chunk;
+            if(remaining > DATA_SIZE)
+                chunk = DATA_SIZE;
+            else
+                chunk = remaining;
             QByteArray qa = inFile.read(chunk);
-            qDebug() << "emitting dataRead()";
-            remaining -= chunk;
-            emit dataRead(qa, socket, remaining);
+            qDebug() << "emitting dataRead() da file serializzato";
+            emit dataRead(splitToSend.mid(from, to), socket, remaining);
+            from += chunk;
         }
 
         qDebug() << "File sent";
@@ -139,7 +159,7 @@ FileHandler* FileSystem::sendFile(int fileid, QTcpSocket *socket){
         qDebug() << "Inizio l'invio del file";
         // apre il file, lo scrive in un DataStream che poi invierà
         QByteArray buffer_tot;
-        int size = (int)inFile.size();
+        int size = static_cast<int>(inFile.size());
         qDebug() << size;
 
         QJsonObject file_info;
@@ -150,34 +170,29 @@ FileHandler* FileSystem::sendFile(int fileid, QTcpSocket *socket){
 
         //manda il file info
         if(socket->state() == QAbstractSocket::ConnectedState){
-            qDebug() << "Invio file";
-            QDataStream stream(socket);
+            qDebug() << "Invio file_info";
             qint32 msg_size = QJsonDocument(file_info).toJson().size();
             QByteArray toSend;
-            socket->write(toSend.number(msg_size), sizeof (int));
+            socket->write(toSend.number(msg_size), sizeof (long int));
             socket->waitForBytesWritten();
             if(socket->write(QJsonDocument(file_info).toJson()) == -1){
                 qDebug() << "File info failed to send";
                 return nullptr;
             } //write the data itself
             socket->waitForBytesWritten();
-            /*const QByteArray dataToSend = QJsonDocument(file_info).toJson();
-            stream << msg_size;
-            qDebug() << msg_size;
-            if(socket->write(QJsonDocument(file_info).toJson()) == -1){
-                qDebug() << "File info failed to send";
-                return nullptr;
-            } //write the data itself
-            socket->waitForBytesWritten();*/
         }
         // manda i chunk
         while(remaining > 0)
         {
-            int chunk = remaining % (DATA_SIZE);
+            int chunk;
+            if(remaining > DATA_SIZE)
+                chunk = DATA_SIZE;
+            else
+                chunk = remaining;
             QByteArray qa = inFile.read(chunk);
-            buffer_tot.append(qa);
-            qDebug() << "emitting dataRead()";
             remaining -= chunk;
+            buffer_tot.append(qa); 
+            qDebug() << "emitting dataRead(), remaining = " << remaining << "chunk = " << chunk;
             emit dataRead(qa, socket, remaining);
         }
         inFile.close();

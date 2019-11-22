@@ -110,16 +110,13 @@ void Socket::notificationsHandler(){
     QByteArray buffer_size, data, buffer;
 
     while(socket->bytesAvailable()) {
-        char json_size[sizeof(int)];
-        socket->read(json_size, sizeof (int));
+        char json_size[sizeof(long int)];
+        qint64 n = socket->read(json_size, sizeof (long int));
+        //qDebug() << "Read bytes = " << n << " sizeof(int) = " << sizeof (int);
         int c = atoi(json_size);
+        if(c == 0) break;
         //while(socket->bytesAvailable() < c);
         buffer.append(socket->read(c));
-
-        //int json_size;
-        /*QDataStream stream(socket);
-        stream >> json_size;*/
-        //buffer = socket->read(json_size);
         qDebug() << json_size << "data: " << buffer;
 
         QJsonDocument document = QJsonDocument::fromJson(buffer);
@@ -147,7 +144,8 @@ void Socket::notificationsHandler(){
             QString chunk = object.value("chunk").toString();
             json_buffer.append(chunk);
             if(remaining == 0){
-                QJsonDocument doc = QJsonDocument::fromJson(json_buffer);
+                //qDebug() << "Whole file: " << json_buffer;
+                QJsonDocument doc = QJsonDocument::fromJson(json_buffer.data());
                 QJsonObject full_chunks = doc.object();
                 QVector<Letter*> letters;
                 QJsonValue value = full_chunks.value("letterArray");
@@ -219,7 +217,6 @@ void Socket::notificationsHandler(){
           //  emit myReadyRead();
         qDebug() << "Finished!";
         buffer.clear();
-
     }
 }
 
