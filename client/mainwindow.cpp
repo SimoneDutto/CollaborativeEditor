@@ -34,6 +34,8 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent) :
     connect( socket, SIGNAL(readyDelete(QString)),
               fHandler, SLOT(remoteDelete(QString)));
     connect( socket, SIGNAL(readyFile()),  this, SLOT(fileIsHere()));
+    connect( fHandler, SIGNAL(readyRemoteInsert(QChar, int)),
+             this, SLOT(changeViewAfterInsert(QChar, int)));
 }
 
 MainWindow::~MainWindow()
@@ -237,13 +239,15 @@ void MainWindow::fileIsHere(){
     connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
 }
 
-//void MainWindow::changeViewAfterInsert(Letter l, int pos)
-//{
-//    QTextCursor cursor(ui->textEdit->textCursor());
-//    cursor.setPosition(pos);
-//    ui->textEdit->insertPlainText(l.getValue());
-//    letterCounter++;
-//}
+void MainWindow::changeViewAfterInsert(QChar l, int pos)
+{
+    disconnect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
+    QTextCursor cursor(ui->textEdit->textCursor());
+    cursor.setPosition(pos);
+    ui->textEdit->insertPlainText(l);
+    letterCounter++;
+    connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
+}
 
 //void MainWindow::changeViewAfterDelete(Letter l, int pos)
 //{

@@ -131,20 +131,27 @@ FileHandler* FileSystem::sendFile(int fileid, QTcpSocket *socket){
         for(Letter* lett: it->second->getLetter()){
            file_array.append(lett->toJSon());
         }
-
-        int remaining = size;
-        QByteArray splitToSend = QJsonDocument(file_array).toJson();
-        int from = 0, to = 0;
+        QJsonObject obj;
+        obj.insert("letterArray", file_array);
+        QByteArray splitToSend = QJsonDocument(obj).toJson();
+        int from = 0, chunk;
+        int remaining = splitToSend.size();
 
         while(remaining > 0){
-            int chunk;
             if(remaining > DATA_SIZE)
                 chunk = DATA_SIZE;
             else
                 chunk = remaining;
-            QByteArray qa = inFile.read(chunk);
+            //QByteArray qa = inFile.read(chunk);
             qDebug() << "emitting dataRead() da file serializzato";
-            emit dataRead(splitToSend.mid(from, to), socket, remaining);
+            remaining -= chunk;
+            qDebug() << "--------------------------------------------------";
+            qDebug() << splitToSend.mid(from, chunk).data();
+            qDebug() << "--------------------------------------------------";
+            if(remaining > 0)
+                emit dataRead(splitToSend.mid(from, chunk), socket, remaining);
+            else if (remaining == 0)
+                emit dataRead(splitToSend.mid(from, chunk+1), socket, remaining);
             from += chunk;
         }
 
@@ -246,18 +253,19 @@ void FileSystem::checkLogin(QString username, QString password, QTcpSocket *sock
     QVector<QString> files;
     QJsonArray files_array;
 
-    query.prepare("SELECT userid FROM password WHERE username = (:username) AND password = (:password)");
+    query.prepare("SELECT rowid FROM password WHERE username = (:username) AND password = (:password)");
     query.bindValue(":username", username);
     //QByteArray saltedPsw = password.append(STR_SALT_KEY).toUtf8();
     //QString encryptedPsw = QString(QCryptographicHash::hash(saltedPsw, QCryptographicHash::Md5));
     //query.bindValue(":password", encryptedPsw);
     query.bindValue(":password", password);
+    qDebug() << password << username;
     int id = -1;
     if (query.exec())
     {
         if (query.next())
         {
-            id =  query.value("userid").toInt();
+            id =  query.value("rowid").toInt();
         }
     }
     else{
@@ -268,15 +276,15 @@ void FileSystem::checkLogin(QString username, QString password, QTcpSocket *sock
     if(id != -1){
         QSqlQuery query;
         sock_id.insert(std::pair<QTcpSocket*, int> (socket, id)); //associate id to socket
-        query.prepare("SELECT filename, rowid FROM files WHERE username = (:username)");
-        query.bindValue(":username", username);
+        query.prepare("SELECT filename, fileid FROM files WHERE userid = (:userid)");
+        query.bindValue(":userid", id);
         if (query.exec())
         {
             while (query.next())
             {
                QJsonObject item_data;
                QString name = query.value("filename").toString();
-               int fileid = query.value("rowid").toInt();
+               int fileid = query.value("fileid").toInt();
                qDebug() << name;
                item_data.insert("filename", QJsonValue(name));
                item_data.insert("fileid", QJsonValue(fileid));

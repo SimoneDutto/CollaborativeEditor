@@ -111,7 +111,7 @@ void Socket::notificationsHandler(){
 
     while(socket->bytesAvailable()) {
         char json_size[sizeof(long int)];
-        qint64 n = socket->read(json_size, sizeof (long int));
+        socket->read(json_size, sizeof (long int));
         //qDebug() << "Read bytes = " << n << " sizeof(int) = " << sizeof (int);
         int c = atoi(json_size);
         if(c == 0) break;
@@ -173,7 +173,7 @@ void Socket::notificationsHandler(){
                 connect( this->fileh, SIGNAL(localDeleteNotify(int)), this, SLOT(sendDelete(int)) );
 
                 /*Salvo il file come vettore di Letters nel fileHandler*/
-                this->fileh->setValues(std::move(letters), fileid);
+                this->fileh->setValues(std::move(letters));
                 emit readyFile();
             }
 

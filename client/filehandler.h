@@ -20,7 +20,7 @@ private:
 
 public:
     explicit FileHandler(QObject *parent = nullptr);
-    void setValues(QVector<Letter*> letters, int fileid);
+    void setValues(QVector<Letter*> letters);
     QVector<Letter*> getVectorFile();
     int getFileId();
     void setFileId(int fileid);
@@ -36,6 +36,7 @@ public slots:
 signals:
     void localInsertNotify(QChar newLetterValue, QJsonArray position, int siteID, int siteCounter, int externalIndex);
     void localDeleteNotify(int externalIndex);
+    void readyRemoteInsert(QChar newLetter, int externalIndex);
 };
 
 #endif // FILEHANDLER_H

@@ -172,14 +172,14 @@ void FileHandler::remoteInsert(QJsonArray position, QChar newLetterValue, int ex
             fractionals.append(fractional.toInt());
         }
 
-        QString letterID = QString::number(siteID).append("-").append(siteCounter);
+        QString letterID = QString::number(siteID).append("-").append(QString::number(siteCounter));
         //Letter newLetter(newLetterValue, fractionals, letterID);
 
-        this->letters.insert(this->letters.begin()+externalIndex, new Letter(newLetterValue, fractionals, letterID));
+        this->letters.insert(this->letters.begin()+externalIndex-1, new Letter(newLetterValue, fractionals, letterID));
     }
 
     /*Aggiornare la GUI*/
-    // parametri necessari = externalIndex + newLetterValue
+    emit readyRemoteInsert(newLetterValue, externalIndex-1);
 
 }
 
@@ -201,13 +201,12 @@ void FileHandler::remoteDelete(QString deletedLetterID) {
 
 }
 
-void FileHandler::setValues(QVector<Letter *> letters, int fileid){
+void FileHandler::setValues(QVector<Letter *> letters){
     if(!this->letters.empty()){
         this->letters.clear();
     }
     this->letters = letters;
     this->siteCounter=0;
-    this->fileid = fileid;
 }
 
 QVector<Letter*> FileHandler::getVectorFile(){
