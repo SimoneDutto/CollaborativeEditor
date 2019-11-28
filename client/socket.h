@@ -34,7 +34,9 @@ public:
 private:
     Ui::Socket *ui;
     QTcpSocket *socket;
+    QByteArray buffer;
     QByteArray json_buffer;
+    long int size=0;
     FileHandler* fileh;
     int clientID;
     QMap<QString, int> mapFiles;
@@ -51,7 +53,8 @@ private slots:
     void socketError(int e);
 
     void checkLoginAndGetListFileName();
-    void notificationsHandler();
+    void notificationsHandler(QByteArray buffer);
+    void readBuffer();
 
     int sendOpenFile(QString name_file);
     int sendInsert(QChar newLetterValue, QJsonArray position, int siteID, int siteCounter, int externalIndex);
@@ -76,6 +79,7 @@ signals:
 
     /*Signal connected to readyReady()*/
     void myReadyRead();
+    void bufferReady(QByteArray data);
 };
 
 

@@ -22,8 +22,6 @@ private slots:
     void onNewConnection();
     void onReadyRead(QObject *socketObject);
     void onDisconnected(QObject *socketObject);
-    void sendInsert(QVector<QTcpSocket*> users, QByteArray message, bool modifiedIndex, int newIndex, QTcpSocket* client);
-    void sendDelete(QVector<QTcpSocket*> users, QByteArray message);
     void sendSignUpResponse(QString message, bool success, QTcpSocket* socket);
     void sendFileChunk(QByteArray chunk, QTcpSocket *socket, int remainingSize);
 

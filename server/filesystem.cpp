@@ -229,6 +229,11 @@ FileHandler* FileSystem::sendFile(int fileid, QTcpSocket *socket){
             letters.append(std::move(letter_tmp));
         }
         FileHandler *fh = new FileHandler(std::move(letters), fileid);
+        connect(fh, SIGNAL(remoteInsertNotify(QVector<QTcpSocket*>, QByteArray, bool, int, QTcpSocket*)),
+                this, SLOT(sendInsert(QVector<QTcpSocket*>, QByteArray, bool, int, QTcpSocket*)));
+
+        connect(fh, SIGNAL(remoteDeleteNotify(QVector<QTcpSocket*>, QByteArray)),
+                this, SLOT(sendDelete(QVector<QTcpSocket*>, QByteArray)));
         fh->insertActiveUser(socket);
 
         files.insert(std::pair<int, FileHandler*> (fileid, fh));
@@ -354,6 +359,60 @@ void FileSystem::storeNewUser(QString username, QString psw, QTcpSocket *socket)
         // EMIT segnale server failed to respond
         emit signUpResponse("SERVER_FAILURE", false, socket);
         return;
+    }
+}
+
+
+void FileSystem::sendInsert(QVector<QTcpSocket*> users, QByteArray message, bool modifiedIndex, int newIndex, QTcpSocket *client) {
+    QJsonObject obj;
+    if(modifiedIndex) {
+        // Edit json file
+        QJsonDocument jsonResponse = QJsonDocument::fromJson(message);
+        QJsonObject rootObject = jsonResponse.object();
+        obj.insert("type", "INSERT");
+        obj.insert("filename", rootObject.value("filename").toString());
+        obj.insert("letter", rootObject.value("letter").toString());
+        obj.insert("position", rootObject.value("position").toArray());
+        obj.insert("siteID", rootObject.value("siteID").toString());
+        obj.insert("siteCounter", rootObject.value("siteCounter").toInt());
+        obj.insert("externalIndex", newIndex);
+    }
+    QVectorIterator<QTcpSocket*> i(users);
+    QByteArray sendSize;
+    while (i.hasNext()){
+        QTcpSocket* socket = i.next();
+        if(socket == client) continue;
+        if(socket->state() == QAbstractSocket::ConnectedState) {
+            if(modifiedIndex) {
+                QByteArray msg = QJsonDocument(obj).toJson();
+                qDebug() << "Notifica inviata: " << msg.data();
+                socket->write(sendSize.number(msg.size()), sizeof (long int));
+                socket->waitForBytesWritten();
+                socket->write(msg); //write size of data
+            } else {
+                qDebug() << "Notifica inviata: " << message.data();
+                socket->write(sendSize.number(message.size()), sizeof (long int));
+                socket->waitForBytesWritten();
+                socket->write(message);
+            }
+            socket->waitForBytesWritten(1000);
+            sendSize.clear();
+        }
+    }
+}
+
+void FileSystem::sendDelete(QVector<QTcpSocket*> users, QByteArray message){
+    QVectorIterator<QTcpSocket*> i(users);
+    QByteArray sendSize;
+
+    while (i.hasNext()){
+        QTcpSocket* socket = i.next();
+        if(socket->state() == QAbstractSocket::ConnectedState) {
+            socket->write(sendSize.number(message.size()), sizeof (long int));
+            socket->waitForBytesWritten();
+            socket->write(message);
+            socket->waitForBytesWritten(1000);
+        }
     }
 }
 

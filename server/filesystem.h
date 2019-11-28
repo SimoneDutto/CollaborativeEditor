@@ -50,6 +50,9 @@ public:
 signals:
     void signUpResponse(QString message, bool success, QTcpSocket* socket);
     void dataRead(QByteArray chunk, QTcpSocket* socket, int remainingSize);
+private slots:
+    void sendInsert(QVector<QTcpSocket*> users, QByteArray message, bool modifiedIndex, int newIndex, QTcpSocket* client);
+    void sendDelete(QVector<QTcpSocket*> users, QByteArray message);
 };
 
 #endif // FILESYSTEM_H
