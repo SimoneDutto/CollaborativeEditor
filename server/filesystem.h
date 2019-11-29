@@ -16,9 +16,11 @@
 #include <QSqlQuery>
 #include <QDir>
 #include <QObject>
+#include <QFile>
 
 #include "letter.h"
 #include "filehandler.h"
+
 
 class FileHandler;
 class QTcpSocket;
@@ -42,9 +44,15 @@ public:
     static FileSystem* getInstance();
     std::map<int, FileHandler*> getFiles();
     void disconnectClient(QTcpSocket* socket);
+    //static QByteArray IntToArray(qint32 source);
+
 
 signals:
     void signUpResponse(QString message, bool success, QTcpSocket* socket);
+    void dataRead(QByteArray chunk, QTcpSocket* socket, int remainingSize);
+private slots:
+    void sendInsert(QVector<QTcpSocket*> users, QByteArray message, bool modifiedIndex, int newIndex, QTcpSocket* client);
+    void sendDelete(QVector<QTcpSocket*> users, QByteArray message);
 };
 
 #endif // FILESYSTEM_H

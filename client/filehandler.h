@@ -11,17 +11,21 @@ class FileHandler : public QObject
     Q_OBJECT
 
 private:
-    QString fileName;
+    int fileid;
     QVector<Letter*> letters;
     int siteCounter;
+    int size;
 
     QVector<int> calculateInternalIndex(QVector<int> prevPos, QVector<int> nextPos);
 
 public:
     explicit FileHandler(QObject *parent = nullptr);
-    void setValues(QVector<Letter*> letters, QString fileName);
+    void setValues(QVector<Letter*> letters);
     QVector<Letter*> getVectorFile();
-    QString getFileName();
+    int getFileId();
+    void setFileId(int fileid);
+    int getSize();
+    void setSize(int size);
 
 public slots:
     void localInsert(int externalIndex, QChar newLetterValue, int clientID);
@@ -32,6 +36,7 @@ public slots:
 signals:
     void localInsertNotify(QChar newLetterValue, QJsonArray position, int siteID, int siteCounter, int externalIndex);
     void localDeleteNotify(int externalIndex);
+    void readyRemoteInsert(QChar newLetter, int externalIndex);
 };
 
 #endif // FILEHANDLER_H

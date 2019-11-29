@@ -10,7 +10,7 @@ NewOpen::NewOpen(Socket *sock, FileHandler *fHandler, QWidget *parent) :
 {
     ui->setupUi(this);
 
-    for (QString s : this->socket->getListFiles()){
+    for (QString s : this->socket->getMapFiles().keys()){
         ui->listWidget->addItem(s);
     }
 
