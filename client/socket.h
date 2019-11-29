@@ -10,6 +10,7 @@
 #include <QJsonArray>
 #include <QSettings>
 #include <QFile>
+#include <QMap>
 #include "letter.h"
 #include "iostream"
 #include "filehandler.h"
@@ -28,18 +29,20 @@ public:
     ~Socket();
     FileHandler* getFHandler();
     int getClientID();
-    QVector<QString> getListFiles();
+    QMap<QString, int> getMapFiles();
 
 private:
     Ui::Socket *ui;
     QTcpSocket *socket;
-    qint32 size;
     QByteArray buffer;
+    QByteArray json_buffer;
+    long int size=0;
     FileHandler* fileh;
     int clientID;
-    QVector<QString> listFiles;
+    QMap<QString, int> mapFiles;
 
 public slots:
+    void sendSignUpRequest(QString username, QString password);
     void sendLogin(QString username, QString password);
 
 private slots:
@@ -50,15 +53,22 @@ private slots:
     void socketError(int e);
 
     void checkLoginAndGetListFileName();
-    void notificationsHandler();
+    void notificationsHandler(QByteArray buffer);
+    void readBuffer();
 
     int sendOpenFile(QString name_file);
     int sendInsert(QChar newLetterValue, QJsonArray position, int siteID, int siteCounter, int externalIndex);
     int sendDelete(int externalIndex);
     int sendCheckFileName(QString fileNameTmp);
-    int sendNewFile();
+    int sendNewFile(QString filename);
 
 signals:
+    /* Registrazione */
+    void signUpSuccess();
+    void signUpError();
+    void invalidUsername();
+
+    /* Login */
     void loginSuccess();
     void loginError();
 
@@ -66,6 +76,10 @@ signals:
     void readyFile();
     void readyInsert(QJsonArray position, QChar newLetterValue, int externalIndex, int siteID, int siteCounter);
     void readyDelete(QString deletedLetterID);
+
+    /*Signal connected to readyReady()*/
+    void myReadyRead();
+    void bufferReady(QByteArray data);
 };
 
 

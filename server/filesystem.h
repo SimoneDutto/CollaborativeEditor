@@ -14,25 +14,45 @@
 #include <QSqlDriver>
 #include <QSqlError>
 #include <QSqlQuery>
+#include <QDir>
+#include <QObject>
+#include <QFile>
 
 #include "letter.h"
 #include "filehandler.h"
 
+
 class FileHandler;
 class QTcpSocket;
 
-class FileSystem
+class FileSystem : public QObject
 {
+    Q_OBJECT
+private:
     static FileSystem* instance;
-    std::map<QString, FileHandler*> files;
-    std::map<QTcpSocket, QString> sock_nickname;
+    std::map<int, FileHandler*> files;
+    std::map<QTcpSocket*, int> sock_id;
+    std::map<QTcpSocket*, int> sock_file;
     QSqlDatabase db;
-    FileSystem() {}
+    explicit FileSystem() {}
+
 public:
-    void sendFile(QString filename, QTcpSocket *socket);
+    FileHandler* sendFile(int fileid, QTcpSocket *socket);
+    FileHandler* createFile(QString filename, QTcpSocket *socket);
     void checkLogin(QString username, QString password, QTcpSocket *socket);
+    void storeNewUser(QString username, QString psw, QTcpSocket *socket);
     static FileSystem* getInstance();
-    std::map<QString, FileHandler*> getFiles();
+    std::map<int, FileHandler*> getFiles();
+    void disconnectClient(QTcpSocket* socket);
+    //static QByteArray IntToArray(qint32 source);
+
+
+signals:
+    void signUpResponse(QString message, bool success, QTcpSocket* socket);
+    void dataRead(QByteArray chunk, QTcpSocket* socket, int remainingSize);
+private slots:
+    void sendInsert(QVector<QTcpSocket*> users, QByteArray message, bool modifiedIndex, int newIndex, QTcpSocket* client);
+    void sendDelete(QVector<QTcpSocket*> users, QByteArray message);
 };
 
 #endif // FILESYSTEM_H

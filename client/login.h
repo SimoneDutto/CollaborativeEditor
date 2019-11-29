@@ -2,8 +2,9 @@
 #define LOGIN_H
 
 #include <QMainWindow>
-#include <QCryptographicHash>
+//#include <QCryptographicHash>
 #include "mainwindow.h"
+#include "newopen.h"
 #include "socket.h"
 
 QT_BEGIN_NAMESPACE
@@ -29,5 +30,6 @@ private:
     Ui::Login *ui;
     MainWindow *mainWindow;
     Socket *socket;
+    NewOpen *newopen;
 };
 #endif // LOGIN_H

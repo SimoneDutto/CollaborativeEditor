@@ -21,7 +21,7 @@ void Login::on_pushButton_clicked()
 {
     QString username = ui->lineEdit_username->text();
     QByteArray password = ui->lineEdit_password->text().toLatin1();
-    QString hash_me = QString(QCryptographicHash::hash((password),QCryptographicHash::Md5).toHex());
+    //QString hash_me = QString(QCryptographicHash::hash((password),QCryptographicHash::Md5).toHex());
 
     connect(socket, SIGNAL(loginSuccess()), this, SLOT(resumeLogin()));
     connect(socket, SIGNAL(loginError()), this, SLOT(redoLogin()));
@@ -31,9 +31,11 @@ void Login::on_pushButton_clicked()
 
 void Login::resumeLogin()
 {
-    mainWindow = new MainWindow(this->socket, this->socket->getFHandler(), this);
+    newopen = new NewOpen(this->socket, this->socket->getFHandler(), this);
+    //mainWindow = new MainWindow(this->socket, this->socket->getFHandler(), this);
     hide();
-    mainWindow->show();
+    //mainWindow->show();
+    newopen ->show();
 }
 
 void Login::redoLogin()

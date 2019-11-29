@@ -19,25 +19,31 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     dialog.cpp \
+    newopen.cpp \
     filehandler.cpp \
     letter.cpp \
     main.cpp \
     login.cpp \
     mainwindow.cpp \
+    signup.cpp \
     socket.cpp
 
 HEADERS += \
     dialog.h \
+    newopen.h \
     filehandler.h \
     letter.h \
     login.h \
     mainwindow.h \
+    signup.h \
     socket.h
 
 FORMS += \
     dialog.ui \
+    newopen.ui \
     login.ui \
     mainwindow.ui \
+    signup.ui \
     socket.ui
 
 # Default rules for deployment.

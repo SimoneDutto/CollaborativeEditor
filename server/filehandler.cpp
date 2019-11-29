@@ -1,11 +1,37 @@
-#include "filehandler.h"
+﻿#include "filehandler.h"
 
-FileHandler::FileHandler(const QVector<Letter*>&& lett, QObject *parent) : QObject(parent) {
+FileHandler::FileHandler(const QVector<Letter*>&& lett, int fileid, QObject *parent) : QObject(parent) {
     this->letters = lett;
+    id = fileid;
 }
 
 void FileHandler::insertActiveUser(QTcpSocket *user){
-    active_users.append(user);
+    users.append(user);
+    counter_user++;
+}
+
+void FileHandler::removeActiveUser(QTcpSocket *user){
+    /*users.removeOne(user);
+    counter_user--;
+    if(counter_user == 0){
+        // Salvarlo in memoria secondaria, io lo farei con un segnale
+        QJsonObject object;
+        QJsonArray array;
+        for(Letter* lett: letters){
+           array.append(lett->toJSon());
+        }
+        object.insert("letterArray",array);
+
+        QFile file(QString::number(id));
+        file.open(QFile::WriteOnly|QFile::Truncate); // this mode clear the content of a file
+
+        if ( file.open(QFile::WriteOnly|QFile::Truncate) )
+        {
+            QTextStream stream( &file );
+            stream << QJsonDocument(object).toJson() << endl;
+        }
+    }
+    */
 }
 
 /**
@@ -17,9 +43,11 @@ void FileHandler::insertActiveUser(QTcpSocket *user){
  * Casi particolari:
  * - inserimento equivalente da parte di utenti diversi.
  * */
-void FileHandler::remoteInsert(QJsonArray position, QChar newLetterValue, int externalIndex, int siteID, int siteCounter, QByteArray message) {
+void FileHandler::remoteInsert(QJsonArray position, QChar newLetterValue, int externalIndex,
+                               int siteID, int siteCounter, QByteArray message, QTcpSocket *client) {
     // Get index and fractionals vector
     QVector<int> fractionals;
+
 
     if(!position.isEmpty()) {
         //int index = position.at(0).toInt();
@@ -40,13 +68,13 @@ void FileHandler::remoteInsert(QJsonArray position, QChar newLetterValue, int ex
                 else if (siteID > this->letters[externalIndex]->getSiteID()) {  // lettera diversa inserita nella stessa posizione => inserimento in ordine di siteID
                     this->letters.insert(this->letters.begin()+externalIndex+1, newLetter);
                     // propaga informazione con indice modificato
-                    emit remoteInsertNotify(this->users, message, true, externalIndex+1);
+                    emit remoteInsertNotify(this->users, message, true, externalIndex+1, client);
                     return;
                 }
             }
         }
 
-        this->letters.insert(this->letters.begin()+externalIndex, newLetter);
+        this->letters.insert(this->letters.begin()+externalIndex-1, newLetter);
 
         /*
         Letter lastLetter = this->letters.at(letters.size()-1);
@@ -80,7 +108,7 @@ void FileHandler::remoteInsert(QJsonArray position, QChar newLetterValue, int ex
         }*/
 
         // Notifica gli altri client inviando lo stesso messaggio
-        emit remoteInsertNotify(this->users, message, false, 0);
+        emit remoteInsertNotify(this->users, message, false, 0, client);
     }
 }
 
@@ -100,5 +128,9 @@ void FileHandler::remoteDelete(QString deletedLetterID,  QByteArray message) {
 
 QVector<QTcpSocket*> FileHandler::getUsers(){
     return this->users;
+}
+
+QVector<Letter*> FileHandler::getLetter(){
+    return this->letters;
 }
 
