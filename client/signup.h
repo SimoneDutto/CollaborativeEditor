@@ -11,13 +11,13 @@ QT_BEGIN_NAMESPACE
 namespace Ui { class SignUp; }
 QT_END_NAMESPACE
 
-class SignUp : public QMainWindow
+class SignUp : public QDialog
 {
     Q_OBJECT
 
 private:
-    Socket *socket;
     Ui::SignUp *ui;
+    Socket *socket;
     MainWindow *mainWindow;
     Login *loginWindow;
 

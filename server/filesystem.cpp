@@ -199,7 +199,7 @@ FileHandler* FileSystem::sendFile(int fileid, QTcpSocket *socket){
                 chunk = remaining;
             QByteArray qa = inFile.read(chunk);
             remaining -= chunk;
-            buffer_tot.append(qa); 
+            buffer_tot.append(qa);
             qDebug() << "emitting dataRead(), remaining = " << remaining << "chunk = " << chunk;
             emit dataRead(qa, socket, remaining);
         }
@@ -261,10 +261,10 @@ void FileSystem::checkLogin(QString username, QString password, QTcpSocket *sock
 
     query.prepare("SELECT rowid FROM password WHERE username = (:username) AND password = (:password)");
     query.bindValue(":username", username);
-    //QByteArray saltedPsw = password.append(STR_SALT_KEY).toUtf8();
-    //QString encryptedPsw = QString(QCryptographicHash::hash(saltedPsw, QCryptographicHash::Md5));
-    //query.bindValue(":password", encryptedPsw);
-    query.bindValue(":password", password);
+    QByteArray saltedPsw = password.append(STR_SALT_KEY).toUtf8();
+    QString encryptedPsw = QString(QCryptographicHash::hash(saltedPsw, QCryptographicHash::Md5));
+    query.bindValue(":password", encryptedPsw);
+    //query.bindValue(":password", password);
     qDebug() << password << username;
     int id = -1;
     if (query.exec())
@@ -346,7 +346,7 @@ void FileSystem::storeNewUser(QString username, QString psw, QTcpSocket *socket)
     QString encryptedPsw = QString(QCryptographicHash::hash(saltedPsw, QCryptographicHash::Md5));
 
     /* Insert new user in DB */
-    sqlQuery.prepare("INSERT INTO PASSWORD(userid, username, password) VALUES ((:userID),(:username),(:password))");    // safe for SQL injection
+    sqlQuery.prepare("INSERT INTO Password(userid, username, password) VALUES ((:userID),(:username),(:password))");    // safe for SQL injection
     sqlQuery.bindValue(":userID", userID);
     sqlQuery.bindValue(":username", username);
     sqlQuery.bindValue(":password", encryptedPsw);
@@ -424,5 +424,3 @@ std::map<int, FileHandler*> FileSystem::getFiles() {
 void FileSystem::disconnectClient(QTcpSocket* socket){
     files.at(sock_file.at(socket))->removeActiveUser(socket);
 }
-
-

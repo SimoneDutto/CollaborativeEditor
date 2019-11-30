@@ -1,4 +1,4 @@
-#include "login.h"
+#include "welcome.h"
 #include "socket.h"
 
 #include <QApplication>
@@ -8,7 +8,7 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
     Socket sock("localhost", 4001);
 
-    Login w(&sock);
+    Welcome w(&sock);
     w.show();
 
     //MainWindow m(&sock);
