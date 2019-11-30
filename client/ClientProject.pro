@@ -19,6 +19,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     dialog.cpp \
+    form.cpp \
     newopen.cpp \
     filehandler.cpp \
     letter.cpp \
@@ -26,25 +27,30 @@ SOURCES += \
     login.cpp \
     mainwindow.cpp \
     signup.cpp \
-    socket.cpp
+    socket.cpp \
+    welcome.cpp
 
 HEADERS += \
     dialog.h \
+    form.h \
     newopen.h \
     filehandler.h \
     letter.h \
     login.h \
     mainwindow.h \
     signup.h \
-    socket.h
+    socket.h \
+    welcome.h
 
 FORMS += \
     dialog.ui \
+    form.ui \
     newopen.ui \
     login.ui \
     mainwindow.ui \
     signup.ui \
-    socket.ui
+    socket.ui \
+    welcome.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

@@ -3,11 +3,11 @@
 #include <QMessageBox>
 
 SignUp::SignUp(Socket* sock, QWidget* parent)
-    : QMainWindow(parent)
-    , ui(new Ui::SignUp)
-    , socket(sock)
+    : QDialog(parent),
+    ui(new Ui::SignUp),
+    socket(sock)
 {
-    //ui->setupUi(this);  ERRORE ?
+    ui->setupUi(this);
 }
 
 SignUp::~SignUp() {
@@ -15,16 +15,16 @@ SignUp::~SignUp() {
 }
 
 void SignUp::on_pushButton_clicked() {
-    QString username;
-    QString password;
-    //QString username = ui->lineEdit_username->text();
-    //QByteArray password = ui->lineEdit_password->text().toLatin1();
+    QString username = ui->lineEdit->text();
+    QByteArray password = ui->lineEdit_2->text().toLatin1();
+    QByteArray conferma = ui->lineEdit_3->text().toLatin1();
 
     connect(socket, SIGNAL(signUpSuccess()), this, SLOT(sendToLogin()));
     connect(socket, SIGNAL(signUpError()), this, SLOT(repeatSignUp()));
     connect(socket, SIGNAL(invalidUsername()), this, SLOT(changeUsername()));
 
-    socket->sendSignUpRequest(username, password);
+    //if(password==conferma)
+        socket->sendSignUpRequest(username, password);
 }
 
 void SignUp::sendToLogin() {

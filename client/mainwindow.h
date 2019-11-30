@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include "socket.h"
 #include "dialog.h"
+#include "form.h"
 
 namespace Ui {
 class MainWindow;
@@ -40,11 +41,14 @@ private slots:
     void changeViewAfterInsert(QChar l, int pos);
 //    void changeViewAfterDelete();
 
+    void on_textEdit_cursorPositionChanged();
+
 private:
     Ui::MainWindow *ui;
     Socket *socket;
     Dialog *dialog;
     FileHandler *fHandler;
+    Form *form;
     int letterCounter = 0;
 
 signals:

@@ -27,6 +27,7 @@ private:
     Socket *socket;
     MainWindow *mainwindow;
     FileHandler *fileHandler;
+    Form *form;
 
 
 signals:
