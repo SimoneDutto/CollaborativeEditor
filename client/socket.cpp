@@ -61,7 +61,11 @@ void Socket::sendLogin(QString username, QString password)
     obj.insert("password", password);
 
     if(socket->state() == QAbstractSocket::ConnectedState){
-        qDebug() << "Richiesta:\n" << QJsonDocument(obj).toJson().data();
+        QByteArray qarray = QJsonDocument(obj).toJson();
+        qint32 msg_size = qarray.size();
+        QByteArray toSend;
+        socket->write(toSend.number(msg_size), sizeof (long int));
+        socket->waitForBytesWritten();
         socket->write(QJsonDocument(obj).toJson());
         socket->waitForBytesWritten(1000);
     }
@@ -103,8 +107,6 @@ void Socket::checkLoginAndGetListFileName()
     emit loginSuccess();
     qDebug() << "Finished!";
 }
-
-
 
 void Socket::readBuffer(){
 
@@ -248,8 +250,14 @@ int Socket::sendInsert(QChar newLetterValue, QJsonArray position, int siteID, in
     obj.insert("externalIndex", externalIndex);
 
     if(socket->state() == QAbstractSocket::ConnectedState){
-        qDebug() << "Richiesta:\n" << QJsonDocument(obj).toJson().data();
+        QByteArray qarray = QJsonDocument(obj).toJson();
+        qint32 msg_size = qarray.size();
+        QByteArray toSend;
+        socket->write(toSend.number(msg_size), sizeof (long int));
+        socket->waitForBytesWritten();
         socket->write(QJsonDocument(obj).toJson());
+        socket->waitForBytesWritten();
+        qDebug() << "Richiesta:\n" << QJsonDocument(obj).toJson().data();
     }
 
     return socket->waitForBytesWritten(1000);
@@ -262,8 +270,14 @@ int Socket::sendDelete(int externalIndex){
     obj.insert("externalIndex", externalIndex);
 
     if(socket->state() == QAbstractSocket::ConnectedState){
-        qDebug() << "Richiesta:\n" << QJsonDocument(obj).toJson().data();
+        QByteArray qarray = QJsonDocument(obj).toJson();
+        qint32 msg_size = qarray.size();
+        QByteArray toSend;
+        socket->write(toSend.number(msg_size), sizeof (long int));
+        socket->waitForBytesWritten();
         socket->write(QJsonDocument(obj).toJson());
+        socket->waitForBytesWritten();
+        qDebug() << "Richiesta:\n" << QJsonDocument(obj).toJson().data();
     }
 
     return socket->waitForBytesWritten(1000);
@@ -290,8 +304,14 @@ int Socket::sendOpenFile(QString filename)
     obj.insert("fileid", this->mapFiles.value(filename));
 
     if(socket->state() == QAbstractSocket::ConnectedState){
-        qDebug() << "Richiesta:\n" << QJsonDocument(obj).toJson().data();
+        QByteArray qarray = QJsonDocument(obj).toJson();
+        qint32 msg_size = qarray.size();
+        QByteArray toSend;
+        socket->write(toSend.number(msg_size), sizeof (long int));
+        socket->waitForBytesWritten();
         socket->write(QJsonDocument(obj).toJson());
+        socket->waitForBytesWritten();
+        qDebug() << "Richiesta:\n" << QJsonDocument(obj).toJson().data();
     }
 
     return socket->waitForBytesWritten(1000);
@@ -304,8 +324,14 @@ int Socket::sendNewFile(QString filename){
     obj.insert("filename", filename);
 
     if(socket->state() == QAbstractSocket::ConnectedState){
-        qDebug() << "Richiesta:\n" << QJsonDocument(obj).toJson().data();
+        QByteArray qarray = QJsonDocument(obj).toJson();
+        qint32 msg_size = qarray.size();
+        QByteArray toSend;
+        socket->write(toSend.number(msg_size), sizeof (long int));
+        socket->waitForBytesWritten();
         socket->write(QJsonDocument(obj).toJson());
+        socket->waitForBytesWritten();
+        qDebug() << "Richiesta:\n" << QJsonDocument(obj).toJson().data();
     }
 
     return socket->waitForBytesWritten(1000);

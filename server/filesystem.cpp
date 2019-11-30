@@ -116,11 +116,12 @@ FileHandler* FileSystem::sendFile(int fileid, QTcpSocket *socket){
         // Send size of message "OPEN"
         if(socket->state() == QAbstractSocket::ConnectedState) {
             qDebug() << "Invio file";
-            qint32 msg_size = QJsonDocument(file_info).toJson().size();
+            QByteArray qarray = QJsonDocument(file_info).toJson();
+            qint32 msg_size = qarray.size();
             QByteArray toSend;
             socket->write(toSend.number(msg_size), sizeof (long int));
             socket->waitForBytesWritten();
-            if(socket->write(QJsonDocument(file_info).toJson()) == -1){
+            if(socket->write(qarray) == -1){
                 qDebug() << "File info failed to send";
                 return nullptr;
             } //write the data itself
