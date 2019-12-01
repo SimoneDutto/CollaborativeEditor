@@ -1,6 +1,7 @@
 #include "login.h"
 #include "ui_login.h"
 #include <QMessageBox>
+#include <QShortcut>
 
 Login::Login(Socket *sock, QWidget *parent)
     : QMainWindow(parent)
@@ -8,7 +9,8 @@ Login::Login(Socket *sock, QWidget *parent)
     , socket(sock)
 {
     ui->setupUi(this);
-
+    QShortcut *sc = new QShortcut(QKeySequence("Return"),ui->LoginBox);
+    connect(sc, SIGNAL(activated()), ui->pushButton, SLOT(click()));
 }
 
 Login::~Login()
@@ -31,9 +33,11 @@ void Login::on_pushButton_clicked()
 
 void Login::resumeLogin()
 {
-    mainWindow = new MainWindow(this->socket, this->socket->getFHandler(), this);
+    newopen = new NewOpen(this->socket, this->socket->getFHandler(), this);
+    //mainWindow = new MainWindow(this->socket, this->socket->getFHandler(), this);
     hide();
-    mainWindow->show();
+    //mainWindow->show();
+    newopen ->show();
 }
 
 void Login::redoLogin()

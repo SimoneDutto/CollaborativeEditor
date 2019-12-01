@@ -6,9 +6,10 @@
 #include <QObject>
 #include <QSignalMapper>
 #include <QTcpSocket>
-
+#include "buffer.h"
 class QTcpServer;
 class FileSystem;
+
 
 class MyServer : public QObject
 {
@@ -20,17 +21,18 @@ public:
 
 private slots:
     void onNewConnection();
-    void onReadyRead(QObject *socketObject);
-    void onDisconnected(QObject *socketObject);
-    void sendInsert(QVector<QTcpSocket*> users, QByteArray message, bool modifiedIndex, int newIndex);
-    void sendDelete(QVector<QTcpSocket*> users, QByteArray message);
+    void handleNotifications(QTcpSocket *socket, QByteArray data);
+    void onDisconnected(QTcpSocket *socket);
     void sendSignUpResponse(QString message, bool success, QTcpSocket* socket);
-
+    void sendFileChunk(QByteArray chunk, QTcpSocket *socket, int remainingSize);
+    void readBuffer();
+signals:
+    void bufferReady(QTcpSocket* socket, QByteArray data);
 private:
     FileSystem *fsys;
     QTcpServer *m_server;
-    QSignalMapper *m_readyReadSignalMapper;
-    QSignalMapper *m_disconnectedSignalMapper;
+    QMap<QTcpSocket*, Buffer*> barray_psocket;
 };
+
 
 #endif // ECHOSERVER_H

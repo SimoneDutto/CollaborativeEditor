@@ -16,7 +16,7 @@ Dialog::Dialog(Socket *sock, QWidget *parent) :
     listFiles.append("Prova5");
     */
 
-    for (QString s : this->socket->getListFiles()){
+    for (QString s : this->socket->getMapFiles().keys()){
         ui->listWidget->addItem(s);
     }
 

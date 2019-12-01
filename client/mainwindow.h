@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include "socket.h"
 #include "dialog.h"
+#include "form.h"
 
 namespace Ui {
 class MainWindow;
@@ -37,21 +38,24 @@ private slots:
     void on_textEdit_textChanged();
     void on_lineEdit_editingFinished();
     void fileIsHere();
-//    void changeViewAfterInsert();
+    void changeViewAfterInsert(QChar l, int pos);
 //    void changeViewAfterDelete();
+
+    void on_textEdit_cursorPositionChanged();
 
 private:
     Ui::MainWindow *ui;
     Socket *socket;
     Dialog *dialog;
     FileHandler *fHandler;
+    Form *form;
     int letterCounter = 0;
 
 signals:
     void myInsert(int externalIndex, QChar newLetterValue, int clientID);
     void myDelete(int externalIndex);
     void sendNameFile(QString fileNameTmp);
-    void newFile();
+    void newFile(QString filename);
 };
 
 #endif // MAINWINDOW_H
