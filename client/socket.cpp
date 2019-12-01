@@ -216,7 +216,17 @@ void Socket::notificationsHandler(QByteArray data){
     }
 
     else if (type.compare("NEW")==0) {
-        qDebug() << "Il file è stato creato correttamente!";
+        int id = object.value("fileid").toInt();
+        if(id != -1){
+            this->fileh->setFileId(id);
+            this->fileh->setSize(0);
+            this->fileh->getVectorFile().clear();
+            qDebug() << "Il file è stato creato correttamente!";
+        }
+        else{
+            qDebug() << "Il File non è stato creato";
+        }
+
     }
     else if (type.compare("SIGNUP_RESPONSE")==0) {
         bool successful = object.value("success").toBool();

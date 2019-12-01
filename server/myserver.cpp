@@ -15,6 +15,7 @@ MyServer::MyServer(QObject *parent) :
     connect(m_server, SIGNAL(newConnection()), SLOT(onNewConnection()));
     connect(fsys, SIGNAL(signUpResponse(QString,bool,QTcpSocket*)), this, SLOT(sendSignUpResponse(QString,bool,QTcpSocket*)));
     connect(fsys, SIGNAL(dataRead(QByteArray, QTcpSocket*, int)),this, SLOT(sendFileChunk(QByteArray, QTcpSocket*, int)));
+    connect(this, SIGNAL(bufferReady(QTcpSocket*, QByteArray)), SLOT(handleNotifications(QTcpSocket*,QByteArray)));
 }
 
 bool MyServer::listen(const QHostAddress &address, quint16 port)
@@ -40,7 +41,7 @@ void MyServer::onNewConnection()
 
     connect(socket, SIGNAL(readyRead()),this, SLOT(readBuffer()));
     //connect(socket, SIGNAL(disconnected()),this,  SLOT(onDisconnected(QTcpSocket*)));
-    connect(this, SIGNAL(bufferReady(QTcpSocket*, QByteArray)), SLOT(handleNotifications(QTcpSocket*,QByteArray)));
+
 }
 
 void MyServer::readBuffer(){
@@ -75,7 +76,7 @@ void MyServer::readBuffer(){
                data = buffer->data.mid(0, (int)buffer->dim);
                buffer->data.remove(0,(int)buffer->dim);
                buffer->dim = 0;
-               qDebug() << "Data: " << data.data();
+               //qDebug() << "Data: " << data.data();
                emit bufferReady(socket, data);
            }
        }
