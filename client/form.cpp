@@ -10,6 +10,7 @@ Form::Form(Socket *sock, QWidget *parent) :
     ui->setupUi(this);
     QShortcut *sc = new QShortcut(QKeySequence("Return"),this);
     connect(sc, SIGNAL(activated()), ui->pushButton, SLOT(click()));
+    connect(this, SIGNAL(newFile(QString)), socket, SLOT(sendNewFile(QString)));
 }
 
 Form::~Form()

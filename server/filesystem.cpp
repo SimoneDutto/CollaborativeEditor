@@ -31,7 +31,7 @@ FileSystem* FileSystem::getInstance(){
 }
 
 FileHandler* FileSystem::createFile(QString filename, QTcpSocket *socket){
-
+    FileHandler *fh;
     auto id = sock_id.find(socket);
     if(id == sock_id.end()) return nullptr;//il socket è autenticato o no
 
@@ -42,7 +42,7 @@ FileHandler* FileSystem::createFile(QString filename, QTcpSocket *socket){
         fh->removeActiveUser(socket);
     }
     QSqlQuery query;
-    query.prepare("SELECT COUNT(*) FROM file WHERE username=((:userid), (:filename))");
+    query.prepare("SELECT COUNT(*) FROM files WHERE userid=((:userid) AND filename=(:filename))");
     query.bindValue(":filename", filename);
     query.bindValue(":userid", id->second);
     int count = -1;
@@ -59,21 +59,57 @@ FileHandler* FileSystem::createFile(QString filename, QTcpSocket *socket){
     if(count != 0){
         qDebug("This filename is already taken by the user");
     }
+    query.prepare("SELECT COUNT(fileid) FROM files");
+    int fileid=0;
+    if (query.exec())
+    {
+        if (query.next())
+        {
+            fileid = query.value(0).toInt();
+        }
+    }
+    else{
+        qDebug() << "Query not executed";
+    }
 
-    query.prepare("INSERT INTO files(Username,Filename) VALUES ((:userid), (:filename))");
+    query.prepare("INSERT INTO files(Userid,Filename,FileId) VALUES ((:userid), (:filename),(:fileid))");
     query.bindValue(":filename", filename);
     query.bindValue(":userid", id->second);
+    query.bindValue(":fileid", fileid);
     if (query.exec()){
-        QFile m_file (filename); // crea il file col nome id
+        QFile m_file (QString::number(fileid)); // crea il file col nome id
         m_file.open(QFile::ReadOnly);
 
         QVector<Letter*> letters;
-        int fileid = query.lastInsertId().toInt();
-        FileHandler *fh = new FileHandler(std::move(letters), fileid);
+
+        fh = new FileHandler(std::move(letters), fileid);
         fh->insertActiveUser(socket);
 
-        sock_file.insert(std::pair<QTcpSocket*, int> (socket, fileid)); //associate file to socket
+        sock_file.insert(std::pair<QTcpSocket*, int> (socket, fileid)); //associate file to socketù
+        connect(fh, SIGNAL(remoteInsertNotify(QVector<QTcpSocket*>, QByteArray, bool, int, QTcpSocket*)),
+                this, SLOT(sendInsert(QVector<QTcpSocket*>, QByteArray, bool, int, QTcpSocket*)));
+
+        connect(fh, SIGNAL(remoteDeleteNotify(QVector<QTcpSocket*>, QByteArray)),
+                this, SLOT(sendDelete(QVector<QTcpSocket*>, QByteArray)));
         files.insert(std::pair<int, FileHandler*> (fileid, fh));
+        QJsonObject file_info;
+        file_info.insert("type", "NEW");
+        file_info.insert("fileid", fileid);
+
+        // Send size of message "OPEN"
+        if(socket->state() == QAbstractSocket::ConnectedState) {
+            qDebug() << "Invio file";
+            QByteArray qarray = QJsonDocument(file_info).toJson();
+            qint32 msg_size = qarray.size();
+            QByteArray toSend;
+            socket->write(toSend.number(msg_size), sizeof (long int));
+            socket->waitForBytesWritten();
+            if(socket->write(qarray) == -1){
+                qDebug() << "File info failed to send";
+                return nullptr;
+            } //write the data itself
+            socket->waitForBytesWritten();
+        }
 
         qDebug() << "Insert executed";
         return fh;
@@ -83,6 +119,7 @@ FileHandler* FileSystem::createFile(QString filename, QTcpSocket *socket){
     }
 
     return nullptr;
+
 }
 
 FileHandler* FileSystem::sendFile(int fileid, QTcpSocket *socket){
