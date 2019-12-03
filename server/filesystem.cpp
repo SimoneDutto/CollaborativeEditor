@@ -317,10 +317,10 @@ void FileSystem::checkLogin(QString username, QString password, QTcpSocket *sock
 
     query.prepare("SELECT rowid FROM password WHERE username = (:username) AND password = (:password)");
     query.bindValue(":username", username);
-    //QByteArray saltedPsw = password.append(STR_SALT_KEY).toUtf8();
-    //QString encryptedPsw = QString(QCryptographicHash::hash(saltedPsw, QCryptographicHash::Md5));
-    //query.bindValue(":password", encryptedPsw);
-    query.bindValue(":password", password);
+    QByteArray saltedPsw = password.append(STR_SALT_KEY).toUtf8();
+    QString encryptedPsw = QString(QCryptographicHash::hash(saltedPsw, QCryptographicHash::Md5));
+    query.bindValue(":password", encryptedPsw);
+    //query.bindValue(":password", password);
     qDebug() << password << username;
     int id = -1;
     if (query.exec())
@@ -396,14 +396,12 @@ void FileSystem::storeNewUser(QString username, QString psw, QTcpSocket *socket)
         return;
     }
 
-    int userID = count + 1;     // last USERID used = count + 1
     // Encrypt password (sale + md5 hash)
     QByteArray saltedPsw = psw.append(STR_SALT_KEY).toUtf8();
     QString encryptedPsw = QString(QCryptographicHash::hash(saltedPsw, QCryptographicHash::Md5));
 
     /* Insert new user in DB */
-    sqlQuery.prepare("INSERT INTO Password(userid, username, password) VALUES ((:userID),(:username),(:password))");    // safe for SQL injection
-    sqlQuery.bindValue(":userID", userID);
+    sqlQuery.prepare("INSERT INTO Password(username, password) VALUES ((:username),(:password))");    // safe for SQL injection
     sqlQuery.bindValue(":username", username);
     sqlQuery.bindValue(":password", encryptedPsw);
     //sqlQuery.bindValue(":password", psw);

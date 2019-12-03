@@ -5,12 +5,14 @@
 #include <QDataStream>
 
 inline qint32 ArrayToInt(QByteArray source);
+extern int nLogin = 0;
 
 Socket::Socket(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::Socket)
 {
     ui->setupUi(this);
+    isDoingSignUp = false;
 }
 
 Socket::Socket(const QString &host, quint16 port)
@@ -22,7 +24,8 @@ Socket::Socket(const QString &host, quint16 port)
     connect( socket, SIGNAL(connected()), SLOT(socketConnected()) );
     connect( socket, SIGNAL(disconnected()), SLOT(socketConnectionClosed()) );
     //connect( socket, SIGNAL(error(SocketError socketError)), SLOT(socketError(int)) );
-    connect( socket, SIGNAL(readyRead()),  SLOT(checkLoginAndGetListFileName()) );
+    // Qui NO connect per login: se login fallisce, non si riconnette il segnale
+    connect( socket, SIGNAL(readyRead()),  SLOT(checkLoginAndGetListFileName()) , Qt::UniqueConnection);
 
     socket->connectToHost(host, port);
 
@@ -36,21 +39,66 @@ Socket::Socket(const QString &host, quint16 port)
     }
 }
 
+/*void Socket::setSignals() {
+    disconnect( socket, SIGNAL(readyRead()), this, SLOT(setSignals()) );
+
+    if(this->isDoingSignUp)
+        connect( socket, SIGNAL(bufferReady(QByteArray)),  SLOT(checkSignUp(QByteArray)) );
+    else connect( socket, SIGNAL(bufferReady(QByteArray)),  SLOT(checkLoginAndGetListFileName(QByteArray)) );
+
+    QByteArray data = socket->readAll();
+    emit bufferReady(data);
+}*/
 
 
 void Socket::sendSignUpRequest(QString username, QString password) {
     // RICHIESTA DI REGISTRAZIONE NUOVO UTENTE
     QJsonObject obj;
+    QByteArray toSend;
     obj.insert("type", "SIGNUP");
     obj.insert("username", username);
     obj.insert("password", password);
     if(socket->state() == QAbstractSocket::ConnectedState){
         qDebug() << "Richiesta di registrazione:\n" << QJsonDocument(obj).toJson().data();
+        socket->write(toSend.number(QJsonDocument(obj).toJson().size()), sizeof(long int));
+        socket->waitForBytesWritten();
         socket->write(QJsonDocument(obj).toJson());
         socket->waitForBytesWritten(1000);
     }
+    if(nLogin == 0) {
+        disconnect( socket, SIGNAL(readyRead()), this, SLOT(checkLoginAndGetListFileName()) );
+        connect( socket, SIGNAL(readyRead()),  this, SLOT(checkSignUp()), Qt::UniqueConnection);
+    }
 }
 
+void Socket::checkSignUp() {
+    disconnect(socket, SIGNAL(readyRead()), this, SLOT(checkSignUp()));
+    QByteArray data = socket->readAll();
+    QJsonDocument document = QJsonDocument::fromJson(data);
+    QJsonObject object = document.object();
+    QString type = object.value("type").toString();
+    qDebug() << "Tipo di richiesta: " << type;
+
+    if (type.compare("SIGNUP_RESPONSE")==0) {
+        bool successful = object.value("success").toBool();
+        QString message = object.value("msg").toString();
+        if(!successful) {
+            //connect(socket, SIGNAL(readyRead()), this, SLOT(checkSignUp()));
+            if(message.compare("INVALID_USERNAME") == 0)
+                emit invalidUsername();
+            else if (message.compare("SERVER_FAILURE") == 0) // emit segnale sign up not successful
+                emit signUpError();
+        } else {
+            // emit segnale sign up successful
+            qDebug() << "Sign up successful";
+            //connect(socket, SIGNAL(readyRead()), SLOT(readBuffer()));
+            //connect(this, SIGNAL(bufferReady(QByteArray)), SLOT(notificationsHandler(QByteArray))
+            // NO QUESTE CONNECT: vengono fatte dopo al login
+            connect( socket, SIGNAL(readyRead()), this, SLOT(checkLoginAndGetListFileName()) , Qt::UniqueConnection);
+            emit signUpSuccess();
+        }
+    }
+}
 
 void Socket::sendLogin(QString username, QString password)
 {
@@ -80,6 +128,7 @@ void Socket::checkLoginAndGetListFileName()
 
     clientID = object.value("id").toInt();
     if(clientID == -1){
+        //disconnect(socket, SIGNAL(readyRead()), this, SLOT(checkLoginAndGetListFileName())); SE DISCONNETTO, NON VIENE CHIAMATA LA FUNZIONE QUANDO VENGONO INSERITI NUOVI DATI
         emit loginError();
         return;
     }
@@ -229,19 +278,19 @@ void Socket::notificationsHandler(QByteArray data){
         }
 
     }
-    else if (type.compare("SIGNUP_RESPONSE")==0) {
+    /*else if (type.compare("SIGNUP_RESPONSE")==0) {
         bool successful = object.value("success").toBool();
         QString message = object.value("msg").toString();
         if(!successful) {
             if(message.compare("INVALID_USERNAME"))
                 emit invalidUsername();
-            // emit segnale sign up not successful
-            else if (message.compare("SERVER_FAILURE"))
+            else if (message.compare("SERVER_FAILURE")) // emit segnale sign up not successful
                 emit signUpError();
         } else
             // emit segnale sign up successful
+            qDebug() << "Sign up successful";
             emit signUpSuccess();
-    }
+    }*/
     //if(socket->bytesAvailable())
       //  emit myReadyRead();
     qDebug() << "Finished!";
@@ -403,6 +452,10 @@ FileHandler* Socket::getFHandler(){
 
 int Socket::getClientID(){
     return this->clientID;
+}
+
+void Socket::isSigningUp(bool flag) {
+    this->isDoingSignUp = flag;
 }
 
 QMap<QString, int> Socket::getMapFiles(){

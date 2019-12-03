@@ -163,11 +163,13 @@ void MyServer::sendSignUpResponse(QString message, bool success, QTcpSocket* soc
     json.insert("msg", message);
 
     if(socket->state() == QAbstractSocket::ConnectedState) {
-        socket->write(sendSize.number(message.size()), sizeof (long int));
-        socket->waitForBytesWritten();
+        qDebug() << "Size = " << QJsonDocument(json).toJson().size();
+        //socket->write(sendSize.number(QJsonDocument(json).toJson().size()), sizeof (long int));
+        //socket->waitForBytesWritten();
         socket->write(QJsonDocument(json).toJson());
         socket->waitForBytesWritten(1000);
     }
+    qDebug() << "Signup_response = " << QJsonDocument(json).toJson().data();
 }
 
 void MyServer::sendFileChunk(QByteArray chunk, QTcpSocket* socket, int remainingSize) {

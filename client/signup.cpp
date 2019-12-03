@@ -8,6 +8,7 @@ SignUp::SignUp(Socket* sock, QWidget* parent)
     socket(sock)
 {
     ui->setupUi(this);
+    socket->isSigningUp(true);
 }
 
 SignUp::~SignUp() {
@@ -24,20 +25,21 @@ void SignUp::on_pushButton_clicked() {
     connect(socket, SIGNAL(invalidUsername()), this, SLOT(changeUsername()));
 
     //if(password==conferma)
-        socket->sendSignUpRequest(username, password);
+    socket->sendSignUpRequest(username, password);
 }
 
 void SignUp::sendToLogin() {
     // Reindirizzare alla pagina di login
+    QMessageBox::information(this, "OK!", "Sign up successful", "Log in");
     loginWindow = new Login(socket, this);
     hide();
     loginWindow->show();
 }
 
 void SignUp::repeatSignUp() {
-    QMessageBox::warning(this, "Sign up failed", "Retry");
+    QMessageBox::warning(this, "Ops...", "Sign up failed. Retry!");
 }
 
 void SignUp::changeUsername() {
-    QMessageBox::warning(this, "Username already in use", "Retry");
+    QMessageBox::warning(this, "Ops...", "Username already in use: pick another one!");
 }
