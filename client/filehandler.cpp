@@ -92,6 +92,7 @@ void FileHandler::localInsert(int externalIndex, QChar newLetterValue, int clien
     int internalIndex = -1;
 
     this->siteCounter++;
+    qDebug() << "Site counter = " << siteCounter;
 
     QString letterID = QString::number(clientID).append("-").append(QString::number(this->siteCounter));
 
@@ -141,7 +142,7 @@ void FileHandler::localInsert(int externalIndex, QChar newLetterValue, int clien
     }
 
     Letter *newLetter = new Letter(newLetterValue, position, letterID);
-    qDebug() << "Letter inserted in position:" << position;
+    qDebug() << "Letter inserted in position:" << position << " (external index " << externalIndex <<")";
     this->letters.insert(this->letters.begin()+(externalIndex-1), newLetter);
 
     /*Inviare notifica via socket*/
@@ -155,9 +156,11 @@ void FileHandler::localInsert(int externalIndex, QChar newLetterValue, int clien
 
 void FileHandler::localDelete(int externalIndex) {
     qDebug() << "Removing letter at index " << externalIndex << "...";
-    this->letters.remove(externalIndex);
+    QString letterID = this->letters[externalIndex-1]->getLetterID();
+    this->letters.remove(externalIndex-1);
+    this->siteCounter++;
     /*Inviare notifica via socket*/
-    emit localDeleteNotify(externalIndex);
+    emit localDeleteNotify(letterID, this->fileid, this->siteCounter);
 }
 
 void FileHandler::remoteInsert(QJsonArray position, QChar newLetterValue, int externalIndex, int siteID, int siteCounter) {
@@ -197,8 +200,7 @@ void FileHandler::remoteDelete(QString deletedLetterID) {
     externalIndex++;    // align externalIndex with GUI rapresentation
 
     /*Aggiornare la GUI*/
-    // parametri necessari: externalIndex = indice della lettera da rimuovere
-
+    emit readyRemoteDelete(externalIndex);
 }
 
 void FileHandler::setValues(QVector<Letter *> letters){
@@ -206,7 +208,6 @@ void FileHandler::setValues(QVector<Letter *> letters){
         this->letters.clear();
     }
     this->letters = letters;
-    this->siteCounter=0;
 }
 
 QVector<Letter*> FileHandler::getVectorFile(){
@@ -216,12 +217,23 @@ QVector<Letter*> FileHandler::getVectorFile(){
 int FileHandler::getFileId(){
     return this->fileid;
 }
+
 void FileHandler::setFileId(int fileid){
     this->fileid = fileid;
 }
+
 int FileHandler::getSize(){
     return this->size;
 }
+
 void FileHandler::setSize(int size){
     this->size = size;
+}
+
+int FileHandler::getSiteCounter() {
+    return this->siteCounter;
+}
+
+void FileHandler::setSiteCounter(int siteCounter){
+    this->siteCounter = siteCounter;
 }

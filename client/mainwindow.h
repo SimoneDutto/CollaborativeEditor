@@ -39,7 +39,7 @@ private slots:
     void on_lineEdit_editingFinished();
     void fileIsHere();
     void changeViewAfterInsert(QChar l, int pos);
-//    void changeViewAfterDelete();
+    void changeViewAfterDelete(int externalIndex);
 
     void on_textEdit_cursorPositionChanged();
 

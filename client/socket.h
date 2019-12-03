@@ -58,7 +58,7 @@ private slots:
 
     int sendOpenFile(QString name_file);
     int sendInsert(QChar newLetterValue, QJsonArray position, int siteID, int siteCounter, int externalIndex);
-    int sendDelete(int externalIndex);
+    int sendDelete(QString deletedLetterID, int fileID, int siteCounter);
     int sendCheckFileName(QString fileNameTmp);
     int sendNewFile(QString filename);
 

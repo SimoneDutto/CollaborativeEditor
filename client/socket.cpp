@@ -124,10 +124,10 @@ void Socket::readBuffer(){
                qDebug() << "Size: " << size;
                buffer.remove(0, 8);
            }
-           if (size > 0 && buffer.size() >= (int)size) // If data has received completely, then emit our SIGNAL with the data
+           if (size > 0 && buffer.size() >= static_cast<int>(size)) // If data has received completely, then emit our SIGNAL with the data
            {
-               data = buffer.mid(0, (int)size);
-               buffer.remove(0,(int)size);
+               data = buffer.mid(0, static_cast<int>(size));
+               buffer.remove(0,static_cast<int>(size));
                size = 0;
                qDebug() << "Data: " << data.data();
                emit bufferReady(data);
@@ -155,6 +155,7 @@ void Socket::notificationsHandler(QByteArray data){
     if(type.compare("OPEN")==0){
         this->fileh->setFileId(object.value("fileid").toInt());
         this->fileh->setSize(object.value("size").toInt());
+        this->fileh->setSiteCounter(object.value("siteCounter").toInt());
         // fileid < 0 non puoi aprire il file
     }
     else if(type.compare("FILE")==0){
@@ -188,7 +189,7 @@ void Socket::notificationsHandler(QByteArray data){
             /*Creo il FileHandler*/
             connect( this->fileh, SIGNAL(localInsertNotify(QChar, QJsonArray, int, int, int)),
                      this, SLOT(sendInsert(QChar, QJsonArray, int, int, int)) );
-            connect( this->fileh, SIGNAL(localDeleteNotify(int)), this, SLOT(sendDelete(int)) );
+            connect( this->fileh, SIGNAL(localDeleteNotify(QString, int, int)), this, SLOT(sendDelete(QString, int, int)) );
 
             /*Salvo il file come vettore di Letters nel fileHandler*/
             this->fileh->setValues(std::move(letters));
@@ -209,7 +210,7 @@ void Socket::notificationsHandler(QByteArray data){
 
     else if (type.compare("DELETE")==0) {
         QString deletedLetterID = object.value("letterID").toString();
-
+        int siteCounter = object.value("siteCounter").toInt();
         /*Cancellare dal modello questa lettera e aggiornare la UI*/
         qDebug() << "LetterID da cancellare: " << deletedLetterID;
         emit readyDelete(deletedLetterID);
@@ -273,11 +274,14 @@ int Socket::sendInsert(QChar newLetterValue, QJsonArray position, int siteID, in
     return socket->waitForBytesWritten(1000);
 }
 
-int Socket::sendDelete(int externalIndex){
+int Socket::sendDelete(QString deletedLetterID, int fileID, int siteCounter){
     /*RICHIESTA*/
     QJsonObject obj;
     obj.insert("type", "DELETE");
-    obj.insert("externalIndex", externalIndex);
+    obj.insert("fileid", fileID);
+    obj.insert("letterID", deletedLetterID);
+    obj.insert("siteCounter", siteCounter);
+    //obj.insert("externalIndex", externalIndex);
 
     if(socket->state() == QAbstractSocket::ConnectedState){
         QByteArray qarray = QJsonDocument(obj).toJson();
@@ -285,9 +289,9 @@ int Socket::sendDelete(int externalIndex){
         QByteArray toSend;
         socket->write(toSend.number(msg_size), sizeof (long int));
         socket->waitForBytesWritten();
-        socket->write(QJsonDocument(obj).toJson());
+        socket->write(qarray);
         socket->waitForBytesWritten();
-        qDebug() << "Richiesta:\n" << QJsonDocument(obj).toJson().data();
+        qDebug() << "Richiesta:\n" << qarray.data();
     }
 
     return socket->waitForBytesWritten(1000);
