@@ -12,7 +12,6 @@ Socket::Socket(QWidget *parent) :
     ui(new Ui::Socket)
 {
     ui->setupUi(this);
-    isDoingSignUp = false;
 }
 
 Socket::Socket(const QString &host, quint16 port)
@@ -20,7 +19,7 @@ Socket::Socket(const QString &host, quint16 port)
     socket = new QTcpSocket(this);
     fileh = new FileHandler();
 
-    /*Setto le connect del socket*/
+    /* Setto le connect del socket */
     connect( socket, SIGNAL(connected()), SLOT(socketConnected()) );
     connect( socket, SIGNAL(disconnected()), SLOT(socketConnectionClosed()) );
     //connect( socket, SIGNAL(error(SocketError socketError)), SLOT(socketError(int)) );
@@ -69,10 +68,10 @@ void Socket::sendSignUpRequest(QString username, QString password) {
         disconnect( socket, SIGNAL(readyRead()), this, SLOT(checkLoginAndGetListFileName()) );
         connect( socket, SIGNAL(readyRead()),  this, SLOT(checkSignUp()), Qt::UniqueConnection);
     }
+    nLogin++;
 }
 
 void Socket::checkSignUp() {
-    disconnect(socket, SIGNAL(readyRead()), this, SLOT(checkSignUp()));
     QByteArray data = socket->readAll();
     QJsonDocument document = QJsonDocument::fromJson(data);
     QJsonObject object = document.object();
@@ -94,6 +93,7 @@ void Socket::checkSignUp() {
             //connect(socket, SIGNAL(readyRead()), SLOT(readBuffer()));
             //connect(this, SIGNAL(bufferReady(QByteArray)), SLOT(notificationsHandler(QByteArray))
             // NO QUESTE CONNECT: vengono fatte dopo al login
+            disconnect(socket, SIGNAL(readyRead()), this, SLOT(checkSignUp()));
             connect( socket, SIGNAL(readyRead()), this, SLOT(checkLoginAndGetListFileName()) , Qt::UniqueConnection);
             emit signUpSuccess();
         }

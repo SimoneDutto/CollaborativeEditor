@@ -9,6 +9,9 @@ SignUp::SignUp(Socket* sock, QWidget* parent)
 {
     ui->setupUi(this);
     socket->isSigningUp(true);
+    connect(socket, SIGNAL(signUpSuccess()), this, SLOT(sendToLogin()));
+    connect(socket, SIGNAL(signUpError()), this, SLOT(repeatSignUp()));
+    connect(socket, SIGNAL(invalidUsername()), this, SLOT(changeUsername()));
 }
 
 SignUp::~SignUp() {
@@ -20,11 +23,6 @@ void SignUp::on_pushButton_clicked() {
     QByteArray password = ui->lineEdit_2->text().toLatin1();
     QByteArray conferma = ui->lineEdit_3->text().toLatin1();
 
-    connect(socket, SIGNAL(signUpSuccess()), this, SLOT(sendToLogin()));
-    connect(socket, SIGNAL(signUpError()), this, SLOT(repeatSignUp()));
-    connect(socket, SIGNAL(invalidUsername()), this, SLOT(changeUsername()));
-
-    //if(password==conferma)
     socket->sendSignUpRequest(username, password);
 }
 
