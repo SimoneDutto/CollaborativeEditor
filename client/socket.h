@@ -30,6 +30,7 @@ public:
     FileHandler* getFHandler();
     int getClientID();
     QMap<QString, int> getMapFiles();
+    void isSigningUp(bool flag);
 
 private:
     Ui::Socket *ui;
@@ -40,6 +41,7 @@ private:
     FileHandler* fileh;
     int clientID;
     QMap<QString, int> mapFiles;
+    bool isDoingSignUp;
 
 public slots:
     void sendSignUpRequest(QString username, QString password);
@@ -53,12 +55,14 @@ private slots:
     void socketError(int e);
 
     void checkLoginAndGetListFileName();
+    void checkSignUp();
     void notificationsHandler(QByteArray buffer);
     void readBuffer();
+    //void setSignals();
 
     int sendOpenFile(QString name_file);
     int sendInsert(QChar newLetterValue, QJsonArray position, int siteID, int siteCounter, int externalIndex);
-    int sendDelete(int externalIndex);
+    int sendDelete(QString deletedLetterID, int fileID, int siteCounter);
     int sendCheckFileName(QString fileNameTmp);
     int sendNewFile(QString filename);
 

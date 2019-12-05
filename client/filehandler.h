@@ -26,6 +26,8 @@ public:
     void setFileId(int fileid);
     int getSize();
     void setSize(int size);
+    int getSiteCounter();
+    void setSiteCounter(int siteCounter);
 
 public slots:
     void localInsert(int externalIndex, QChar newLetterValue, int clientID);
@@ -35,8 +37,9 @@ public slots:
 
 signals:
     void localInsertNotify(QChar newLetterValue, QJsonArray position, int siteID, int siteCounter, int externalIndex);
-    void localDeleteNotify(int externalIndex);
+    void localDeleteNotify(QString deletedLetterID, int fileid, int siteCounter);
     void readyRemoteInsert(QChar newLetter, int externalIndex);
+    void readyRemoteDelete(int externalIndex);
 };
 
 #endif // FILEHANDLER_H

@@ -73,8 +73,8 @@ void MyServer::readBuffer(){
            }
            if (buffer->dim > 0 && buffer->data.size() >= buffer->dim) // If data has received completely, then emit our SIGNAL with the data
            {
-               data = buffer->data.mid(0, (int)buffer->dim);
-               buffer->data.remove(0,(int)buffer->dim);
+               data = buffer->data.mid(0, static_cast<int>(buffer->dim));
+               buffer->data.remove(0, static_cast<int>(buffer->dim));
                buffer->dim = 0;
                //qDebug() << "Data: " << data.data();
                emit bufferReady(socket, data);
@@ -126,7 +126,8 @@ void MyServer::handleNotifications(QTcpSocket *socket, QByteArray data)
         if(fsys->getFiles().find(fileid) != fsys->getFiles().end()) {     // file exists
             FileHandler* fHandler = fsys->getFiles().at(fileid);
             QString deletedLetterID = rootObject.value("letterID").toString();
-            fHandler->remoteDelete(deletedLetterID, data);
+            int siteCounter = rootObject.value("siteCounter").toInt();
+            fHandler->remoteDelete(deletedLetterID, data, socket, siteCounter);
         }
     }
     else if(type.compare("LOGIN")==0){
@@ -162,11 +163,13 @@ void MyServer::sendSignUpResponse(QString message, bool success, QTcpSocket* soc
     json.insert("msg", message);
 
     if(socket->state() == QAbstractSocket::ConnectedState) {
-        socket->write(sendSize.number(message.size()), sizeof (long int));
-        socket->waitForBytesWritten();
+        qDebug() << "Size = " << QJsonDocument(json).toJson().size();
+        //socket->write(sendSize.number(QJsonDocument(json).toJson().size()), sizeof (long int));
+        //socket->waitForBytesWritten();
         socket->write(QJsonDocument(json).toJson());
         socket->waitForBytesWritten(1000);
     }
+    qDebug() << "Signup_response = " << QJsonDocument(json).toJson().data();
 }
 
 void MyServer::sendFileChunk(QByteArray chunk, QTcpSocket* socket, int remainingSize) {
