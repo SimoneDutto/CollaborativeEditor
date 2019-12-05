@@ -40,7 +40,7 @@ void MyServer::onNewConnection()
            qPrintable(socket->peerAddress().toString()), socket->peerPort());
 
     connect(socket, SIGNAL(readyRead()),this, SLOT(readBuffer()));
-    //connect(socket, SIGNAL(disconnected()),this,  SLOT(onDisconnected(QTcpSocket*)));
+    connect(socket, SIGNAL(disconnected()),this,  SLOT(onDisconnected()));
 
 }
 
@@ -142,8 +142,9 @@ void MyServer::handleNotifications(QTcpSocket *socket, QByteArray data)
     }
 }
 
-void MyServer::onDisconnected(QTcpSocket *socket)
+void MyServer::onDisconnected()
 {
+    QTcpSocket* socket = static_cast<QTcpSocket*>(sender());
     if (!socket)
         return;
     fsys->disconnectClient(socket);
