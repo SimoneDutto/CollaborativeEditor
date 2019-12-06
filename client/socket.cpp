@@ -119,6 +119,22 @@ void Socket::sendLogin(QString username, QString password)
     }
 }
 
+void Socket::sendAccess(QString URI){
+    QJsonObject obj;
+
+    obj.insert("type", "ACCESS");
+    obj.insert("URI", URI);
+    if(socket->state() == QAbstractSocket::ConnectedState){
+        QByteArray qarray = QJsonDocument(obj).toJson();
+        qint32 msg_size = qarray.size();
+        QByteArray toSend;
+        socket->write(toSend.number(msg_size), sizeof (long int));
+        socket->waitForBytesWritten();
+        socket->write(QJsonDocument(obj).toJson());
+        socket->waitForBytesWritten(1000);
+    }
+}
+
 void Socket::checkLoginAndGetListFileName()
 {
     qDebug() << "Inizio a leggere i file a cui ho accesso e controllo i dati del login";
@@ -205,6 +221,7 @@ void Socket::notificationsHandler(QByteArray data){
         this->fileh->setFileId(object.value("fileid").toInt());
         this->fileh->setSize(object.value("size").toInt());
         this->fileh->setSiteCounter(object.value("siteCounter").toInt());
+        this->fileh->setURI(object.value("URI").toString());
         // fileid < 0 non puoi aprire il file
     }
     else if(type.compare("FILE")==0){

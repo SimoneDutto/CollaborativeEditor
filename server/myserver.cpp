@@ -96,16 +96,20 @@ void MyServer::handleNotifications(QTcpSocket *socket, QByteArray data)
         qDebug() << "OPEN request";
         int fileid = rootObject.value(("fileid")).toInt();
 
-        FileHandler *fh = fsys->sendFile(fileid, socket);
-        if(fh == nullptr) return;
+        fsys->sendFile(fileid, socket);
         /* Connect socket to signals for remote insert and delete */
+    }
+    else if(type.compare("ACCESS")==0){
+        qDebug() << "ACCESS request";
+        QString URI = rootObject.value(("URI")).toString();
+
+        fsys->accessFile(URI, socket);
     }
     else if(type.compare("NEW")==0){
         qDebug() << "NEW request";
         QString filename = rootObject.value(("filename")).toString();
 
-        FileHandler *fh = fsys->createFile(filename, socket);
-        if(fh == nullptr) return;
+        fsys->createFile(filename, socket);
     }
     else if(type.compare("INSERT")==0){
         qDebug() << "INSERT request";
@@ -140,6 +144,7 @@ void MyServer::handleNotifications(QTcpSocket *socket, QByteArray data)
         QString psw = rootObject.value("password").toString();
         fsys->storeNewUser(username, psw, socket);
     }
+
 }
 
 void MyServer::onDisconnected()
