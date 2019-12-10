@@ -141,16 +141,15 @@ void FileSystem::accessFile(QString URI, QTcpSocket *socket){
     QSqlQuery query;
     int siteCounter=0;
     QString filename;
-    query.prepare("SELECT DISTINCT siteCounter, Filename FROM FILES WHERE FileId=(:fileid)");
+    query.prepare("SELECT DISTINCT Filename FROM FILES WHERE FileId=(:fileid)");
     query.bindValue(":fileid", fileid);
     if (query.exec()) {
         if (query.next())
         {
-            siteCounter = query.value(0).toInt();
             filename = query.value(1).toString();
         }
     } else {
-        qDebug() << "Error! SiteCounter not retrieved.";
+        qDebug() << "Error! Filename not retrieved.";
         return;
     }
     query.prepare("INSERT INTO Files(Filename, FileId, UserId, SiteCounter) VALUES((:filename), (:fileid), (:userid), (:siteCounter))");
@@ -159,7 +158,7 @@ void FileSystem::accessFile(QString URI, QTcpSocket *socket){
     query.bindValue(":userid", socket_id->second);
     query.bindValue(":siteCounter", siteCounter);
     if (!query.exec()){
-       qDebug() << "QUery not executed";
+       qDebug() << "Query not executed";
        return;
     }
 
