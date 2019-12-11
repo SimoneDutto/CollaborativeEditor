@@ -21,6 +21,7 @@ SOURCES += \
     dialog.cpp \
     newopen.cpp \
     filehandler.cpp \
+    form.cpp \
     letter.cpp \
     main.cpp \
     login.cpp \
@@ -33,6 +34,7 @@ HEADERS += \
     dialog.h \
     newopen.h \
     filehandler.h \
+    form.h \
     letter.h \
     login.h \
     mainwindow.h \
@@ -43,6 +45,7 @@ HEADERS += \
 FORMS += \
     dialog.ui \
     newopen.ui \
+    form.ui \
     login.ui \
     mainwindow.ui \
     signup.ui \

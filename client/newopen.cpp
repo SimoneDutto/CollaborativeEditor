@@ -33,23 +33,27 @@ void NewOpen::on_pushButton_2_clicked() //Bottone: new Document
 {
     QString newfile = ui->lineEdit_2->text();
     emit newFile(newfile);
-    mainwindow = new MainWindow(this->socket, this->socket->getFHandler(), this);
+    mainwindow = new MainWindow(this->socket, this->socket->getFHandler(), this, newfile);
     hide();
     mainwindow->show();
 }
 
 void NewOpen::on_pushButton_clicked() //Bottone: open Document
 {
-    mainwindow = new MainWindow(this->socket, this->socket->getFHandler(), this);
+    QString n = ui->listWidget->currentItem()->text();
+    mainwindow = new MainWindow(this->socket, this->socket->getFHandler(), this, n);
     hide();
     mainwindow->show();
-    emit openThisFile(ui->listWidget->currentItem()->text());
+    emit openThisFile(n);
     hide();
 }
 
-void NewOpen::on_pushButton_3_clicked()
+void NewOpen::on_pushButton_3_clicked() //Bottone: uri
 {
     QString uri = ui->lineEdit->text();
+    mainwindow = new MainWindow(this->socket, this->socket->getFHandler(), this, uri);
+    hide();
+    mainwindow->show();
     //emit openUri(uri);
 }
 

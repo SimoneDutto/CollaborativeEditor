@@ -10,7 +10,7 @@
 #include <QColorDialog>
 #include <QTextCharFormat>
 
-MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent) :
+MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QString nome) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
     socket(sock),
@@ -18,6 +18,7 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent) :
 {
     ui->setupUi(this);
     setWindowTitle("Google Fake Docs");
+    ui->lineEdit->setText(nome);
 
     /*CONNECT per segnali uscenti, inoltrare le modifiche fatte*/
     connect( this, SIGNAL(myInsert(int, QChar, int)),
