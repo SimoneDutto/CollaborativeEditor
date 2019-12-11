@@ -8,6 +8,7 @@
 #include <QFontDialog>
 #include <QColor>
 #include <QColorDialog>
+#include <QTextCharFormat>
 
 MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent) :
     QMainWindow(parent),
@@ -275,7 +276,6 @@ void MainWindow::changeViewAfterInsert(QChar l, int pos)
 
 void MainWindow::on_textEdit_cursorPositionChanged()
 {
-    QTextCursor cursor(ui->textEdit->textCursor());
     //emit sendCursor(cursor.position());
 
 }
