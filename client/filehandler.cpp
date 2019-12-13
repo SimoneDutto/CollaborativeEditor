@@ -77,7 +77,7 @@ QVector<int> FileHandler::calculateInternalIndex(QVector<int> prevPos, QVector<i
     return position;
 }
 
-void FileHandler::localInsert(int externalIndex, QChar newLetterValue, int clientID) {
+void FileHandler::localInsert(int externalIndex, QChar newLetterValue, int clientID, bool isBold, bool isUnderlined, bool isItalic) {
     int lastIndex = 0;
     qDebug() << "Calcolo l'indice della lettera inserita localmente...";
 
@@ -141,7 +141,7 @@ void FileHandler::localInsert(int externalIndex, QChar newLetterValue, int clien
         }
     }
 
-    Letter *newLetter = new Letter(newLetterValue, position, letterID);
+    Letter *newLetter = new Letter(newLetterValue, position, letterID, isBold, isUnderlined, isItalic);
     qDebug() << "Letter inserted in position:" << position << " (external index " << externalIndex <<")";
     this->letters.insert(this->letters.begin()+(externalIndex-1), newLetter);
 
@@ -201,6 +201,32 @@ void FileHandler::remoteDelete(QString deletedLetterID) {
 
     /*Aggiornare la GUI*/
     emit readyRemoteDelete(externalIndex);
+}
+
+void FileHandler::changeStyle(QString type, bool newValue, int startPos, int endPos){
+    /*Cambiare i valori nel vettore locale e notificare*/
+    auto vettore = this->letters;
+    int i=0;
+
+    if(type == "BOLD"){
+        for(i=startPos; i<=endPos; i++){
+            vettore.at(i)->setBoldBool(newValue);
+        }
+    }
+
+    else if(type == "UNDERLINE"){
+        for(i=startPos; i<=endPos; i++){
+            vettore.at(i)->setUnderlinedBool(newValue);
+        }
+    }
+
+    else if(type == "ITALIC"){
+        for(i=startPos; i<=endPos; i++){
+            vettore.at(i)->setItalicBool(newValue);
+        }
+    }
+
+    /*NEXT: Notificare il server*/
 }
 
 void FileHandler::setValues(QVector<Letter *> letters){

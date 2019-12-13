@@ -50,12 +50,16 @@ private:
     FileHandler *fHandler;
     Form *form;
     int letterCounter = 0;
+    bool boldIsOn;
+    bool underlinedIsOn;
+    bool italicIsOn;
 
 signals:
-    void myInsert(int externalIndex, QChar newLetterValue, int clientID);
+    void myInsert(int externalIndex, QChar newLetterValue, int clientID, bool boldIsOn, bool italicIsOn, bool underlinedIsOn);
     void myDelete(int externalIndex);
     void sendNameFile(QString fileNameTmp);
     void newFile(QString filename);
+    void newStyle(QString type, bool newValue, int startPos, int endPos);
 };
 
 #endif // MAINWINDOW_H
