@@ -237,3 +237,11 @@ int FileHandler::getSiteCounter() {
 void FileHandler::setSiteCounter(int siteCounter){
     this->siteCounter = siteCounter;
 }
+
+void FileHandler::setURI(QString URI){
+    this->URI = URI;
+}
+
+QString FileHandler::getURI(){
+    return this->URI;
+}

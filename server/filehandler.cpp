@@ -13,7 +13,7 @@ void FileHandler::insertActiveUser(QTcpSocket *user, int siteCounter){
 }
 
 void FileHandler::removeActiveUser(QTcpSocket *user){
-    /*users.removeOne(user);
+    users.removeOne(user);
     counter_user--;
     if(counter_user == 0){
         // Salvarlo in memoria secondaria, io lo farei con un segnale
@@ -25,15 +25,15 @@ void FileHandler::removeActiveUser(QTcpSocket *user){
         object.insert("letterArray",array);
 
         QFile file(QString::number(id));
-        file.open(QFile::WriteOnly|QFile::Truncate); // this mode clear the content of a file
 
         if ( file.open(QFile::WriteOnly|QFile::Truncate) )
         {
             QTextStream stream( &file );
             stream << QJsonDocument(object).toJson() << endl;
         }
+        file.close();
     }
-    */
+
 }
 
 /**

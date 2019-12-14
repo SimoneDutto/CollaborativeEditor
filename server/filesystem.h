@@ -37,8 +37,9 @@ private:
     explicit FileSystem() {}
 
 public:
-    FileHandler* sendFile(int fileid, QTcpSocket *socket);
-    FileHandler* createFile(QString filename, QTcpSocket *socket);
+    void sendFile(int fileid, QTcpSocket *socket);
+    void createFile(QString filename, QTcpSocket *socket);
+    void accessFile(QString URI, QTcpSocket *socket);
     void checkLogin(QString username, QString password, QTcpSocket *socket);
     void storeNewUser(QString username, QString psw, QTcpSocket *socket);
     static FileSystem* getInstance();
