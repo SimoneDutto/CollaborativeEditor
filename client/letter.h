@@ -28,6 +28,7 @@ public:
     int getIndex();
     int getNumberOfFractionals();
     void setIndex(int index);
+    void setStyle(QString style);
     void editIndex(int index, int value);
     void addFractionalDigit(int value);
     bool hasSameFractionals(Letter other);

@@ -255,6 +255,7 @@ void Socket::notificationsHandler(QByteArray data){
                 qDebug() << "Lettera:" << letter;
             }
             json_buffer.clear();
+          
             /*Creo il FileHandler*/
             connect( this->fileh, SIGNAL(localInsertNotify(QChar, QJsonArray, int, int, int, QTextCharFormat)),
                      this, SLOT(sendInsert(QChar, QJsonArray, int, int, int, QTextCharFormat)) );
@@ -277,9 +278,10 @@ void Socket::notificationsHandler(QByteArray data){
 
         /* Estrarre formato lettera */
         QTextCharFormat format;
-
+        //QString style = object.value("style").toString();
         /*Inserire nel modello questa lettera e aggiornare la UI*/
         emit readyInsert(position, newLetterValue, externalIndex, siteID, siteCounter, format);
+        
     }
 
     else if (type.compare("DELETE")==0) {
@@ -301,7 +303,6 @@ void Socket::notificationsHandler(QByteArray data){
         else{
             qDebug() << "Il File non è stato creato";
         }
-
     }
     /*else if (type.compare("SIGNUP_RESPONSE")==0) {
         bool successful = object.value("success").toBool();
@@ -322,6 +323,7 @@ void Socket::notificationsHandler(QByteArray data){
     emit socket->readyRead();
 }
 
+
 int Socket::sendInsert(QChar newLetterValue, QJsonArray position, int siteID, int siteCounter, int externalIndex, QTextCharFormat format)
 {
     /*RICHIESTA*/
@@ -333,7 +335,10 @@ int Socket::sendInsert(QChar newLetterValue, QJsonArray position, int siteID, in
     obj.insert("siteID", siteID);
     obj.insert("siteCounter", siteCounter);
     obj.insert("externalIndex", externalIndex);
+
     // Aggiungere il formato
+    //obj.insert("style", style);
+
 
     if(socket->state() == QAbstractSocket::ConnectedState){
         QByteArray qarray = QJsonDocument(obj).toJson();

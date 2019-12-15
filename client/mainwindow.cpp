@@ -29,6 +29,7 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent) :
              socket, SLOT(sendNewFile(QString)));
 
     /*CONNECT per segnali entranti, applicare sulla GUI le modifiche che arrivano sul socket*/
+
     connect( socket, SIGNAL(readyInsert(QJsonArray, QChar, int, int, int, QTextCharFormat)),
               fHandler,  SLOT(remoteInsert(QJsonArray, QChar, int, int, int, QTextCharFormat)));
     connect( socket, SIGNAL(readyDelete(QString)),

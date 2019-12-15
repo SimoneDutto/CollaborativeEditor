@@ -78,6 +78,7 @@ QVector<int> FileHandler::calculateInternalIndex(QVector<int> prevPos, QVector<i
 }
 
 void FileHandler::localInsert(int externalIndex, QChar newLetterValue, int clientID, QTextCharFormat format) {
+
     int lastIndex = 0;
     qDebug() << "Calcolo l'indice della lettera inserita localmente...";
 
@@ -140,7 +141,9 @@ void FileHandler::localInsert(int externalIndex, QChar newLetterValue, int clien
                 this->letters[0]->addFractionalDigit(INT_MAX/2);
         }
     }
+
     Letter *newLetter = new Letter(newLetterValue, position, letterID, format);
+
     qDebug() << "Letter inserted in position:" << position << " (external index " << externalIndex <<")";
     this->letters.insert(this->letters.begin()+(externalIndex-1), newLetter);
 
@@ -148,8 +151,8 @@ void FileHandler::localInsert(int externalIndex, QChar newLetterValue, int clien
     QJsonArray positionJsonArray;
     std::copy (position.begin(), position.end(), std::back_inserter(positionJsonArray));
     qDebug() << "Letter inserted in position:";
-    emit localInsertNotify(newLetterValue, positionJsonArray, clientID, siteCounter, externalIndex, format);
 
+    emit localInsertNotify(newLetterValue, positionJsonArray, clientID, siteCounter, externalIndex, format);
 }
 
 void FileHandler::localDelete(int externalIndex) {
@@ -162,6 +165,7 @@ void FileHandler::localDelete(int externalIndex) {
 }
 
 void FileHandler::remoteInsert(QJsonArray position, QChar newLetterValue, int externalIndex, int siteID, int siteCounter, QTextCharFormat format) {
+
     // Get index and fractionals vector
     QVector<int> fractionals;
 
@@ -175,13 +179,14 @@ void FileHandler::remoteInsert(QJsonArray position, QChar newLetterValue, int ex
 
         QString letterID = QString::number(siteID).append("-").append(QString::number(siteCounter));
         //Letter newLetter(newLetterValue, fractionals, letterID);
+        Letter *newLetter = new Letter(newLetterValue, fractionals, letterID);
+        newLetter->setStyle(style);
 
         this->letters.insert(this->letters.begin()+externalIndex-1, new Letter(newLetterValue, fractionals, letterID, format));
     }
 
     /*Aggiornare la GUI*/
     emit readyRemoteInsert(newLetterValue, externalIndex-1, format);
-
 }
 
 void FileHandler::remoteDelete(QString deletedLetterID) {
