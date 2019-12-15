@@ -248,14 +248,20 @@ void Socket::notificationsHandler(QByteArray data){
                     fractionals.append(fractional.toInt());
                 }
 
-                letters.append(std::move(new Letter(letter, fractionals, ID)));
+                /* Estrarre formato lettera */
+                QTextCharFormat format;
+
+                letters.append(std::move(new Letter(letter, fractionals, ID, format)));
                 qDebug() << "Lettera:" << letter;
             }
             json_buffer.clear();
+          
             /*Creo il FileHandler*/
-            connect( this->fileh, SIGNAL(localInsertNotify(QChar, QJsonArray, int, int, int, QString)),
-                     this, SLOT(sendInsert(QChar, QJsonArray, int, int, int, QString)) );
+            connect( this->fileh, SIGNAL(localInsertNotify(QChar, QJsonArray, int, int, int, QTextCharFormat)),
+                     this, SLOT(sendInsert(QChar, QJsonArray, int, int, int, QTextCharFormat)) );
             connect( this->fileh, SIGNAL(localDeleteNotify(QString, int, int)), this, SLOT(sendDelete(QString, int, int)) );
+            connect( this->fileh, SIGNAL(remoteChangeStyle(QString, bool, QVector<QString>)),
+                     this, SLOT(sendChangeStyle(QVector<QString>, QTextCharFormat)) );
 
             /*Salvo il file come vettore di Letters nel fileHandler*/
             this->fileh->setValues(std::move(letters));
@@ -269,9 +275,13 @@ void Socket::notificationsHandler(QByteArray data){
         int siteID = object.value("siteID").toInt();
         int siteCounter = object.value("siteCounter").toInt();
         int externalIndex = object.value("externalIndex").toInt();
-        QString style = object.value("style").toString();
+
+        /* Estrarre formato lettera */
+        QTextCharFormat format;
+        //QString style = object.value("style").toString();
         /*Inserire nel modello questa lettera e aggiornare la UI*/
-        emit readyInsert(position, newLetterValue, externalIndex, siteID, siteCounter, style);
+        emit readyInsert(position, newLetterValue, externalIndex, siteID, siteCounter, format);
+        
     }
 
     else if (type.compare("DELETE")==0) {
@@ -313,7 +323,8 @@ void Socket::notificationsHandler(QByteArray data){
     emit socket->readyRead();
 }
 
-int Socket::sendInsert(QChar newLetterValue, QJsonArray position, int siteID, int siteCounter, int externalIndex, QString style)
+
+int Socket::sendInsert(QChar newLetterValue, QJsonArray position, int siteID, int siteCounter, int externalIndex, QTextCharFormat format)
 {
     /*RICHIESTA*/
     QJsonObject obj;
@@ -324,7 +335,10 @@ int Socket::sendInsert(QChar newLetterValue, QJsonArray position, int siteID, in
     obj.insert("siteID", siteID);
     obj.insert("siteCounter", siteCounter);
     obj.insert("externalIndex", externalIndex);
-    obj.insert("style", style);
+
+    // Aggiungere il formato
+    //obj.insert("style", style);
+
 
     if(socket->state() == QAbstractSocket::ConnectedState){
         QByteArray qarray = QJsonDocument(obj).toJson();
@@ -415,6 +429,10 @@ int Socket::sendNewFile(QString filename){
     }
 
     return socket->waitForBytesWritten(1000);
+}
+
+int Socket::sendChangeStyle(QMap<QString, QTextCharFormat> letterFormatMap){
+    /* Notificare il cambiamento di stile */
 }
 
 void Socket::socketConnected()

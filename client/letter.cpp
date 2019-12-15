@@ -1,6 +1,10 @@
 #include "letter.h"
 
-Letter::Letter(QChar letter, QVector<int> fractionals, QString letterID) : letter(letter), fractionalIndexes(fractionals), letterID(letterID) {
+Letter::Letter(QChar letter, QVector<int> fractionals, QString letterID, QTextCharFormat format)
+    : letter(letter),
+      fractionalIndexes(fractionals),
+      letterID(letterID),
+      format(format) {
     //this->fractionalIndexes.insert(0, index);
     // index già presente nella posizione 0 di fractionals
 }
@@ -113,4 +117,12 @@ bool Letter::comesFirst(Letter other) {
         }
     }
     return comesFirst;
+}
+
+void Letter::setFormat(QTextCharFormat format){
+    this->format=format;
+}
+
+QTextCharFormat Letter::getFormat(){
+    return this->format;
 }

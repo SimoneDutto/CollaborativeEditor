@@ -5,20 +5,19 @@
 #include <QStringList>
 #include <QVector>
 #include <QChar>
+#include <QTextCursor>
 
 class Letter
 {
     // campi per gestire la lettera, la posizione, lo stile, etc
-public:
-    enum Styles {Normal, Bold, Italic, Underlined};
 private:
     QChar letter;
     QVector<int> fractionalIndexes;
     QString letterID;
-    Styles style;
+    QTextCharFormat format;
 
 public:
-    Letter(QChar letter, QVector<int> fractionals, QString letterID);
+    Letter(QChar letter, QVector<int> fractionals, QString letterID, QTextCharFormat format);
     Letter(const Letter& l);
     Letter& operator=(const Letter && source);
     Letter& operator=(const Letter& source);
@@ -34,6 +33,8 @@ public:
     void addFractionalDigit(int value);
     bool hasSameFractionals(Letter other);
     bool comesFirst(Letter other);
+    void setFormat(QTextCharFormat format);
+    QTextCharFormat getFormat();
     ~Letter(){}
 };
 
