@@ -56,6 +56,7 @@ signals:
 private slots:
     void sendInsert(QVector<QTcpSocket*> users, QByteArray message, bool modifiedIndex, int newIndex, QTcpSocket* client);
     void sendDelete(QVector<QTcpSocket*> users, QByteArray message, QTcpSocket* client);
+    void sendStyleChange(QVector<QTcpSocket*> users, QByteArray message, QTcpSocket* client);
 };
 
 #endif // FILESYSTEM_H

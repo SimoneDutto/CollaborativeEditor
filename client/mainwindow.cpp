@@ -39,10 +39,14 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent) :
              this, SLOT(changeViewAfterInsert(QChar, int, QTextCharFormat)));
     connect( fHandler, SIGNAL(readyRemoteDelete(int)),
              this, SLOT(changeViewAfterDelete(int)));
+    connect( fHandler, SIGNAL(readyRemoteStyleChange(QString, QString)),
+             this, SLOT(changeViewAfterStyle(QString, QString)));
+    connect( socket, SIGNAL(readyStyleChange(QString, QString, QString)),
+             fHandler, SLOT(remoteStyleChange(QString, QString, QString)));
 
     /*CONNECT per lo stile dei caratteri*/
-    connect( this, SIGNAL(localStyleChange(QMap<QString, QTextCharFormat>)),
-              socket, SLOT(sendChangeStyle(QMap<QString, QTextCharFormat>)) );
+    connect( this, SIGNAL(styleChange(QMap<QString, QTextCharFormat>)),
+              fHandler, SLOT(localStyleChange(QMap<QString, QTextCharFormat>)) );
 }
 
 MainWindow::~MainWindow()
@@ -192,6 +196,9 @@ void MainWindow::on_actionBold_triggered()
         int start = cursor.selectionStart();
         int end = cursor.selectionEnd()-1;
 
+        //QString startID = vettore.at(start)->getLetterID();
+        //QString finalID = vettore.at(end)->getLetterID();
+
         /* Se non dovesse servire la mappa basta prendere i due id iniziali e finali
            QString idIniziale =  vettore.at(cursor.selectionStart())
            QString idFinale =  vettore.at(cursor.selectionEnd()-1)
@@ -201,11 +208,11 @@ void MainWindow::on_actionBold_triggered()
             cursor.setPosition(i+1);
             auto letterFormat = cursor.charFormat();
             qDebug() << letterFormat.fontWeight() << "---" << letterFormat.fontUnderline() << "---" << letterFormat.fontItalic();
-            vettore.at(i)->setFormat(letterFormat);
+            //vettore.at(i)->setFormat(letterFormat);
             formatCharMap.insert(vettore.at(i)->getLetterID(), letterFormat);
         }
 
-        emit localStyleChange(formatCharMap);
+        emit styleChange(formatCharMap);
 
         connect( this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
                   fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
@@ -253,11 +260,11 @@ void MainWindow::on_actionItalic_triggered()
             cursor.setPosition(i+1);
             auto letterFormat = cursor.charFormat();
             qDebug() << letterFormat.fontWeight() << "---" << letterFormat.fontUnderline() << "---" << letterFormat.fontItalic();
-            vettore.at(i)->setFormat(letterFormat);
+            //vettore.at(i)->setFormat(letterFormat);
             formatCharMap.insert(vettore.at(i)->getLetterID(), letterFormat);
         }
 
-        emit localStyleChange(formatCharMap);
+        emit styleChange(formatCharMap);
 
         connect( this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
                   fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
@@ -306,11 +313,11 @@ void MainWindow::on_actionUnderlined_triggered()
             cursor.setPosition(i+1);
             auto letterFormat = cursor.charFormat();
             qDebug() << letterFormat.fontWeight() << "---" << letterFormat.fontUnderline() << "---" << letterFormat.fontItalic();
-            vettore.at(i)->setFormat(letterFormat);
+            //vettore.at(i)->setFormat(letterFormat);
             formatCharMap.insert(vettore.at(i)->getLetterID(), letterFormat);
         }
 
-        emit localStyleChange(formatCharMap);
+        emit styleChange(formatCharMap);
 
         connect( this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
                   fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
@@ -401,18 +408,18 @@ void MainWindow::changeViewAfterInsert(QChar l, int pos, QTextCharFormat format)
 //    ui->textEdit->(l);
 //    letterCounter++;
 
-    /*QVector<Letter*> vectorFile = this->fHandler->getVectorFile();
+    QVector<Letter*> vectorFile = this->fHandler->getVectorFile();
     QString text = "";
     for(Letter *l : vectorFile){
         QChar c = l->getValue();
         letterCounter++;
         text.append(c);
     }
-    ui->textEdit->setText(text);*/
+    ui->textEdit->setText(text);
 
-    auto cursor = ui->textEdit->textCursor();
-    cursor.setPosition(pos);
-    cursor.insertText(l, format);
+//    auto cursor = ui->textEdit->textCursor();
+//    cursor.setPosition(pos);
+//    cursor.insertText(l, format);
 
     connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
 }
@@ -421,7 +428,7 @@ void MainWindow::changeViewAfterDelete(int pos)
 {
     disconnect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
 
-    /*QVector<Letter*> vectorFile = this->fHandler->getVectorFile();
+    QVector<Letter*> vectorFile = this->fHandler->getVectorFile();
     QString text = "";
     for(Letter *l : vectorFile){
         QChar c = l->getValue();
@@ -429,16 +436,37 @@ void MainWindow::changeViewAfterDelete(int pos)
         text.append(c);
     }
 
-    ui->textEdit->setText(text);*/
+    ui->textEdit->setText(text);
 
-    auto cursor = ui->textEdit->textCursor();
-    cursor.setPosition(pos);
-    cursor.deleteChar();
+//    auto cursor = ui->textEdit->textCursor();
+//    cursor.setPosition(pos);
+//    cursor.deleteChar();
 
     connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
 }
 
+void MainWindow::changeViewAfterStyle(QString firstID, QString lastID) {
+    disconnect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
+    auto cursor = ui->textEdit->textCursor();
+    bool intervalStarted = false, intervalFinished = false;
 
+    QVector<Letter*> vectorFile = this->fHandler->getVectorFile();
+    QString text = "";
+    for(Letter *l : vectorFile){
+        QChar c = l->getValue();
+        if(!intervalFinished) {
+            if(l->getLetterID().compare(firstID) == 0 || intervalStarted) {
+                //TODO: inserire visualizzazione modifiche di stile
+                if(l->getLetterID().compare(lastID) == 0)
+                    intervalFinished = true;
+            }
+        }
+        letterCounter++;
+        text.append(c);
+    }
+
+    ui->textEdit->setText(text);
+}
 /*void MainWindow::setCursor(int pos, QString color)
 {
     QString cursore = "|";

@@ -36,12 +36,16 @@ public slots:
     void localDelete(int externalIndex);
     void remoteInsert(QJsonArray position, QChar newLetterValue, int externalIndex, int siteID, int siteCounter, QTextCharFormat format);
     void remoteDelete(QString deletedLetterID);
+    void localStyleChange(QMap<QString, QTextCharFormat> letterFormatMap);
+    void remoteStyleChange(QString firstLetterID, QString lastLetterID, QString changedStyle);
 
 signals:
     void localInsertNotify(QChar newLetterValue, QJsonArray position, int siteID, int siteCounter, int externalIndex, QTextCharFormat format);
     void localDeleteNotify(QString deletedLetterID, int fileid, int siteCounter);
+    void localStyleChangeNotify(QString firstLetterID, QString lastLetterID, int fileID, QString changedStyle);
     void readyRemoteInsert(QChar newLetter, int externalIndex, QTextCharFormat format);
     void readyRemoteDelete(int externalIndex);
+    void readyRemoteStyleChange(QString firstLetterID, QString lastLetterID);
 };
 
 #endif // FILEHANDLER_H

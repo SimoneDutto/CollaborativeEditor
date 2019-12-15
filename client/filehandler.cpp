@@ -178,9 +178,6 @@ void FileHandler::remoteInsert(QJsonArray position, QChar newLetterValue, int ex
         }
 
         QString letterID = QString::number(siteID).append("-").append(QString::number(siteCounter));
-        //Letter newLetter(newLetterValue, fractionals, letterID);
-        Letter *newLetter = new Letter(newLetterValue, fractionals, letterID, format);
-        //newLetter->setStyle(style);
 
         this->letters.insert(this->letters.begin()+externalIndex-1, new Letter(newLetterValue, fractionals, letterID, format));
     }
@@ -204,6 +201,56 @@ void FileHandler::remoteDelete(QString deletedLetterID) {
 
     /*Aggiornare la GUI*/
     emit readyRemoteDelete(externalIndex);
+}
+
+void FileHandler::localStyleChange(QMap<QString, QTextCharFormat> letterFormatMap) {
+//    Letter::Styles changedStyle = Letter::Styles::Normal;
+    QString changedStyle;
+    /* Edit letters style locally */
+    for(Letter *l : this->letters) {
+        if(letterFormatMap.contains(l->getLetterID())) {
+            // Look for the change
+//            qDebug() << l->getFormat().fontItalic();
+//            qDebug() << letterFormatMap.value(l->getLetterID()).fontItalic();
+            if(!l->getFormat().fontItalic() && letterFormatMap.value(l->getLetterID()).fontItalic())
+                changedStyle = QString("Italic");
+            else if(!l->getFormat().fontUnderline() && letterFormatMap.value(l->getLetterID()).fontUnderline())
+                changedStyle.append("Underlined");
+            else if(l->getFormat().fontWeight() == 50 && letterFormatMap.value(l->getLetterID()).fontWeight() == 75)
+                changedStyle.append("Bold");
+            else if(l->getFormat().fontItalic() && !letterFormatMap.value(l->getLetterID()).fontItalic())
+                changedStyle.append("NotItalic");   // da Italic a non Italic
+            else if(l->getFormat().fontUnderline() && !letterFormatMap.value(l->getLetterID()).fontUnderline())
+                changedStyle = "NotUnderlined";
+            else if(l->getFormat().fontWeight() == 75 && letterFormatMap.value(l->getLetterID()).fontWeight() == 50)
+                changedStyle = "NotBold";
+            qDebug() << "Style: " << changedStyle;
+            l->setFormat(letterFormatMap.value(l->getLetterID()));
+        }
+    }
+
+    QString startID = letterFormatMap.firstKey();
+    QString lastID = letterFormatMap.lastKey();
+
+    /* Send change to server */
+    emit localStyleChangeNotify(startID, lastID, this->fileid, changedStyle);
+}
+
+void FileHandler::remoteStyleChange(QString firstLetterID, QString lastLetterID, QString changedStyle) {
+    /* Edit letters style locally */
+    bool intervalStarted = false;
+
+    for(Letter *l : this->letters) {
+        if(l->getLetterID().compare(firstLetterID) == 0 || intervalStarted) {
+            intervalStarted = true;
+            l->setStyleFromString(changedStyle);
+            if(l->getLetterID().compare(lastLetterID) == 0)
+                break;
+        }
+    }
+
+    /* Aggiornare la GUI */
+    emit readyRemoteStyleChange(firstLetterID, lastLetterID);
 }
 
 void FileHandler::setValues(QVector<Letter *> letters){

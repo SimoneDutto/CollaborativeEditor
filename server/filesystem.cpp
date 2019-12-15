@@ -91,8 +91,12 @@ void FileSystem::createFile(QString filename, QTcpSocket *socket){
         connect(fh, SIGNAL(remoteInsertNotify(QVector<QTcpSocket*>, QByteArray, bool, int, QTcpSocket*)),
                 this, SLOT(sendInsert(QVector<QTcpSocket*>, QByteArray, bool, int, QTcpSocket*)));
 
-        connect(fh, SIGNAL(remoteDeleteNotify(QVector<QTcpSocket*>, QByteArray)),
-                this, SLOT(sendDelete(QVector<QTcpSocket*>, QByteArray)));
+        connect(fh, SIGNAL(remoteDeleteNotify(QVector<QTcpSocket*>, QByteArray, QTcpSocket*)),
+                this, SLOT(sendDelete(QVector<QTcpSocket*>, QByteArray, QTcpSocket*)));
+
+        connect(fh, SIGNAL(remoteStyleChangeNotify(QVector<QTcpSocket*>, QByteArray, QTcpSocket*)),
+                this, SLOT(sendStyleChange(QVector<QTcpSocket*>, QByteArray, QTcpSocket*)));
+
         files.insert(std::pair<int, FileHandler*> (fileid, fh));
         QJsonObject file_info;
         file_info.insert("type", "NEW");
@@ -320,14 +324,15 @@ void FileSystem::sendFile(int fileid, QTcpSocket *socket){
         {
             QChar letter = v.toObject().value("letter").toString().at(0);
             QString ID = v.toObject().value("letterID").toString();
-
+            QTextCharFormat format;
+            //QTextCharFormat format = v.toObject().value("format").toObject();
             QJsonArray array_tmp = v.toObject().value("position").toArray();
             QVector<int> fractionals;
             for(auto fractional : array_tmp) {
                 fractionals.append(fractional.toInt());
             }
-
-            Letter *letter_tmp = new Letter(letter, fractionals, ID);
+            // GET FORMAT LETTER
+            Letter *letter_tmp = new Letter(letter, fractionals, ID, format);
             letters.append(std::move(letter_tmp));
         }
         FileHandler *fh = new FileHandler(std::move(letters), fileid);
@@ -336,6 +341,10 @@ void FileSystem::sendFile(int fileid, QTcpSocket *socket){
 
         connect(fh, SIGNAL(remoteDeleteNotify(QVector<QTcpSocket*>, QByteArray, QTcpSocket*)),
                 this, SLOT(sendDelete(QVector<QTcpSocket*>, QByteArray, QTcpSocket*)));
+
+        connect(fh, SIGNAL(remoteStyleChangeNotify(QVector<QTcpSocket*>, QByteArray, QTcpSocket*)),
+                this, SLOT(sendStyleChange(QVector<QTcpSocket*>, QByteArray, QTcpSocket*)));
+
         fh->insertActiveUser(socket, siteCounter);
 
         files.insert(std::pair<int, FileHandler*> (fileid, fh));
@@ -501,6 +510,22 @@ void FileSystem::sendInsert(QVector<QTcpSocket*> users, QByteArray message, bool
 }
 
 void FileSystem::sendDelete(QVector<QTcpSocket*> users, QByteArray message, QTcpSocket* client){
+    QVectorIterator<QTcpSocket*> i(users);
+    QByteArray sendSize;
+
+    while (i.hasNext()){
+        QTcpSocket* socket = i.next();
+        if(socket == client) continue;
+        if(socket->state() == QAbstractSocket::ConnectedState) {
+            socket->write(sendSize.number(message.size()), sizeof (long int));
+            socket->waitForBytesWritten();
+            socket->write(message);
+            socket->waitForBytesWritten(1000);
+        }
+    }
+}
+
+void FileSystem::sendStyleChange(QVector<QTcpSocket*> users, QByteArray message, QTcpSocket* client) {
     QVectorIterator<QTcpSocket*> i(users);
     QByteArray sendSize;
 

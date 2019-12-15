@@ -132,8 +132,10 @@ void MyServer::handleNotifications(QTcpSocket *socket, QByteArray data)
             int externalIndex = rootObject.value("externalIndex").toInt();
             int siteID = rootObject.value("siteID").toInt();
             int siteCounter = rootObject.value("siteCounter").toInt();
-            QString style = rootObject.value("style").toString();
-            fHandler->remoteInsert(position, newLetterValue, externalIndex, siteID, siteCounter, data, socket, style);
+            // Get letter format
+            QTextCharFormat format;
+            //QString style = rootObject.value("style").toString();
+            fHandler->remoteInsert(position, newLetterValue, externalIndex, siteID, siteCounter, data, socket, format);
         }
     }
     else if(type.compare("DELETE")==0){
@@ -162,10 +164,10 @@ void MyServer::handleNotifications(QTcpSocket *socket, QByteArray data)
             FileHandler* fHandler = fsys->getFiles().at(fileID);
             QString initialIndex = rootObject.value("startIndex").toString();
             QString lastIndex = rootObject.value("lastIndex").toString();
-            QString style = rootObject.value("style").toString();
-            int siteID = rootObject.value("siteID").toInt();
-            int siteCounter = rootObject.value("siteCounter").toInt();
-            fHandler->changeStyle(initialIndex, lastIndex, style, socket, siteCounter);
+            QString changedStyle = rootObject.value("changedStyle").toString();
+            //int siteID = rootObject.value("siteID").toInt();
+            //int siteCounter = rootObject.value("siteCounter").toInt();
+            fHandler->changeStyle(initialIndex, lastIndex, changedStyle, socket, data);
         }
     }
 
