@@ -77,7 +77,7 @@ QVector<int> FileHandler::calculateInternalIndex(QVector<int> prevPos, QVector<i
     return position;
 }
 
-void FileHandler::localInsert(int externalIndex, QChar newLetterValue, int clientID, bool isBold, bool isUnderlined, bool isItalic) {
+void FileHandler::localInsert(int externalIndex, QChar newLetterValue, int clientID, QTextCharFormat format) {
     int lastIndex = 0;
     qDebug() << "Calcolo l'indice della lettera inserita localmente...";
 
@@ -140,17 +140,15 @@ void FileHandler::localInsert(int externalIndex, QChar newLetterValue, int clien
                 this->letters[0]->addFractionalDigit(INT_MAX/2);
         }
     }
-
-    Letter *newLetter = new Letter(newLetterValue, position, letterID, isBold, isUnderlined, isItalic);
+    Letter *newLetter = new Letter(newLetterValue, position, letterID, format);
     qDebug() << "Letter inserted in position:" << position << " (external index " << externalIndex <<")";
     this->letters.insert(this->letters.begin()+(externalIndex-1), newLetter);
 
     /*Inviare notifica via socket*/
-
     QJsonArray positionJsonArray;
     std::copy (position.begin(), position.end(), std::back_inserter(positionJsonArray));
     qDebug() << "Letter inserted in position:";
-    emit localInsertNotify(newLetterValue, positionJsonArray, clientID, siteCounter, externalIndex);
+    emit localInsertNotify(newLetterValue, positionJsonArray, clientID, siteCounter, externalIndex, format);
 
 }
 
@@ -163,7 +161,7 @@ void FileHandler::localDelete(int externalIndex) {
     emit localDeleteNotify(letterID, this->fileid, this->siteCounter);
 }
 
-void FileHandler::remoteInsert(QJsonArray position, QChar newLetterValue, int externalIndex, int siteID, int siteCounter) {
+void FileHandler::remoteInsert(QJsonArray position, QChar newLetterValue, int externalIndex, int siteID, int siteCounter, QTextCharFormat format) {
     // Get index and fractionals vector
     QVector<int> fractionals;
 
@@ -178,11 +176,11 @@ void FileHandler::remoteInsert(QJsonArray position, QChar newLetterValue, int ex
         QString letterID = QString::number(siteID).append("-").append(QString::number(siteCounter));
         //Letter newLetter(newLetterValue, fractionals, letterID);
 
-        this->letters.insert(this->letters.begin()+externalIndex-1, new Letter(newLetterValue, fractionals, letterID));
+        this->letters.insert(this->letters.begin()+externalIndex-1, new Letter(newLetterValue, fractionals, letterID, format));
     }
 
     /*Aggiornare la GUI*/
-    emit readyRemoteInsert(newLetterValue, externalIndex-1);
+    emit readyRemoteInsert(newLetterValue, externalIndex-1, format);
 
 }
 
@@ -201,32 +199,6 @@ void FileHandler::remoteDelete(QString deletedLetterID) {
 
     /*Aggiornare la GUI*/
     emit readyRemoteDelete(externalIndex);
-}
-
-void FileHandler::changeStyle(QString type, bool newValue, int startPos, int endPos){
-    /*Cambiare i valori nel vettore locale e notificare*/
-    auto vettore = this->letters;
-    int i=0;
-
-    if(type == "BOLD"){
-        for(i=startPos; i<=endPos; i++){
-            vettore.at(i)->setBoldBool(newValue);
-        }
-    }
-
-    else if(type == "UNDERLINE"){
-        for(i=startPos; i<=endPos; i++){
-            vettore.at(i)->setUnderlinedBool(newValue);
-        }
-    }
-
-    else if(type == "ITALIC"){
-        for(i=startPos; i<=endPos; i++){
-            vettore.at(i)->setItalicBool(newValue);
-        }
-    }
-
-    /*NEXT: Notificare il server*/
 }
 
 void FileHandler::setValues(QVector<Letter *> letters){

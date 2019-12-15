@@ -1,14 +1,13 @@
 #include "letter.h"
 
-Letter::Letter(QChar letter, QVector<int> fractionals, QString letterID) : letter(letter), fractionalIndexes(fractionals), letterID(letterID) {
+Letter::Letter(QChar letter, QVector<int> fractionals, QString letterID, QTextCharFormat format)
+    : letter(letter),
+      fractionalIndexes(fractionals),
+      letterID(letterID),
+      format(format) {
     //this->fractionalIndexes.insert(0, index);
     // index già presente nella posizione 0 di fractionals
 }
-
-//Aggiornamento stili
-Letter::Letter(QChar letter, QVector<int> fractionals, QString letterID, bool isBold, bool isUnderlined, bool isItalic) :
-    letter(letter), fractionalIndexes(fractionals), letterID(letterID),
-    isBold(isBold), isUnderlined(isUnderlined), isItalic(isItalic) {}
 
 // Costruttore di copia
 Letter::Letter(const Letter& l) {
@@ -108,26 +107,10 @@ bool Letter::comesFirst(Letter other) {
     return comesFirst;
 }
 
-void Letter::setBoldBool(bool value){
-    this->isBold=value;
+void Letter::setFormat(QTextCharFormat format){
+    this->format=format;
 }
 
-void Letter::setUnderlinedBool(bool value){
-    this->isUnderlined=value;
-}
-
-void Letter::setItalicBool(bool value){
-    this->isItalic=value;
-}
-
-bool Letter::getBoldBool(){
-    return this->isBold;
-}
-
-bool Letter::getUnderlinedBool(){
-    return this->isUnderlined;
-}
-
-bool Letter::getItalicBool(){
-    return this->isItalic;
+QTextCharFormat Letter::getFormat(){
+    return this->format;
 }

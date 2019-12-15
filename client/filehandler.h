@@ -32,16 +32,15 @@ public:
     QString getURI();
 
 public slots:
-    void localInsert(int externalIndex, QChar newLetterValue, int clientID, bool isBold, bool isUnderlined, bool isItalic);
+    void localInsert(int externalIndex, QChar newLetterValue, int clientID, QTextCharFormat format);
     void localDelete(int externalIndex);
-    void remoteInsert(QJsonArray position, QChar newLetterValue, int externalIndex, int siteID, int siteCounter);
+    void remoteInsert(QJsonArray position, QChar newLetterValue, int externalIndex, int siteID, int siteCounter, QTextCharFormat format);
     void remoteDelete(QString deletedLetterID);
-    void changeStyle(QString type, bool newValue, int startPos, int endPos);
 
 signals:
-    void localInsertNotify(QChar newLetterValue, QJsonArray position, int siteID, int siteCounter, int externalIndex);
+    void localInsertNotify(QChar newLetterValue, QJsonArray position, int siteID, int siteCounter, int externalIndex, QTextCharFormat format);
     void localDeleteNotify(QString deletedLetterID, int fileid, int siteCounter);
-    void readyRemoteInsert(QChar newLetter, int externalIndex);
+    void readyRemoteInsert(QChar newLetter, int externalIndex, QTextCharFormat format);
     void readyRemoteDelete(int externalIndex);
 };
 

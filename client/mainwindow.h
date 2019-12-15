@@ -38,7 +38,7 @@ private slots:
     void on_textEdit_textChanged();
     void on_lineEdit_editingFinished();
     void fileIsHere();
-    void changeViewAfterInsert(QChar l, int pos);
+    void changeViewAfterInsert(QChar l, int pos, QTextCharFormat format);
     void changeViewAfterDelete(int externalIndex);
 
     void on_textEdit_cursorPositionChanged();
@@ -50,16 +50,13 @@ private:
     FileHandler *fHandler;
     Form *form;
     int letterCounter = 0;
-    bool boldIsOn;
-    bool underlinedIsOn;
-    bool italicIsOn;
 
 signals:
-    void myInsert(int externalIndex, QChar newLetterValue, int clientID, bool boldIsOn, bool italicIsOn, bool underlinedIsOn);
+    void myInsert(int externalIndex, QChar newLetterValue, int clientID, QTextCharFormat format);
     void myDelete(int externalIndex);
     void sendNameFile(QString fileNameTmp);
     void newFile(QString filename);
-    void newStyle(QString type, bool newValue, int startPos, int endPos);
+    void localStyleChange(QMap<QString, QTextCharFormat>);
 };
 
 #endif // MAINWINDOW_H

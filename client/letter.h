@@ -5,6 +5,7 @@
 #include <QStringList>
 #include <QVector>
 #include <QChar>
+#include <QTextCursor>
 
 class Letter
 {
@@ -13,16 +14,10 @@ private:
     QChar letter;
     QVector<int> fractionalIndexes;
     QString letterID;
-    bool isBold;
-    bool isUnderlined;
-    bool isItalic;
+    QTextCharFormat format;
 
 public:
-    Letter(QChar letter, QVector<int> fractionals, QString letterID);
-
-    //Aggiornamento stili
-    Letter(QChar letter, QVector<int> fractionals, QString letterID, bool isBold, bool isUnderlined, bool isItalic);
-
+    Letter(QChar letter, QVector<int> fractionals, QString letterID, QTextCharFormat format);
     Letter(const Letter& l);
     Letter& operator=(const Letter && source);
     Letter& operator=(const Letter& source);
@@ -37,12 +32,8 @@ public:
     void addFractionalDigit(int value);
     bool hasSameFractionals(Letter other);
     bool comesFirst(Letter other);
-    void setBoldBool(bool value);
-    void setUnderlinedBool(bool value);
-    void setItalicBool(bool value);
-    bool getBoldBool();
-    bool getUnderlinedBool();
-    bool getItalicBool();
+    void setFormat(QTextCharFormat format);
+    QTextCharFormat getFormat();
     ~Letter(){}
 };
 
