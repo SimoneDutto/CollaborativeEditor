@@ -77,7 +77,7 @@ QVector<int> FileHandler::calculateInternalIndex(QVector<int> prevPos, QVector<i
     return position;
 }
 
-void FileHandler::localInsert(int externalIndex, QChar newLetterValue, int clientID) {
+void FileHandler::localInsert(int externalIndex, QChar newLetterValue, int clientID, QString style) {
     int lastIndex = 0;
     qDebug() << "Calcolo l'indice della lettera inserita localmente...";
 
@@ -142,6 +142,7 @@ void FileHandler::localInsert(int externalIndex, QChar newLetterValue, int clien
     }
 
     Letter *newLetter = new Letter(newLetterValue, position, letterID);
+    newLetter->setStyle(style);
     qDebug() << "Letter inserted in position:" << position << " (external index " << externalIndex <<")";
     this->letters.insert(this->letters.begin()+(externalIndex-1), newLetter);
 
@@ -150,7 +151,7 @@ void FileHandler::localInsert(int externalIndex, QChar newLetterValue, int clien
     QJsonArray positionJsonArray;
     std::copy (position.begin(), position.end(), std::back_inserter(positionJsonArray));
     qDebug() << "Letter inserted in position:";
-    emit localInsertNotify(newLetterValue, positionJsonArray, clientID, siteCounter, externalIndex);
+    emit localInsertNotify(newLetterValue, positionJsonArray, clientID, siteCounter, externalIndex, style);
 
 }
 
@@ -163,7 +164,7 @@ void FileHandler::localDelete(int externalIndex) {
     emit localDeleteNotify(letterID, this->fileid, this->siteCounter);
 }
 
-void FileHandler::remoteInsert(QJsonArray position, QChar newLetterValue, int externalIndex, int siteID, int siteCounter) {
+void FileHandler::remoteInsert(QJsonArray position, QChar newLetterValue, int externalIndex, int siteID, int siteCounter, QString style) {
     // Get index and fractionals vector
     QVector<int> fractionals;
 
@@ -177,12 +178,14 @@ void FileHandler::remoteInsert(QJsonArray position, QChar newLetterValue, int ex
 
         QString letterID = QString::number(siteID).append("-").append(QString::number(siteCounter));
         //Letter newLetter(newLetterValue, fractionals, letterID);
+        Letter *newLetter = new Letter(newLetterValue, fractionals, letterID);
+        newLetter->setStyle(style);
 
-        this->letters.insert(this->letters.begin()+externalIndex-1, new Letter(newLetterValue, fractionals, letterID));
+        this->letters.insert(this->letters.begin()+externalIndex-1, newLetter);
     }
 
     /*Aggiornare la GUI*/
-    emit readyRemoteInsert(newLetterValue, externalIndex-1);
+    emit readyRemoteInsert(newLetterValue, externalIndex-1, style);
 
 }
 

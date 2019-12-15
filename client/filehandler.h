@@ -32,15 +32,15 @@ public:
     QString getURI();
 
 public slots:
-    void localInsert(int externalIndex, QChar newLetterValue, int clientID);
+    void localInsert(int externalIndex, QChar newLetterValue, int clientID, QString style);
     void localDelete(int externalIndex);
-    void remoteInsert(QJsonArray position, QChar newLetterValue, int externalIndex, int siteID, int siteCounter);
+    void remoteInsert(QJsonArray position, QChar newLetterValue, int externalIndex, int siteID, int siteCounter, QString style);
     void remoteDelete(QString deletedLetterID);
 
 signals:
-    void localInsertNotify(QChar newLetterValue, QJsonArray position, int siteID, int siteCounter, int externalIndex);
+    void localInsertNotify(QChar newLetterValue, QJsonArray position, int siteID, int siteCounter, int externalIndex, QString style);
     void localDeleteNotify(QString deletedLetterID, int fileid, int siteCounter);
-    void readyRemoteInsert(QChar newLetter, int externalIndex);
+    void readyRemoteInsert(QChar newLetter, int externalIndex, QString style);
     void readyRemoteDelete(int externalIndex);
 };
 

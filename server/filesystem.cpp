@@ -123,6 +123,8 @@ void FileSystem::createFile(QString filename, QTcpSocket *socket){
     return;
 
 }
+
+// Da testare
 void FileSystem::accessFile(QString URI, QTcpSocket *socket){
     auto socket_id = sock_id.find(socket);
 
@@ -135,9 +137,6 @@ void FileSystem::accessFile(QString URI, QTcpSocket *socket){
     ba.append(URI);
     int fileid = QByteArray::fromBase64(ba).toInt();
 
-
-    // CIAO DEB, NON SO CHE SITE COUNTER DEVO METTERE QUI
-    // C'è un site counter diverso per ogni user?
     QSqlQuery query;
     int siteCounter=0;
     QString filename;

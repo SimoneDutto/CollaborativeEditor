@@ -253,8 +253,8 @@ void Socket::notificationsHandler(QByteArray data){
             }
             json_buffer.clear();
             /*Creo il FileHandler*/
-            connect( this->fileh, SIGNAL(localInsertNotify(QChar, QJsonArray, int, int, int)),
-                     this, SLOT(sendInsert(QChar, QJsonArray, int, int, int)) );
+            connect( this->fileh, SIGNAL(localInsertNotify(QChar, QJsonArray, int, int, int, QString)),
+                     this, SLOT(sendInsert(QChar, QJsonArray, int, int, int, QString)) );
             connect( this->fileh, SIGNAL(localDeleteNotify(QString, int, int)), this, SLOT(sendDelete(QString, int, int)) );
 
             /*Salvo il file come vettore di Letters nel fileHandler*/
@@ -269,9 +269,9 @@ void Socket::notificationsHandler(QByteArray data){
         int siteID = object.value("siteID").toInt();
         int siteCounter = object.value("siteCounter").toInt();
         int externalIndex = object.value("externalIndex").toInt();
-
+        QString style = object.value("style").toString();
         /*Inserire nel modello questa lettera e aggiornare la UI*/
-        emit readyInsert(position, newLetterValue, externalIndex, siteID, siteCounter);
+        emit readyInsert(position, newLetterValue, externalIndex, siteID, siteCounter, style);
     }
 
     else if (type.compare("DELETE")==0) {
@@ -293,7 +293,6 @@ void Socket::notificationsHandler(QByteArray data){
         else{
             qDebug() << "Il File non è stato creato";
         }
-
     }
     /*else if (type.compare("SIGNUP_RESPONSE")==0) {
         bool successful = object.value("success").toBool();
@@ -314,7 +313,7 @@ void Socket::notificationsHandler(QByteArray data){
     emit socket->readyRead();
 }
 
-int Socket::sendInsert(QChar newLetterValue, QJsonArray position, int siteID, int siteCounter, int externalIndex)
+int Socket::sendInsert(QChar newLetterValue, QJsonArray position, int siteID, int siteCounter, int externalIndex, QString style)
 {
     /*RICHIESTA*/
     QJsonObject obj;
@@ -325,6 +324,7 @@ int Socket::sendInsert(QChar newLetterValue, QJsonArray position, int siteID, in
     obj.insert("siteID", siteID);
     obj.insert("siteCounter", siteCounter);
     obj.insert("externalIndex", externalIndex);
+    obj.insert("style", style);
 
     if(socket->state() == QAbstractSocket::ConnectedState){
         QByteArray qarray = QJsonDocument(obj).toJson();

@@ -23,8 +23,9 @@ private:
     QMap<QTcpSocket*,int> usersSiteCounters;
 
 public:
-    void remoteInsert(QJsonArray position, QChar newLetterValue, int externalIndex, int siteID, int siteCounter,  QByteArray message, QTcpSocket *client);
+    void remoteInsert(QJsonArray position, QChar newLetterValue, int externalIndex, int siteID, int siteCounter,  QByteArray message, QTcpSocket *client, QString style);
     void remoteDelete(QString deletedLetterID,  QByteArray message, QTcpSocket* client, int siteCounter);
+    void changeStyle(QString initialIndex, QString lastIndex, QString style, QTcpSocket* client, int siteCounter);
 
     explicit FileHandler(const QVector<Letter*>&& lett, int fileid, QObject *parent = nullptr);
     void insertActiveUser(QTcpSocket* user, int siteCounter);

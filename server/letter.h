@@ -9,12 +9,15 @@
 class Letter
 {
     // campi per gestire la lettera, la posizione, lo stile, etc
+public:
+    enum Styles {Normal, Bold, Italic, Underlined};
 private:
     QChar letter;
     //int siteID;
     //int counter;
     QVector<int> fractionalIndexes;
     QString letterID;
+    Styles style;
 
 public:
     //Letter() {}
@@ -26,6 +29,7 @@ public:
     int getSiteID();
     int getIndex();
     int getNumberOfFractionals();
+    void setStyle(QString style);
     //int getCounter();
     //void incrementCounter();
     void setIndex(int index);

@@ -9,10 +9,13 @@
 class Letter
 {
     // campi per gestire la lettera, la posizione, lo stile, etc
+public:
+    enum Styles {Normal, Bold, Italic, Underlined};
 private:
     QChar letter;
     QVector<int> fractionalIndexes;
     QString letterID;
+    Styles style;
 
 public:
     Letter(QChar letter, QVector<int> fractionals, QString letterID);
@@ -26,6 +29,7 @@ public:
     int getIndex();
     int getNumberOfFractionals();
     void setIndex(int index);
+    void setStyle(QString style);
     void editIndex(int index, int value);
     void addFractionalDigit(int value);
     bool hasSameFractionals(Letter other);

@@ -62,7 +62,7 @@ private slots:
     //void setSignals();
 
     int sendOpenFile(QString name_file);
-    int sendInsert(QChar newLetterValue, QJsonArray position, int siteID, int siteCounter, int externalIndex);
+    int sendInsert(QChar newLetterValue, QJsonArray position, int siteID, int siteCounter, int externalIndex, QString style);
     int sendDelete(QString deletedLetterID, int fileID, int siteCounter);
     int sendCheckFileName(QString fileNameTmp);
     int sendNewFile(QString filename);
@@ -79,7 +79,7 @@ signals:
 
     /*Notifiche durante l'uso*/
     void readyFile();
-    void readyInsert(QJsonArray position, QChar newLetterValue, int externalIndex, int siteID, int siteCounter);
+    void readyInsert(QJsonArray position, QChar newLetterValue, int externalIndex, int siteID, int siteCounter, QString style);
     void readyDelete(QString deletedLetterID);
 
     /*Signal connected to readyReady()*/

@@ -67,6 +67,18 @@ int Letter::getNumberOfFractionals() {
     return this->fractionalIndexes.size();
 }
 
+void Letter::setStyle(QString style) {
+    if(style.compare("Normal") == 0)
+        this->style = Normal;
+    else if(style.compare("Bold") == 0)
+        this->style = Bold;
+    else if(style.compare("Italic") == 0)
+        this->style = Italic;
+    else if(style.compare("Underlined") == 0)
+        this->style = Underlined;
+}
+
+
 void Letter::addFractionalDigit(int value) {
     this->fractionalIndexes.append(value);
 }

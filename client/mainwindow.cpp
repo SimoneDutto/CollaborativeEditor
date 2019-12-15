@@ -29,12 +29,12 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent) :
              socket, SLOT(sendNewFile(QString)));
 
     /*CONNECT per segnali entranti, applicare sulla GUI le modifiche che arrivano sul socket*/
-    connect( socket, SIGNAL(readyInsert(QJsonArray, QChar, int, int, int)),
-              fHandler,  SLOT(remoteInsert(QJsonArray, QChar, int, int, int)));
+    connect( socket, SIGNAL(readyInsert(QJsonArray, QChar, int, int, int, QString)),
+              fHandler,  SLOT(remoteInsert(QJsonArray, QChar, int, int, int, QString)));
     connect( socket, SIGNAL(readyDelete(QString)),
               fHandler, SLOT(remoteDelete(QString)));
     connect( socket, SIGNAL(readyFile()),  this, SLOT(fileIsHere()));
-    connect( fHandler, SIGNAL(readyRemoteInsert(QChar, int)),
+    connect( fHandler, SIGNAL(readyRemoteInsert(QChar, int, QString)),
              this, SLOT(changeViewAfterInsert(QChar, int)));
     connect( fHandler, SIGNAL(readyRemoteDelete(int)),
              this, SLOT(changeViewAfterDelete(int)));
