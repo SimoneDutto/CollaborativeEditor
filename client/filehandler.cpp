@@ -179,8 +179,8 @@ void FileHandler::remoteInsert(QJsonArray position, QChar newLetterValue, int ex
 
         QString letterID = QString::number(siteID).append("-").append(QString::number(siteCounter));
         //Letter newLetter(newLetterValue, fractionals, letterID);
-        Letter *newLetter = new Letter(newLetterValue, fractionals, letterID);
-        newLetter->setStyle(style);
+        Letter *newLetter = new Letter(newLetterValue, fractionals, letterID, format);
+        //newLetter->setStyle(style);
 
         this->letters.insert(this->letters.begin()+externalIndex-1, new Letter(newLetterValue, fractionals, letterID, format));
     }

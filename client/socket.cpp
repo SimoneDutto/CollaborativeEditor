@@ -279,6 +279,7 @@ void Socket::notificationsHandler(QByteArray data){
         /* Estrarre formato lettera */
         QTextCharFormat format;
         //QString style = object.value("style").toString();
+
         /*Inserire nel modello questa lettera e aggiornare la UI*/
         emit readyInsert(position, newLetterValue, externalIndex, siteID, siteCounter, format);
         
