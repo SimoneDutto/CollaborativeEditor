@@ -30,6 +30,7 @@ public:
     FileHandler* getFHandler();
     int getClientID();
     QMap<QString, int> getMapFiles();
+    void isSigningUp(bool flag);
 
 private:
     Ui::Socket *ui;
@@ -40,10 +41,12 @@ private:
     FileHandler* fileh;
     int clientID;
     QMap<QString, int> mapFiles;
+    bool isDoingSignUp;
 
 public slots:
     void sendSignUpRequest(QString username, QString password);
     void sendLogin(QString username, QString password);
+    void sendAccess(QString URI);
 
 private slots:
     void closeConnection();
@@ -53,14 +56,17 @@ private slots:
     void socketError(int e);
 
     void checkLoginAndGetListFileName();
+    void checkSignUp();
     void notificationsHandler(QByteArray buffer);
     void readBuffer();
+    //void setSignals();
 
     int sendOpenFile(QString name_file);
-    int sendInsert(QChar newLetterValue, QJsonArray position, int siteID, int siteCounter, int externalIndex);
-    int sendDelete(int externalIndex);
+    int sendInsert(QChar newLetterValue, QJsonArray position, int siteID, int siteCounter, int externalIndex, QTextCharFormat format);
+    int sendDelete(QString deletedLetterID, int fileID, int siteCounter);
     int sendCheckFileName(QString fileNameTmp);
     int sendNewFile(QString filename);
+    int sendChangeStyle(QString firstLetterID, QString lastLetterID, int fileID, QString changedStyle);
 
 signals:
     /* Registrazione */
@@ -74,8 +80,10 @@ signals:
 
     /*Notifiche durante l'uso*/
     void readyFile();
-    void readyInsert(QJsonArray position, QChar newLetterValue, int externalIndex, int siteID, int siteCounter);
+    void readyInsert(QJsonArray position, QChar newLetterValue, int externalIndex, int siteID, int siteCounter, QTextCharFormat format);
     void readyDelete(QString deletedLetterID);
+    void readyStyleChange(QString firstID, QString lastID, QString changedStyle);
+
 
     /*Signal connected to readyReady()*/
     void myReadyRead();

@@ -37,22 +37,26 @@ private:
     explicit FileSystem() {}
 
 public:
-    FileHandler* sendFile(int fileid, QTcpSocket *socket);
-    FileHandler* createFile(QString filename, QTcpSocket *socket);
+    void sendFile(int fileid, QTcpSocket *socket);
+    void createFile(QString filename, QTcpSocket *socket);
+    void accessFile(QString URI, QTcpSocket *socket);
     void checkLogin(QString username, QString password, QTcpSocket *socket);
     void storeNewUser(QString username, QString psw, QTcpSocket *socket);
     static FileSystem* getInstance();
-    std::map<int, FileHandler*> getFiles();
     void disconnectClient(QTcpSocket* socket);
-    //static QByteArray IntToArray(qint32 source);
+    void updateFileSiteCounter(int fileID, int userID, int siteCounter);
+    std::map<int, FileHandler*> getFiles();
+    int getSocketID(QTcpSocket* socket);
 
 
 signals:
     void signUpResponse(QString message, bool success, QTcpSocket* socket);
     void dataRead(QByteArray chunk, QTcpSocket* socket, int remainingSize);
+
 private slots:
     void sendInsert(QVector<QTcpSocket*> users, QByteArray message, bool modifiedIndex, int newIndex, QTcpSocket* client);
-    void sendDelete(QVector<QTcpSocket*> users, QByteArray message);
+    void sendDelete(QVector<QTcpSocket*> users, QByteArray message, QTcpSocket* client);
+    void sendStyleChange(QVector<QTcpSocket*> users, QByteArray message, QTcpSocket* client);
 };
 
 #endif // FILESYSTEM_H

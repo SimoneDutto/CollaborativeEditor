@@ -21,8 +21,8 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
     ui->lineEdit->setText(nome);
 
     /*CONNECT per segnali uscenti, inoltrare le modifiche fatte*/
-    connect( this, SIGNAL(myInsert(int, QChar, int)),
-              fHandler, SLOT(localInsert(int, QChar, int)));
+    connect( this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
+              fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
     connect( this, SIGNAL(myDelete(int)),
               fHandler, SLOT(localDelete(int)));
     connect( this, SIGNAL(sendNameFile(QString)),
@@ -31,13 +31,24 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
              socket, SLOT(sendNewFile(QString)));
 
     /*CONNECT per segnali entranti, applicare sulla GUI le modifiche che arrivano sul socket*/
-    connect( socket, SIGNAL(readyInsert(QJsonArray, QChar, int, int, int)),
-              fHandler,  SLOT(remoteInsert(QJsonArray, QChar, int, int, int)));
+
+    connect( socket, SIGNAL(readyInsert(QJsonArray, QChar, int, int, int, QTextCharFormat)),
+              fHandler,  SLOT(remoteInsert(QJsonArray, QChar, int, int, int, QTextCharFormat)));
     connect( socket, SIGNAL(readyDelete(QString)),
               fHandler, SLOT(remoteDelete(QString)));
     connect( socket, SIGNAL(readyFile()),  this, SLOT(fileIsHere()));
-    connect( fHandler, SIGNAL(readyRemoteInsert(QChar, int)),
-             this, SLOT(changeViewAfterInsert(QChar, int)));
+    connect( fHandler, SIGNAL(readyRemoteInsert(QChar, int, QTextCharFormat)),
+             this, SLOT(changeViewAfterInsert(QChar, int, QTextCharFormat)));
+    connect( fHandler, SIGNAL(readyRemoteDelete(int)),
+             this, SLOT(changeViewAfterDelete(int)));
+    connect( fHandler, SIGNAL(readyRemoteStyleChange(QString, QString)),
+             this, SLOT(changeViewAfterStyle(QString, QString)));
+    connect( socket, SIGNAL(readyStyleChange(QString, QString, QString)),
+             fHandler, SLOT(remoteStyleChange(QString, QString, QString)));
+
+    /*CONNECT per lo stile dei caratteri*/
+    connect( this, SIGNAL(styleChange(QMap<QString, QTextCharFormat>)),
+              fHandler, SLOT(localStyleChange(QMap<QString, QTextCharFormat>)) );
 }
 
 MainWindow::~MainWindow()
@@ -145,26 +156,176 @@ void MainWindow::on_actionAbout_us_triggered()
 
 void MainWindow::on_actionBold_triggered()
 {
-    if(ui->textEdit->fontWeight()!=75)
-        ui->textEdit->setFontWeight(75);
-    else
-        ui->textEdit->setFontWeight(50);
+    //Conteggio inizia da 0, quindi num_tot = selectionEnd-selectionStart
+    //Pensare come cursore non come lettere selezioante
+    //Es. ciao0 ciao1 ciao2
+    //Se seleziono ciao0
+    //selectionStart = 0
+    //selectionEnd = 5
+
+    auto cursor = ui->textEdit->textCursor();
+    qDebug() << "Selection start: " << cursor.selectionStart() << " end: " << cursor.selectionEnd();
+
+    /*CASO1: Non sto selezionando niente, attivo/disattivo il grassetto*/
+    if(cursor.selectionStart() - cursor.selectionEnd() == 0){
+        if(ui->textEdit->fontWeight()!=75)
+            ui->textEdit->setFontWeight(75);
+        else
+            ui->textEdit->setFontWeight(50);
+    }
+
+    /*CASO2: Cambio il grassetto di una selezione*/
+    else{
+        disconnect(this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
+                  fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
+        disconnect(this, SIGNAL(myDelete(int)),
+                  fHandler, SLOT(localDelete(int)));
+
+        qDebug() << "Seleziono un testo per grassetto";
+
+        if(ui->textEdit->fontWeight()==50)
+            ui->textEdit->setFontWeight(75);
+        else
+            ui->textEdit->setFontWeight(50);
+
+        /* Aggiorno il modello */
+
+
+        QMap<QString, QTextCharFormat> formatCharMap;
+        auto vettore = this->fHandler->getVectorFile();
+        int i=0;
+
+        int start = cursor.selectionStart();
+        int end = cursor.selectionEnd()-1;
+
+        //QString startID = vettore.at(start)->getLetterID();
+        //QString finalID = vettore.at(end)->getLetterID();
+
+        /* Se non dovesse servire la mappa basta prendere i due id iniziali e finali
+           QString idIniziale =  vettore.at(cursor.selectionStart())
+           QString idFinale =  vettore.at(cursor.selectionEnd()-1)
+           e poi inviarli con la emit() */
+
+        for(i=start; i<=end; i++){
+            cursor.setPosition(i+1);
+            auto letterFormat = cursor.charFormat();
+            qDebug() << letterFormat.fontWeight() << "---" << letterFormat.fontUnderline() << "---" << letterFormat.fontItalic();
+            //vettore.at(i)->setFormat(letterFormat);
+            formatCharMap.insert(vettore.at(i)->getLetterID(), letterFormat);
+        }
+
+        emit styleChange(formatCharMap);
+
+        connect( this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
+                  fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
+        connect( this, SIGNAL(myDelete(int)),
+                  fHandler, SLOT(localDelete(int)));
+    }
 }
 
 void MainWindow::on_actionItalic_triggered()
 {
-    if(ui->textEdit->fontItalic())
-        ui->textEdit->setFontItalic(false);
-    else
-        ui->textEdit->setFontItalic(true);
+    auto cursor = ui->textEdit->textCursor();
+    qDebug() << "Selection start: " << cursor.selectionStart() << " end: " << cursor.selectionEnd();
+
+    /*CASO1: Non sto selezionando niente, attivo/disattivo il corsivo*/
+    if(cursor.selectionStart() - cursor.selectionEnd() == 0){
+        if(ui->textEdit->fontItalic()!=true)
+            ui->textEdit->setFontItalic(true);
+        else
+            ui->textEdit->setFontItalic(false);
+    }
+
+    /*CASO2: Cambio il corsivo di una selezione*/
+    else{
+        disconnect(this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
+                  fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
+        disconnect(this, SIGNAL(myDelete(int)),
+                  fHandler, SLOT(localDelete(int)));
+
+        qDebug() << "Seleziono un testo per corsivo";
+
+        if(ui->textEdit->fontItalic()!=true)
+            ui->textEdit->setFontItalic(true);
+        else
+            ui->textEdit->setFontItalic(false);
+
+        /* Aggiorno il modello */
+        QMap<QString, QTextCharFormat> formatCharMap;
+        auto vettore = this->fHandler->getVectorFile();
+        int i=0;
+
+        int start = cursor.selectionStart();
+        int end = cursor.selectionEnd()-1;
+
+        for(i=start; i<=end; i++){
+            cursor.setPosition(i+1);
+            auto letterFormat = cursor.charFormat();
+            qDebug() << letterFormat.fontWeight() << "---" << letterFormat.fontUnderline() << "---" << letterFormat.fontItalic();
+            //vettore.at(i)->setFormat(letterFormat);
+            formatCharMap.insert(vettore.at(i)->getLetterID(), letterFormat);
+        }
+
+        emit styleChange(formatCharMap);
+
+        connect( this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
+                  fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
+        connect( this, SIGNAL(myDelete(int)),
+                  fHandler, SLOT(localDelete(int)));
+    }
 }
 
 void MainWindow::on_actionUnderlined_triggered()
 {
-    if(ui->textEdit->fontUnderline())
-        ui->textEdit->setFontUnderline(false);
-    else
-        ui->textEdit->setFontUnderline(true);
+    auto cursor = ui->textEdit->textCursor();
+    qDebug() << "Selection start: " << cursor.selectionStart() << " end: " << cursor.selectionEnd();
+
+    /*CASO1: Non sto selezionando niente, attivo/disattivo il sottolineato*/
+    if(cursor.selectionStart() - cursor.selectionEnd() == 0){
+        if(ui->textEdit->fontUnderline()!=true)
+            ui->textEdit->setFontUnderline(true);
+        else
+            ui->textEdit->setFontUnderline(false);
+    }
+
+    /*CASO2: Cambio il sottolineato di una selezione*/
+    else{
+        disconnect(this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
+                  fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
+        disconnect(this, SIGNAL(myDelete(int)),
+                  fHandler, SLOT(localDelete(int)));
+
+        qDebug() << "Seleziono un testo per sottolineato";
+
+        if(ui->textEdit->fontUnderline()!=true)
+            ui->textEdit->setFontUnderline(true);
+        else
+            ui->textEdit->setFontUnderline(false);
+
+        /* Aggiorno il modello */
+        QMap<QString, QTextCharFormat> formatCharMap;
+        auto vettore = this->fHandler->getVectorFile();
+        int i=0;
+
+        int start = cursor.selectionStart();
+        int end = cursor.selectionEnd()-1;
+
+        for(i=start; i<=end; i++){
+            /* Se testo selezionato misto, allora settare, altrimenti se tutto settato, togliere */
+            cursor.setPosition(i+1);
+            auto letterFormat = cursor.charFormat();
+            qDebug() << letterFormat.fontWeight() << "---" << letterFormat.fontUnderline() << "---" << letterFormat.fontItalic();
+            //vettore.at(i)->setFormat(letterFormat);
+            formatCharMap.insert(vettore.at(i)->getLetterID(), letterFormat);
+        }
+
+        emit styleChange(formatCharMap);
+
+        connect( this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
+                  fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
+        connect( this, SIGNAL(myDelete(int)),
+                  fHandler, SLOT(localDelete(int)));
+    }
 }
 
 void MainWindow::on_actionFont_triggered()
@@ -207,14 +368,15 @@ void MainWindow::on_textEdit_textChanged()
 
         QChar newLetterValue = ui->textEdit->toPlainText().at(externalIndex-1);
         letterCounter++;
-    //ui->statusBar->showMessage(c);
-        emit myInsert(externalIndex, newLetterValue, socket->getClientID());
+        //ui->statusBar->showMessage(c);
+        emit myInsert(externalIndex, newLetterValue, socket->getClientID(), cursor.charFormat());
     }
     else{  /*Testo cambiato con DELETE */
         letterCounter--;
         emit myDelete(externalIndex+1);
     }
 }
+
 
 
 void MainWindow::on_lineEdit_editingFinished()
@@ -228,19 +390,18 @@ void MainWindow::fileIsHere(){
     disconnect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
 
     /*Aggiornare la GUI con il file appena arrivato*/
-    QVector<Letter*> vectorFile = this->fHandler->getVectorFile();
-    QString text = "";
-    for(Letter *l : vectorFile){
-        QChar c = l->getValue();
-        letterCounter++;
-        text.append(c);
+    QTextCursor cursor(ui->textEdit->textCursor());
+    cursor.setPosition(0);
+    auto vettore = this->fHandler->getVectorFile();
+
+    for(auto lettera : vettore){
+        cursor.insertText(lettera->getValue(), lettera->getFormat());
     }
 
-    ui->textEdit->setText(text);
     connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
 }
 
-void MainWindow::changeViewAfterInsert(QChar l, int pos)
+void MainWindow::changeViewAfterInsert(QChar l, int pos, QTextCharFormat format)
 {
     disconnect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
 
@@ -256,31 +417,63 @@ void MainWindow::changeViewAfterInsert(QChar l, int pos)
         letterCounter++;
         text.append(c);
     }
-
     ui->textEdit->setText(text);
+
+//    auto cursor = ui->textEdit->textCursor();
+//    cursor.setPosition(pos);
+//    cursor.insertText(l, format);
+
     connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
 }
 
-/*void MainWindow::changeViewAfterDelete(Letter l, int pos)
+void MainWindow::changeViewAfterDelete(int pos)
 {
-    QTextCursor cursor(ui->textEdit->textCursor());
-    cursor.setPosition(pos);
-    cursor.select(QTextCursor::LineUnderCursor);
-    QChar old = cursor.selectedText().right(1).at(0);
-    if (old == l.getValue()){
-        cursor.removeSelectedText();
-        ui->textEdit->setTextCursor(cursor);
-        letterCounter--;
+    disconnect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
+
+    QVector<Letter*> vectorFile = this->fHandler->getVectorFile();
+    QString text = "";
+    for(Letter *l : vectorFile){
+        QChar c = l->getValue();
+        letterCounter++;
+        text.append(c);
     }
 
-}*/
+    ui->textEdit->setText(text);
+
 
 void MainWindow::on_textEdit_cursorPositionChanged()
 {
     //emit sendCursor(cursor.position());
+//    auto cursor = ui->textEdit->textCursor();
+//    cursor.setPosition(pos);
+//    cursor.deleteChar();
 
+
+    connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
 }
 
+void MainWindow::changeViewAfterStyle(QString firstID, QString lastID) {
+    disconnect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
+    auto cursor = ui->textEdit->textCursor();
+    bool intervalStarted = false, intervalFinished = false;
+
+    QVector<Letter*> vectorFile = this->fHandler->getVectorFile();
+    QString text = "";
+    for(Letter *l : vectorFile){
+        QChar c = l->getValue();
+        if(!intervalFinished) {
+            if(l->getLetterID().compare(firstID) == 0 || intervalStarted) {
+                //TODO: inserire visualizzazione modifiche di stile
+                if(l->getLetterID().compare(lastID) == 0)
+                    intervalFinished = true;
+            }
+        }
+        letterCounter++;
+        text.append(c);
+    }
+
+    ui->textEdit->setText(text);
+}
 /*void MainWindow::setCursor(int pos, QString color)
 {
     QString cursore = "|";
@@ -291,3 +484,47 @@ void MainWindow::on_textEdit_cursorPositionChanged()
     c.setPosition(pos);
     c.insertHtml(colore);
 }*/
+
+void MainWindow::on_textEdit_cursorPositionChanged()
+{
+    QTextCursor cursor(ui->textEdit->textCursor());
+
+    /*Se il testo selezionato ha stile misto, i bottoni accendono lo stile*/
+    if(cursor.hasSelection()==true){
+        if(ui->textEdit->fontWeight()!=75){
+            //BoldButton OFF
+        }
+        else {}//BoldButton ON
+
+        if(ui->textEdit->fontItalic()!=true){
+            //ItalicButton OFF
+        }
+        else {}//ItalicButton ON
+
+        if(ui->textEdit->fontUnderline()!=true){
+            //UnderlineButton OFF
+        }
+        else {}//UnderlineButton ON
+
+    }
+
+    /*Catturiamo lo stile del carattere precendete per settare i bottoni ON/OFF*/
+    else {
+        auto format = cursor.charFormat();
+
+        if(format.fontWeight()==55){
+            //BoldButton OFF
+        }
+        else {} //BoldButton ON
+
+        if(format.fontItalic()==false){
+            //ItalicButton OFF
+        }
+        else {} //ItalicButton ON
+
+        if(format.fontUnderline()==false){
+            //UnderlineButton OFF
+        }
+        else {} //UnderlineButton ON
+    }
+}
