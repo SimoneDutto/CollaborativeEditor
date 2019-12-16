@@ -474,7 +474,7 @@ void MainWindow::changeViewAfterStyle(QString firstID, QString lastID) {
     c.insertHtml(colore);
 }*/
 
-//TODO
+//TODO: inserire gestione bottoni
 void MainWindow::on_textEdit_cursorPositionChanged()
 {
     QTextCursor cursor(ui->textEdit->textCursor());
