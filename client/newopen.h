@@ -22,6 +22,8 @@ private slots:
 
     void on_pushButton_clicked();
 
+    void on_pushButton_3_clicked();
+
 private:
     Ui::NewOpen *ui;
     Socket *socket;
@@ -32,6 +34,7 @@ private:
 
 signals:
     void openThisFile(QString fileName);
+    void newFile(QString name);
 };
 
 #endif // NEWOPEN_H

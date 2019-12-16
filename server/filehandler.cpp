@@ -46,7 +46,7 @@ void FileHandler::removeActiveUser(QTcpSocket *user){
  * - inserimento equivalente da parte di utenti diversi.
  * */
 void FileHandler::remoteInsert(QJsonArray position, QChar newLetterValue, int externalIndex,
-                               int siteID, int siteCounter, QByteArray message, QTcpSocket *client) {
+                               int siteID, int siteCounter, QByteArray message, QTcpSocket *client, QTextCharFormat format) {
     // Get index and fractionals vector
     QVector<int> fractionals;
 
@@ -66,7 +66,8 @@ void FileHandler::remoteInsert(QJsonArray position, QChar newLetterValue, int ex
         }
 
         QString letterID = QString::number(siteID).append("-").append(QString::number(siteCounter));
-        Letter *newLetter = new Letter(newLetterValue, fractionals, letterID);
+        Letter *newLetter = new Letter(newLetterValue, fractionals, letterID, format);
+        //newLetter->setStyle(style);
 
         if(externalIndex < this->letters.size()) {
             if(newLetter->hasSameFractionals(*(this->letters[externalIndex]))) {
@@ -138,6 +139,22 @@ void FileHandler::remoteDelete(QString deletedLetterID,  QByteArray message, QTc
     }
     // Notifica gli altri client inviando lo stesso messaggio
     emit remoteDeleteNotify(this->users, message, client);
+}
+
+void FileHandler::changeStyle(QString initialIndex, QString lastIndex, QString format, QTcpSocket *client, QByteArray message) {
+    bool intervalStarted = false;
+
+    for(Letter *l : this->letters) {
+        if(l->getLetterID().compare(initialIndex) == 0 || intervalStarted) {
+            intervalStarted = true;
+            l->setStyleFromString(format);
+            if(l->getLetterID().compare(lastIndex) == 0)
+                break;
+        }
+    }
+
+    /* Propagate change to other clients working on the same file */
+    emit remoteStyleChangeNotify(this->users, message, client);
 }
 
 QVector<QTcpSocket*> FileHandler::getUsers(){
