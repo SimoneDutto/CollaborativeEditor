@@ -38,8 +38,9 @@ private slots:
     void on_textEdit_textChanged();
     void on_lineEdit_editingFinished();
     void fileIsHere();
-    void changeViewAfterInsert(QChar l, int pos);
-//    void changeViewAfterDelete();
+    void changeViewAfterInsert(QChar l, int pos, QTextCharFormat format);
+    void changeViewAfterDelete(int externalIndex);
+    void changeViewAfterStyle(QString firstLetterID, QString lastLetterID);
 
     void on_textEdit_cursorPositionChanged();
 
@@ -52,10 +53,12 @@ private:
     int letterCounter = 0;
 
 signals:
-    void myInsert(int externalIndex, QChar newLetterValue, int clientID);
+    void myInsert(int externalIndex, QChar newLetterValue, int clientID, QTextCharFormat format);
     void myDelete(int externalIndex);
     void sendNameFile(QString fileNameTmp);
     void newFile(QString filename);
+    void styleChange(QMap<QString, QTextCharFormat>);
+    //void localStyleChange(QString initialID, QString finalID, QTextCharFormat);
 };
 
 #endif // MAINWINDOW_H

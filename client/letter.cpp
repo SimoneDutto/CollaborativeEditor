@@ -1,6 +1,10 @@
 #include "letter.h"
 
-Letter::Letter(QChar letter, QVector<int> fractionals, QString letterID) : letter(letter), fractionalIndexes(fractionals), letterID(letterID) {
+Letter::Letter(QChar letter, QVector<int> fractionals, QString letterID, QTextCharFormat format)
+    : letter(letter),
+      fractionalIndexes(fractionals),
+      letterID(letterID),
+      format(format) {
     //this->fractionalIndexes.insert(0, index);
     // index già presente nella posizione 0 di fractionals
 }
@@ -67,6 +71,18 @@ int Letter::getNumberOfFractionals() {
     return this->fractionalIndexes.size();
 }
 
+/*void Letter::setStyle(QString style) {
+    if(style.compare("Normal") == 0)
+        this->style = Normal;
+    else if(style.compare("Bold") == 0)
+        this->style = Bold;
+    else if(style.compare("Italic") == 0)
+        this->style = Italic;
+    else if(style.compare("Underlined") == 0)
+        this->style = Underlined;
+}*/
+
+
 void Letter::addFractionalDigit(int value) {
     this->fractionalIndexes.append(value);
 }
@@ -101,4 +117,27 @@ bool Letter::comesFirst(Letter other) {
         }
     }
     return comesFirst;
+}
+
+void Letter::setFormat(QTextCharFormat format){
+    this->format=format;
+}
+
+void Letter::setStyleFromString(QString format) {
+    if(format.compare("Bold") == 0)
+        this->format.setFontWeight(75);
+    else if(format.compare("NotBold") == 0)
+        this->format.setFontWeight(50);
+    else if(format.compare("Italic") == 0)
+        this->format.setFontItalic(true);
+    else if(format.compare("NotItalic") == 0)
+        this->format.setFontItalic(false);
+    else if(format.compare("Underlined") == 0)
+        this->format.setFontUnderline(true);
+    else if(format.compare("Underlined") == 0)
+        this->format.setFontUnderline(false);
+}
+
+QTextCharFormat Letter::getFormat(){
+    return this->format;
 }

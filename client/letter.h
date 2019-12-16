@@ -5,6 +5,7 @@
 #include <QStringList>
 #include <QVector>
 #include <QChar>
+#include <QTextCursor>
 
 class Letter
 {
@@ -13,9 +14,10 @@ private:
     QChar letter;
     QVector<int> fractionalIndexes;
     QString letterID;
+    QTextCharFormat format;
 
 public:
-    Letter(QChar letter, QVector<int> fractionals, QString letterID);
+    Letter(QChar letter, QVector<int> fractionals, QString letterID, QTextCharFormat format);
     Letter(const Letter& l);
     Letter& operator=(const Letter && source);
     Letter& operator=(const Letter& source);
@@ -26,10 +28,14 @@ public:
     int getIndex();
     int getNumberOfFractionals();
     void setIndex(int index);
+    void setStyle(QString style);
     void editIndex(int index, int value);
     void addFractionalDigit(int value);
     bool hasSameFractionals(Letter other);
     bool comesFirst(Letter other);
+    void setFormat(QTextCharFormat format);
+    void setStyleFromString(QString format);
+    QTextCharFormat getFormat();
     ~Letter(){}
 };
 

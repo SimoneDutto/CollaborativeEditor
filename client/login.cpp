@@ -11,6 +11,8 @@ Login::Login(Socket *sock, QWidget *parent)
     ui->setupUi(this);
     QShortcut *sc = new QShortcut(QKeySequence("Return"),ui->LoginBox);
     connect(sc, SIGNAL(activated()), ui->pushButton, SLOT(click()));
+    connect(socket, SIGNAL(loginSuccess()), this, SLOT(resumeLogin()));
+    connect(socket, SIGNAL(loginError()), this, SLOT(redoLogin()));
 }
 
 Login::~Login()
@@ -24,9 +26,6 @@ void Login::on_pushButton_clicked()
     QString username = ui->lineEdit_username->text();
     QByteArray password = ui->lineEdit_password->text().toLatin1();
     //QString hash_me = QString(QCryptographicHash::hash((password),QCryptographicHash::Md5).toHex());
-
-    connect(socket, SIGNAL(loginSuccess()), this, SLOT(resumeLogin()));
-    connect(socket, SIGNAL(loginError()), this, SLOT(redoLogin()));
 
     socket->sendLogin(username, password);
 }
