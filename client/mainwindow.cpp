@@ -439,17 +439,6 @@ void MainWindow::changeViewAfterDelete(int pos)
     }
 
     ui->textEdit->setText(text);
-
-
-void MainWindow::on_textEdit_cursorPositionChanged()
-{
-    //emit sendCursor(cursor.position());
-//    auto cursor = ui->textEdit->textCursor();
-//    cursor.setPosition(pos);
-//    cursor.deleteChar();
-
-
-    connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
 }
 
 void MainWindow::changeViewAfterStyle(QString firstID, QString lastID) {
@@ -485,6 +474,7 @@ void MainWindow::changeViewAfterStyle(QString firstID, QString lastID) {
     c.insertHtml(colore);
 }*/
 
+//TODO
 void MainWindow::on_textEdit_cursorPositionChanged()
 {
     QTextCursor cursor(ui->textEdit->textCursor());
