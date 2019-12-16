@@ -16,6 +16,10 @@ NewOpen::NewOpen(Socket *sock, FileHandler *fHandler, QWidget *parent) :
 
     connect( this, SIGNAL(openThisFile(QString)),
              this->socket, SLOT(sendOpenFile(QString)));
+
+    connect( this, SIGNAL(newFile(QString)),
+             this->socket, SLOT(sendNewFile(QString)));
+
     QShortcut *sc = new QShortcut(QKeySequence("Return"),this);
     connect(sc, SIGNAL(activated()), ui->pushButton, SLOT(click()));
 }
@@ -27,18 +31,29 @@ NewOpen::~NewOpen()
 
 void NewOpen::on_pushButton_2_clicked() //Bottone: new Document
 {
-    mainwindow = new MainWindow(this->socket, this->socket->getFHandler(), this);
-    form = new Form(this->socket, this);
+    QString newfile = ui->lineEdit_2->text();
+    emit newFile(newfile);
+    mainwindow = new MainWindow(this->socket, this->socket->getFHandler(), this, newfile);
     hide();
     mainwindow->show();
-    form->show();
 }
 
 void NewOpen::on_pushButton_clicked() //Bottone: open Document
 {
-    mainwindow = new MainWindow(this->socket, this->socket->getFHandler(), this);
+    QString n = ui->listWidget->currentItem()->text();
+    mainwindow = new MainWindow(this->socket, this->socket->getFHandler(), this, n);
     hide();
     mainwindow->show();
-    emit openThisFile(ui->listWidget->currentItem()->text());
+    emit openThisFile(n);
     hide();
 }
+
+void NewOpen::on_pushButton_3_clicked() //Bottone: uri
+{
+    QString uri = ui->lineEdit->text();
+    mainwindow = new MainWindow(this->socket, this->socket->getFHandler(), this, uri);
+    hide();
+    mainwindow->show();
+    //emit openUri(uri);
+}
+

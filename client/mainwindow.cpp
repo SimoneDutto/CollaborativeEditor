@@ -8,8 +8,9 @@
 #include <QFontDialog>
 #include <QColor>
 #include <QColorDialog>
+#include <QTextCharFormat>
 
-MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent) :
+MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QString nome) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
     socket(sock),
@@ -17,6 +18,7 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent) :
 {
     ui->setupUi(this);
     setWindowTitle("Google Fake Docs");
+    ui->lineEdit->setText(nome);
 
     /*CONNECT per segnali uscenti, inoltrare le modifiche fatte*/
     connect( this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
@@ -438,9 +440,14 @@ void MainWindow::changeViewAfterDelete(int pos)
 
     ui->textEdit->setText(text);
 
+
+void MainWindow::on_textEdit_cursorPositionChanged()
+{
+    //emit sendCursor(cursor.position());
 //    auto cursor = ui->textEdit->textCursor();
 //    cursor.setPosition(pos);
 //    cursor.deleteChar();
+
 
     connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
 }
