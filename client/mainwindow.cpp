@@ -9,6 +9,7 @@
 #include <QColor>
 #include <QColorDialog>
 #include <QTextCharFormat>
+#include <QProcess>
 
 MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QString nome) :
     QMainWindow(parent),
@@ -17,8 +18,21 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
     fHandler(fileHand)
 {
     ui->setupUi(this);
-    setWindowTitle("Google Fake Docs");
-    ui->lineEdit->setText(nome);
+    QPalette pal = palette();
+
+    // set black background
+    pal.setColor(QPalette::Background, QColor(128,128,128));
+    pal.setColor(QPalette::WindowText, Qt::white);
+    this->setAutoFillBackground(true);
+    this->setPalette(pal);
+    this->show();
+
+    // set picture
+    QPixmap pix("path -- TO DO");
+    ui->label_pic->setPixmap(pix);
+
+    setWindowTitle(nome);
+    //ui->lineEdit->setText(nome);
 
     /*CONNECT per segnali uscenti, inoltrare le modifiche fatte*/
     connect( this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
@@ -439,18 +453,8 @@ void MainWindow::changeViewAfterDelete(int pos)
     }
 
     ui->textEdit->setText(text);
-
-
-void MainWindow::on_textEdit_cursorPositionChanged()
-{
-    //emit sendCursor(cursor.position());
-//    auto cursor = ui->textEdit->textCursor();
-//    cursor.setPosition(pos);
-//    cursor.deleteChar();
-
-
-    connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
 }
+
 
 void MainWindow::changeViewAfterStyle(QString firstID, QString lastID) {
     disconnect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
@@ -508,6 +512,7 @@ void MainWindow::on_textEdit_cursorPositionChanged()
 
     }
 
+
     /*Catturiamo lo stile del carattere precendete per settare i bottoni ON/OFF*/
     else {
         auto format = cursor.charFormat();
@@ -527,4 +532,25 @@ void MainWindow::on_textEdit_cursorPositionChanged()
         }
         else {} //UnderlineButton ON
     }
+}
+
+void MainWindow::on_actionLog_Out_triggered()
+{
+    /*qApp->quit();
+    QProcess::startDetached(qApp->arguments()[0], qApp->arguments());*/
+}
+
+void MainWindow::on_actionEdit_Profile_triggered()
+{
+    account = new Account(this->socket, this);
+    hide();
+    account->show();
+
+}
+
+void MainWindow::on_actionGet_URI_triggered()
+{
+    // ricavare URI da passare al costruttore
+    uri = new Uri(socket,this,"QUI USCIRA' L'URI");
+    uri->show();
 }

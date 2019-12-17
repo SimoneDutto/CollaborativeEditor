@@ -7,6 +7,14 @@ Dialog::Dialog(Socket *sock, QWidget *parent) :
     socket(sock)
 {
     ui->setupUi(this);
+    QPalette pal = palette();
+
+    // set black background
+    pal.setColor(QPalette::Background, QColor(128,128,128));
+    pal.setColor(QPalette::WindowText, Qt::white);
+    this->setAutoFillBackground(true);
+    this->setPalette(pal);
+    this->show();
     setWindowTitle("Files");
     /*
     listFiles.append("Prova1");
