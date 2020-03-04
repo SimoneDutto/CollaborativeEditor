@@ -7,6 +7,14 @@ Welcome::Welcome(Socket *sock, QWidget *parent) :
     sock(sock)
 {
     ui->setupUi(this);
+    QPalette pal = palette();
+
+    // set black background
+    pal.setColor(QPalette::Background, QColor(128,128,128));
+    pal.setColor(QPalette::WindowText, Qt::white);
+    this->setAutoFillBackground(true);
+    this->setPalette(pal);
+    this->show();
 }
 
 Welcome::~Welcome()

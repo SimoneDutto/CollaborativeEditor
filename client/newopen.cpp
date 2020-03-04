@@ -9,6 +9,14 @@ NewOpen::NewOpen(Socket *sock, FileHandler *fHandler, QWidget *parent) :
     fileHandler(fHandler)
 {
     ui->setupUi(this);
+    QPalette pal = palette();
+
+    // set black background
+    pal.setColor(QPalette::Background, QColor(128,128,128));
+    pal.setColor(QPalette::WindowText, Qt::white);
+    this->setAutoFillBackground(true);
+    this->setPalette(pal);
+    this->show();
 
     for (QString s : this->socket->getMapFiles().keys()){
         ui->listWidget->addItem(s);

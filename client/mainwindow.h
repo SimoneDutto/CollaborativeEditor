@@ -5,6 +5,8 @@
 #include "socket.h"
 #include "dialog.h"
 #include "form.h"
+#include "account.h"
+#include "uri.h"
 
 namespace Ui {
 class MainWindow;
@@ -44,12 +46,20 @@ private slots:
 
     void on_textEdit_cursorPositionChanged();
 
+    void on_actionLog_Out_triggered();
+
+    void on_actionEdit_Profile_triggered();
+
+    void on_actionGet_URI_triggered();
+
 private:
     Ui::MainWindow *ui;
     Socket *socket;
     Dialog *dialog;
     FileHandler *fHandler;
     Form *form;
+    Account *account;
+    Uri *uri;
     int letterCounter = 0;
 
 signals:

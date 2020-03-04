@@ -4,6 +4,7 @@
 #include <QDialog>
 #include "socket.h"
 
+
 namespace Ui {
 class Dialog;
 }
