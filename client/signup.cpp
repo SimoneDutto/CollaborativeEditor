@@ -8,6 +8,14 @@ SignUp::SignUp(Socket* sock, QWidget* parent)
     socket(sock)
 {
     ui->setupUi(this);
+    QPalette pal = palette();
+
+    // set black background
+    pal.setColor(QPalette::Background, QColor(128,128,128));
+    pal.setColor(QPalette::WindowText, Qt::white);
+    this->setAutoFillBackground(true);
+    this->setPalette(pal);
+    this->show();
     socket->isSigningUp(true);
     connect(socket, SIGNAL(signUpSuccess()), this, SLOT(sendToLogin()));
     connect(socket, SIGNAL(signUpError()), this, SLOT(repeatSignUp()));

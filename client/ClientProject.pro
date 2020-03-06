@@ -1,5 +1,7 @@
 QT       += core gui
 QT += network widgets
+QT += quickcontrols2
+
 
 requires(qtConfig(combobox))
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
@@ -18,6 +20,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    account.cpp \
     dialog.cpp \
     newopen.cpp \
     filehandler.cpp \
@@ -28,9 +31,11 @@ SOURCES += \
     mainwindow.cpp \
     signup.cpp \
     socket.cpp \
+    uri.cpp \
     welcome.cpp
 
 HEADERS += \
+    account.h \
     dialog.h \
     newopen.h \
     filehandler.h \
@@ -40,9 +45,11 @@ HEADERS += \
     mainwindow.h \
     signup.h \
     socket.h \
+    uri.h \
     welcome.h
 
 FORMS += \
+    account.ui \
     dialog.ui \
     newopen.ui \
     form.ui \
@@ -50,6 +57,7 @@ FORMS += \
     mainwindow.ui \
     signup.ui \
     socket.ui \
+    uri.ui \
     welcome.ui
 
 # Default rules for deployment.
@@ -59,3 +67,5 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 RESOURCES += \
     resource.qrc
+
+DISTFILES +=

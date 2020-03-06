@@ -7,38 +7,49 @@
     <x>0</x>
     <y>0</y>
     <width>585</width>
-    <height>321</height>
+    <height>383</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <widget class="QLineEdit" name="lineEdit">
-    <property name="geometry">
-     <rect>
-      <x>9</x>
-      <y>9</y>
-      <width>141</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Nuovo Documento</string>
-    </property>
-   </widget>
    <widget class="QTextEdit" name="textEdit">
     <property name="geometry">
      <rect>
-      <x>9</x>
+      <x>10</x>
       <y>40</y>
       <width>565</width>
-      <height>191</height>
+      <height>241</height>
      </rect>
     </property>
+    <property name="html">
+     <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'.AppleSystemUIFont'; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'.AppleSystemUIFont';&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
    </widget>
-   <zorder>textEdit</zorder>
-   <zorder>lineEdit</zorder>
+   <widget class="QLabel" name="label_pic">
+    <property name="geometry">
+     <rect>
+      <x>520</x>
+      <y>0</y>
+      <width>41</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="pixmap">
+     <pixmap resource="resource.qrc">:/rec/icone/profile.png</pixmap>
+    </property>
+    <property name="scaledContents">
+     <bool>true</bool>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
@@ -49,6 +60,9 @@
      <height>22</height>
     </rect>
    </property>
+   <property name="nativeMenuBar">
+    <bool>false</bool>
+   </property>
    <widget class="QMenu" name="menuFile">
     <property name="title">
      <string>File</string>
@@ -56,6 +70,7 @@
     <addaction name="actionNew"/>
     <addaction name="actionOpen"/>
     <addaction name="separator"/>
+    <addaction name="actionGet_URI"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
@@ -86,9 +101,17 @@
     <addaction name="actionColor"/>
     <addaction name="actionBackgorund_Color"/>
    </widget>
+   <widget class="QMenu" name="menuAccount">
+    <property name="title">
+     <string>Account</string>
+    </property>
+    <addaction name="actionEdit_Profile"/>
+    <addaction name="actionLog_Out"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
    <addaction name="menuFormat"/>
+   <addaction name="menuAccount"/>
    <addaction name="menuAbout"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
@@ -272,10 +295,36 @@
     <string>Background Color</string>
    </property>
   </action>
+  <action name="actionEdit_Profile">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/rec/icone/profile.png</normaloff>:/rec/icone/profile.png</iconset>
+   </property>
+   <property name="text">
+    <string>Edit Profile</string>
+   </property>
+  </action>
+  <action name="actionLog_Out">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/rec/icone/logout.png</normaloff>:/rec/icone/logout.png</iconset>
+   </property>
+   <property name="text">
+    <string>Log Out</string>
+   </property>
+  </action>
+  <action name="actionGet_URI">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/rec/icone/link.png</normaloff>:/rec/icone/link.png</iconset>
+   </property>
+   <property name="text">
+    <string>Get URI</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <tabstops>
-  <tabstop>lineEdit</tabstop>
   <tabstop>textEdit</tabstop>
  </tabstops>
  <resources>

@@ -14,5 +14,9 @@
         <file>icone/font.png</file>
         <file>icone/color.png</file>
         <file>icone/backcolor.png</file>
+        <file>icone/link.png</file>
+        <file>icone/profile.png</file>
+        <file>icone/logout.png</file>
     </qresource>
+    <qresource prefix="/"/>
 </RCC>

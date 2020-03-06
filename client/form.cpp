@@ -8,6 +8,14 @@ Form::Form(Socket *sock, QWidget *parent) :
     socket(sock)
 {
     ui->setupUi(this);
+    QPalette pal = palette();
+
+    // set black background
+    pal.setColor(QPalette::Background, QColor(128,128,128));
+    pal.setColor(QPalette::WindowText, Qt::white);
+    this->setAutoFillBackground(true);
+    this->setPalette(pal);
+    this->show();
     QShortcut *sc = new QShortcut(QKeySequence("Return"),this);
     connect(sc, SIGNAL(activated()), ui->pushButton, SLOT(click()));
     connect(this, SIGNAL(newFile(QString)), socket, SLOT(sendNewFile(QString)));
