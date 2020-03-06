@@ -565,5 +565,9 @@ std::map<int, FileHandler*> FileSystem::getFiles() {
 }*/
 
 void FileSystem::disconnectClient(QTcpSocket* socket){
-    files.at(sock_file.at(socket))->removeActiveUser(socket);
+    int fileID = sock_file.at(socket);
+    int userID = sock_id.at(socket);
+    FileHandler *fh = files.at(fileID);
+    this->updateFileSiteCounter(fileID, userID, fh->getSiteCounter(socket));
+    fh->removeActiveUser(socket);
 }

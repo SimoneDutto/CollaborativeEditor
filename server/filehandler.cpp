@@ -165,3 +165,6 @@ QVector<Letter*> FileHandler::getLetter(){
     return this->letters;
 }
 
+int FileHandler::getSiteCounter(QTcpSocket *user) {
+    return this->usersSiteCounters.value(user);
+}

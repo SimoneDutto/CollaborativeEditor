@@ -33,6 +33,7 @@ public:
     void removeActiveUser(QTcpSocket *user);
     QVector<QTcpSocket*> getUsers();
     QVector<Letter*> getLetter();
+    int getSiteCounter(QTcpSocket *user);
 
 signals:
     void remoteInsertNotify(QVector<QTcpSocket*> users, QByteArray message, bool modifiedIndex, int newIndex, QTcpSocket *client);
