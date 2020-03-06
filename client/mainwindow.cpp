@@ -411,6 +411,8 @@ void MainWindow::fileIsHere(){
     for(auto lettera : vettore){
         cursor.insertText(lettera->getValue(), lettera->getFormat());
     }
+    letterCounter = ui->textEdit->toPlainText().size();
+    qDebug() << "letter cnt : = "<< letterCounter;
 
     connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
 }

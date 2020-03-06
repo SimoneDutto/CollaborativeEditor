@@ -206,25 +206,30 @@ void FileHandler::remoteDelete(QString deletedLetterID) {
 void FileHandler::localStyleChange(QMap<QString, QTextCharFormat> letterFormatMap) {
 //    Letter::Styles changedStyle = Letter::Styles::Normal;
     QString changedStyle;
+    bool first = true;
     /* Edit letters style locally */
     for(Letter *l : this->letters) {
         if(letterFormatMap.contains(l->getLetterID())) {
             // Look for the change
 //            qDebug() << l->getFormat().fontItalic();
 //            qDebug() << letterFormatMap.value(l->getLetterID()).fontItalic();
-            if(!l->getFormat().fontItalic() && letterFormatMap.value(l->getLetterID()).fontItalic())
-                changedStyle = QString("Italic");
-            else if(!l->getFormat().fontUnderline() && letterFormatMap.value(l->getLetterID()).fontUnderline())
-                changedStyle.append("Underlined");
-            else if(l->getFormat().fontWeight() == 50 && letterFormatMap.value(l->getLetterID()).fontWeight() == 75)
-                changedStyle.append("Bold");
-            else if(l->getFormat().fontItalic() && !letterFormatMap.value(l->getLetterID()).fontItalic())
-                changedStyle.append("NotItalic");   // da Italic a non Italic
-            else if(l->getFormat().fontUnderline() && !letterFormatMap.value(l->getLetterID()).fontUnderline())
-                changedStyle = "NotUnderlined";
-            else if(l->getFormat().fontWeight() == 75 && letterFormatMap.value(l->getLetterID()).fontWeight() == 50)
-                changedStyle = "NotBold";
-            qDebug() << "Style: " << changedStyle;
+            //TODO: check stringa
+            if(first) {
+                if(!l->getFormat().fontItalic() && letterFormatMap.value(l->getLetterID()).fontItalic())
+                    changedStyle = QString("Italic");
+                else if(!l->getFormat().fontUnderline() && letterFormatMap.value(l->getLetterID()).fontUnderline())
+                    changedStyle.append("Underlined");
+                else if(l->getFormat().fontWeight() == 50 && letterFormatMap.value(l->getLetterID()).fontWeight() == 75)
+                    changedStyle.append("Bold");
+                else if(l->getFormat().fontItalic() && !letterFormatMap.value(l->getLetterID()).fontItalic())
+                    changedStyle.append("NotItalic");   // da Italic a non Italic
+                else if(l->getFormat().fontUnderline() && !letterFormatMap.value(l->getLetterID()).fontUnderline())
+                    changedStyle = "NotUnderlined";
+                else if(l->getFormat().fontWeight() == 75 && letterFormatMap.value(l->getLetterID()).fontWeight() == 50)
+                    changedStyle = "NotBold";
+                first = false;
+                qDebug() << "Style: " << changedStyle;
+            }
             l->setFormat(letterFormatMap.value(l->getLetterID()));
         }
     }
