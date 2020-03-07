@@ -7,7 +7,6 @@
 #include "form.h"
 #include "account.h"
 #include "uri.h"
-#include "onlineuser.h"
 
 namespace Ui {
 class MainWindow;
@@ -52,8 +51,6 @@ private slots:
     void on_actionEdit_Profile_triggered();
 
     void on_actionGet_URI_triggered();
-
-    void on_counter_clicked();
 
 private:
     Ui::MainWindow *ui;

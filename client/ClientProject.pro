@@ -29,7 +29,6 @@ SOURCES += \
     main.cpp \
     login.cpp \
     mainwindow.cpp \
-    onlineuser.cpp \
     signup.cpp \
     socket.cpp \
     uri.cpp \
@@ -44,7 +43,6 @@ HEADERS += \
     letter.h \
     login.h \
     mainwindow.h \
-    onlineuser.h \
     signup.h \
     socket.h \
     uri.h \
@@ -57,7 +55,6 @@ FORMS += \
     form.ui \
     login.ui \
     mainwindow.ui \
-    onlineuser.ui \
     signup.ui \
     socket.ui \
     uri.ui \
