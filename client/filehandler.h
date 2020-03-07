@@ -33,10 +33,10 @@ public:
 
 public slots:
     void localInsert(int externalIndex, QChar newLetterValue, int clientID, QTextCharFormat format);
-    void localDelete(int externalIndex);
+    void localDelete(int firstExternalIndex, int lastExternalIndex);
     void remoteInsert(QJsonArray position, QChar newLetterValue, int externalIndex, int siteID, int siteCounter, QTextCharFormat format);
     void remoteDelete(QString deletedLetterID);
-    void localStyleChange(QMap<QString, QTextCharFormat> letterFormatMap);
+    void localStyleChange(QMap<QString, QTextCharFormat> letterFormatMap, QString startID, QString lastID, bool boldTriggered, bool italicTriggered, bool underlinedTriggered);
     void remoteStyleChange(QString firstLetterID, QString lastLetterID, QString changedStyle);
 
 signals:

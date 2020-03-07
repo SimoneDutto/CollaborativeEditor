@@ -155,13 +155,19 @@ void FileHandler::localInsert(int externalIndex, QChar newLetterValue, int clien
     emit localInsertNotify(newLetterValue, positionJsonArray, clientID, siteCounter, externalIndex, format);
 }
 
-void FileHandler::localDelete(int externalIndex) {
-    qDebug() << "Removing letter at index " << externalIndex << "...";
-    QString letterID = this->letters[externalIndex-1]->getLetterID();
-    this->letters.remove(externalIndex-1);
-    this->siteCounter++;
-    /*Inviare notifica via socket*/
-    emit localDeleteNotify(letterID, this->fileid, this->siteCounter);
+void FileHandler::localDelete(int firstExternalIndex, int lastExternalIndex) {
+    qDebug() << "Removing letter from index " << firstExternalIndex << "to index " << lastExternalIndex;
+   //QString letterIDs[lastExternalIndex-firstExternalIndex+1]; // numero di lettere cancellate
+
+    for(int i=lastExternalIndex; i>=firstExternalIndex; i--) {
+        qDebug() << "size =" << this->letters.size();
+        QString letterID = this->letters[i-1]->getLetterID();
+        //letterIDs->append(letterID);
+        this->letters.remove(i-1);
+        this->siteCounter++;
+        /*Inviare notifica via socket*/
+        emit localDeleteNotify(letterID, this->fileid, this->siteCounter);
+    }
 }
 
 void FileHandler::remoteInsert(QJsonArray position, QChar newLetterValue, int externalIndex, int siteID, int siteCounter, QTextCharFormat format) {
@@ -203,34 +209,53 @@ void FileHandler::remoteDelete(QString deletedLetterID) {
     emit readyRemoteDelete(externalIndex);
 }
 
-void FileHandler::localStyleChange(QMap<QString, QTextCharFormat> letterFormatMap) {
+void FileHandler::localStyleChange(QMap<QString, QTextCharFormat> letterFormatMap, QString startID, QString lastID, bool boldTriggered, bool italicTriggered, bool underlinedTriggered) {
 //    Letter::Styles changedStyle = Letter::Styles::Normal;
     QString changedStyle;
+    bool first = true;
     /* Edit letters style locally */
     for(Letter *l : this->letters) {
         if(letterFormatMap.contains(l->getLetterID())) {
             // Look for the change
 //            qDebug() << l->getFormat().fontItalic();
 //            qDebug() << letterFormatMap.value(l->getLetterID()).fontItalic();
-            if(!l->getFormat().fontItalic() && letterFormatMap.value(l->getLetterID()).fontItalic())
-                changedStyle = QString("Italic");
-            else if(!l->getFormat().fontUnderline() && letterFormatMap.value(l->getLetterID()).fontUnderline())
-                changedStyle.append("Underlined");
-            else if(l->getFormat().fontWeight() == 50 && letterFormatMap.value(l->getLetterID()).fontWeight() == 75)
-                changedStyle.append("Bold");
-            else if(l->getFormat().fontItalic() && !letterFormatMap.value(l->getLetterID()).fontItalic())
-                changedStyle.append("NotItalic");   // da Italic a non Italic
-            else if(l->getFormat().fontUnderline() && !letterFormatMap.value(l->getLetterID()).fontUnderline())
-                changedStyle = "NotUnderlined";
-            else if(l->getFormat().fontWeight() == 75 && letterFormatMap.value(l->getLetterID()).fontWeight() == 50)
-                changedStyle = "NotBold";
-            qDebug() << "Style: " << changedStyle;
+            //TODO: check stringa
+            if(first) {
+                /*qDebug() << "format: " << l->getFormat().fontWeight();
+                qDebug() << "new format: " << letterFormatMap.value(l->getLetterID()).fontWeight();
+                if(!l->getFormat().fontItalic() && letterFormatMap.value(l->getLetterID()).fontItalic())
+                    changedStyle.append("Italic");
+                else if(!l->getFormat().fontUnderline() && letterFormatMap.value(l->getLetterID()).fontUnderline())
+                    changedStyle.append("Underlined");
+                else if(l->getFormat().fontWeight() == 50 && letterFormatMap.value(l->getLetterID()).fontWeight() == 75)
+                    changedStyle.append("Bold");
+                else if(l->getFormat().fontItalic() && !letterFormatMap.value(l->getLetterID()).fontItalic())
+                    changedStyle.append("NotItalic");   // da Italic a non Italic
+                else if(l->getFormat().fontUnderline() && !letterFormatMap.value(l->getLetterID()).fontUnderline())
+                    changedStyle.append("NotUnderlined");
+                else if(l->getFormat().fontWeight() == 75 && letterFormatMap.value(l->getLetterID()).fontWeight() == 50)
+                    changedStyle.append("NotBold");*/
+
+                if(boldTriggered) {
+                    if(l->getFormat().fontWeight() == 50)
+                        changedStyle.append("Bold");
+                    else changedStyle.append("NotBold");
+                } else if(italicTriggered) {
+                    if(!l->getFormat().fontItalic())
+                        changedStyle.append("Italic");
+                    else changedStyle.append("NotItalic");
+                } else if(underlinedTriggered) {
+                    if(!l->getFormat().fontUnderline())
+                        changedStyle.append("Underlined");
+                    else changedStyle.append("NotUnderlined");
+                }
+
+                first = false;
+                qDebug() << "Style: " << changedStyle;
+            }
             l->setFormat(letterFormatMap.value(l->getLetterID()));
         }
     }
-
-    QString startID = letterFormatMap.firstKey();
-    QString lastID = letterFormatMap.lastKey();
 
     /* Send change to server */
     emit localStyleChangeNotify(startID, lastID, this->fileid, changedStyle);
