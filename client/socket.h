@@ -30,6 +30,7 @@ public:
     FileHandler* getFHandler();
     int getClientID();
     QMap<QString, int> getMapFiles();
+    QMap<int, QColor> getUserColor();
 
     void isSigningUp(bool flag);
 
@@ -85,7 +86,8 @@ signals:
     void readyInsert(QJsonArray position, QChar newLetterValue, int externalIndex, int siteID, int siteCounter, QTextCharFormat format);
     void readyDelete(QString deletedLetterID);
     void readyStyleChange(QString firstID, QString lastID, QString changedStyle);
-
+    void UserConnect(int siteID, QColor colorUser);
+    void UserDisconnect(int siteID);
 
     /*Signal connected to readyReady()*/
     void myReadyRead();

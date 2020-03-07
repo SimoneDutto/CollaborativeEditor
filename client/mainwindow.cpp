@@ -34,17 +34,46 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
     ui->user1->setPixmap(pix);*/
 
 
-    //set menu del counter and users
-
-    //ui->user1->hide();
-    //ui->user2->hide();
-    //ui->user3->hide();
-    //ui->counter->hide();
-
-
-
     setWindowTitle(nome);
     //ui->lineEdit->setText(nome);
+
+    /* Personalizzo e aggiungo le label degli utenti connessi */
+    ui->user1->hide();
+    ui->user2->hide();
+    ui->user3->hide();
+    ui->counter->hide();
+
+    QMap<int, QColor> UsersOnline = socket->getUserColor();
+    QString styleSheet = "QLabel { background-color: rgb(255, 252, 247); border-style: solid; border-width: 3px; border-radius: 15px; border-color: %1; font: ; }";
+
+    QList<int> listKeys = UsersOnline.keys();
+
+    int count=0;
+    for(int siteID : listKeys){
+        count++;
+
+        if(count == 1){  //Personalizzo ed accendo la label user1
+            ui->user1->setStyleSheet(styleSheet.arg((UsersOnline.take(siteID).name())));
+            ui->user1->setText(QString::number(siteID));
+            ui->user1->show();
+        }
+
+        else if(count == 2){  //Personalizzo ed accendo la label user2
+            ui->user2->setStyleSheet(styleSheet.arg((UsersOnline.take(siteID).name())));
+            ui->user2->setText(QString::number(siteID));
+            ui->user2->show();
+        }
+
+        else if(count == 3){  //Personalizzo ed accendo la label user3
+            ui->user2->setStyleSheet(styleSheet.arg((UsersOnline.take(siteID).name())));
+            ui->user2->setText(QString::number(siteID));
+            ui->user2->show();
+        }
+
+        /*In ogni caso aagiornare la lista completa dopo il click del contatore*/
+
+    }
+
 
     /* CONNECT per segnali uscenti, inoltrare le modifiche fatte */
     connect( this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
@@ -71,6 +100,10 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
              this, SLOT(changeViewAfterStyle(QString, QString)));
     connect( socket, SIGNAL(readyStyleChange(QString, QString, QString)),
              fHandler, SLOT(remoteStyleChange(QString, QString, QString)));
+    connect( socket, SIGNAL(UserConnect(int, QColor)),
+             this, SLOT(addUserConnection(int, QColor)));
+    connect( socket, SIGNAL(UserDisconnect(int)),
+             this, SLOT(removeUserDisconnect(int)));
 
     /* CONNECT per lo stile dei caratteri */
     connect( this, SIGNAL(styleChange(QMap<QString, QTextCharFormat>, QString, QString, bool, bool, bool)),
@@ -518,6 +551,62 @@ void MainWindow::changeViewAfterStyle(QString firstID, QString lastID) {
     }
     connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
 }
+
+void MainWindow::addUserConnection(int siteID, QColor color){
+
+    int numberUsersOnline = socket->getUserColor().size();
+    QString styleSheet = "QLabel { background-color: rgb(255, 252, 247); border-style: solid; border-width: 3px; border-radius: 15px; border-color: %1; font: ; }";
+
+    if(numberUsersOnline == 1){  //Personalizzo ed accendo la label user1
+        ui->user1->setStyleSheet(styleSheet.arg(color.name()));
+        ui->user1->setText(QString::number(siteID));
+        ui->user1->show();
+    }
+
+    else if(numberUsersOnline == 2){  //Personalizzo ed accendo la label user2
+        ui->user2->setStyleSheet(styleSheet.arg(color.name()));
+        ui->user2->setText(QString::number(siteID));
+        ui->user2->show();
+    }
+
+    else if(numberUsersOnline == 3){  //Personalizzo ed accendo la label user3
+        ui->user2->setStyleSheet(styleSheet.arg(color.name()));
+        ui->user2->setText(QString::number(siteID));
+        ui->user2->show();
+    }
+
+    else {  //Incrementare il contatore
+
+    }
+
+    /*In ogni caso aagiornare la lista completa dopo il click del contatore*/
+
+}
+
+void MainWindow::removeUserDisconnect(int siteID){
+
+    int numberUsersOnline = socket->getUserColor().size();
+
+    if(numberUsersOnline == 0){  //Spengo la label user1
+        ui->user1->hide();
+    }
+
+    else if(numberUsersOnline == 1){  //Spengo la label user2
+        ui->user2->hide();
+    }
+
+    else if(numberUsersOnline == 2){  //Spengo la label user3
+        ui->user3->hide();
+    }
+
+    else {
+
+    }
+
+    /*In ogni caso aagiornare la lista completa dopo il click del contatore*/
+
+}
+
 /*void MainWindow::setCursor(int pos, QString color)
 {
     QString cursore = "|";
