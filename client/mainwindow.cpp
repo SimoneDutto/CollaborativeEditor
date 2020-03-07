@@ -28,6 +28,11 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
     this->setPalette(pal);
     this->show();
 
+    //QPalette p = ui->textEdit->palette(); // define pallete for textEdit..
+    //p.setColor(QPalette::Base, Qt::red); // set color "Red" for textedit base
+    //p.setColor(QPalette::Text, Qt::blue); // set text color which is selected from color pallete
+    //ui->textEdit->setPalette(p);
+
     // set picture
     QPixmap pix("path -- TO DO");
     ui->label_pic->setPixmap(pix);
@@ -509,8 +514,22 @@ void MainWindow::changeViewAfterStyle(QString firstID, QString lastID) {
 void MainWindow::on_textEdit_cursorPositionChanged() {
 
     /*Questa funzione gestirà la vista dei bottoni dello stile, ovvero se si vedrenno accessi o spenti. */
-
     QTextCursor cursor(ui->textEdit->textCursor());
+    QTextCharFormat fmt;
+    QTextCharFormat fmt2;
+    fmt.setBackground(Qt::lightGray);       //qui andrà il colore passato dal server
+    fmt2.setBackground(Qt::white);
+    int pos = cursor.position();
+    ui->textEdit->setTextCursor(cursor);
+    cursor.setPosition(pos);
+    cursor.movePosition(QTextCursor::Start, QTextCursor::KeepAnchor);
+    cursor.setCharFormat(fmt2);
+    cursor.setPosition(pos);
+    cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+    cursor.setCharFormat(fmt2);
+    cursor.setPosition(pos);
+    cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
+    cursor.setCharFormat(fmt);
 
     /*Se il testo selezionato ha stile misto, i bottoni accendono lo stile*/
     if(cursor.hasSelection()==true){
@@ -570,6 +589,6 @@ void MainWindow::on_actionEdit_Profile_triggered()
 void MainWindow::on_actionGet_URI_triggered()
 {
     // ricavare URI da passare al costruttore
-    uri = new Uri(socket,this,"QUI USCIRA' L'URI");
+    uri = new Uri(socket,this,this->windowTitle());
     uri->show();
 }
