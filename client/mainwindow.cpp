@@ -11,6 +11,7 @@
 #include <QTextCharFormat>
 #include <QProcess>
 #include <QByteArray>
+#include <QStandardItem>
 
 MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QString nome) :
     QMainWindow(parent),
@@ -34,8 +35,18 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
     //ui->textEdit->setPalette(p);
 
     // set picture
-    QPixmap pix("path -- TO DO");
-    ui->label_pic->setPixmap(pix);
+    /*QPixmap pix("path -- TO DO");
+    ui->user1->setPixmap(pix);*/
+
+
+    //set menu del counter and users
+
+    //ui->user1->hide();
+    //ui->user2->hide();
+    //ui->user3->hide();
+    //ui->counter->hide();
+
+
 
     setWindowTitle(nome);
     //ui->lineEdit->setText(nome);
@@ -591,4 +602,12 @@ void MainWindow::on_actionGet_URI_triggered()
     // ricavare URI da passare al costruttore
     uri = new Uri(socket,this,this->windowTitle());
     uri->show();
+}
+
+void MainWindow::on_counter_clicked()
+{
+    OnlineUser *onlineList = new OnlineUser(this);
+    onlineList->show();
+
+
 }
