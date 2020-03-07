@@ -10,6 +10,7 @@
 #include <QColorDialog>
 #include <QTextCharFormat>
 #include <QProcess>
+#include <QByteArray>
 
 MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QString nome) :
     QMainWindow(parent),
@@ -34,17 +35,17 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
     setWindowTitle(nome);
     //ui->lineEdit->setText(nome);
 
-    /*CONNECT per segnali uscenti, inoltrare le modifiche fatte*/
+    /* CONNECT per segnali uscenti, inoltrare le modifiche fatte */
     connect( this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
               fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
-    connect( this, SIGNAL(myDelete(int)),
-              fHandler, SLOT(localDelete(int)));
+    connect( this, SIGNAL(myDelete(int,int)),
+              fHandler, SLOT(localDelete(int,int)));
     connect( this, SIGNAL(sendNameFile(QString)),
               socket, SLOT(sendCheckFileName(QString)));
     connect( this, SIGNAL(newFile(QString)),
              socket, SLOT(sendNewFile(QString)));
 
-    /*CONNECT per segnali entranti, applicare sulla GUI le modifiche che arrivano sul socket*/
+    /* CONNECT per segnali entranti, applicare sulla GUI le modifiche che arrivano sul socket */
 
     connect( socket, SIGNAL(readyInsert(QJsonArray, QChar, int, int, int, QTextCharFormat)),
               fHandler,  SLOT(remoteInsert(QJsonArray, QChar, int, int, int, QTextCharFormat)));
@@ -60,9 +61,9 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
     connect( socket, SIGNAL(readyStyleChange(QString, QString, QString)),
              fHandler, SLOT(remoteStyleChange(QString, QString, QString)));
 
-    /*CONNECT per lo stile dei caratteri*/
-    connect( this, SIGNAL(styleChange(QMap<QString, QTextCharFormat>)),
-              fHandler, SLOT(localStyleChange(QMap<QString, QTextCharFormat>)) );
+    /* CONNECT per lo stile dei caratteri */
+    connect( this, SIGNAL(styleChange(QMap<QString, QTextCharFormat>, QString, QString, bool, bool, bool)),
+              fHandler, SLOT(localStyleChange(QMap<QString, QTextCharFormat>, QString, QString, bool, bool, bool)) );
 }
 
 MainWindow::~MainWindow()
@@ -198,9 +199,9 @@ void MainWindow::on_actionBold_triggered()
         qDebug() << "Seleziono un testo per grassetto";
 
         if(ui->textEdit->fontWeight()==50)
-            ui->textEdit->setFontWeight(75);
+            ui->textEdit->setFontWeight(QFont::Bold);
         else
-            ui->textEdit->setFontWeight(50);
+            ui->textEdit->setFontWeight(QFont::Thin);
 
         /* Aggiorno il modello */
 
@@ -212,23 +213,19 @@ void MainWindow::on_actionBold_triggered()
         int start = cursor.selectionStart();
         int end = cursor.selectionEnd()-1;
 
-        //QString startID = vettore.at(start)->getLetterID();
-        //QString finalID = vettore.at(end)->getLetterID();
-
-        /* Se non dovesse servire la mappa basta prendere i due id iniziali e finali
-           QString idIniziale =  vettore.at(cursor.selectionStart())
-           QString idFinale =  vettore.at(cursor.selectionEnd()-1)
-           e poi inviarli con la emit() */
+        QString startID = vettore.at(start)->getLetterID();
+        QString lastID = vettore.at(end)->getLetterID();
 
         for(i=start; i<=end; i++){
             cursor.setPosition(i+1);
             auto letterFormat = cursor.charFormat();
             qDebug() << letterFormat.fontWeight() << "---" << letterFormat.fontUnderline() << "---" << letterFormat.fontItalic();
             //vettore.at(i)->setFormat(letterFormat);
+            qDebug() << "LetterID = " << vettore.at(i)->getLetterID();
             formatCharMap.insert(vettore.at(i)->getLetterID(), letterFormat);
         }
 
-        emit styleChange(formatCharMap);
+        emit styleChange(formatCharMap, startID, lastID, true, false, false);
 
         connect( this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
                   fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
@@ -272,15 +269,19 @@ void MainWindow::on_actionItalic_triggered()
         int start = cursor.selectionStart();
         int end = cursor.selectionEnd()-1;
 
+        QString startID = vettore.at(start)->getLetterID();
+        QString lastID = vettore.at(end)->getLetterID();
+
         for(i=start; i<=end; i++){
             cursor.setPosition(i+1);
             auto letterFormat = cursor.charFormat();
             qDebug() << letterFormat.fontWeight() << "---" << letterFormat.fontUnderline() << "---" << letterFormat.fontItalic();
             //vettore.at(i)->setFormat(letterFormat);
+            qDebug() << "LetterID = " << vettore.at(i)->getLetterID();
             formatCharMap.insert(vettore.at(i)->getLetterID(), letterFormat);
         }
 
-        emit styleChange(formatCharMap);
+        emit styleChange(formatCharMap, startID, lastID, false, true, false);
 
         connect( this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
                   fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
@@ -324,6 +325,9 @@ void MainWindow::on_actionUnderlined_triggered()
         int start = cursor.selectionStart();
         int end = cursor.selectionEnd()-1;
 
+        QString startID = vettore.at(start)->getLetterID();
+        QString lastID = vettore.at(end)->getLetterID();
+
         for(i=start; i<=end; i++){
             /* Se testo selezionato misto, allora settare, altrimenti se tutto settato, togliere */
             cursor.setPosition(i+1);
@@ -333,7 +337,7 @@ void MainWindow::on_actionUnderlined_triggered()
             formatCharMap.insert(vettore.at(i)->getLetterID(), letterFormat);
         }
 
-        emit styleChange(formatCharMap);
+        emit styleChange(formatCharMap, startID, lastID, false, false, true);
 
         connect( this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
                   fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
@@ -379,15 +383,29 @@ void MainWindow::on_textEdit_textChanged()
     qDebug() << "Letter cnt post = " << numberOfLetters;*/
 
     if(numberOfLetters >= letterCounter) {   // Compare actual number of letters in editor to the previous situation
-
         QChar newLetterValue = ui->textEdit->toPlainText().at(externalIndex-1);
+        qDebug() << "!!!!!!!!!!!!!!!!!!!!!insert";
         letterCounter++;
         //ui->statusBar->showMessage(c);
         emit myInsert(externalIndex, newLetterValue, socket->getClientID(), cursor.charFormat());
     }
-    else{  /*Testo cambiato con DELETE */
-        letterCounter--;
-        emit myDelete(externalIndex+1);
+    else if (numberOfLetters < letterCounter){  /*Testo cambiato con DELETE */
+        disconnect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
+        // undo last operation to retrieve deleted chars (necessary to handle simultaneous deleting)
+        ui->textEdit->undo();
+        qDebug() << ui->textEdit->toPlainText();
+        int undoSize = ui->textEdit->toPlainText().size();
+        ui->textEdit->redo();
+        int redoSize = ui->textEdit->toPlainText().size();
+        qDebug() << ui->textEdit->toPlainText();
+        connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
+
+        // lettere consecutive => basta trovare la differenza delle dimensioni
+        int deletedLetters = undoSize - redoSize;
+
+        qDebug() << "!!!!!!!!!!!!!!!!!!!!!delete";
+        letterCounter -= deletedLetters;
+        emit myDelete(externalIndex+1, externalIndex+deletedLetters);
     }
 }
 
@@ -411,6 +429,8 @@ void MainWindow::fileIsHere(){
     for(auto lettera : vettore){
         cursor.insertText(lettera->getValue(), lettera->getFormat());
     }
+    letterCounter = ui->textEdit->toPlainText().size();
+    qDebug() << "letter cnt : = "<< letterCounter;
 
     connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
 }
@@ -512,7 +532,7 @@ void MainWindow::on_textEdit_cursorPositionChanged() {
     }
 
 
-    /*Catturiamo lo stile del carattere precendete per settare i bottoni ON/OFF*/
+    /*Catturiamo lo stile del carattere precedente per settare i bottoni ON/OFF*/
     else {
         auto format = cursor.charFormat();
 
