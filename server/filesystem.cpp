@@ -84,7 +84,7 @@ void FileSystem::createFile(QString filename, QTcpSocket *socket){
         QVector<Letter*> letters;
 
         fh = new FileHandler(std::move(letters), fileid);
-        fh->insertActiveUser(socket,0);
+        fh->insertActiveUser(socket,0, id->second);
 
         sock_file.insert(std::pair<QTcpSocket*, int> (socket, fileid));
         //sock_file.insert(socket, fileid); //associate file to socket
@@ -261,7 +261,8 @@ void FileSystem::sendFile(int fileid, QTcpSocket *socket){
 
         qDebug() << "File sent";
         FileHandler *fh = it->second;
-        fh->insertActiveUser(socket, siteCounter);
+        fh->insertActiveUser(socket, siteCounter, socket_id->second);
+
         sock_file.insert(std::pair<QTcpSocket*, int> (socket, fileid)); //associate file to socket
 
         return;
@@ -358,12 +359,14 @@ void FileSystem::sendFile(int fileid, QTcpSocket *socket){
         connect(fh, SIGNAL(remoteStyleChangeNotify(QVector<QTcpSocket*>, QByteArray, QTcpSocket*)),
                 this, SLOT(sendStyleChange(QVector<QTcpSocket*>, QByteArray, QTcpSocket*)));
 
-        fh->insertActiveUser(socket, siteCounter);
+        fh->insertActiveUser(socket, siteCounter, socket_id->second);
 
         files.insert(std::pair<int, FileHandler*> (fileid, fh));
         sock_file.insert(std::pair<QTcpSocket*, int> (socket, fileid)); //associate file to socket
         qDebug() << "File saved in RAM";
     }
+    // Send notification the file is opened by the user
+
 }
 
 /*QByteArray FileSystem::IntToArray(qint32 source) //Use qint32 to ensure that the number have 4 bytes
