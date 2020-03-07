@@ -6,13 +6,33 @@ FileHandler::FileHandler(const QVector<Letter*>&& lett, int fileid, QObject *par
     id = fileid;
 }
 
-void FileHandler::insertActiveUser(QTcpSocket *user, int siteCounter){
+void FileHandler::insertActiveUser(QTcpSocket* user, int siteCounter, int siteId){
     users.append(user);
     counter_user++;
     usersSiteCounters.insert(user, siteCounter);
+    QJsonObject json;
+    QByteArray sendSize;
+
+    json.insert("type", "USER_CONNECT");
+    json.insert("siteId", siteId);
+    for(QTcpSocket* u: users){
+        if(u == user) continue;
+        if(u->state() == QAbstractSocket::ConnectedState){
+            qDebug() << "Invio ";
+            qint32 msg_size = QJsonDocument(json).toJson().size();
+            QByteArray toSend;
+            u->write(toSend.number(msg_size), sizeof (long int));
+            u->waitForBytesWritten();
+            if(u->write(QJsonDocument(json).toJson()) == -1){
+                qDebug() << "File info failed to send";
+                return;
+            } //write the data itself
+            u->waitForBytesWritten();
+        }
+    }
 }
 
-void FileHandler::removeActiveUser(QTcpSocket *user){
+void FileHandler::removeActiveUser(QTcpSocket *user, int siteId){
     users.removeOne(user);
     counter_user--;
     if(counter_user == 0){
@@ -32,6 +52,27 @@ void FileHandler::removeActiveUser(QTcpSocket *user){
             stream << QJsonDocument(object).toJson() << endl;
         }
         file.close();
+    }
+
+    QJsonObject json;
+    QByteArray sendSize;
+
+    json.insert("type", "USER_DISCONNECT");
+    json.insert("siteId", siteId);
+    for(QTcpSocket* u: users){
+        if(u == user) continue;
+        if(u->state() == QAbstractSocket::ConnectedState){
+            qDebug() << "Invio ";
+            qint32 msg_size = QJsonDocument(json).toJson().size();
+            QByteArray toSend;
+            u->write(toSend.number(msg_size), sizeof (long int));
+            u->waitForBytesWritten();
+            if(u->write(QJsonDocument(json).toJson()) == -1){
+                qDebug() << "File info failed to send";
+                return;
+            } //write the data itself
+            u->waitForBytesWritten();
+        }
     }
 
 }

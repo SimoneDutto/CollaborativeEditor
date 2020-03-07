@@ -340,6 +340,17 @@ void Socket::notificationsHandler(QByteArray data){
         QString changedStyle = object.value("changedStyle").toString();
         emit readyStyleChange(initialIndex, lastIndex, changedStyle);
     }
+    else if(type.compare("USER_CONNECT")){
+        int siteid = object.value("siteId").toInt();
+        QColor random = QColor(rand()%255, rand()%255, rand()%255, rand()%255);
+        userColor.insert(siteid, random);
+        // segnale per aggiornare l'interfaccia
+    }
+    else if(type.compare("USER_DISCONNECT")){
+        int siteid = object.value("siteId").toInt();
+        userColor.remove(siteid);
+        // segnale per aggiornare l'interfaccia
+    }
     /*else if (type.compare("SIGNUP_RESPONSE")==0) {
         bool successful = object.value("success").toBool();
         QString message = object.value("msg").toString();
