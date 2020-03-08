@@ -52,6 +52,9 @@ private slots:
 
     //void on_actionGet_URI_triggered();
 
+    void on_actionExport_as_PDF_triggered();
+    //void changeViewAfterCursor(int pos, QColor color);
+
 private:
     Ui::MainWindow *ui;
     Socket *socket;
@@ -67,6 +70,7 @@ signals:
     void sendNameFile(QString fileNameTmp);
     void newFile(QString filename);
     void styleChange(QMap<QString, QTextCharFormat>, QString startID, QString lastID, bool boldTriggered, bool italicTriggered, bool underlinedTriggered);
+
     //void localStyleChange(QString initialID, QString finalID, QTextCharFormat);
 };
 

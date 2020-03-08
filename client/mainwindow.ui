@@ -70,6 +70,7 @@ p, li { white-space: pre-wrap; }
     <addaction name="actionNew"/>
     <addaction name="actionOpen"/>
     <addaction name="separator"/>
+    <addaction name="actionExport_as_PDF"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
@@ -319,6 +320,15 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="text">
     <string>Get URI</string>
+   </property>
+  </action>
+  <action name="actionExport_as_PDF">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/rec/icone/pdf.png</normaloff>:/rec/icone/pdf.png</iconset>
+   </property>
+   <property name="text">
+    <string>Export as PDF</string>
    </property>
   </action>
  </widget>

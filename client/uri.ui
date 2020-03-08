@@ -48,6 +48,9 @@
    <property name="text">
     <string>This URI seems to be incorrect. Check and try again!</string>
    </property>
+   <property name="alignment">
+    <set>Qt::AlignCenter</set>
+   </property>
   </widget>
  </widget>
  <resources/>

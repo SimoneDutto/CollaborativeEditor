@@ -17,6 +17,7 @@
         <file>icone/link.png</file>
         <file>icone/profile.png</file>
         <file>icone/logout.png</file>
+        <file>icone/pdf.png</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>
