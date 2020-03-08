@@ -18,7 +18,6 @@ void FileHandler::insertActiveUser(QTcpSocket* user, int siteCounter, int siteId
     for(QTcpSocket* u: users){
         if(u == user) continue;
         if(u->state() == QAbstractSocket::ConnectedState){
-            qDebug() << "Invio ";
             qint32 msg_size = QJsonDocument(json).toJson().size();
             QByteArray toSend;
             u->write(toSend.number(msg_size), sizeof (long int));
@@ -62,7 +61,6 @@ void FileHandler::removeActiveUser(QTcpSocket *user, int siteId){
     for(QTcpSocket* u: users){
         if(u == user) continue;
         if(u->state() == QAbstractSocket::ConnectedState){
-            qDebug() << "Invio ";
             qint32 msg_size = QJsonDocument(json).toJson().size();
             QByteArray toSend;
             u->write(toSend.number(msg_size), sizeof (long int));

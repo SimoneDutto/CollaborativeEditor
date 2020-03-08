@@ -1,6 +1,7 @@
 #include "newopen.h"
 #include "ui_newopen.h"
 #include <QShortcut>
+#include <QMessageBox>
 
 NewOpen::NewOpen(Socket *sock, FileHandler *fHandler, QWidget *parent) :
     QDialog(parent),
@@ -27,6 +28,13 @@ NewOpen::NewOpen(Socket *sock, FileHandler *fHandler, QWidget *parent) :
 
     connect( this, SIGNAL(newFile(QString)),
              this->socket, SLOT(sendNewFile(QString)));
+
+
+    connect( this, SIGNAL(openUri(QString)),
+             this->socket, SLOT(sendAccess(QString)));
+
+    connect(socket, SIGNAL(UriSuccess(QString)), this, SLOT(UriAccepted(QString)));
+    connect(socket, SIGNAL(UriError()), this, SLOT(UriRefused()));
 
     QShortcut *sc = new QShortcut(QKeySequence("Return"),this);
     connect(sc, SIGNAL(activated()), ui->pushButton, SLOT(click()));
@@ -59,9 +67,20 @@ void NewOpen::on_pushButton_clicked() //Bottone: open Document
 void NewOpen::on_pushButton_3_clicked() //Bottone: uri
 {
     QString uri = ui->lineEdit->text();
-    mainwindow = new MainWindow(this->socket, this->socket->getFHandler(), this, uri);
-    hide();
-    mainwindow->show();
-    //emit openUri(uri);
+    emit openUri(uri);
+
+}
+
+void NewOpen::UriAccepted(QString file)
+{
+    QListWidgetItem* pItem =new QListWidgetItem(file);
+    pItem->setForeground(Qt::green); // sets red text
+    ui->listWidget->addItem(pItem);
+}
+
+void NewOpen::UriRefused()
+{
+    qDebug() << "Bu";
+    QMessageBox::warning(this, "Uri Not Valid", "Retry");
 }
 

@@ -216,6 +216,9 @@ void Socket::notificationsHandler(QByteArray data){
      * CHECKNAME
      * SIGNUP_RESPONSE
      * STYLE
+     * ACCESS_RESPONSE
+     * USER_CONNECT
+     * USER_DISCONNECT
     */
 
     if(type.compare("OPEN")==0){
@@ -223,6 +226,7 @@ void Socket::notificationsHandler(QByteArray data){
         this->fileh->setSize(object.value("size").toInt());
         this->fileh->setSiteCounter(object.value("siteCounter").toInt());
         this->fileh->setURI(object.value("URI").toString());
+
         // fileid < 0 non puoi aprire il file
     }
     else if(type.compare("FILE")==0){
@@ -340,16 +344,27 @@ void Socket::notificationsHandler(QByteArray data){
         QString changedStyle = object.value("changedStyle").toString();
         emit readyStyleChange(initialIndex, lastIndex, changedStyle);
     }
-    else if(type.compare("USER_CONNECT")){
+    else if(type.compare("USER_CONNECT")==0){
         int siteid = object.value("siteId").toInt();
         QColor random = QColor(rand()%255, rand()%255, rand()%255, rand()%255);
         userColor.insert(siteid, random);
         // segnale per aggiornare l'interfaccia
     }
-    else if(type.compare("USER_DISCONNECT")){
+    else if(type.compare("USER_DISCONNECT")==0){
         int siteid = object.value("siteId").toInt();
         userColor.remove(siteid);
         // segnale per aggiornare l'interfaccia
+    }
+    else if(type.compare("ACCESS_RESPONSE")==0){
+        int fileid = object.value("fileId").toInt();
+        QString filename = object.value("filename").toString();
+        if(fileid != -1){
+            this->mapFiles.insert(filename, fileid);
+            emit UriSuccess(filename);
+        }
+        else{
+            emit UriError();
+        }
     }
     /*else if (type.compare("SIGNUP_RESPONSE")==0) {
         bool successful = object.value("success").toBool();
