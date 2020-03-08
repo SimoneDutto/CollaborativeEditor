@@ -28,9 +28,6 @@ NewOpen::NewOpen(Socket *sock, FileHandler *fHandler, QWidget *parent) :
     connect( this, SIGNAL(newFile(QString)),
              this->socket, SLOT(sendNewFile(QString)));
 
-    connect( this, SIGNAL(openUri(QString)),
-             this->socket, SLOT(sendAccess(QString)));
-
     QShortcut *sc = new QShortcut(QKeySequence("Return"),this);
     connect(sc, SIGNAL(activated()), ui->pushButton, SLOT(click()));
 }
@@ -65,6 +62,6 @@ void NewOpen::on_pushButton_3_clicked() //Bottone: uri
     mainwindow = new MainWindow(this->socket, this->socket->getFHandler(), this, uri);
     hide();
     mainwindow->show();
-    emit openUri(uri);
+    //emit openUri(uri);
 }
 
