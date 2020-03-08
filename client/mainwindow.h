@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QColor>
 #include "socket.h"
 #include "dialog.h"
 #include "form.h"
@@ -43,6 +44,9 @@ private slots:
     void changeViewAfterInsert(QChar l, int pos, QTextCharFormat format);
     void changeViewAfterDelete(int externalIndex);
     void changeViewAfterStyle(QString firstLetterID, QString lastLetterID);
+    void changeViewAfterCursor(int userID, int position);
+    void changeViewAfterConnectedUser(int,int,QColor);
+    void ChangeViewAfterDisconnectedUser(int);
 
     void on_textEdit_cursorPositionChanged();
 
@@ -69,6 +73,7 @@ signals:
     void newFile(QString filename);
     void styleChange(QMap<QString, QTextCharFormat>, QString startID, QString lastID, bool boldTriggered, bool italicTriggered, bool underlinedTriggered);
     //void localStyleChange(QString initialID, QString finalID, QTextCharFormat);
+    void cursorPositionChange(int position);
 };
 
 #endif // MAINWINDOW_H

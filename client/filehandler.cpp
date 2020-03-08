@@ -170,45 +170,6 @@ void FileHandler::localDelete(int firstExternalIndex, int lastExternalIndex) {
     }
 }
 
-void FileHandler::remoteInsert(QJsonArray position, QChar newLetterValue, int externalIndex, int siteID, int siteCounter, QTextCharFormat format) {
-
-    // Get index and fractionals vector
-    QVector<int> fractionals;
-
-    if(!position.isEmpty()) {
-        //int index = position.at(0).toInt();
-        //position.removeAt(0);
-
-        for(auto fractional : position) {
-            fractionals.append(fractional.toInt());
-        }
-
-        QString letterID = QString::number(siteID).append("-").append(QString::number(siteCounter));
-
-        this->letters.insert(this->letters.begin()+externalIndex-1, new Letter(newLetterValue, fractionals, letterID, format));
-    }
-
-    /*Aggiornare la GUI*/
-    emit readyRemoteInsert(newLetterValue, externalIndex-1, format);
-}
-
-void FileHandler::remoteDelete(QString deletedLetterID) {
-    int externalIndex = 0;
-
-    for (Letter *l : this->letters) {
-        if(l->getLetterID().compare(deletedLetterID) == 0) {
-            this->letters.remove(externalIndex);
-            break;
-        }
-       externalIndex++;
-    }
-
-    externalIndex++;    // align externalIndex with GUI rapresentation
-
-    /*Aggiornare la GUI*/
-    emit readyRemoteDelete(externalIndex);
-}
-
 void FileHandler::localStyleChange(QMap<QString, QTextCharFormat> letterFormatMap, QString startID, QString lastID, bool boldTriggered, bool italicTriggered, bool underlinedTriggered) {
 //    Letter::Styles changedStyle = Letter::Styles::Normal;
     QString changedStyle;
@@ -261,6 +222,51 @@ void FileHandler::localStyleChange(QMap<QString, QTextCharFormat> letterFormatMa
     emit localStyleChangeNotify(startID, lastID, this->fileid, changedStyle);
 }
 
+void FileHandler::localCursorPositionChange(int position) {
+    this->cursorPosition = position;
+    /* Notify server */
+    emit localCursorPositionChangeNotify(this->fileid, position);
+}
+
+void FileHandler::remoteInsert(QJsonArray position, QChar newLetterValue, int externalIndex, int siteID, int siteCounter, QTextCharFormat format) {
+
+    // Get index and fractionals vector
+    QVector<int> fractionals;
+
+    if(!position.isEmpty()) {
+        //int index = position.at(0).toInt();
+        //position.removeAt(0);
+
+        for(auto fractional : position) {
+            fractionals.append(fractional.toInt());
+        }
+
+        QString letterID = QString::number(siteID).append("-").append(QString::number(siteCounter));
+
+        this->letters.insert(this->letters.begin()+externalIndex-1, new Letter(newLetterValue, fractionals, letterID, format));
+    }
+
+    /*Aggiornare la GUI*/
+    emit readyRemoteInsert(newLetterValue, externalIndex-1, format);
+}
+
+void FileHandler::remoteDelete(QString deletedLetterID) {
+    int externalIndex = 0;
+
+    for (Letter *l : this->letters) {
+        if(l->getLetterID().compare(deletedLetterID) == 0) {
+            this->letters.remove(externalIndex);
+            break;
+        }
+       externalIndex++;
+    }
+
+    externalIndex++;    // align externalIndex with GUI rapresentation
+
+    /*Aggiornare la GUI*/
+    emit readyRemoteDelete(externalIndex);
+}
+
 void FileHandler::remoteStyleChange(QString firstLetterID, QString lastLetterID, QString changedStyle) {
     /* Edit letters style locally */
     bool intervalStarted = false;
@@ -278,11 +284,34 @@ void FileHandler::remoteStyleChange(QString firstLetterID, QString lastLetterID,
     emit readyRemoteStyleChange(firstLetterID, lastLetterID);
 }
 
+void FileHandler::remoteCursorPositionChange(int userID, int position) {
+    if(this->usersCursor.contains(userID)) {
+        QMap<int, int>::iterator i = this->usersCursor.find(userID);
+        i.value() = position;
+        qDebug() << "Cursor position updated = " << position;
+    }
+
+    /* Aggiornare la GUI */
+    emit readyRemoteCursorPositionChange(userID, position);
+}
+
+void FileHandler::remoteConnectedUser(int userID, int position, QColor color) {
+    usersCursor.insert(userID, position);
+    emit readyRemoteConnectedUser(userID, position, color);
+}
+
+void FileHandler::remoteDisconnectedUser(int userID) {
+    if(usersCursor.contains(userID))
+        usersCursor.remove(userID);
+    emit readyRemoteDisconnectedUser(userID);
+}
+
 void FileHandler::setValues(QVector<Letter *> letters){
     if(!this->letters.empty()){
         this->letters.clear();
     }
     this->letters = letters;
+    this->cursorPosition = letters.size();
 }
 
 QVector<Letter*> FileHandler::getVectorFile(){
