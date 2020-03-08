@@ -101,21 +101,21 @@ void FileSystem::createFile(QString filename, QTcpSocket *socket){
         QJsonObject file_info;
         file_info.insert("type", "NEW");
         file_info.insert("fileid", fileid);
-        FileSystem::sendJson(file_info, socket);
+
         // Send size of message "OPEN"
-//        if(socket->state() == QAbstractSocket::ConnectedState) {
-//            qDebug() << "Invio file";
-//            QByteArray qarray = QJsonDocument(file_info).toJson();
-//            qint32 msg_size = qarray.size();
-//            QByteArray toSend;
-//            socket->write(toSend.number(msg_size), sizeof (long int));
-//            socket->waitForBytesWritten();
-//            if(socket->write(qarray) == -1){
-//                qDebug() << "File info failed to send";
-//                return;
-//            } //write the data itself
-//            socket->waitForBytesWritten();
-//        }
+        if(socket->state() == QAbstractSocket::ConnectedState) {
+            qDebug() << "Invio file";
+            QByteArray qarray = QJsonDocument(file_info).toJson();
+            qint32 msg_size = qarray.size();
+            QByteArray toSend;
+            socket->write(toSend.number(msg_size), sizeof (long int));
+            socket->waitForBytesWritten();
+            if(socket->write(qarray) == -1){
+                qDebug() << "File info failed to send";
+                return;
+            } //write the data itself
+            socket->waitForBytesWritten();
+        }
 
         qDebug() << "Insert executed";
         return;
@@ -140,7 +140,7 @@ void FileSystem::accessFile(QString URI, QTcpSocket *socket){
     QByteArray ba;
     ba.append(URI);
     int fileid = QByteArray::fromBase64(ba).toInt();
-    qDebug() << fileid;
+
     QSqlQuery query;
     int siteCounter=0;
     QString filename;
@@ -151,36 +151,19 @@ void FileSystem::accessFile(QString URI, QTcpSocket *socket){
         {
             filename = query.value(1).toString();
         }
-        else{
-            filename = "nofile";
-        }
     } else {
         qDebug() << "Error! Filename not retrieved.";
         return;
     }
-
-    if (!(filename.compare("nofile")==0)){
-        query.prepare("INSERT INTO Files(Filename, FileId, UserId, SiteCounter) VALUES((:filename), (:fileid), (:userid), (:siteCounter))");
-        query.bindValue(":filename", filename);
-        query.bindValue(":fileid", fileid);
-        query.bindValue(":userid", socket_id->second);
-        query.bindValue(":siteCounter", siteCounter);
-        if (query.exec()){
-
-            QJsonObject json;
-            json.insert("type", "ACCESS_RESPONSE");
-            json.insert("filename", filename);
-            json.insert("fileid", fileid);
-            sendJson(json, socket);
-
-            return;
-        }
+    query.prepare("INSERT INTO Files(Filename, FileId, UserId, SiteCounter) VALUES((:filename), (:fileid), (:userid), (:siteCounter))");
+    query.bindValue(":filename", filename);
+    query.bindValue(":fileid", fileid);
+    query.bindValue(":userid", socket_id->second);
+    query.bindValue(":siteCounter", siteCounter);
+    if (!query.exec()){
+       qDebug() << "Query not executed";
+       return;
     }
-    QJsonObject json;
-    json.insert("type", "ACCESS_RESPONSE");
-    json.insert("filename", 0);
-    json.insert("fileid", -1);
-    sendJson(json, socket);
 
 }
 void FileSystem::sendFile(int fileid, QTcpSocket *socket){
@@ -300,19 +283,18 @@ void FileSystem::sendFile(int fileid, QTcpSocket *socket){
         int remaining = size;
 
         //manda il file info
-//        if(socket->state() == QAbstractSocket::ConnectedState){
-//            qDebug() << "Invio file_info";
-//            qint32 msg_size = QJsonDocument(file_info).toJson().size();
-//            QByteArray toSend;
-//            socket->write(toSend.number(msg_size), sizeof (long int));
-//            socket->waitForBytesWritten();
-//            if(socket->write(QJsonDocument(file_info).toJson()) == -1){
-//                qDebug() << "File info failed to send";
-//                return;
-//            } //write the data itself
-//            socket->waitForBytesWritten();
-//        }
-        sendJson(file_info, socket);
+        if(socket->state() == QAbstractSocket::ConnectedState){
+            qDebug() << "Invio file_info";
+            qint32 msg_size = QJsonDocument(file_info).toJson().size();
+            QByteArray toSend;
+            socket->write(toSend.number(msg_size), sizeof (long int));
+            socket->waitForBytesWritten();
+            if(socket->write(QJsonDocument(file_info).toJson()) == -1){
+                qDebug() << "File info failed to send";
+                return;
+            } //write the data itself
+            socket->waitForBytesWritten();
+        }
         // manda i chunk
         while(remaining > 0)
         {
@@ -604,20 +586,4 @@ void FileSystem::disconnectClient(QTcpSocket* socket){
     FileHandler *fh = files.at(fileID);
     this->updateFileSiteCounter(fileID, userID, fh->getSiteCounter(socket));
     fh->removeActiveUser(socket, userID);
-}
-
-void FileSystem::sendJson(QJsonObject json, QTcpSocket* socket){
-
-    if(socket->state() == QAbstractSocket::ConnectedState){
-        qint32 msg_size = QJsonDocument(json).toJson().size();
-        QByteArray toSend;
-        socket->write(toSend.number(msg_size), sizeof (long int));
-        socket->waitForBytesWritten();
-        if(socket->write(QJsonDocument(json).toJson()) == -1){
-            qDebug() << "File info failed to send";
-            return;
-        } //write the data itself
-        socket->waitForBytesWritten();
-    }
-
 }

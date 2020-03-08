@@ -47,7 +47,6 @@ public:
     void updateFileSiteCounter(int fileID, int userID, int siteCounter);
     std::map<int, FileHandler*> getFiles();
     int getSocketID(QTcpSocket* socket);
-    static void sendJson(QJsonObject json, QTcpSocket* socket);
 
 
 signals:

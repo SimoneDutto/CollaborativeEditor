@@ -80,10 +80,6 @@ signals:
     void loginSuccess();
     void loginError();
 
-    /* Special URI */
-    void UriSuccess(QString filename);
-    void UriError();
-
     /*Notifiche durante l'uso*/
     void readyFile();
     void readyInsert(QJsonArray position, QChar newLetterValue, int externalIndex, int siteID, int siteCounter, QTextCharFormat format);
