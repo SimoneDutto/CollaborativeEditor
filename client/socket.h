@@ -30,7 +30,6 @@ public:
     FileHandler* getFHandler();
     int getClientID();
     QMap<QString, int> getMapFiles();
-
     void isSigningUp(bool flag);
 
 private:
@@ -42,7 +41,6 @@ private:
     FileHandler* fileh;
     int clientID;
     QMap<QString, int> mapFiles;
-    QMap<int, QColor> userColor;
     bool isDoingSignUp;
 
 public slots:

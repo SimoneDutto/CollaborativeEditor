@@ -29,8 +29,8 @@ public:
     void changeStyle(QString initialIndex, QString lastIndex, QString format, QTcpSocket* client, QByteArray message);
 
     explicit FileHandler(const QVector<Letter*>&& lett, int fileid, QObject *parent = nullptr);
-    void insertActiveUser(QTcpSocket* user, int siteCounter, int siteId);
-    void removeActiveUser(QTcpSocket *user, int siteId);
+    void insertActiveUser(QTcpSocket* user, int siteCounter);
+    void removeActiveUser(QTcpSocket *user);
     QVector<QTcpSocket*> getUsers();
     QVector<Letter*> getLetter();
     int getSiteCounter(QTcpSocket *user);
