@@ -44,7 +44,7 @@ void Login::resumeLogin()
     //mainWindow = new MainWindow(this->socket, this->socket->getFHandler(), this);
     hide();
     //mainWindow->show();
-    newopen ->show();
+    newopen->show();
 }
 
 void Login::redoLogin()
