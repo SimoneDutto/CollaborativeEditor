@@ -276,8 +276,6 @@ void Socket::notificationsHandler(QByteArray data){
             connect( this->fileh, SIGNAL(localDeleteNotify(QString, int, int)), this, SLOT(sendDelete(QString, int, int)) );
             connect( this->fileh, SIGNAL(localStyleChangeNotify(QString, QString, int, QString)),
                      this, SLOT(sendChangeStyle(QString, QString, int, QString)));
-            connect(this->fileh, SIGNAL(localCursorPositionChangeNotify(int,int)),
-                    this, SLOT(sendCursorPosition(int,int)));
 
             /*Salvo il file come vettore di Letters nel fileHandler*/
             this->fileh->setValues(std::move(letters));
@@ -342,27 +340,16 @@ void Socket::notificationsHandler(QByteArray data){
         QString changedStyle = object.value("changedStyle").toString();
         emit readyStyleChange(initialIndex, lastIndex, changedStyle);
     }
-    else if(type.compare("USER_CONNECT")==0){
+    else if(type.compare("USER_CONNECT")){
         int siteid = object.value("siteId").toInt();
         QColor random = QColor(rand()%255, rand()%255, rand()%255, rand()%255);
         userColor.insert(siteid, random);
-        int position = object.value("position").toInt();
-        // segnale con fileHandler per inserire utente nella mappa, poi connessione con interfaccia
-        emit readyConnectedUser(siteid, position, random);
+        // segnale per aggiornare l'interfaccia
     }
-    else if(type.compare("USER_DISCONNECT")==0){
+    else if(type.compare("USER_DISCONNECT")){
         int siteid = object.value("siteId").toInt();
         userColor.remove(siteid);
-        // segnale con fileHandler per rimuovere utente dalla mappa, poi connessione con interfaccia
-        emit readyDisconnectedUser(siteid);
-    }
-    else if(type.compare("CURSOR")==0) {
-        int userID = object.value("userID").toInt();
-        if(userColor.contains(userID)) {
-            // utente attivo sul file
-            int position = object.value("position").toInt();
-            emit readyCursorChange(userID, position);
-        }
+        // segnale per aggiornare l'interfaccia
     }
     /*else if (type.compare("SIGNUP_RESPONSE")==0) {
         bool successful = object.value("success").toBool();
@@ -519,29 +506,6 @@ int Socket::sendChangeStyle(QString firstLetterID, QString lastLetterID, int fil
 
     return socket->waitForBytesWritten(1000);
 }
-
-int Socket::sendCursorPosition(int fileID, int position) {
-    /* Notificare il cambio di cursore */
-    QJsonObject obj;
-    obj.insert("type", "CURSOR");
-    obj.insert("fileid", fileID);
-    obj.insert("position", position);
-    obj.insert("userID", clientID);
-
-    if(socket->state() == QAbstractSocket::ConnectedState){
-        QByteArray qarray = QJsonDocument(obj).toJson();
-        qint32 msg_size = qarray.size();
-        QByteArray toSend;
-        socket->write(toSend.number(msg_size), sizeof (long int));
-        socket->waitForBytesWritten();
-        socket->write(QJsonDocument(obj).toJson());
-        socket->waitForBytesWritten();
-        qDebug() << "Richiesta:\n" << QJsonDocument(obj).toJson().data();
-    }
-
-    return socket->waitForBytesWritten(1000);
-}
-
 
 void Socket::socketConnected()
 {

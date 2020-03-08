@@ -84,7 +84,7 @@ void FileSystem::createFile(QString filename, QTcpSocket *socket){
         QVector<Letter*> letters;
 
         fh = new FileHandler(std::move(letters), fileid);
-        fh->insertActiveUser(socket,0, id->second,0);
+        fh->insertActiveUser(socket,0, id->second);
 
         sock_file.insert(std::pair<QTcpSocket*, int> (socket, fileid));
         //sock_file.insert(socket, fileid); //associate file to socket
@@ -96,9 +96,6 @@ void FileSystem::createFile(QString filename, QTcpSocket *socket){
 
         connect(fh, SIGNAL(remoteStyleChangeNotify(QVector<QTcpSocket*>, QByteArray, QTcpSocket*)),
                 this, SLOT(sendStyleChange(QVector<QTcpSocket*>, QByteArray, QTcpSocket*)));
-
-        connect(fh, SIGNAL(remoteCursorPositionChangeNotify(QVector<QTcpSocket*>, QByteArray, QTcpSocket*)),
-                this, SLOT(sendCursorPositionChange(QVector<QTcpSocket*>, QByteArray, QTcpSocket*)));
 
         files.insert(std::pair<int, FileHandler*> (fileid, fh));
         QJsonObject file_info;
@@ -210,7 +207,6 @@ void FileSystem::sendFile(int fileid, QTcpSocket *socket){
     if (it != files.end()){
         // il file è già in memoria principale e può essere mandato
         // serializzarlo
-        FileHandler *fh = it->second;
 
         int size = static_cast<int>(inFile.size());
         QJsonObject file_info;
@@ -219,12 +215,6 @@ void FileSystem::sendFile(int fileid, QTcpSocket *socket){
         file_info.insert("size", size);
         file_info.insert("siteCounter", siteCounter);
         file_info.insert("URI", URI);
-
-        // INSERIRE INFO SU UTENTI ATTIVI SUL FILE
-        if(fh->thereAreUsers()) {
-            // info: userid, username, posizione cursore
-
-        }
 
         // Send size of message "OPEN"
         if(socket->state() == QAbstractSocket::ConnectedState) {
@@ -270,7 +260,8 @@ void FileSystem::sendFile(int fileid, QTcpSocket *socket){
         }
 
         qDebug() << "File sent";
-        fh->insertActiveUser(socket, siteCounter, socket_id->second, splitToSend.size());
+        FileHandler *fh = it->second;
+        fh->insertActiveUser(socket, siteCounter, socket_id->second);
 
         sock_file.insert(std::pair<QTcpSocket*, int> (socket, fileid)); //associate file to socket
 
@@ -368,10 +359,7 @@ void FileSystem::sendFile(int fileid, QTcpSocket *socket){
         connect(fh, SIGNAL(remoteStyleChangeNotify(QVector<QTcpSocket*>, QByteArray, QTcpSocket*)),
                 this, SLOT(sendStyleChange(QVector<QTcpSocket*>, QByteArray, QTcpSocket*)));
 
-        connect(fh, SIGNAL(remoteCursorPositionChangeNotify(QVector<QTcpSocket*>, QByteArray, QTcpSocket*)),
-                this, SLOT(sendCursorPositionChange(QVector<QTcpSocket*>, QByteArray, QTcpSocket*)));
-
-        fh->insertActiveUser(socket, siteCounter, socket_id->second, letterArray.size());
+        fh->insertActiveUser(socket, siteCounter, socket_id->second);
 
         files.insert(std::pair<int, FileHandler*> (fileid, fh));
         sock_file.insert(std::pair<QTcpSocket*, int> (socket, fileid)); //associate file to socket
@@ -554,22 +542,6 @@ void FileSystem::sendDelete(QVector<QTcpSocket*> users, QByteArray message, QTcp
 }
 
 void FileSystem::sendStyleChange(QVector<QTcpSocket*> users, QByteArray message, QTcpSocket* client) {
-    QVectorIterator<QTcpSocket*> i(users);
-    QByteArray sendSize;
-
-    while (i.hasNext()){
-        QTcpSocket* socket = i.next();
-        if(socket == client) continue;
-        if(socket->state() == QAbstractSocket::ConnectedState) {
-            socket->write(sendSize.number(message.size()), sizeof (long int));
-            socket->waitForBytesWritten();
-            socket->write(message);
-            socket->waitForBytesWritten(1000);
-        }
-    }
-}
-
-void FileSystem::sendCursorPositionChange(QVector<QTcpSocket*> users, QByteArray message, QTcpSocket* client) {
     QVectorIterator<QTcpSocket*> i(users);
     QByteArray sendSize;
 

@@ -51,48 +51,24 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
              socket, SLOT(sendNewFile(QString)));
 
     /* CONNECT per segnali entranti, applicare sulla GUI le modifiche che arrivano sul socket */
-    // File
-    connect( socket, SIGNAL(readyFile()),  this, SLOT(fileIsHere()));
 
-    // Insert
     connect( socket, SIGNAL(readyInsert(QJsonArray, QChar, int, int, int, QTextCharFormat)),
               fHandler,  SLOT(remoteInsert(QJsonArray, QChar, int, int, int, QTextCharFormat)));
-    connect( fHandler, SIGNAL(readyRemoteInsert(QChar, int, QTextCharFormat)),
-             this, SLOT(changeViewAfterInsert(QChar, int, QTextCharFormat)));
-    // Delete
     connect( socket, SIGNAL(readyDelete(QString)),
               fHandler, SLOT(remoteDelete(QString)));
+    connect( socket, SIGNAL(readyFile()),  this, SLOT(fileIsHere()));
+    connect( fHandler, SIGNAL(readyRemoteInsert(QChar, int, QTextCharFormat)),
+             this, SLOT(changeViewAfterInsert(QChar, int, QTextCharFormat)));
     connect( fHandler, SIGNAL(readyRemoteDelete(int)),
              this, SLOT(changeViewAfterDelete(int)));
-    // Style
-    connect( socket, SIGNAL(readyStyleChange(QString, QString, QString)),
-             fHandler, SLOT(remoteStyleChange(QString, QString, QString)));
     connect( fHandler, SIGNAL(readyRemoteStyleChange(QString, QString)),
              this, SLOT(changeViewAfterStyle(QString, QString)));
-    // Cursor
-    connect( socket, SIGNAL(readyCursorChange(int,int)),
-             fHandler, SLOT(remoteCursorPositionChange(int,int)));
-    connect( fHandler, SIGNAL(readyRemoteCursorPositionChange(int,int)),
-             this, SLOT(changeViewAfterCursor(int,int)));
-
-    // Connected user
-    connect( socket, SIGNAL(readyConnectedUser(int,int,QColor)),
-             fHandler, SLOT(remoteConnectedUser(int,int,QColor)));
-    connect( fHandler, SIGNAL(readyRemoteConnectedUser(int,int,QColor)),
-             this, SLOT(changeViewAfterConnectedUser(int,int,QColor))); //check
-
-    // Disconnected user
-    connect( socket, SIGNAL(readyDisconnectedUser(int)),
-            fHandler, SLOT(remoteDisconnectedUser(int)));
-    connect( fHandler, SIGNAL(readyRemoteDisconnectedUser(int)),
-             this, SLOT(changeViewAfterDisconnectedUser(int))); // check
+    connect( socket, SIGNAL(readyStyleChange(QString, QString, QString)),
+             fHandler, SLOT(remoteStyleChange(QString, QString, QString)));
 
     /* CONNECT per lo stile dei caratteri */
     connect( this, SIGNAL(styleChange(QMap<QString, QTextCharFormat>, QString, QString, bool, bool, bool)),
               fHandler, SLOT(localStyleChange(QMap<QString, QTextCharFormat>, QString, QString, bool, bool, bool)) );
-
-    /* CONNECT per posizione del cursore */
-    connect(this, SIGNAL(cursorPositionChange(int)), fHandler, SLOT(localCursorPositionChange(int)));
 }
 
 MainWindow::~MainWindow()
@@ -222,8 +198,8 @@ void MainWindow::on_actionBold_triggered()
     else{
         disconnect(this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
                   fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
-        disconnect(this, SIGNAL(myDelete(int,int)),
-                  fHandler, SLOT(localDelete(int,int)));
+        disconnect(this, SIGNAL(myDelete(int)),
+                  fHandler, SLOT(localDelete(int)));
 
         qDebug() << "Seleziono un testo per grassetto";
 
@@ -258,8 +234,8 @@ void MainWindow::on_actionBold_triggered()
 
         connect( this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
                   fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
-        connect( this, SIGNAL(myDelete(int,int)),
-                  fHandler, SLOT(localDelete(int,int)));
+        connect( this, SIGNAL(myDelete(int)),
+                  fHandler, SLOT(localDelete(int)));
     }
 }
 
@@ -280,8 +256,8 @@ void MainWindow::on_actionItalic_triggered()
     else{
         disconnect(this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
                   fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
-        disconnect(this, SIGNAL(myDelete(int,int)),
-                  fHandler, SLOT(localDelete(int,int)));
+        disconnect(this, SIGNAL(myDelete(int)),
+                  fHandler, SLOT(localDelete(int)));
 
         qDebug() << "Seleziono un testo per corsivo";
 
@@ -314,8 +290,8 @@ void MainWindow::on_actionItalic_triggered()
 
         connect( this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
                   fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
-        connect( this, SIGNAL(myDelete(int,int)),
-                  fHandler, SLOT(localDelete(int,int)));
+        connect( this, SIGNAL(myDelete(int)),
+                  fHandler, SLOT(localDelete(int)));
     }
 }
 
@@ -336,8 +312,8 @@ void MainWindow::on_actionUnderlined_triggered()
     else{
         disconnect(this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
                   fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
-        disconnect(this, SIGNAL(myDelete(int,int)),
-                  fHandler, SLOT(localDelete(int,int)));
+        disconnect(this, SIGNAL(myDelete(int)),
+                  fHandler, SLOT(localDelete(int)));
 
         qDebug() << "Seleziono un testo per sottolineato";
 
@@ -370,8 +346,8 @@ void MainWindow::on_actionUnderlined_triggered()
 
         connect( this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
                   fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
-        connect( this, SIGNAL(myDelete(int,int)),
-                  fHandler, SLOT(localDelete(int,int)));
+        connect( this, SIGNAL(myDelete(int)),
+                  fHandler, SLOT(localDelete(int)));
     }
 }
 
@@ -492,7 +468,6 @@ void MainWindow::changeViewAfterDelete(int pos)
     qDebug() << "Devo cancellare la lettera in pos: " << pos;
 
     letterCounter--;
-    connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
 }
 
 
@@ -523,7 +498,6 @@ void MainWindow::changeViewAfterStyle(QString firstID, QString lastID) {
 
         if(l->getLetterID() == lastID) break;
     }
-    connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
 }
 /*void MainWindow::setCursor(int pos, QString color)
 {
@@ -535,18 +509,6 @@ void MainWindow::changeViewAfterStyle(QString firstID, QString lastID) {
     c.setPosition(pos);
     c.insertHtml(colore);
 }*/
-
-void MainWindow::changeViewAfterCursor(int userID, int position) {
-
-}
-
-void MainWindow::changeViewAfterConnectedUser(int userID, int position, QColor color) {
-
-}
-
-void MainWindow::ChangeViewAfterDisconnectedUser(int userID) {
-
-}
 
 //TODO: inserire gestione bottoni
 void MainWindow::on_textEdit_cursorPositionChanged() {
@@ -568,9 +530,6 @@ void MainWindow::on_textEdit_cursorPositionChanged() {
     cursor.setPosition(pos);
     cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
     cursor.setCharFormat(fmt);
-
-    // Messaggio al server: emit segnale che invia posizione del cursore
-    emit cursorPositionChange(pos);
 
     /*Se il testo selezionato ha stile misto, i bottoni accendono lo stile*/
     if(cursor.hasSelection()==true){

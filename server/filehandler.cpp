@@ -6,17 +6,15 @@ FileHandler::FileHandler(const QVector<Letter*>&& lett, int fileid, QObject *par
     id = fileid;
 }
 
-void FileHandler::insertActiveUser(QTcpSocket* user, int siteCounter, int siteId, int cursorPosition){
+void FileHandler::insertActiveUser(QTcpSocket* user, int siteCounter, int siteId){
     users.append(user);
     counter_user++;
     usersSiteCounters.insert(user, siteCounter);
-    usersCursorPosition.insert(user, cursorPosition);
     QJsonObject json;
     QByteArray sendSize;
 
     json.insert("type", "USER_CONNECT");
     json.insert("siteId", siteId);
-    json.insert("position", cursorPosition);
     for(QTcpSocket* u: users){
         if(u == user) continue;
         if(u->state() == QAbstractSocket::ConnectedState){
@@ -36,8 +34,6 @@ void FileHandler::insertActiveUser(QTcpSocket* user, int siteCounter, int siteId
 
 void FileHandler::removeActiveUser(QTcpSocket *user, int siteId){
     users.removeOne(user);
-    usersSiteCounters.remove(user);
-    usersCursorPosition.remove(user);
     counter_user--;
     if(counter_user == 0){
         // Salvarlo in memoria secondaria, io lo farei con un segnale
@@ -202,16 +198,6 @@ void FileHandler::changeStyle(QString initialIndex, QString lastIndex, QString f
     emit remoteStyleChangeNotify(this->users, message, client);
 }
 
-void FileHandler::changeCursorPosition(QTcpSocket *client, QByteArray message, int position) {
-    if(this->usersCursorPosition.contains(client)) {
-        QMap<QTcpSocket*, int>::iterator i = this->usersCursorPosition.find(client);
-        i.value() = position;
-        qDebug() << "Cursor position updated = " << position;
-    }
-    /* Propagate change to other clients working on the same file */
-    emit remoteCursorPositionChangeNotify(this->users, message, client);
-}
-
 QVector<QTcpSocket*> FileHandler::getUsers(){
     return this->users;
 }
@@ -222,8 +208,4 @@ QVector<Letter*> FileHandler::getLetter(){
 
 int FileHandler::getSiteCounter(QTcpSocket *user) {
     return this->usersSiteCounters.value(user);
-}
-
-bool FileHandler::thereAreUsers(){
-    return !this->users.empty();
 }
