@@ -44,6 +44,13 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
     ui->counter->hide();
 
     QMap<int, QColor> UsersOnline = socket->getUserColor();
+
+    /* User a caso per testing */
+    UsersOnline.insert(1, QColor("black"));
+    UsersOnline.insert(2, QColor("red"));
+    UsersOnline.insert(3, QColor("green"));
+    UsersOnline.insert(4, QColor("yellow"));
+    UsersOnline.insert(5, QColor("purple"));
     QString styleSheet = "QLabel { background-color: rgb(255, 252, 247); border-style: solid; border-width: 3px; border-radius: 15px; border-color: %1; font: ; }";
 
     QList<int> listKeys = UsersOnline.keys();
@@ -65,12 +72,18 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
         }
 
         else if(count == 3){  //Personalizzo ed accendo la label user3
-            ui->user2->setStyleSheet(styleSheet.arg((UsersOnline.take(siteID).name())));
-            ui->user2->setText(QString::number(siteID));
-            ui->user2->show();
+            ui->user3->setStyleSheet(styleSheet.arg((UsersOnline.take(siteID).name())));
+            ui->user3->setText(QString::number(siteID));
+            ui->user3->show();
         }
 
-        /*In ogni caso aagiornare la lista completa dopo il click del contatore*/
+        else{
+            ui->counter->setText("+" + QString::number(UsersOnline.size()));
+            ui->counter->show();
+            break;
+        }
+
+        /*La lista completa degli Online Users la inizializzo nel OnlineUser Constructor*/
 
     }
 
@@ -576,10 +589,11 @@ void MainWindow::addUserConnection(int siteID, QColor color){
     }
 
     else {  //Incrementare il contatore
-
+        ui->counter->setText("+" + QString::number(numberUsersOnline));
+        ui->counter->show();
     }
 
-    /*In ogni caso aagiornare la lista completa dopo il click del contatore*/
+    /*La lista completa degli Online Users la inizializzo nel OnlineUser Constructor*/
 
 }
 
@@ -600,10 +614,10 @@ void MainWindow::removeUserDisconnect(int siteID){
     }
 
     else {
-
+        ui->counter->hide();
     }
 
-    /*In ogni caso aagiornare la lista completa dopo il click del contatore*/
+    /*La lista completa degli Online Users la inizializzo nel OnlineUser Constructor*/
 
 }
 
@@ -689,7 +703,7 @@ void MainWindow::on_actionGet_URI_triggered()
 
 void MainWindow::on_counter_clicked()
 {
-    OnlineUser *onlineList = new OnlineUser(this);
+    OnlineUser *onlineList = new OnlineUser(socket, this);
     onlineList->show();
 
 
