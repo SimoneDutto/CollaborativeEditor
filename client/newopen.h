@@ -37,7 +37,6 @@ private:
 signals:
     void openThisFile(QString fileName);
     void newFile(QString name);
-    void openUri(QString uri);
 };
 
 #endif // NEWOPEN_H

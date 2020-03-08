@@ -28,11 +28,6 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
     this->setPalette(pal);
     this->show();
 
-    //QPalette p = ui->textEdit->palette(); // define pallete for textEdit..
-    //p.setColor(QPalette::Base, Qt::red); // set color "Red" for textedit base
-    //p.setColor(QPalette::Text, Qt::blue); // set text color which is selected from color pallete
-    //ui->textEdit->setPalette(p);
-
     // set picture
     QPixmap pix("path -- TO DO");
     ui->label_pic->setPixmap(pix);
@@ -198,8 +193,8 @@ void MainWindow::on_actionBold_triggered()
     else{
         disconnect(this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
                   fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
-        disconnect(this, SIGNAL(myDelete(int)),
-                  fHandler, SLOT(localDelete(int)));
+        disconnect(this, SIGNAL(myDelete(int,int)),
+                  fHandler, SLOT(localDelete(int,int)));
 
         qDebug() << "Seleziono un testo per grassetto";
 
@@ -234,8 +229,8 @@ void MainWindow::on_actionBold_triggered()
 
         connect( this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
                   fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
-        connect( this, SIGNAL(myDelete(int)),
-                  fHandler, SLOT(localDelete(int)));
+        connect( this, SIGNAL(myDelete(int,int)),
+                  fHandler, SLOT(localDelete(int,int)));
     }
 }
 
@@ -256,8 +251,8 @@ void MainWindow::on_actionItalic_triggered()
     else{
         disconnect(this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
                   fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
-        disconnect(this, SIGNAL(myDelete(int)),
-                  fHandler, SLOT(localDelete(int)));
+        disconnect(this, SIGNAL(myDelete(int,int)),
+                  fHandler, SLOT(localDelete(int,int)));
 
         qDebug() << "Seleziono un testo per corsivo";
 
@@ -290,8 +285,8 @@ void MainWindow::on_actionItalic_triggered()
 
         connect( this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
                   fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
-        connect( this, SIGNAL(myDelete(int)),
-                  fHandler, SLOT(localDelete(int)));
+        connect( this, SIGNAL(myDelete(int,int)),
+                  fHandler, SLOT(localDelete(int,int)));
     }
 }
 
@@ -312,8 +307,8 @@ void MainWindow::on_actionUnderlined_triggered()
     else{
         disconnect(this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
                   fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
-        disconnect(this, SIGNAL(myDelete(int)),
-                  fHandler, SLOT(localDelete(int)));
+        disconnect(this, SIGNAL(myDelete(int,int)),
+                  fHandler, SLOT(localDelete(int,int)));
 
         qDebug() << "Seleziono un testo per sottolineato";
 
@@ -346,8 +341,8 @@ void MainWindow::on_actionUnderlined_triggered()
 
         connect( this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
                   fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
-        connect( this, SIGNAL(myDelete(int)),
-                  fHandler, SLOT(localDelete(int)));
+        connect( this, SIGNAL(myDelete(int,int)),
+                  fHandler, SLOT(localDelete(int,int)));
     }
 }
 
@@ -395,7 +390,7 @@ void MainWindow::on_textEdit_textChanged()
         emit myInsert(externalIndex, newLetterValue, socket->getClientID(), cursor.charFormat());
     }
     else if (numberOfLetters < letterCounter){  /*Testo cambiato con DELETE */
-        disconnect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
+        /*disconnect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
         // undo last operation to retrieve deleted chars (necessary to handle simultaneous deleting)
         ui->textEdit->undo();
         qDebug() << ui->textEdit->toPlainText();
@@ -403,10 +398,10 @@ void MainWindow::on_textEdit_textChanged()
         ui->textEdit->redo();
         int redoSize = ui->textEdit->toPlainText().size();
         qDebug() << ui->textEdit->toPlainText();
-        connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
+        connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));*/
 
         // lettere consecutive => basta trovare la differenza delle dimensioni
-        int deletedLetters = undoSize - redoSize;
+        int deletedLetters = letterCounter - numberOfLetters;
 
         qDebug() << "!!!!!!!!!!!!!!!!!!!!!delete";
         letterCounter -= deletedLetters;
@@ -444,16 +439,23 @@ void MainWindow::changeViewAfterInsert(QChar l, int pos, QTextCharFormat format)
 {
     disconnect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
 
-    QTextCursor cursor(ui->textEdit->textCursor());
-    cursor.setPosition(pos);
-    cursor.insertText(l, format);
-    letterCounter++;
+//    QTextCursor cursor(ui->textEdit->textCursor());
+//    cursor.setPosition(pos);
+//    ui->textEdit->(l);
+//    letterCounter++;
 
-    //CONTROLLO SE ARRIVA IL FORMATO GIUSTO
-    /*qDebug() << "Lettera che sto inserendo: " << l;
-    qDebug() << "Grassetto" << format.fontWeight();
-    qDebug() << "Sottolineato" << format.fontUnderline();
-    qDebug() << "Corsivo" << format.fontItalic();*/
+    QVector<Letter*> vectorFile = this->fHandler->getVectorFile();
+    QString text = "";
+    for(Letter *l : vectorFile){
+        QChar c = l->getValue();
+        letterCounter++;
+        text.append(c);
+    }
+    ui->textEdit->setText(text);
+
+//    auto cursor = ui->textEdit->textCursor();
+//    cursor.setPosition(pos);
+//    cursor.insertText(l, format);
 
     connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
 }
@@ -462,42 +464,43 @@ void MainWindow::changeViewAfterDelete(int pos)
 {
     disconnect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
 
-    QTextCursor cursor(ui->textEdit->textCursor());
-    cursor.setPosition(pos);
-    cursor.deletePreviousChar();
-    qDebug() << "Devo cancellare la lettera in pos: " << pos;
+    QVector<Letter*> vectorFile = this->fHandler->getVectorFile();
+    QString text = "";
+    for(Letter *l : vectorFile){
+        QChar c = l->getValue();
+        letterCounter++;
+        text.append(c);
+    }
 
     letterCounter--;
+    connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
+    ui->textEdit->setText(text);
 }
 
 
 void MainWindow::changeViewAfterStyle(QString firstID, QString lastID) {
     disconnect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
     auto cursor = ui->textEdit->textCursor();
-    bool intervalStarted = false;
+    bool intervalStarted = false, intervalFinished = false;
 
     QVector<Letter*> vectorFile = this->fHandler->getVectorFile();
     QString text = "";
-    int count = 0;
     for(Letter *l : vectorFile){
-        count ++;
-
-        if(l->getLetterID() == firstID) intervalStarted=true;
-
-        if(intervalStarted){
-            cursor.setPosition(count);
-            cursor.deletePreviousChar();
-            cursor.insertText(l->getValue(), l->getFormat());
-
-            //CONTROLLO SE ARRIVA IL FORMATO GIUSTO
-            /*qDebug() << "Lettera cambio stile: " << l->getValue();
-            qDebug() << "Grassetto" << l->getFormat().fontWeight();
-            qDebug() << "Sottolineato" << l->getFormat().fontUnderline();
-            qDebug() << "Corsivo" << l->getFormat().fontItalic();*/
+        QChar c = l->getValue();
+        if(!intervalFinished) {
+            if(l->getLetterID().compare(firstID) == 0 || intervalStarted) {
+                //TODO: inserire visualizzazione modifiche di stile
+                if(l->getLetterID().compare(lastID) == 0)
+                    intervalFinished = true;
+            }
         }
-
-        if(l->getLetterID() == lastID) break;
+        letterCounter++;
+        text.append(c);
     }
+
+    connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
+
+    ui->textEdit->setText(text);
 }
 /*void MainWindow::setCursor(int pos, QString color)
 {
@@ -511,25 +514,12 @@ void MainWindow::changeViewAfterStyle(QString firstID, QString lastID) {
 }*/
 
 //TODO: inserire gestione bottoni
+
 void MainWindow::on_textEdit_cursorPositionChanged() {
 
     /*Questa funzione gestirà la vista dei bottoni dello stile, ovvero se si vedrenno accessi o spenti. */
+
     QTextCursor cursor(ui->textEdit->textCursor());
-    QTextCharFormat fmt;
-    QTextCharFormat fmt2;
-    fmt.setBackground(Qt::lightGray);       //qui andrà il colore passato dal server
-    fmt2.setBackground(Qt::white);
-    int pos = cursor.position();
-    ui->textEdit->setTextCursor(cursor);
-    cursor.setPosition(pos);
-    cursor.movePosition(QTextCursor::Start, QTextCursor::KeepAnchor);
-    cursor.setCharFormat(fmt2);
-    cursor.setPosition(pos);
-    cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
-    cursor.setCharFormat(fmt2);
-    cursor.setPosition(pos);
-    cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
-    cursor.setCharFormat(fmt);
 
     /*Se il testo selezionato ha stile misto, i bottoni accendono lo stile*/
     if(cursor.hasSelection()==true){
@@ -589,6 +579,6 @@ void MainWindow::on_actionEdit_Profile_triggered()
 void MainWindow::on_actionGet_URI_triggered()
 {
     // ricavare URI da passare al costruttore
-    uri = new Uri(socket,this,this->windowTitle());
+    uri = new Uri(socket,this,"QUI USCIRA' L'URI");
     uri->show();
 }

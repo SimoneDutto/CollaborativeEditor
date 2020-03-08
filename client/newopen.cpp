@@ -29,6 +29,7 @@ NewOpen::NewOpen(Socket *sock, FileHandler *fHandler, QWidget *parent) :
     connect( this, SIGNAL(newFile(QString)),
              this->socket, SLOT(sendNewFile(QString)));
 
+
     connect( this, SIGNAL(openUri(QString)),
              this->socket, SLOT(sendAccess(QString)));
 
@@ -67,6 +68,7 @@ void NewOpen::on_pushButton_3_clicked() //Bottone: uri
 {
     QString uri = ui->lineEdit->text();
     emit openUri(uri);
+
 }
 
 void NewOpen::UriAccepted(QString file)
