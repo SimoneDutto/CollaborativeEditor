@@ -266,7 +266,7 @@ void FileSystem::sendFile(int fileid, QTcpSocket *socket){
 
         return;
     }
-    else {
+    else{
         qDebug() << "Inizio l'invio del file";
         // apre il file, lo scrive in un DataStream che poi invierà
         QByteArray buffer_tot;
@@ -324,27 +324,14 @@ void FileSystem::sendFile(int fileid, QTcpSocket *socket){
         {
             QChar letter = v.toObject().value("letter").toString().at(0);
             QString ID = v.toObject().value("letterID").toString();
+            QTextCharFormat format;
+            //QTextCharFormat format = v.toObject().value("format").toObject();
             QJsonArray array_tmp = v.toObject().value("position").toArray();
             QVector<int> fractionals;
             for(auto fractional : array_tmp) {
                 fractionals.append(fractional.toInt());
             }
             // GET FORMAT LETTER
-            QTextCharFormat format;
-            bool isBold = v.toObject().value("isBold").toBool();
-            bool isItalic = v.toObject().value("isItalic").toBool();
-            bool isUnderlined = v.toObject().value("isUnderlined").toBool();
-
-            if(isBold)
-                format.setFontWeight(75);
-            else format.setFontWeight(50);
-            if(isItalic)
-                format.setFontItalic(true);
-            else format.setFontItalic(false);
-            if(isUnderlined)
-                format.setFontUnderline(true);
-            else format.setFontUnderline(false);
-
             Letter *letter_tmp = new Letter(letter, fractionals, ID, format);
             letters.append(std::move(letter_tmp));
         }
@@ -578,9 +565,5 @@ std::map<int, FileHandler*> FileSystem::getFiles() {
 }*/
 
 void FileSystem::disconnectClient(QTcpSocket* socket){
-    int fileID = sock_file.at(socket);
-    int userID = sock_id.at(socket);
-    FileHandler *fh = files.at(fileID);
-    this->updateFileSiteCounter(fileID, userID, fh->getSiteCounter(socket));
-    fh->removeActiveUser(socket);
+    files.at(sock_file.at(socket))->removeActiveUser(socket);
 }

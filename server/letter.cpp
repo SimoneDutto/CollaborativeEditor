@@ -115,9 +115,6 @@ QJsonObject Letter::toJSon(){
     QJsonObject obj;
     obj.insert("letter", QJsonValue(letter));
     obj.insert("letterID", QJsonValue(letterID));
-    obj.insert("isBold", QJsonValue(format.fontWeight()==75));
-    obj.insert("isItalic", QJsonValue(format.fontItalic()));
-    obj.insert("isUnderlined", QJsonValue(format.fontUnderline()));
     obj.insert("position", positionJsonArray);
 
     return obj;

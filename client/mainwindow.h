@@ -64,10 +64,10 @@ private:
 
 signals:
     void myInsert(int externalIndex, QChar newLetterValue, int clientID, QTextCharFormat format);
-    void myDelete(int firstExternalIndex, int lastExternalIndex);
+    void myDelete(int externalIndex);
     void sendNameFile(QString fileNameTmp);
     void newFile(QString filename);
-    void styleChange(QMap<QString, QTextCharFormat>, QString startID, QString lastID, bool boldTriggered, bool italicTriggered, bool underlinedTriggered);
+    void styleChange(QMap<QString, QTextCharFormat>);
     //void localStyleChange(QString initialID, QString finalID, QTextCharFormat);
 };
 

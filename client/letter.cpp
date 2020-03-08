@@ -4,7 +4,7 @@ Letter::Letter(QChar letter, QVector<int> fractionals, QString letterID, QTextCh
     : letter(letter),
       fractionalIndexes(fractionals),
       letterID(letterID),
-      format(format){
+      format(format) {
     //this->fractionalIndexes.insert(0, index);
     // index già presente nella posizione 0 di fractionals
 }
@@ -52,21 +52,6 @@ int Letter::getIndex() {
 
 void Letter::setIndex(int index) {
     this->fractionalIndexes.replace(0, index);
-}
-
-void Letter::setStyle(QString style) {
-    if(style.compare("Bold")==0)
-        format.setFontWeight(75);
-    else if(style.compare("NotBold")==0)
-        format.setFontWeight(50);
-    else if(style.compare("Italic")==0)
-        format.setFontItalic(true);
-    else if(style.compare("NotItalic")==0)
-        format.setFontItalic(false);
-    else if(style.compare("Underlined")==0)
-        format.setFontUnderline(true);
-    else if(style.compare("NotUnderlined")==0)
-        format.setFontUnderline(false);
 }
 
 void Letter::editIndex(int index, int value) {

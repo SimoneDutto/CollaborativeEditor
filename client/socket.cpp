@@ -251,22 +251,9 @@ void Socket::notificationsHandler(QByteArray data){
 
                 /* Estrarre formato lettera */
                 QTextCharFormat format;
-                bool isBold = v.toObject().value("isBold").toBool();
-                bool isItalic = v.toObject().value("isItalic").toBool();
-                bool isUnderlined = v.toObject().value("isUnderlined").toBool();
-
-                if(isBold)
-                    format.setFontWeight(75);
-                else format.setFontWeight(50);
-                if(isItalic)
-                    format.setFontItalic(true);
-                else format.setFontItalic(false);
-                if(isUnderlined)
-                    format.setFontUnderline(true);
-                else format.setFontUnderline(false);
 
                 letters.append(std::move(new Letter(letter, fractionals, ID, format)));
-                //qDebug() << "Lettera:" << letter;
+                qDebug() << "Lettera:" << letter;
             }
             json_buffer.clear();
           
@@ -292,20 +279,7 @@ void Socket::notificationsHandler(QByteArray data){
 
         /* Estrarre formato lettera */
         QTextCharFormat format;
-        bool isBold = object.value("isBold").toBool();
-        bool isItalic = object.value("isItalic").toBool();
-        bool isUnderlined = object.value("isUnderlined").toBool();
-
-        if(isBold)
-            format.setFontWeight(75);
-        else format.setFontWeight(50);
-        if(isItalic)
-            format.setFontItalic(true);
-        else format.setFontItalic(false);
-        if(isUnderlined)
-            format.setFontUnderline(true);
-        else format.setFontUnderline(false);
-
+        //QString style = object.value("style").toString();
 
         /*Inserire nel modello questa lettera e aggiornare la UI*/
         emit readyInsert(position, newLetterValue, externalIndex, siteID, siteCounter, format);
@@ -368,9 +342,6 @@ int Socket::sendInsert(QChar newLetterValue, QJsonArray position, int siteID, in
     obj.insert("fileid", this->fileh->getFileId());
     obj.insert("letter", QJsonValue(newLetterValue));
     obj.insert("position", position);
-    obj.insert("isBold", QJsonValue(format.fontWeight()==75));
-    obj.insert("isItalic", QJsonValue(format.fontItalic()));
-    obj.insert("isUnderlined", QJsonValue(format.fontUnderline()));
     obj.insert("siteID", siteID);
     obj.insert("siteCounter", siteCounter);
     obj.insert("externalIndex", externalIndex);

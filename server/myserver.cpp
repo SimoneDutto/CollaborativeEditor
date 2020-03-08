@@ -134,20 +134,7 @@ void MyServer::handleNotifications(QTcpSocket *socket, QByteArray data)
             int siteCounter = rootObject.value("siteCounter").toInt();
             // Get letter format
             QTextCharFormat format;
-            bool isBold = rootObject.value("isBold").toBool();
-            bool isItalic = rootObject.value("isItalic").toBool();
-            bool isUnderlined = rootObject.value("isUnderlined").toBool();
-
-            if(isBold)
-                format.setFontWeight(75);
-            else format.setFontWeight(50);
-            if(isItalic)
-                format.setFontItalic(true);
-            else format.setFontItalic(false);
-            if(isUnderlined)
-                format.setFontUnderline(true);
-            else format.setFontUnderline(false);
-
+            //QString style = rootObject.value("style").toString();
             fHandler->remoteInsert(position, newLetterValue, externalIndex, siteID, siteCounter, data, socket, format);
         }
     }
