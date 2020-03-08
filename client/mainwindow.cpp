@@ -515,10 +515,8 @@ void MainWindow::changeViewAfterStyle(QString firstID, QString lastID) {
 }*/
 
 //TODO: inserire gestione bottoni
-void MainWindow::on_textEdit_cursorPositionChanged() {
-
-    /*Questa funzione gestirà la vista dei bottoni dello stile, ovvero se si vedrenno accessi o spenti. */
-
+void MainWindow::on_textEdit_cursorPositionChanged()
+{
     QTextCursor cursor(ui->textEdit->textCursor());
     QTextCharFormat fmt;
     QTextCharFormat fmt2;
