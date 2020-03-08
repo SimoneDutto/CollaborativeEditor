@@ -405,6 +405,7 @@ void MainWindow::on_textEdit_textChanged()
 
         qDebug() << "!!!!!!!!!!!!!!!!!!!!!delete";
         letterCounter -= deletedLetters;
+        // check: selection start 0 crasha. Selezione/deselezione più volte
         emit myDelete(externalIndex+1, externalIndex+deletedLetters);
     }
 }
