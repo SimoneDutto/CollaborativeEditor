@@ -193,8 +193,8 @@ void MainWindow::on_actionBold_triggered()
     else{
         disconnect(this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
                   fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
-        disconnect(this, SIGNAL(myDelete(int)),
-                  fHandler, SLOT(localDelete(int)));
+        disconnect(this, SIGNAL(myDelete(int,int)),
+                  fHandler, SLOT(localDelete(int,int)));
 
         qDebug() << "Seleziono un testo per grassetto";
 
@@ -229,8 +229,8 @@ void MainWindow::on_actionBold_triggered()
 
         connect( this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
                   fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
-        connect( this, SIGNAL(myDelete(int)),
-                  fHandler, SLOT(localDelete(int)));
+        connect( this, SIGNAL(myDelete(int,int)),
+                  fHandler, SLOT(localDelete(int,int)));
     }
 }
 
@@ -251,8 +251,8 @@ void MainWindow::on_actionItalic_triggered()
     else{
         disconnect(this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
                   fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
-        disconnect(this, SIGNAL(myDelete(int)),
-                  fHandler, SLOT(localDelete(int)));
+        disconnect(this, SIGNAL(myDelete(int,int)),
+                  fHandler, SLOT(localDelete(int,int)));
 
         qDebug() << "Seleziono un testo per corsivo";
 
@@ -285,8 +285,8 @@ void MainWindow::on_actionItalic_triggered()
 
         connect( this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
                   fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
-        connect( this, SIGNAL(myDelete(int)),
-                  fHandler, SLOT(localDelete(int)));
+        connect( this, SIGNAL(myDelete(int,int)),
+                  fHandler, SLOT(localDelete(int,int)));
     }
 }
 
@@ -307,8 +307,8 @@ void MainWindow::on_actionUnderlined_triggered()
     else{
         disconnect(this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
                   fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
-        disconnect(this, SIGNAL(myDelete(int)),
-                  fHandler, SLOT(localDelete(int)));
+        disconnect(this, SIGNAL(myDelete(int,int)),
+                  fHandler, SLOT(localDelete(int,int)));
 
         qDebug() << "Seleziono un testo per sottolineato";
 
@@ -341,8 +341,8 @@ void MainWindow::on_actionUnderlined_triggered()
 
         connect( this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
                   fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
-        connect( this, SIGNAL(myDelete(int)),
-                  fHandler, SLOT(localDelete(int)));
+        connect( this, SIGNAL(myDelete(int,int)),
+                  fHandler, SLOT(localDelete(int,int)));
     }
 }
 
@@ -390,7 +390,7 @@ void MainWindow::on_textEdit_textChanged()
         emit myInsert(externalIndex, newLetterValue, socket->getClientID(), cursor.charFormat());
     }
     else if (numberOfLetters < letterCounter){  /*Testo cambiato con DELETE */
-        disconnect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
+        /*disconnect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
         // undo last operation to retrieve deleted chars (necessary to handle simultaneous deleting)
         ui->textEdit->undo();
         qDebug() << ui->textEdit->toPlainText();
@@ -398,10 +398,10 @@ void MainWindow::on_textEdit_textChanged()
         ui->textEdit->redo();
         int redoSize = ui->textEdit->toPlainText().size();
         qDebug() << ui->textEdit->toPlainText();
-        connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
+        connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));*/
 
         // lettere consecutive => basta trovare la differenza delle dimensioni
-        int deletedLetters = undoSize - redoSize;
+        int deletedLetters = letterCounter - numberOfLetters;
 
         qDebug() << "!!!!!!!!!!!!!!!!!!!!!delete";
         letterCounter -= deletedLetters;
@@ -463,6 +463,7 @@ void MainWindow::changeViewAfterDelete(int pos)
     qDebug() << "Devo cancellare la lettera in pos: " << pos;
 
     letterCounter--;
+    connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
 }
 
 
@@ -493,6 +494,7 @@ void MainWindow::changeViewAfterStyle(QString firstID, QString lastID) {
 
         if(l->getLetterID() == lastID) break;
     }
+    connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
 }
 /*void MainWindow::setCursor(int pos, QString color)
 {
