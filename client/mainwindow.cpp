@@ -255,8 +255,8 @@ void MainWindow::on_actionItalic_triggered()
                   fHandler, SLOT(localDelete(int,int)));
 
         qDebug() << "Seleziono un testo per corsivo";
-
-        if(ui->textEdit->fontItalic()!=true)
+        qDebug() << ui->textEdit->fontItalic();
+        if(ui->textEdit->fontItalic()==false)
             ui->textEdit->setFontItalic(true);
         else
             ui->textEdit->setFontItalic(false);
@@ -265,9 +265,10 @@ void MainWindow::on_actionItalic_triggered()
         QMap<QString, QTextCharFormat> formatCharMap;
         auto vettore = this->fHandler->getVectorFile();
         int i=0;
-
+        qDebug() << "start = " << cursor.selectionStart();
         int start = cursor.selectionStart();
         int end = cursor.selectionEnd()-1;
+        qDebug() << "start = " << start;
 
         QString startID = vettore.at(start)->getLetterID();
         QString lastID = vettore.at(end)->getLetterID();

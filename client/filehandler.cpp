@@ -237,7 +237,7 @@ void FileHandler::localStyleChange(QMap<QString, QTextCharFormat> letterFormatMa
                     changedStyle.append("NotBold");*/
 
                 if(boldTriggered) {
-                    if(l->getFormat().fontWeight() == QFont::Thin)
+                    if(l->getFormat().fontWeight() == 50)
                         changedStyle.append("Bold");
                     else changedStyle.append("NotBold");
                 } else if(italicTriggered) {
