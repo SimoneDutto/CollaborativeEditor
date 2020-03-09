@@ -14,7 +14,10 @@
 #include <QPdfWriter>
 #include <QPrinter>
 
-MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QString nome) :
+
+
+MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QString nome, QString uri) :
+
     QMainWindow(parent),
     ui(new Ui::MainWindow),
     socket(sock),
@@ -24,14 +27,15 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
     QPalette pal = palette();
 
     // set black background
-    pal.setColor(QPalette::Background, QColor(128,128,128));
+    pal.setColor(QPalette::Background, QColor(58,58,60));
     pal.setColor(QPalette::WindowText, Qt::white);
+    pal.setColor(QPalette::ButtonText, Qt::white);
     this->setAutoFillBackground(true);
     this->setPalette(pal);
     this->show();
 
     QPalette p = ui->textEdit->palette(); // define pallete for textEdit..
-    p.setColor(QPalette::Base, Qt::white); // set color "Red" for textedit base
+    p.setColor(QPalette::Base, QColor(209,209,214)); // set color "Red" for textedit base
     p.setColor(QPalette::Text, Qt::black); // set text color which is selected from color pallete
     ui->textEdit->setPalette(p);
 
@@ -40,6 +44,9 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
     ui->label_pic->setPixmap(pix);
 
     setWindowTitle(nome);
+    ui->label_2->setStyleSheet("background-color:lightgray");
+    //ui->label->setStyleSheet("background-color:lightgray");
+    ui->label_2->setText(uri);
     //ui->lineEdit->setText(nome);
 
     /* CONNECT per segnali uscenti, inoltrare le modifiche fatte */

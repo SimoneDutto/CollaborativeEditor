@@ -12,11 +12,22 @@ NewOpen::NewOpen(Socket *sock, FileHandler *fHandler, QWidget *parent) :
     QPalette pal = palette();
 
     // set black background
-    pal.setColor(QPalette::Background, QColor(128,128,128));
+    pal.setColor(QPalette::Background, QColor(58,58,60));
     pal.setColor(QPalette::WindowText, Qt::white);
     this->setAutoFillBackground(true);
     this->setPalette(pal);
+    QPalette p = ui->listWidget->palette();
+    p.setColor(QPalette::Base, QColor(209,209,214));
+    p.setColor(QPalette::Text, Qt::black);
+    p.setColor(QPalette::Button, QColor(229,229,234));
+    ui->listWidget->setPalette(p);
+    ui->lineEdit->setPalette(p);
+    ui->lineEdit_2->setPalette(p);
+    ui->pushButton->setPalette(p);
+    ui->pushButton_2->setPalette(p);
+    ui->pushButton_3->setPalette(p);
     this->show();
+    setWindowTitle("");
 
     for (QString s : this->socket->getMapFiles().keys()){
         ui->listWidget->addItem(s);

@@ -10,11 +10,13 @@ Welcome::Welcome(Socket *sock, QWidget *parent) :
     QPalette pal = palette();
 
     // set black background
-    pal.setColor(QPalette::Background, QColor(128,128,128));
+    pal.setColor(QPalette::Background, QColor(58,58,60));
     pal.setColor(QPalette::WindowText, Qt::white);
+    pal.setColor(QPalette::Button, QColor(229,229,234));
     this->setAutoFillBackground(true);
     this->setPalette(pal);
     this->show();
+    setWindowTitle("");
 }
 
 Welcome::~Welcome()
