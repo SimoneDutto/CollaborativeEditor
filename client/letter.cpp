@@ -1,4 +1,5 @@
 #include "letter.h"
+#include <QDebug>
 
 Letter::Letter(QChar letter, QVector<int> fractionals, QString letterID, QTextCharFormat format)
     : letter(letter),

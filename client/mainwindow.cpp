@@ -199,9 +199,9 @@ void MainWindow::on_actionBold_triggered()
         qDebug() << "Seleziono un testo per grassetto";
 
         if(ui->textEdit->fontWeight()==50)
-            ui->textEdit->setFontWeight(QFont::Bold);
+            ui->textEdit->setFontWeight(75);
         else
-            ui->textEdit->setFontWeight(QFont::Thin);
+            ui->textEdit->setFontWeight(50);
 
         /* Aggiorno il modello */
 
@@ -256,19 +256,22 @@ void MainWindow::on_actionItalic_triggered()
 
         qDebug() << "Seleziono un testo per corsivo";
         qDebug() << ui->textEdit->fontItalic();
+        //bool italic;
+        //if(cursor.charFormat().fontItalic()==false)
         if(ui->textEdit->fontItalic()==false)
             ui->textEdit->setFontItalic(true);
+            //italic = true;
         else
             ui->textEdit->setFontItalic(false);
+            //italic = false;
 
         /* Aggiorno il modello */
         QMap<QString, QTextCharFormat> formatCharMap;
         auto vettore = this->fHandler->getVectorFile();
         int i=0;
-        qDebug() << "start = " << cursor.selectionStart();
+
         int start = cursor.selectionStart();
         int end = cursor.selectionEnd()-1;
-        qDebug() << "start = " << start;
 
         QString startID = vettore.at(start)->getLetterID();
         QString lastID = vettore.at(end)->getLetterID();
@@ -276,9 +279,14 @@ void MainWindow::on_actionItalic_triggered()
         for(i=start; i<=end; i++){
             cursor.setPosition(i+1);
             auto letterFormat = cursor.charFormat();
+            /*if(italic)
+                letterFormat.setFontItalic(true);
+            else letterFormat.setFontItalic(false);
+            cursor.setCharFormat(letterFormat);*/
             qDebug() << letterFormat.fontWeight() << "---" << letterFormat.fontUnderline() << "---" << letterFormat.fontItalic();
             //vettore.at(i)->setFormat(letterFormat);
             qDebug() << "LetterID = " << vettore.at(i)->getLetterID();
+
             formatCharMap.insert(vettore.at(i)->getLetterID(), letterFormat);
         }
 
@@ -325,6 +333,7 @@ void MainWindow::on_actionUnderlined_triggered()
 
         int start = cursor.selectionStart();
         int end = cursor.selectionEnd()-1;
+        qDebug() << end;
 
         QString startID = vettore.at(start)->getLetterID();
         QString lastID = vettore.at(end)->getLetterID();
