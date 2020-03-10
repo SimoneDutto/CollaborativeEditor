@@ -45,13 +45,13 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
 
     QMap<int, QColor> UsersOnline = socket->getUserColor();
 
-    /* User a caso per testing */
+    /* User a caso per testing
     UsersOnline.insert(1, QColor("black"));
     UsersOnline.insert(2, QColor("red"));
     UsersOnline.insert(3, QColor("green"));
     UsersOnline.insert(4, QColor("yellow"));
-    UsersOnline.insert(5, QColor("purple"));
-    QString styleSheet = "QLabel { background-color: rgb(255, 252, 247); border-style: solid; border-width: 3px; border-radius: 15px; border-color: %1; font: ; }";
+    UsersOnline.insert(5, QColor("purple")); */
+    QString styleSheet = "QLabel { background-color: rgb(255, 252, 247); color: black; border-style: solid; border-width: 3px; border-radius: 15px; border-color: %1; font: ; }";
 
     QList<int> listKeys = UsersOnline.keys();
 
@@ -568,7 +568,7 @@ void MainWindow::changeViewAfterStyle(QString firstID, QString lastID) {
 void MainWindow::addUserConnection(int siteID, QColor color){
 
     int numberUsersOnline = socket->getUserColor().size();
-    QString styleSheet = "QLabel { background-color: rgb(255, 252, 247); border-style: solid; border-width: 3px; border-radius: 15px; border-color: %1; font: ; }";
+    QString styleSheet = "QLabel { background-color: rgb(255, 252, 247); color: black; border-style: solid; border-width: 3px; border-radius: 15px; border-color: %1; font: ; }";
 
     if(numberUsersOnline == 1){  //Personalizzo ed accendo la label user1
         ui->user1->setStyleSheet(styleSheet.arg(color.name()));

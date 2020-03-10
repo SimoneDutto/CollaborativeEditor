@@ -10,7 +10,7 @@ OnlineUser::OnlineUser(Socket *sock, QWidget *parent) :
     setWindowTitle("Online Users");
     QMap<int, QColor> usersOnline = socket->getUserColor();
 
-    /* User a caso per testing */
+    /* User a caso per testing
     usersOnline.insert(1, QColor("black"));
     usersOnline.insert(2, QColor("red"));
     usersOnline.insert(3, QColor("green"));
@@ -21,7 +21,7 @@ OnlineUser::OnlineUser(Socket *sock, QWidget *parent) :
     usersOnline.insert(8, QColor("purple"));
     usersOnline.insert(9, QColor("purple"));
     usersOnline.insert(10, QColor("purple"));
-    usersOnline.insert(11, QColor("purple"));
+    usersOnline.insert(11, QColor("purple")); */
 
     QList<int> keys = usersOnline.keys();
 
