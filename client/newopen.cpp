@@ -59,9 +59,17 @@ void NewOpen::on_pushButton_clicked() //Bottone: open Document
 void NewOpen::on_pushButton_3_clicked() //Bottone: uri
 {
     QString uri = ui->lineEdit->text();
-    mainwindow = new MainWindow(this->socket, this->socket->getFHandler(), this, uri);
-    hide();
-    mainwindow->show();
-    //emit openUri(uri);
+    //emit checkUri(uri);
 }
 
+void NewOpen::uriIsOk(QString uri){
+
+    ui->listWidget->addItem(uri);
+    ui->listWidget->findItems(uri,Qt::MatchExactly).first()->setBackground(QColor(52,199,89));
+
+}
+
+void NewOpen::uriIsNotOk(){
+    uri = new Uri(socket,this);
+    uri->show();
+}

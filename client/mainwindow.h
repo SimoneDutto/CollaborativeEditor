@@ -50,7 +50,7 @@ private slots:
 
     void on_actionEdit_Profile_triggered();
 
-    void on_actionGet_URI_triggered();
+    //void on_actionGet_URI_triggered();
 
 private:
     Ui::MainWindow *ui;
@@ -59,7 +59,6 @@ private:
     FileHandler *fHandler;
     Form *form;
     Account *account;
-    Uri *uri;
     int letterCounter = 0;
 
 signals:

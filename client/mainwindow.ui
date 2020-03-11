@@ -70,7 +70,6 @@ p, li { white-space: pre-wrap; }
     <addaction name="actionNew"/>
     <addaction name="actionOpen"/>
     <addaction name="separator"/>
-    <addaction name="actionGet_URI"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">

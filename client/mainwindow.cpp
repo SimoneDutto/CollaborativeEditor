@@ -580,9 +580,9 @@ void MainWindow::on_actionEdit_Profile_triggered()
 
 }
 
-void MainWindow::on_actionGet_URI_triggered()
+/*void MainWindow::on_actionGet_URI_triggered()
 {
     // ricavare URI da passare al costruttore
     uri = new Uri(socket,this,"QUI USCIRA' L'URI");
     uri->show();
-}
+}*/

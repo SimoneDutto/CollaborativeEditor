@@ -95,7 +95,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>Insert URL</string>
+    <string>Insert URI</string>
    </property>
   </widget>
   <widget class="QPushButton" name="pushButton_3">
@@ -108,7 +108,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>Open shared file</string>
+    <string>Check shared URI</string>
    </property>
   </widget>
   <widget class="QLineEdit" name="lineEdit_2">

@@ -24,12 +24,17 @@ private slots:
 
     void on_pushButton_3_clicked();
 
+    void uriIsOk(QString uri);
+
+    void uriIsNotOk();
+
 private:
     Ui::NewOpen *ui;
     Socket *socket;
     MainWindow *mainwindow;
     FileHandler *fileHandler;
     Form *form;
+    Uri *uri;
 
 
 signals:
