@@ -1,4 +1,4 @@
-﻿#include "mainwindow.h"
+#include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include <QFile>
 #include <QFileDialog>
@@ -11,6 +11,7 @@
 #include <QTextCharFormat>
 #include <QProcess>
 #include <QByteArray>
+#include <QStandardItem>
 
 MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QString nome) :
     QMainWindow(parent),
@@ -29,11 +30,63 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
     this->show();
 
     // set picture
-    QPixmap pix("path -- TO DO");
-    ui->label_pic->setPixmap(pix);
+    /*QPixmap pix("path -- TO DO");
+    ui->user1->setPixmap(pix);*/
+
 
     setWindowTitle(nome);
     //ui->lineEdit->setText(nome);
+
+    /* Personalizzo e aggiungo le label degli utenti connessi */
+    ui->user1->hide();
+    ui->user2->hide();
+    ui->user3->hide();
+    ui->counter->hide();
+
+    QMap<int, QColor> UsersOnline = socket->getUserColor();
+
+    /* User a caso per testing
+    UsersOnline.insert(1, QColor("black"));
+    UsersOnline.insert(2, QColor("red"));
+    UsersOnline.insert(3, QColor("green"));
+    UsersOnline.insert(4, QColor("yellow"));
+    UsersOnline.insert(5, QColor("purple")); */
+    QString styleSheet = "QLabel { background-color: rgb(255, 252, 247); color: black; border-style: solid; border-width: 3px; border-radius: 15px; border-color: %1; font: ; }";
+
+    QList<int> listKeys = UsersOnline.keys();
+
+    int count=0;
+    for(int siteID : listKeys){
+        count++;
+
+        if(count == 1){  //Personalizzo ed accendo la label user1
+            ui->user1->setStyleSheet(styleSheet.arg((UsersOnline.take(siteID).name())));
+            ui->user1->setText(QString::number(siteID));
+            ui->user1->show();
+        }
+
+        else if(count == 2){  //Personalizzo ed accendo la label user2
+            ui->user2->setStyleSheet(styleSheet.arg((UsersOnline.take(siteID).name())));
+            ui->user2->setText(QString::number(siteID));
+            ui->user2->show();
+        }
+
+        else if(count == 3){  //Personalizzo ed accendo la label user3
+            ui->user3->setStyleSheet(styleSheet.arg((UsersOnline.take(siteID).name())));
+            ui->user3->setText(QString::number(siteID));
+            ui->user3->show();
+        }
+
+        else{
+            ui->counter->setText("+" + QString::number(UsersOnline.size()));
+            ui->counter->show();
+            break;
+        }
+
+        /*La lista completa degli Online Users la inizializzo nel OnlineUser Constructor*/
+
+    }
+
 
     /* CONNECT per segnali uscenti, inoltrare le modifiche fatte */
     connect( this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
@@ -60,6 +113,10 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
              this, SLOT(changeViewAfterStyle(QString, QString)));
     connect( socket, SIGNAL(readyStyleChange(QString, QString, QString)),
              fHandler, SLOT(remoteStyleChange(QString, QString, QString)));
+    connect( socket, SIGNAL(UserConnect(int, QColor)),
+             this, SLOT(addUserConnection(int, QColor)));
+    connect( socket, SIGNAL(UserDisconnect(int)),
+             this, SLOT(removeUserDisconnect(int)));
 
     /* CONNECT per lo stile dei caratteri */
     connect( this, SIGNAL(styleChange(QMap<QString, QTextCharFormat>, QString, QString, bool, bool, bool)),
@@ -199,9 +256,9 @@ void MainWindow::on_actionBold_triggered()
         qDebug() << "Seleziono un testo per grassetto";
 
         if(ui->textEdit->fontWeight()==50)
-            ui->textEdit->setFontWeight(QFont::Bold);
+            ui->textEdit->setFontWeight(75);
         else
-            ui->textEdit->setFontWeight(QFont::Thin);
+            ui->textEdit->setFontWeight(50);
 
         /* Aggiorno il modello */
 
@@ -255,11 +312,15 @@ void MainWindow::on_actionItalic_triggered()
                   fHandler, SLOT(localDelete(int,int)));
 
         qDebug() << "Seleziono un testo per corsivo";
-
-        if(ui->textEdit->fontItalic()!=true)
+        qDebug() << ui->textEdit->fontItalic();
+        //bool italic;
+        //if(cursor.charFormat().fontItalic()==false)
+        if(ui->textEdit->fontItalic()==false)
             ui->textEdit->setFontItalic(true);
+            //italic = true;
         else
             ui->textEdit->setFontItalic(false);
+            //italic = false;
 
         /* Aggiorno il modello */
         QMap<QString, QTextCharFormat> formatCharMap;
@@ -275,9 +336,14 @@ void MainWindow::on_actionItalic_triggered()
         for(i=start; i<=end; i++){
             cursor.setPosition(i+1);
             auto letterFormat = cursor.charFormat();
+            /*if(italic)
+                letterFormat.setFontItalic(true);
+            else letterFormat.setFontItalic(false);
+            cursor.setCharFormat(letterFormat);*/
             qDebug() << letterFormat.fontWeight() << "---" << letterFormat.fontUnderline() << "---" << letterFormat.fontItalic();
             //vettore.at(i)->setFormat(letterFormat);
             qDebug() << "LetterID = " << vettore.at(i)->getLetterID();
+
             formatCharMap.insert(vettore.at(i)->getLetterID(), letterFormat);
         }
 
@@ -324,6 +390,7 @@ void MainWindow::on_actionUnderlined_triggered()
 
         int start = cursor.selectionStart();
         int end = cursor.selectionEnd()-1;
+        qDebug() << end;
 
         QString startID = vettore.at(start)->getLetterID();
         QString lastID = vettore.at(end)->getLetterID();
@@ -405,6 +472,7 @@ void MainWindow::on_textEdit_textChanged()
 
         qDebug() << "!!!!!!!!!!!!!!!!!!!!!delete";
         letterCounter -= deletedLetters;
+        // check: selection start 0 crasha. Selezione/deselezione più volte
         emit myDelete(externalIndex+1, externalIndex+deletedLetters);
     }
 }
@@ -439,23 +507,16 @@ void MainWindow::changeViewAfterInsert(QChar l, int pos, QTextCharFormat format)
 {
     disconnect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
 
-//    QTextCursor cursor(ui->textEdit->textCursor());
-//    cursor.setPosition(pos);
-//    ui->textEdit->(l);
-//    letterCounter++;
+    QTextCursor cursor(ui->textEdit->textCursor());
+    cursor.setPosition(pos);
+    cursor.insertText(l, format);
+    letterCounter++;
 
-    QVector<Letter*> vectorFile = this->fHandler->getVectorFile();
-    QString text = "";
-    for(Letter *l : vectorFile){
-        QChar c = l->getValue();
-        letterCounter++;
-        text.append(c);
-    }
-    ui->textEdit->setText(text);
-
-//    auto cursor = ui->textEdit->textCursor();
-//    cursor.setPosition(pos);
-//    cursor.insertText(l, format);
+    //CONTROLLO SE ARRIVA IL FORMATO GIUSTO
+    /*qDebug() << "Lettera che sto inserendo: " << l;
+    qDebug() << "Grassetto" << format.fontWeight();
+    qDebug() << "Sottolineato" << format.fontUnderline();
+    qDebug() << "Corsivo" << format.fontItalic();*/
 
     connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
 }
@@ -464,44 +525,102 @@ void MainWindow::changeViewAfterDelete(int pos)
 {
     disconnect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
 
-    QVector<Letter*> vectorFile = this->fHandler->getVectorFile();
-    QString text = "";
-    for(Letter *l : vectorFile){
-        QChar c = l->getValue();
-        letterCounter++;
-        text.append(c);
-    }
+    QTextCursor cursor(ui->textEdit->textCursor());
+    cursor.setPosition(pos);
+    cursor.deletePreviousChar();
+    qDebug() << "Devo cancellare la lettera in pos: " << pos;
 
     letterCounter--;
     connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
-    ui->textEdit->setText(text);
 }
 
 
 void MainWindow::changeViewAfterStyle(QString firstID, QString lastID) {
     disconnect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
     auto cursor = ui->textEdit->textCursor();
-    bool intervalStarted = false, intervalFinished = false;
+    bool intervalStarted = false;
 
     QVector<Letter*> vectorFile = this->fHandler->getVectorFile();
     QString text = "";
+    int count = 0;
     for(Letter *l : vectorFile){
-        QChar c = l->getValue();
-        if(!intervalFinished) {
-            if(l->getLetterID().compare(firstID) == 0 || intervalStarted) {
-                //TODO: inserire visualizzazione modifiche di stile
-                if(l->getLetterID().compare(lastID) == 0)
-                    intervalFinished = true;
-            }
+        count ++;
+
+        if(l->getLetterID() == firstID) intervalStarted=true;
+
+        if(intervalStarted){
+            cursor.setPosition(count);
+            cursor.deletePreviousChar();
+            cursor.insertText(l->getValue(), l->getFormat());
+
+            //CONTROLLO SE ARRIVA IL FORMATO GIUSTO
+            /*qDebug() << "Lettera cambio stile: " << l->getValue();
+            qDebug() << "Grassetto" << l->getFormat().fontWeight();
+            qDebug() << "Sottolineato" << l->getFormat().fontUnderline();
+            qDebug() << "Corsivo" << l->getFormat().fontItalic();*/
         }
-        letterCounter++;
-        text.append(c);
+
+        if(l->getLetterID() == lastID) break;
+    }
+    connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
+}
+
+void MainWindow::addUserConnection(int siteID, QColor color){
+
+    int numberUsersOnline = socket->getUserColor().size();
+    QString styleSheet = "QLabel { background-color: rgb(255, 252, 247); color: black; border-style: solid; border-width: 3px; border-radius: 15px; border-color: %1; font: ; }";
+
+    if(numberUsersOnline == 1){  //Personalizzo ed accendo la label user1
+        ui->user1->setStyleSheet(styleSheet.arg(color.name()));
+        ui->user1->setText(QString::number(siteID));
+        ui->user1->show();
     }
 
-    connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
+    else if(numberUsersOnline == 2){  //Personalizzo ed accendo la label user2
+        ui->user2->setStyleSheet(styleSheet.arg(color.name()));
+        ui->user2->setText(QString::number(siteID));
+        ui->user2->show();
+    }
 
-    ui->textEdit->setText(text);
+    else if(numberUsersOnline == 3){  //Personalizzo ed accendo la label user3
+        ui->user2->setStyleSheet(styleSheet.arg(color.name()));
+        ui->user2->setText(QString::number(siteID));
+        ui->user2->show();
+    }
+
+    else {  //Incrementare il contatore
+        ui->counter->setText("+" + QString::number(numberUsersOnline));
+        ui->counter->show();
+    }
+
+    /*La lista completa degli Online Users la inizializzo nel OnlineUser Constructor*/
+
 }
+
+void MainWindow::removeUserDisconnect(int siteID){
+
+    int numberUsersOnline = socket->getUserColor().size();
+
+    if(numberUsersOnline == 0){  //Spengo la label user1
+        ui->user1->hide();
+    }
+
+    else if(numberUsersOnline == 1){  //Spengo la label user2
+        ui->user2->hide();
+    }
+
+    else if(numberUsersOnline == 2){  //Spengo la label user3
+        ui->user3->hide();
+    }
+
+    else {
+        ui->counter->hide();
+    }
+
+    /*La lista completa degli Online Users la inizializzo nel OnlineUser Constructor*/
+
+}
+
 /*void MainWindow::setCursor(int pos, QString color)
 {
     QString cursore = "|";
@@ -514,7 +633,6 @@ void MainWindow::changeViewAfterStyle(QString firstID, QString lastID) {
 }*/
 
 //TODO: inserire gestione bottoni
-
 void MainWindow::on_textEdit_cursorPositionChanged() {
 
     /*Questa funzione gestirà la vista dei bottoni dello stile, ovvero se si vedrenno accessi o spenti. */
@@ -581,4 +699,12 @@ void MainWindow::on_actionGet_URI_triggered()
     // ricavare URI da passare al costruttore
     uri = new Uri(socket,this,"QUI USCIRA' L'URI");
     uri->show();
+}
+
+void MainWindow::on_counter_clicked()
+{
+    OnlineUser *onlineList = new OnlineUser(socket, this);
+    onlineList->show();
+
+
 }
