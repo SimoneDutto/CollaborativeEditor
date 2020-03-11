@@ -43,49 +43,6 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
     ui->user3->hide();
     ui->counter->hide();
 
-    QMap<QString, QColor> UsersOnline = socket->getUserColor();
-
-    /* User a caso per testing
-    UsersOnline.insert(1, QColor("black"));
-    UsersOnline.insert(2, QColor("red"));
-    UsersOnline.insert(3, QColor("green"));
-    UsersOnline.insert(4, QColor("yellow"));
-    UsersOnline.insert(5, QColor("purple")); */
-    QString styleSheet = "QLabel { background-color: rgb(255, 252, 247); color: black; border-style: solid; border-width: 3px; border-radius: 15px; border-color: %1; font: ; }";
-
-    QList<QString> listKeys = UsersOnline.keys();
-
-    int count=0;
-    for(QString username : listKeys){
-        count++;
-
-        if(count == 1){  //Personalizzo ed accendo la label user1
-            ui->user1->setStyleSheet(styleSheet.arg((UsersOnline.take(username).name())));
-            ui->user1->setText(username.at(0).toUpper());
-            ui->user1->show();
-        }
-
-        else if(count == 2){  //Personalizzo ed accendo la label user2
-            ui->user2->setStyleSheet(styleSheet.arg((UsersOnline.take(username).name())));
-            ui->user2->setText(username.at(0).toUpper());
-            ui->user2->show();
-        }
-
-        else if(count == 3){  //Personalizzo ed accendo la label user3
-            ui->user3->setStyleSheet(styleSheet.arg((UsersOnline.take(username).name())));
-            ui->user3->setText(username.at(0).toUpper());
-            ui->user3->show();
-        }
-
-        else{
-            ui->counter->setText("+" + QString::number(UsersOnline.size()));
-            ui->counter->show();
-            break;
-        }
-
-        /*La lista completa degli Online Users la inizializzo nel OnlineUser Constructor*/
-
-    }
 
 
     /* CONNECT per segnali uscenti, inoltrare le modifiche fatte */

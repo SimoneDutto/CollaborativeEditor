@@ -215,6 +215,13 @@ void FileSystem::sendFile(int fileid, QTcpSocket *socket){
         file_info.insert("size", size);
         file_info.insert("siteCounter", siteCounter);
         file_info.insert("URI", URI);
+        qDebug() << "Ciao";
+        QJsonArray userArray;
+        QVector<QTcpSocket*> users = it->second->getUsers();
+        for(QTcpSocket* user: users){
+            userArray.push_back(sock_username.at(user));
+        }
+        file_info.insert("activeUser", userArray);
 
         // Send size of message "OPEN"
         if(socket->state() == QAbstractSocket::ConnectedState) {
@@ -280,6 +287,9 @@ void FileSystem::sendFile(int fileid, QTcpSocket *socket){
         file_info.insert("size", size);
         file_info.insert("siteCounter", siteCounter);
         file_info.insert("URI", URI);
+
+
+
         int remaining = size;
 
         //manda il file info
