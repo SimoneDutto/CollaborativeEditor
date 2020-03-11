@@ -40,7 +40,7 @@ void FileSystem::createFile(QString filename, QTcpSocket *socket){
     if(file != sock_file.end()){
         // disconnessione di un client da un file
         FileHandler *fh = files.at(file->second);
-        fh->removeActiveUser(socket, id->second);
+        fh->removeActiveUser(socket, sock_username.at(socket));
     }
     QSqlQuery query;
     query.prepare("SELECT COUNT(*) FROM files WHERE userid=((:userid) AND filename=(:filename))");
@@ -84,7 +84,7 @@ void FileSystem::createFile(QString filename, QTcpSocket *socket){
         QVector<Letter*> letters;
 
         fh = new FileHandler(std::move(letters), fileid);
-        fh->insertActiveUser(socket,0, id->second);
+        fh->insertActiveUser(socket,0, sock_username.at(socket));
 
         sock_file.insert(std::pair<QTcpSocket*, int> (socket, fileid));
         //sock_file.insert(socket, fileid); //associate file to socket
@@ -183,7 +183,7 @@ void FileSystem::sendFile(int fileid, QTcpSocket *socket){
     if(file != sock_file.end()){
         // disconnessione di un client da un file
         FileHandler *fh = files.at(fileid);
-        fh->removeActiveUser(socket, socket_id->second);
+        fh->removeActiveUser(socket, sock_username.at(socket));
     }
     QSqlQuery query;
     int siteCounter=0;
@@ -261,7 +261,7 @@ void FileSystem::sendFile(int fileid, QTcpSocket *socket){
 
         qDebug() << "File sent";
         FileHandler *fh = it->second;
-        fh->insertActiveUser(socket, siteCounter, socket_id->second);
+        fh->insertActiveUser(socket, siteCounter, sock_username.at(socket));
 
         sock_file.insert(std::pair<QTcpSocket*, int> (socket, fileid)); //associate file to socket
 
@@ -359,7 +359,7 @@ void FileSystem::sendFile(int fileid, QTcpSocket *socket){
         connect(fh, SIGNAL(remoteStyleChangeNotify(QVector<QTcpSocket*>, QByteArray, QTcpSocket*)),
                 this, SLOT(sendStyleChange(QVector<QTcpSocket*>, QByteArray, QTcpSocket*)));
 
-        fh->insertActiveUser(socket, siteCounter, socket_id->second);
+        fh->insertActiveUser(socket, siteCounter, sock_username.at(socket));
 
         files.insert(std::pair<int, FileHandler*> (fileid, fh));
         sock_file.insert(std::pair<QTcpSocket*, int> (socket, fileid)); //associate file to socket
@@ -405,6 +405,7 @@ void FileSystem::checkLogin(QString username, QString password, QTcpSocket *sock
     QJsonArray file_array;
     QJsonObject final_object;
     if(id != -1){
+        sock_username.insert(std::pair<QTcpSocket*, QString> (socket, username)); //inserisco corrispondenza socket, username
         QSqlQuery query;
         sock_id.insert(std::pair<QTcpSocket*, int> (socket, id)); //associate id to socket
         query.prepare("SELECT filename, fileid FROM files WHERE userid = (:userid)");
@@ -435,6 +436,7 @@ void FileSystem::checkLogin(QString username, QString password, QTcpSocket *sock
         socket->write(QJsonDocument(final_object).toJson());
         socket->waitForBytesWritten(1000);
     }
+
 
 }
 
@@ -585,5 +587,5 @@ void FileSystem::disconnectClient(QTcpSocket* socket){
     int userID = sock_id.at(socket);
     FileHandler *fh = files.at(fileID);
     this->updateFileSiteCounter(fileID, userID, fh->getSiteCounter(socket));
-    fh->removeActiveUser(socket, userID);
+    fh->removeActiveUser(socket, sock_username.at(socket));
 }

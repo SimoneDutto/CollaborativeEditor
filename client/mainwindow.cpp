@@ -43,7 +43,7 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
     ui->user3->hide();
     ui->counter->hide();
 
-    QMap<int, QColor> UsersOnline = socket->getUserColor();
+    QMap<QString, QColor> UsersOnline = socket->getUserColor();
 
     /* User a caso per testing
     UsersOnline.insert(1, QColor("black"));
@@ -53,27 +53,27 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
     UsersOnline.insert(5, QColor("purple")); */
     QString styleSheet = "QLabel { background-color: rgb(255, 252, 247); color: black; border-style: solid; border-width: 3px; border-radius: 15px; border-color: %1; font: ; }";
 
-    QList<int> listKeys = UsersOnline.keys();
+    QList<QString> listKeys = UsersOnline.keys();
 
     int count=0;
-    for(int siteID : listKeys){
+    for(QString username : listKeys){
         count++;
 
         if(count == 1){  //Personalizzo ed accendo la label user1
-            ui->user1->setStyleSheet(styleSheet.arg((UsersOnline.take(siteID).name())));
-            ui->user1->setText(QString::number(siteID));
+            ui->user1->setStyleSheet(styleSheet.arg((UsersOnline.take(username).name())));
+            ui->user1->setText(username.at(0).toUpper());
             ui->user1->show();
         }
 
         else if(count == 2){  //Personalizzo ed accendo la label user2
-            ui->user2->setStyleSheet(styleSheet.arg((UsersOnline.take(siteID).name())));
-            ui->user2->setText(QString::number(siteID));
+            ui->user2->setStyleSheet(styleSheet.arg((UsersOnline.take(username).name())));
+            ui->user2->setText(username.at(0).toUpper());
             ui->user2->show();
         }
 
         else if(count == 3){  //Personalizzo ed accendo la label user3
-            ui->user3->setStyleSheet(styleSheet.arg((UsersOnline.take(siteID).name())));
-            ui->user3->setText(QString::number(siteID));
+            ui->user3->setStyleSheet(styleSheet.arg((UsersOnline.take(username).name())));
+            ui->user3->setText(username.at(0).toUpper());
             ui->user3->show();
         }
 
@@ -113,10 +113,10 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
              this, SLOT(changeViewAfterStyle(QString, QString)));
     connect( socket, SIGNAL(readyStyleChange(QString, QString, QString)),
              fHandler, SLOT(remoteStyleChange(QString, QString, QString)));
-    connect( socket, SIGNAL(UserConnect(int, QColor)),
-             this, SLOT(addUserConnection(int, QColor)));
-    connect( socket, SIGNAL(UserDisconnect(int)),
-             this, SLOT(removeUserDisconnect(int)));
+    connect( socket, SIGNAL(UserConnect(QString, QColor)),
+             this, SLOT(addUserConnection(QString, QColor)));
+    connect( socket, SIGNAL(UserDisconnect(QString)),
+             this, SLOT(removeUserDisconnect(QString)));
 
     /* CONNECT per lo stile dei caratteri */
     connect( this, SIGNAL(styleChange(QMap<QString, QTextCharFormat>, QString, QString, bool, bool, bool)),
@@ -565,26 +565,26 @@ void MainWindow::changeViewAfterStyle(QString firstID, QString lastID) {
     connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
 }
 
-void MainWindow::addUserConnection(int siteID, QColor color){
+void MainWindow::addUserConnection(QString username, QColor color){
 
     int numberUsersOnline = socket->getUserColor().size();
     QString styleSheet = "QLabel { background-color: rgb(255, 252, 247); color: black; border-style: solid; border-width: 3px; border-radius: 15px; border-color: %1; font: ; }";
 
     if(numberUsersOnline == 1){  //Personalizzo ed accendo la label user1
         ui->user1->setStyleSheet(styleSheet.arg(color.name()));
-        ui->user1->setText(QString::number(siteID));
+        ui->user1->setText(username.at(0).toUpper());
         ui->user1->show();
     }
 
     else if(numberUsersOnline == 2){  //Personalizzo ed accendo la label user2
         ui->user2->setStyleSheet(styleSheet.arg(color.name()));
-        ui->user2->setText(QString::number(siteID));
+        ui->user2->setText(username.at(0).toUpper());
         ui->user2->show();
     }
 
     else if(numberUsersOnline == 3){  //Personalizzo ed accendo la label user3
         ui->user2->setStyleSheet(styleSheet.arg(color.name()));
-        ui->user2->setText(QString::number(siteID));
+        ui->user2->setText(username.at(0).toUpper());
         ui->user2->show();
     }
 
@@ -597,7 +597,7 @@ void MainWindow::addUserConnection(int siteID, QColor color){
 
 }
 
-void MainWindow::removeUserDisconnect(int siteID){
+void MainWindow::removeUserDisconnect(QString username){
 
     int numberUsersOnline = socket->getUserColor().size();
 

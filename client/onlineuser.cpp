@@ -8,7 +8,7 @@ OnlineUser::OnlineUser(Socket *sock, QWidget *parent) :
 {
     ui->setupUi(this);
     setWindowTitle("Online Users");
-    QMap<int, QColor> usersOnline = socket->getUserColor();
+    QMap<QString, QColor> usersOnline = socket->getUserColor();
 
     /* User a caso per testing
     usersOnline.insert(1, QColor("black"));
@@ -23,11 +23,11 @@ OnlineUser::OnlineUser(Socket *sock, QWidget *parent) :
     usersOnline.insert(10, QColor("purple"));
     usersOnline.insert(11, QColor("purple")); */
 
-    QList<int> keys = usersOnline.keys();
+    QList<QString> keys = usersOnline.keys();
 
-    for(int siteID : keys){
-        QListWidgetItem *user = new QListWidgetItem(QString::number(siteID));
-        user->setForeground(usersOnline.take(siteID));
+    for(QString username : keys){
+        QListWidgetItem *user = new QListWidgetItem(username);
+        user->setForeground(usersOnline.take(username));
         //item->setSizeHint(QSize(40,40)); è lo spazio tra una riga e l'altra
         QFont font( "", 20, QFont::Bold);
         user->setFont(font);

@@ -341,15 +341,15 @@ void Socket::notificationsHandler(QByteArray data){
         emit readyStyleChange(initialIndex, lastIndex, changedStyle);
     }
     else if(type.compare("USER_CONNECT")==0){
-        int siteid = object.value("siteId").toInt();
+        QString username = object.value("username").toString();
         QColor random = QColor(rand()%255, rand()%255, rand()%255, rand()%255);
-        userColor.insert(siteid, random);
-        emit UserConnect(siteid, random);
+        userColor.insert(username, random);
+        emit UserConnect(username, random);
     }
     else if(type.compare("USER_DISCONNECT")==0){
-        int siteid = object.value("siteId").toInt();
-        userColor.remove(siteid);
-        emit UserDisconnect(siteid);
+        QString username = object.value("username").toString();
+        userColor.remove(username);
+        emit UserDisconnect(username);
     }
     /*else if (type.compare("SIGNUP_RESPONSE")==0) {
         bool successful = object.value("success").toBool();
@@ -569,6 +569,6 @@ QMap<QString, int> Socket::getMapFiles(){
     return this->mapFiles;
 }
 
-QMap<int, QColor> Socket::getUserColor(){
+QMap<QString, QColor> Socket::getUserColor(){
     return this->userColor;
 }

@@ -33,6 +33,7 @@ private:
     std::map<int, FileHandler*> files;
     std::map<QTcpSocket*, int> sock_id;
     std::map<QTcpSocket*, int> sock_file;
+    std::map<QTcpSocket*, QString> sock_username;
     QSqlDatabase db;
     explicit FileSystem() {}
 

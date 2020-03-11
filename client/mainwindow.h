@@ -44,8 +44,8 @@ private slots:
     void changeViewAfterInsert(QChar l, int pos, QTextCharFormat format);
     void changeViewAfterDelete(int externalIndex);
     void changeViewAfterStyle(QString firstLetterID, QString lastLetterID);
-    void addUserConnection(int siteID, QColor colorUser);
-    void removeUserDisconnect(int siteID);
+    void addUserConnection(QString username, QColor colorUser);
+    void removeUserDisconnect(QString username);
 
     void on_textEdit_cursorPositionChanged();
 
