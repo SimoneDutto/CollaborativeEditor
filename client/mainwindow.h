@@ -70,7 +70,8 @@ signals:
     void sendNameFile(QString fileNameTmp);
     void newFile(QString filename);
     void styleChange(QMap<QString, QTextCharFormat>, QString startID, QString lastID, bool boldTriggered, bool italicTriggered, bool underlinedTriggered);
-
+    void exportAsPDF();
+    void logOut();
     //void localStyleChange(QString initialID, QString finalID, QTextCharFormat);
 };
 

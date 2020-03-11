@@ -70,7 +70,7 @@ void NewOpen::on_pushButton_clicked() //Bottone: open Document
 void NewOpen::on_pushButton_3_clicked() //Bottone: uri
 {
     QString uri = ui->lineEdit->text();
-    //emit checkUri(uri);
+    emit checkUri(uri);
 }
 
 void NewOpen::uriIsOk(QString uri){

@@ -602,6 +602,7 @@ void MainWindow::on_textEdit_cursorPositionChanged() {
 
 void MainWindow::on_actionLog_Out_triggered()
 {
+    emit logOut();
     qApp->quit();
     QProcess::startDetached(qApp->arguments()[0], qApp->arguments());
 }
@@ -637,6 +638,7 @@ void MainWindow::on_actionExport_as_PDF_triggered()
         printer.setColorMode(QPrinter::Color);
         printer.setOutputFileName(fn);
         document.print(&printer);
+        emit exportAsPDF();
 }
 
 
