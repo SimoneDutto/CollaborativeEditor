@@ -9,6 +9,7 @@ NewOpen::NewOpen(Socket *sock, FileHandler *fHandler, QWidget *parent) :
     fileHandler(fHandler)
 {
     ui->setupUi(this);
+    this->setWindowFlags(Qt::Window);
     QPalette pal = palette();
 
     // set black background
@@ -60,10 +61,10 @@ void NewOpen::on_pushButton_2_clicked() //Bottone: new Document
 void NewOpen::on_pushButton_clicked() //Bottone: open Document
 {
     QString n = ui->listWidget->currentItem()->text();
+    emit openThisFile(n);
     mainwindow = new MainWindow(this->socket, this->socket->getFHandler(), this, n);
     hide();
     mainwindow->show();
-    emit openThisFile(n);
     hide();
 }
 
