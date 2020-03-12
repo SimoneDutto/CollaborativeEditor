@@ -7,6 +7,7 @@
 #include "form.h"
 #include "account.h"
 #include "uri.h"
+#include "onlineuser.h"
 
 namespace Ui {
 class MainWindow;
@@ -43,6 +44,8 @@ private slots:
     void changeViewAfterInsert(QChar l, int pos, QTextCharFormat format);
     void changeViewAfterDelete(int externalIndex);
     void changeViewAfterStyle(QString firstLetterID, QString lastLetterID);
+    void addUserConnection(QString username, QColor colorUser);
+    void removeUserDisconnect(QString username);
 
     void on_textEdit_cursorPositionChanged();
 
@@ -54,6 +57,8 @@ private slots:
 
     void on_actionExport_as_PDF_triggered();
     //void changeViewAfterCursor(int pos, QColor color);
+
+    void on_counter_clicked();
 
 private:
     Ui::MainWindow *ui;
