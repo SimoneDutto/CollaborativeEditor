@@ -44,9 +44,10 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
 
 
     setWindowTitle(nome);
-    ui->label_2->setStyleSheet("background-color:lightgray");
+    ui->label_2->setStyleSheet("background-color:lightgray; color:black");
     //ui->label->setStyleSheet("background-color:lightgray");
-    ui->label_2->setText(fileHand->getURI());
+
+
     //ui->lineEdit->setText(nome);
 
     /* Personalizzo e aggiungo le label degli utenti connessi */
@@ -85,6 +86,7 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
              this, SLOT(addUserConnection(QString, QColor)));
     connect( socket, SIGNAL(UserDisconnect(QString)),
              this, SLOT(removeUserDisconnect(QString)));
+
 
     /* CONNECT per lo stile dei caratteri */
     connect( this, SIGNAL(styleChange(QMap<QString, QTextCharFormat>, QString, QString, bool, bool, bool)),
@@ -715,4 +717,8 @@ void MainWindow::on_counter_clicked()
     onlineList->show();
 
 
+}
+
+void MainWindow::on_write_uri(QString uri){
+    ui->label_2->setText(uri);
 }

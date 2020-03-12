@@ -59,6 +59,7 @@ private slots:
     //void changeViewAfterCursor(int pos, QColor color);
 
     void on_counter_clicked();
+    void on_write_uri(QString uri);
 
 private:
     Ui::MainWindow *ui;

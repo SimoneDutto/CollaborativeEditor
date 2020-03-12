@@ -72,6 +72,7 @@ void NewOpen::on_pushButton_clicked() //Bottone: open Document
     hide();
     mainwindow->show();
     hide();
+    emit writeURI(this->socket->getFHandler()->getURI());
 }
 
 void NewOpen::on_pushButton_3_clicked() //Bottone: uri
