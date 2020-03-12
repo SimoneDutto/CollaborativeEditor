@@ -38,6 +38,12 @@ NewOpen::NewOpen(Socket *sock, FileHandler *fHandler, QWidget *parent) :
 
     connect( this, SIGNAL(newFile(QString)),
              this->socket, SLOT(sendNewFile(QString)));
+    connect(this, SIGNAL(checkUri(QString)),
+            this->socket, SLOT(sendAccess(QString)));
+    connect(socket, SIGNAL(uriIsOk(QString)),
+             this, SLOT(uriIsOk(QString)));
+    connect(socket, SIGNAL(uriIsNotOk()),
+             this, SLOT(uriIsNotOk()));
 
     QShortcut *sc = new QShortcut(QKeySequence("Return"),this);
     connect(sc, SIGNAL(activated()), ui->pushButton, SLOT(click()));
@@ -74,7 +80,6 @@ void NewOpen::on_pushButton_3_clicked() //Bottone: uri
 }
 
 void NewOpen::uriIsOk(QString uri){
-
     ui->listWidget->addItem(uri);
     ui->listWidget->findItems(uri,Qt::MatchExactly).first()->setBackground(QColor(52,199,89));
 

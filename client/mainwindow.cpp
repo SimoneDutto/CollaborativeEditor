@@ -16,7 +16,7 @@
 #include <QStandardItem>
 
 
-MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QString nome, QString uri) :
+MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QString nome) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
     socket(sock),
@@ -46,7 +46,7 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
     setWindowTitle(nome);
     ui->label_2->setStyleSheet("background-color:lightgray");
     //ui->label->setStyleSheet("background-color:lightgray");
-    ui->label_2->setText(uri);
+    ui->label_2->setText(fileHand->getURI());
     //ui->lineEdit->setText(nome);
 
     /* Personalizzo e aggiungo le label degli utenti connessi */
@@ -54,7 +54,6 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
     ui->user2->hide();
     ui->user3->hide();
     ui->counter->hide();
-
 
 
     /* CONNECT per segnali uscenti, inoltrare le modifiche fatte */

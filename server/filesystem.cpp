@@ -140,30 +140,51 @@ void FileSystem::accessFile(QString URI, QTcpSocket *socket){
     QByteArray ba;
     ba.append(URI);
     int fileid = QByteArray::fromBase64(ba).toInt();
-
+    qDebug() << fileid;
     QSqlQuery query;
-    int siteCounter=0;
     QString filename;
     query.prepare("SELECT DISTINCT Filename FROM FILES WHERE FileId=(:fileid)");
     query.bindValue(":fileid", fileid);
     if (query.exec()) {
         if (query.next())
         {
-            filename = query.value(1).toString();
+            filename = query.value(0).toString();
+            qDebug() << filename;
+        }
+        else{
+            filename = "nofile";
         }
     } else {
         qDebug() << "Error! Filename not retrieved.";
         return;
     }
-    query.prepare("INSERT INTO Files(Filename, FileId, UserId, SiteCounter) VALUES((:filename), (:fileid), (:userid), (:siteCounter))");
-    query.bindValue(":filename", filename);
-    query.bindValue(":fileid", fileid);
-    query.bindValue(":userid", socket_id->second);
-    query.bindValue(":siteCounter", siteCounter);
-    if (!query.exec()){
-       qDebug() << "Query not executed";
-       return;
+
+    int siteCounter=1;
+    if (!(filename.compare("nofile")==0)){
+        query.prepare("INSERT INTO Files(Filename, FileId, UserId, SiteCounter) VALUES((:filename), (:fileid), (:userid), (:siteCounter))");
+        query.bindValue(":filename", filename);
+        query.bindValue(":fileid", fileid);
+        query.bindValue(":userid", socket_id->second);
+        query.bindValue(":siteCounter", siteCounter); // chiedere a Deb 0
+
+        if (query.exec()){
+            qDebug() << "inserted";
+            QJsonObject json;
+            json.insert("type", "ACCESS_RESPONSE");
+            json.insert("filename", filename);
+            json.insert("fileid", fileid);
+            sendJson(json, socket);
+            return;
+        }
+        else{
+            qDebug() << "Query not executed";
+        }
     }
+    QJsonObject json;
+    json.insert("type", "ACCESS_RESPONSE");
+    json.insert("filename", 0);
+    json.insert("fileid", -1);
+    sendJson(json, socket);
 
 }
 void FileSystem::sendFile(int fileid, QTcpSocket *socket){
@@ -598,4 +619,20 @@ void FileSystem::disconnectClient(QTcpSocket* socket){
     FileHandler *fh = files.at(fileID);
     this->updateFileSiteCounter(fileID, userID, fh->getSiteCounter(socket));
     fh->removeActiveUser(socket, sock_username.at(socket));
+}
+
+void FileSystem::sendJson(QJsonObject json, QTcpSocket* socket){
+
+    if(socket->state() == QAbstractSocket::ConnectedState){
+        qint32 msg_size = QJsonDocument(json).toJson().size();
+        QByteArray toSend;
+        socket->write(toSend.number(msg_size), sizeof (long int));
+        socket->waitForBytesWritten();
+        if(socket->write(QJsonDocument(json).toJson()) == -1){
+            qDebug() << "File info failed to send";
+            return;
+        } //write the data itself
+        socket->waitForBytesWritten();
+    }
+
 }

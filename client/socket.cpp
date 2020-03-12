@@ -358,6 +358,17 @@ void Socket::notificationsHandler(QByteArray data){
         userColor.remove(username);
         emit UserDisconnect(username);
     }
+    else if(type.compare("ACCESS_RESPONSE")==0){
+            int fileid = object.value("fileid").toInt();
+            QString filename = object.value("filename").toString();
+            if(fileid > 0){
+                this->mapFiles.insert(filename, fileid);
+                emit uriIsOk(filename);
+            }
+            else{
+                emit uriIsNotOk();
+            }
+        }
     /*else if (type.compare("SIGNUP_RESPONSE")==0) {
         bool successful = object.value("success").toBool();
         QString message = object.value("msg").toString();

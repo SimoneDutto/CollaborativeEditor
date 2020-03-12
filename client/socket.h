@@ -92,6 +92,9 @@ signals:
     /*Signal connected to readyReady()*/
     void myReadyRead();
     void bufferReady(QByteArray data);
+
+    void uriIsOk(QString uri);
+    void uriIsNotOk();
 };
 
 
