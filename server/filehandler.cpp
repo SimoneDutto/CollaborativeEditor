@@ -6,7 +6,7 @@ FileHandler::FileHandler(const QVector<Letter*>&& lett, int fileid, QObject *par
     id = fileid;
 }
 
-void FileHandler::insertActiveUser(QTcpSocket* user, int siteCounter, int siteId){
+void FileHandler::insertActiveUser(QTcpSocket* user, int siteCounter, QString username){
     users.append(user);
     counter_user++;
     usersSiteCounters.insert(user, siteCounter);
@@ -14,7 +14,7 @@ void FileHandler::insertActiveUser(QTcpSocket* user, int siteCounter, int siteId
     QByteArray sendSize;
 
     json.insert("type", "USER_CONNECT");
-    json.insert("siteId", siteId);
+    json.insert("username", username);
     for(QTcpSocket* u: users){
         if(u == user) continue;
         if(u->state() == QAbstractSocket::ConnectedState){
@@ -32,7 +32,7 @@ void FileHandler::insertActiveUser(QTcpSocket* user, int siteCounter, int siteId
     }
 }
 
-void FileHandler::removeActiveUser(QTcpSocket *user, int siteId){
+void FileHandler::removeActiveUser(QTcpSocket *user, QString username){
     users.removeOne(user);
     counter_user--;
     if(counter_user == 0){
@@ -58,7 +58,7 @@ void FileHandler::removeActiveUser(QTcpSocket *user, int siteId){
     QByteArray sendSize;
 
     json.insert("type", "USER_DISCONNECT");
-    json.insert("siteId", siteId);
+    json.insert("username", username);
     for(QTcpSocket* u: users){
         if(u == user) continue;
         if(u->state() == QAbstractSocket::ConnectedState){

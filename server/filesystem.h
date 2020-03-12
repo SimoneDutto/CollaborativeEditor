@@ -33,6 +33,7 @@ private:
     std::map<int, FileHandler*> files;
     std::map<QTcpSocket*, int> sock_id;
     std::map<QTcpSocket*, int> sock_file;
+    std::map<QTcpSocket*, QString> sock_username;
     QSqlDatabase db;
     explicit FileSystem() {}
 
@@ -47,7 +48,7 @@ public:
     void updateFileSiteCounter(int fileID, int userID, int siteCounter);
     std::map<int, FileHandler*> getFiles();
     int getSocketID(QTcpSocket* socket);
-
+    static void sendJson(QJsonObject json, QTcpSocket* socket);
 
 signals:
     void signUpResponse(QString message, bool success, QTcpSocket* socket);

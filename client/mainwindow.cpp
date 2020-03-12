@@ -13,11 +13,10 @@
 #include <QByteArray>
 #include <QPdfWriter>
 #include <QPrinter>
+#include <QStandardItem>
 
 
-
-MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QString nome, QString uri) :
-
+MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QString nome) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
     socket(sock),
@@ -40,14 +39,22 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
     ui->textEdit->setPalette(p);
 
     // set picture
-    QPixmap pix("path -- TO DO");
-    ui->label_pic->setPixmap(pix);
+    /*QPixmap pix("path -- TO DO");
+    ui->user1->setPixmap(pix);*/
+
 
     setWindowTitle(nome);
     ui->label_2->setStyleSheet("background-color:lightgray");
     //ui->label->setStyleSheet("background-color:lightgray");
-    ui->label_2->setText(uri);
+    ui->label_2->setText(fileHand->getURI());
     //ui->lineEdit->setText(nome);
+
+    /* Personalizzo e aggiungo le label degli utenti connessi */
+    ui->user1->hide();
+    ui->user2->hide();
+    ui->user3->hide();
+    ui->counter->hide();
+
 
     /* CONNECT per segnali uscenti, inoltrare le modifiche fatte */
     connect( this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
@@ -74,6 +81,10 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
              this, SLOT(changeViewAfterStyle(QString, QString)));
     connect( socket, SIGNAL(readyStyleChange(QString, QString, QString)),
              fHandler, SLOT(remoteStyleChange(QString, QString, QString)));
+    connect( socket, SIGNAL(UserConnect(QString, QColor)),
+             this, SLOT(addUserConnection(QString, QColor)));
+    connect( socket, SIGNAL(UserDisconnect(QString)),
+             this, SLOT(removeUserDisconnect(QString)));
 
     /* CONNECT per lo stile dei caratteri */
     connect( this, SIGNAL(styleChange(QMap<QString, QTextCharFormat>, QString, QString, bool, bool, bool)),
@@ -540,6 +551,63 @@ void MainWindow::changeViewAfterStyle(QString firstID, QString lastID) {
     }
     connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
 }
+
+void MainWindow::addUserConnection(QString username, QColor color){
+
+    int numberUsersOnline = socket->getUserColor().size();
+    QString styleSheet = "QLabel { background-color: rgb(255, 252, 247); color: black; border-style: solid; border-width: 3px; border-radius: 15px; border-color: %1; font: ; }";
+
+    if(numberUsersOnline == 1){  //Personalizzo ed accendo la label user1
+        ui->user1->setStyleSheet(styleSheet.arg(color.name()));
+        ui->user1->setText(username.at(0).toUpper());
+        ui->user1->show();
+    }
+
+    else if(numberUsersOnline == 2){  //Personalizzo ed accendo la label user2
+        ui->user2->setStyleSheet(styleSheet.arg(color.name()));
+        ui->user2->setText(username.at(0).toUpper());
+        ui->user2->show();
+    }
+
+    else if(numberUsersOnline == 3){  //Personalizzo ed accendo la label user3
+        ui->user2->setStyleSheet(styleSheet.arg(color.name()));
+        ui->user2->setText(username.at(0).toUpper());
+        ui->user2->show();
+    }
+
+    else {  //Incrementare il contatore
+        ui->counter->setText("+" + QString::number(numberUsersOnline));
+        ui->counter->show();
+    }
+
+    /*La lista completa degli Online Users la inizializzo nel OnlineUser Constructor*/
+
+}
+
+void MainWindow::removeUserDisconnect(QString username){
+
+    int numberUsersOnline = socket->getUserColor().size();
+
+    if(numberUsersOnline == 0){  //Spengo la label user1
+        ui->user1->hide();
+    }
+
+    else if(numberUsersOnline == 1){  //Spengo la label user2
+        ui->user2->hide();
+    }
+
+    else if(numberUsersOnline == 2){  //Spengo la label user3
+        ui->user3->hide();
+    }
+
+    else {
+        ui->counter->hide();
+    }
+
+    /*La lista completa degli Online Users la inizializzo nel OnlineUser Constructor*/
+
+}
+
 /*void MainWindow::setCursor(int pos, QString color)
 {
     QString cursore = "|";
@@ -641,5 +709,10 @@ void MainWindow::on_actionExport_as_PDF_triggered()
         emit exportAsPDF();
 }
 
+void MainWindow::on_counter_clicked()
+{
+    OnlineUser *onlineList = new OnlineUser(socket, this);
+    onlineList->show();
 
 
+}

@@ -30,6 +30,7 @@ public:
     FileHandler* getFHandler();
     int getClientID();
     QMap<QString, int> getMapFiles();
+    QMap<QString, QColor> getUserColor();
 
     void isSigningUp(bool flag);
 
@@ -42,7 +43,7 @@ private:
     FileHandler* fileh;
     int clientID;
     QMap<QString, int> mapFiles;
-    QMap<int, QColor> userColor;
+    QMap<QString, QColor> userColor;
     bool isDoingSignUp;
 
 public slots:
@@ -85,11 +86,15 @@ signals:
     void readyInsert(QJsonArray position, QChar newLetterValue, int externalIndex, int siteID, int siteCounter, QTextCharFormat format);
     void readyDelete(QString deletedLetterID);
     void readyStyleChange(QString firstID, QString lastID, QString changedStyle);
-
+    void UserConnect(QString username, QColor colorUser);
+    void UserDisconnect(QString username);
 
     /*Signal connected to readyReady()*/
     void myReadyRead();
     void bufferReady(QByteArray data);
+
+    void uriIsOk(QString uri);
+    void uriIsNotOk();
 };
 
 
