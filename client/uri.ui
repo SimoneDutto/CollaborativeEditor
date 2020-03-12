@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>321</width>
-    <height>96</height>
+    <width>345</width>
+    <height>107</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,27 +16,40 @@
   <widget class="QLabel" name="label">
    <property name="geometry">
     <rect>
-     <x>130</x>
+     <x>20</x>
      <y>20</y>
-     <width>81</width>
-     <height>16</height>
+     <width>281</width>
+     <height>20</height>
     </rect>
    </property>
+   <property name="font">
+    <font>
+     <pointsize>15</pointsize>
+     <weight>75</weight>
+     <bold>true</bold>
+    </font>
+   </property>
    <property name="text">
-    <string>URI Copied!</string>
+    <string>Ops.. something went wrong!</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignCenter</set>
    </property>
   </widget>
   <widget class="QLabel" name="label_2">
    <property name="geometry">
     <rect>
-     <x>70</x>
-     <y>50</y>
-     <width>201</width>
-     <height>16</height>
+     <x>10</x>
+     <y>60</y>
+     <width>321</width>
+     <height>20</height>
     </rect>
    </property>
    <property name="text">
-    <string/>
+    <string>This URI seems to be incorrect. Check and try again!</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignCenter</set>
    </property>
   </widget>
  </widget>

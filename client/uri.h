@@ -13,7 +13,7 @@ class Uri : public QDialog
     Q_OBJECT
 
 public:
-    explicit Uri(Socket *sock, QWidget *parent = nullptr, QString uri = "");
+    explicit Uri(Socket *sock, QWidget *parent = nullptr);
     ~Uri();
 
 private:

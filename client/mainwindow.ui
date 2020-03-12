@@ -149,6 +149,38 @@ p, li { white-space: pre-wrap; }
      <set>Qt::AlignCenter</set>
     </property>
    </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>10</y>
+      <width>31</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string> URI:</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_2">
+    <property name="geometry">
+     <rect>
+      <x>50</x>
+      <y>10</y>
+      <width>171</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="autoFillBackground">
+     <bool>false</bool>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
@@ -169,7 +201,7 @@ p, li { white-space: pre-wrap; }
     <addaction name="actionNew"/>
     <addaction name="actionOpen"/>
     <addaction name="separator"/>
-    <addaction name="actionGet_URI"/>
+    <addaction name="actionExport_as_PDF"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
@@ -235,7 +267,7 @@ p, li { white-space: pre-wrap; }
   <action name="actionNew">
    <property name="icon">
     <iconset resource="resource.qrc">
-     <normaloff>:/rec/icone/new-file.png</normaloff>:/rec/icone/new-file.png</iconset>
+     <normaloff>:/rec/icone/nuovo2.png</normaloff>:/rec/icone/nuovo2.png</iconset>
    </property>
    <property name="text">
     <string>New</string>
@@ -244,7 +276,7 @@ p, li { white-space: pre-wrap; }
   <action name="actionOpen">
    <property name="icon">
     <iconset resource="resource.qrc">
-     <normaloff>:/rec/icone/open-folder-outline.png</normaloff>:/rec/icone/open-folder-outline.png</iconset>
+     <normaloff>:/rec/icone/open.png</normaloff>:/rec/icone/open.png</iconset>
    </property>
    <property name="text">
     <string>Open</string>
@@ -292,7 +324,7 @@ p, li { white-space: pre-wrap; }
   <action name="actionUndo">
    <property name="icon">
     <iconset resource="resource.qrc">
-     <normaloff>:/rec/icone/undo-arrow.png</normaloff>:/rec/icone/undo-arrow.png</iconset>
+     <normaloff>:/rec/icone/undo.png</normaloff>:/rec/icone/undo.png</iconset>
    </property>
    <property name="text">
     <string>Undo</string>
@@ -313,7 +345,7 @@ p, li { white-space: pre-wrap; }
   <action name="actionRedo">
    <property name="icon">
     <iconset resource="resource.qrc">
-     <normaloff>:/rec/icone/redo-arrow.png</normaloff>:/rec/icone/redo-arrow.png</iconset>
+     <normaloff>:/rec/icone/redo.png</normaloff>:/rec/icone/redo.png</iconset>
    </property>
    <property name="text">
     <string>Redo</string>
@@ -328,7 +360,7 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="icon">
     <iconset resource="resource.qrc">
-     <normaloff>:/rec/icone/bold.png</normaloff>:/rec/icone/bold.png</iconset>
+     <normaloff>:/rec/icone/bold2.png</normaloff>:/rec/icone/bold2.png</iconset>
    </property>
    <property name="text">
     <string>Bold</string>
@@ -343,7 +375,7 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="icon">
     <iconset resource="resource.qrc">
-     <normaloff>:/rec/icone/italic.png</normaloff>:/rec/icone/italic.png</iconset>
+     <normaloff>:/rec/icone/italic2.png</normaloff>:/rec/icone/italic2.png</iconset>
    </property>
    <property name="text">
     <string>Italic</string>
@@ -358,7 +390,7 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="icon">
     <iconset resource="resource.qrc">
-     <normaloff>:/rec/icone/underline.png</normaloff>:/rec/icone/underline.png</iconset>
+     <normaloff>:/rec/icone/underline2.png</normaloff>:/rec/icone/underline2.png</iconset>
    </property>
    <property name="text">
     <string>Underline</string>
@@ -419,6 +451,15 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="text">
     <string>Get URI</string>
+   </property>
+  </action>
+  <action name="actionExport_as_PDF">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/rec/icone/pdf.png</normaloff>:/rec/icone/pdf.png</iconset>
+   </property>
+   <property name="text">
+    <string>Export as PDF</string>
    </property>
   </action>
  </widget>

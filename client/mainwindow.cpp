@@ -11,9 +11,12 @@
 #include <QTextCharFormat>
 #include <QProcess>
 #include <QByteArray>
+#include <QPdfWriter>
+#include <QPrinter>
 #include <QStandardItem>
 
-MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QString nome) :
+
+MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QString nome, QString uri) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
     socket(sock),
@@ -23,11 +26,17 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
     QPalette pal = palette();
 
     // set black background
-    pal.setColor(QPalette::Background, QColor(128,128,128));
+    pal.setColor(QPalette::Background, QColor(58,58,60));
     pal.setColor(QPalette::WindowText, Qt::white);
+    pal.setColor(QPalette::ButtonText, Qt::white);
     this->setAutoFillBackground(true);
     this->setPalette(pal);
     this->show();
+
+    QPalette p = ui->textEdit->palette(); // define pallete for textEdit..
+    p.setColor(QPalette::Base, QColor(209,209,214)); // set color "Red" for textedit base
+    p.setColor(QPalette::Text, Qt::black); // set text color which is selected from color pallete
+    ui->textEdit->setPalette(p);
 
     // set picture
     /*QPixmap pix("path -- TO DO");
@@ -35,6 +44,9 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
 
 
     setWindowTitle(nome);
+    ui->label_2->setStyleSheet("background-color:lightgray");
+    //ui->label->setStyleSheet("background-color:lightgray");
+    ui->label_2->setText(uri);
     //ui->lineEdit->setText(nome);
 
     /* Personalizzo e aggiungo le label degli utenti connessi */
@@ -78,6 +90,7 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
     /* CONNECT per lo stile dei caratteri */
     connect( this, SIGNAL(styleChange(QMap<QString, QTextCharFormat>, QString, QString, bool, bool, bool)),
               fHandler, SLOT(localStyleChange(QMap<QString, QTextCharFormat>, QString, QString, bool, bool, bool)) );
+
 }
 
 MainWindow::~MainWindow()
@@ -434,6 +447,24 @@ void MainWindow::on_textEdit_textChanged()
     }
 }
 
+/*void MainWindow::changeViewAfterCursor(int pos, QColor c){
+    QTextCharFormat fmt;
+    QTextCharFormat fmt2;
+    fmt.setBackground(c);
+    fmt2.setBackground(Qt::white);
+    QTextCursor cursor;
+    ui->textEdit->setTextCursor(cursor);
+    cursor.setPosition(pos);
+    cursor.movePosition(QTextCursor::Start, QTextCursor::KeepAnchor);
+    cursor.setCharFormat(fmt2);
+    cursor.setPosition(pos);
+    cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+    cursor.setCharFormat(fmt2);
+    cursor.setPosition(pos);
+    cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
+    cursor.setCharFormat(fmt);
+}*/
+
 
 
 void MainWindow::on_lineEdit_editingFinished()
@@ -635,27 +666,48 @@ void MainWindow::on_textEdit_cursorPositionChanged() {
         }
         else {} //UnderlineButton ON
     }
+
 }
 
 void MainWindow::on_actionLog_Out_triggered()
 {
-    /*qApp->quit();
-    QProcess::startDetached(qApp->arguments()[0], qApp->arguments());*/
+    emit logOut();
+    qApp->quit();
+    QProcess::startDetached(qApp->arguments()[0], qApp->arguments());
 }
 
 void MainWindow::on_actionEdit_Profile_triggered()
 {
-    account = new Account(this->socket, this);
+    account = new Account(this->socket, this, this->windowTitle());
     hide();
     account->show();
 
 }
 
-void MainWindow::on_actionGet_URI_triggered()
+/*void MainWindow::on_actionGet_URI_triggered()
 {
     // ricavare URI da passare al costruttore
     uri = new Uri(socket,this,"QUI USCIRA' L'URI");
     uri->show();
+}*/
+
+
+
+void MainWindow::on_actionExport_as_PDF_triggered()
+{
+    QTextDocument document;
+    document.setPlainText(ui->textEdit->toPlainText());
+
+    QString fn = QFileDialog::getSaveFileName(this, tr("Select output file"), QString(), tr("PDF Files(*.pdf)"));
+      if (fn.isEmpty())
+        return;
+        QPrinter printer;
+        printer.setPageMargins(10.0,10.0,10.0,10.0,printer.Millimeter);
+        printer.setOutputFormat(QPrinter::PdfFormat);
+        printer.setColorMode(QPrinter::Color);
+        printer.setOutputFileName(fn);
+        document.print(&printer);
+        emit exportAsPDF();
 }
 
 void MainWindow::on_counter_clicked()

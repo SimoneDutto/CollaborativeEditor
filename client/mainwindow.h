@@ -18,7 +18,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit MainWindow(Socket *sock = nullptr, FileHandler *fileHand = nullptr,QWidget *parent = nullptr, QString nome = nullptr);
+    explicit MainWindow(Socket *sock = nullptr, FileHandler *fileHand = nullptr,QWidget *parent = nullptr, QString nome = nullptr, QString uri = "");
     ~MainWindow();
 
 private slots:
@@ -53,7 +53,10 @@ private slots:
 
     void on_actionEdit_Profile_triggered();
 
-    void on_actionGet_URI_triggered();
+    //void on_actionGet_URI_triggered();
+
+    void on_actionExport_as_PDF_triggered();
+    //void changeViewAfterCursor(int pos, QColor color);
 
     void on_counter_clicked();
 
@@ -64,7 +67,6 @@ private:
     FileHandler *fHandler;
     Form *form;
     Account *account;
-    Uri *uri;
     int letterCounter = 0;
 
 signals:
@@ -73,6 +75,8 @@ signals:
     void sendNameFile(QString fileNameTmp);
     void newFile(QString filename);
     void styleChange(QMap<QString, QTextCharFormat>, QString startID, QString lastID, bool boldTriggered, bool italicTriggered, bool underlinedTriggered);
+    void exportAsPDF();
+    void logOut();
     //void localStyleChange(QString initialID, QString finalID, QTextCharFormat);
 };
 

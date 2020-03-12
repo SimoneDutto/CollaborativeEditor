@@ -8,15 +8,20 @@
         <file>icone/scissors.png</file>
         <file>icone/undo-arrow.png</file>
         <file>icone/info.png</file>
-        <file>icone/italic.png</file>
-        <file>icone/bold.png</file>
-        <file>icone/underline.png</file>
         <file>icone/font.png</file>
         <file>icone/color.png</file>
         <file>icone/backcolor.png</file>
         <file>icone/link.png</file>
         <file>icone/profile.png</file>
         <file>icone/logout.png</file>
+        <file>icone/pdf.png</file>
+        <file>icone/redo.png</file>
+        <file>icone/undo.png</file>
+        <file>icone/bold2.png</file>
+        <file>icone/italic2.png</file>
+        <file>icone/underline2.png</file>
+        <file>icone/nuovo2.png</file>
+        <file>icone/open.png</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>
