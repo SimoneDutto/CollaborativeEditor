@@ -550,6 +550,7 @@ void MainWindow::changeViewAfterStyle(QString firstID, QString lastID) {
         if(l->getLetterID() == lastID) break;
     }
     connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
+
 }
 
 void MainWindow::addUserConnection(QString username, QColor color){
