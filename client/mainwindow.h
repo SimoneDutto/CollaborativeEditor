@@ -44,8 +44,8 @@ private slots:
     void changeViewAfterInsert(QChar l, int pos, QTextCharFormat format);
     void changeViewAfterDelete(int externalIndex);
     void changeViewAfterStyle(QString firstLetterID, QString lastLetterID);
-    void addUserConnection(int siteID, QColor colorUser);
-    void removeUserDisconnect(int siteID);
+    void addUserConnection(QString username, QColor colorUser);
+    void removeUserDisconnect(QString username);
 
     void on_textEdit_cursorPositionChanged();
 
@@ -53,9 +53,13 @@ private slots:
 
     void on_actionEdit_Profile_triggered();
 
-    void on_actionGet_URI_triggered();
+    //void on_actionGet_URI_triggered();
+
+    void on_actionExport_as_PDF_triggered();
+    //void changeViewAfterCursor(int pos, QColor color);
 
     void on_counter_clicked();
+    void on_write_uri(QString uri);
 
 private:
     Ui::MainWindow *ui;
@@ -64,7 +68,6 @@ private:
     FileHandler *fHandler;
     Form *form;
     Account *account;
-    Uri *uri;
     int letterCounter = 0;
 
 signals:
@@ -73,6 +76,8 @@ signals:
     void sendNameFile(QString fileNameTmp);
     void newFile(QString filename);
     void styleChange(QMap<QString, QTextCharFormat>, QString startID, QString lastID, bool boldTriggered, bool italicTriggered, bool underlinedTriggered);
+    void exportAsPDF();
+    void logOut();
     //void localStyleChange(QString initialID, QString finalID, QTextCharFormat);
 };
 

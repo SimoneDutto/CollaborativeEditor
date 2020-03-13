@@ -12,10 +12,16 @@ Login::Login(Socket *sock, QWidget *parent)
     QPalette pal = palette();
 
     // set black background
-    pal.setColor(QPalette::Background, QColor(128,128,128));
+    pal.setColor(QPalette::Background, QColor(58,58,60));
     pal.setColor(QPalette::WindowText, Qt::white);
+    pal.setColor(QPalette::Button, QColor(229,229,234));
     this->setAutoFillBackground(true);
     this->setPalette(pal);
+    QPalette p = ui->lineEdit_password->palette();
+    p.setColor(QPalette::Base, QColor(209,209,214));
+    p.setColor(QPalette::Text, Qt::black);
+    ui->lineEdit_password->setPalette(p);
+    ui->lineEdit_username->setPalette(p);
     this->show();
     QShortcut *sc = new QShortcut(QKeySequence("Return"),ui->LoginBox);
     connect(sc, SIGNAL(activated()), ui->pushButton, SLOT(click()));

@@ -222,7 +222,14 @@ void Socket::notificationsHandler(QByteArray data){
         this->fileh->setFileId(object.value("fileid").toInt());
         this->fileh->setSize(object.value("size").toInt());
         this->fileh->setSiteCounter(object.value("siteCounter").toInt());
-        this->fileh->setURI(object.value("URI").toString());
+        emit writeURI(object.value("URI").toString());
+        QJsonArray array_tmp = object.value("activeUser").toArray();
+        for(auto user : array_tmp) {
+            QString username = user.toString();
+            QColor random = QColor(rand()%255, rand()%255, rand()%255, rand()%255);
+            userColor.insert(username, random);
+            emit UserConnect(username, random);
+        }
         // fileid < 0 non puoi aprire il file
     }
     else if(type.compare("FILE")==0){
@@ -341,16 +348,27 @@ void Socket::notificationsHandler(QByteArray data){
         emit readyStyleChange(initialIndex, lastIndex, changedStyle);
     }
     else if(type.compare("USER_CONNECT")==0){
-        int siteid = object.value("siteId").toInt();
+        QString username = object.value("username").toString();
         QColor random = QColor(rand()%255, rand()%255, rand()%255, rand()%255);
-        userColor.insert(siteid, random);
-        emit UserConnect(siteid, random);
+        userColor.insert(username, random);
+        emit UserConnect(username, random);
     }
     else if(type.compare("USER_DISCONNECT")==0){
-        int siteid = object.value("siteId").toInt();
-        userColor.remove(siteid);
-        emit UserDisconnect(siteid);
+        QString username = object.value("username").toString();
+        userColor.remove(username);
+        emit UserDisconnect(username);
     }
+    else if(type.compare("ACCESS_RESPONSE")==0){
+            int fileid = object.value("fileid").toInt();
+            QString filename = object.value("filename").toString();
+            if(fileid > 0){
+                this->mapFiles.insert(filename, fileid);
+                emit uriIsOk(filename);
+            }
+            else{
+                emit uriIsNotOk();
+            }
+        }
     /*else if (type.compare("SIGNUP_RESPONSE")==0) {
         bool successful = object.value("success").toBool();
         QString message = object.value("msg").toString();
@@ -569,6 +587,6 @@ QMap<QString, int> Socket::getMapFiles(){
     return this->mapFiles;
 }
 
-QMap<int, QColor> Socket::getUserColor(){
+QMap<QString, QColor> Socket::getUserColor(){
     return this->userColor;
 }
