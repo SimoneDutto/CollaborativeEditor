@@ -22,6 +22,7 @@
         <file>icone/underline2.png</file>
         <file>icone/nuovo2.png</file>
         <file>icone/open.png</file>
+        <file>icone/error.png</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>

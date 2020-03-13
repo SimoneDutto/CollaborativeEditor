@@ -7,6 +7,7 @@ Uri::Uri(Socket *s, QWidget *parent) :
     sock(s)
 {
     ui->setupUi(this);
+    setWindowTitle("Error");
 }
 
 Uri::~Uri()
