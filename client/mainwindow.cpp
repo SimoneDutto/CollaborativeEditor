@@ -45,6 +45,7 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
 
     setWindowTitle(nome);
     ui->label_2->setStyleSheet("background-color:lightgray; color:black");
+    ui->label_2->setTextInteractionFlags(Qt::TextSelectableByMouse);
     //ui->label->setStyleSheet("background-color:lightgray");
 
 
