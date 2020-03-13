@@ -86,7 +86,7 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
              this, SLOT(addUserConnection(QString, QColor)));
     connect( socket, SIGNAL(UserDisconnect(QString)),
              this, SLOT(removeUserDisconnect(QString)));
-    connect( parent, SIGNAL(writeURI(QString)),
+    connect( socket, SIGNAL(writeURI(QString)),
              this, SLOT(on_write_uri(QString)));
 
     /* CONNECT per lo stile dei caratteri */

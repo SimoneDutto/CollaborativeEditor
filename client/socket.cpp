@@ -222,7 +222,7 @@ void Socket::notificationsHandler(QByteArray data){
         this->fileh->setFileId(object.value("fileid").toInt());
         this->fileh->setSize(object.value("size").toInt());
         this->fileh->setSiteCounter(object.value("siteCounter").toInt());
-        this->fileh->setURI(object.value("URI").toString());
+        emit writeURI(object.value("URI").toString());
         QJsonArray array_tmp = object.value("activeUser").toArray();
         for(auto user : array_tmp) {
             QString username = user.toString();
