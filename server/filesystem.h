@@ -34,6 +34,7 @@ private:
     std::map<QTcpSocket*, int> sock_id;
     std::map<QTcpSocket*, int> sock_file;
     std::map<QTcpSocket*, QString> sock_username;
+    QSet<QString> usernames;
     QSqlDatabase db;
     explicit FileSystem() {}
 

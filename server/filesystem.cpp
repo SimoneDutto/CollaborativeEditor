@@ -188,7 +188,7 @@ void FileSystem::sendFile(int fileid, QTcpSocket *socket){
 
     auto socket_id = sock_id.find(socket);
 
-    if(socket_id == sock_id.end()) return;//il socket è autenticato o no
+    if(socket_id == sock_id.end()) return; //il socket è autenticato o no
     auto file = sock_file.find(socket);
 
     if(file != sock_file.end()){
@@ -398,10 +398,13 @@ void FileSystem::checkLogin(QString username, QString password, QTcpSocket *sock
     else{
         qDebug() << "Query not executed";
     }
+    auto us = usernames.find(username);
+    if(us != usernames.end()) id = -1;
     QJsonArray file_array;
     QJsonObject final_object;
     if(id != -1){
         sock_username.insert(std::pair<QTcpSocket*, QString> (socket, username)); //inserisco corrispondenza socket, username
+        usernames.insert(username);
         QSqlQuery query;
         sock_id.insert(std::pair<QTcpSocket*, int> (socket, id)); //associate id to socket
         query.prepare("SELECT filename, fileid FROM files WHERE userid = (:userid)");
@@ -582,8 +585,13 @@ void FileSystem::disconnectClient(QTcpSocket* socket){
     int fileID = sock_file.at(socket);
     int userID = sock_id.at(socket);
     FileHandler *fh = files.at(fileID);
+    QString username = sock_username.at(socket);
     this->updateFileSiteCounter(fileID, userID, fh->getSiteCounter(socket));
     fh->removeActiveUser(socket, sock_username.at(socket));
+    sock_id.erase(socket);
+    sock_file.erase(socket);
+    sock_username.erase(socket);
+    usernames.remove(username);
 }
 
 void FileSystem::sendJson(QJsonObject json, QTcpSocket* socket){
