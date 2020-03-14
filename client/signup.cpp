@@ -5,7 +5,6 @@
 #include <QFileDialog>
 #include <QBitmap>
 #include <QPainter>
-#include "accountimage.h"
 
 SignUp::SignUp(Socket* sock, QWidget* parent)
     : QDialog(parent),
