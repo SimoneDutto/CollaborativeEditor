@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>449</width>
-    <height>321</height>
+    <width>313</width>
+    <height>356</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,8 +16,8 @@
   <widget class="QWidget" name="formLayoutWidget_2">
    <property name="geometry">
     <rect>
-     <x>160</x>
-     <y>60</y>
+     <x>90</x>
+     <y>142</y>
      <width>141</width>
      <height>18</height>
     </rect>
@@ -27,8 +27,8 @@
   <widget class="QWidget" name="formLayoutWidget_3">
    <property name="geometry">
     <rect>
-     <x>160</x>
-     <y>110</y>
+     <x>90</x>
+     <y>192</y>
      <width>141</width>
      <height>18</height>
     </rect>
@@ -46,33 +46,11 @@
     </item>
    </layout>
   </widget>
-  <widget class="QWidget" name="formLayoutWidget_4">
-   <property name="geometry">
-    <rect>
-     <x>160</x>
-     <y>160</y>
-     <width>141</width>
-     <height>18</height>
-    </rect>
-   </property>
-   <layout class="QGridLayout" name="gridLayout">
-    <item row="0" column="0">
-     <widget class="QLabel" name="label_3">
-      <property name="text">
-       <string>Confirm Password</string>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignCenter</set>
-      </property>
-     </widget>
-    </item>
-   </layout>
-  </widget>
   <widget class="QPushButton" name="pushButton">
    <property name="geometry">
     <rect>
-     <x>160</x>
-     <y>220</y>
+     <x>90</x>
+     <y>302</y>
      <width>141</width>
      <height>32</height>
     </rect>
@@ -84,8 +62,8 @@
   <widget class="QLineEdit" name="lineEdit">
    <property name="geometry">
     <rect>
-     <x>160</x>
-     <y>80</y>
+     <x>90</x>
+     <y>162</y>
      <width>141</width>
      <height>21</height>
     </rect>
@@ -94,8 +72,8 @@
   <widget class="QLineEdit" name="lineEdit_2">
    <property name="geometry">
     <rect>
-     <x>160</x>
-     <y>130</y>
+     <x>90</x>
+     <y>212</y>
      <width>141</width>
      <height>21</height>
     </rect>
@@ -113,8 +91,8 @@
   <widget class="QLineEdit" name="lineEdit_3">
    <property name="geometry">
     <rect>
-     <x>160</x>
-     <y>180</y>
+     <x>90</x>
+     <y>262</y>
      <width>141</width>
      <height>21</height>
     </rect>
@@ -129,8 +107,8 @@
   <widget class="QLabel" name="label_5">
    <property name="geometry">
     <rect>
-     <x>160</x>
-     <y>60</y>
+     <x>90</x>
+     <y>142</y>
      <width>141</width>
      <height>16</height>
     </rect>
@@ -140,6 +118,76 @@
    </property>
    <property name="alignment">
     <set>Qt::AlignCenter</set>
+   </property>
+  </widget>
+  <widget class="QLabel" name="userImage">
+   <property name="geometry">
+    <rect>
+     <x>120</x>
+     <y>32</y>
+     <width>81</width>
+     <height>81</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>userImage</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignCenter</set>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_3">
+   <property name="geometry">
+    <rect>
+     <x>90</x>
+     <y>240</y>
+     <width>139</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Confirm Password</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignCenter</set>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="setImage">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="geometry">
+    <rect>
+     <x>184</x>
+     <y>92</y>
+     <width>30</width>
+     <height>30</height>
+    </rect>
+   </property>
+   <property name="mouseTracking">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="discardImage">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="geometry">
+    <rect>
+     <x>209</x>
+     <y>92</y>
+     <width>30</width>
+     <height>30</height>
+    </rect>
+   </property>
+   <property name="mouseTracking">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string/>
    </property>
   </widget>
  </widget>
