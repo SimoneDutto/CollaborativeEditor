@@ -50,7 +50,7 @@ Socket::Socket(const QString &host, quint16 port)
 }*/
 
 
-void Socket::sendSignUpRequest(QString username, QString password) {
+void Socket::sendSignUpRequest(QString username, QString password, QString pathUserImage) {
     // RICHIESTA DI REGISTRAZIONE NUOVO UTENTE
     QJsonObject obj;
     QByteArray toSend;
@@ -95,6 +95,7 @@ void Socket::checkSignUp() {
             // NO QUESTE CONNECT: vengono fatte dopo al login
             disconnect(socket, SIGNAL(readyRead()), this, SLOT(checkSignUp()));
             connect( socket, SIGNAL(readyRead()), this, SLOT(checkLoginAndGetListFileName()) , Qt::UniqueConnection);
+
             emit signUpSuccess();
         }
     }
@@ -222,7 +223,7 @@ void Socket::notificationsHandler(QByteArray data){
         this->fileh->setFileId(object.value("fileid").toInt());
         this->fileh->setSize(object.value("size").toInt());
         this->fileh->setSiteCounter(object.value("siteCounter").toInt());
-        this->fileh->setURI(object.value("URI").toString());
+        emit writeURI(object.value("URI").toString());
         QJsonArray array_tmp = object.value("activeUser").toArray();
         for(auto user : array_tmp) {
             QString username = user.toString();

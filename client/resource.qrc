@@ -27,6 +27,8 @@
         <file>icone/destra.png</file>
         <file>icone/giust.png</file>
         <file>icone/sinistra.png</file>
+        <file>icone/camera_icon.png</file>
+        <file>icone/discard_icon.png</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>

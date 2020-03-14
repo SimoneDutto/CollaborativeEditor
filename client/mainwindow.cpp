@@ -87,7 +87,7 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
              this, SLOT(addUserConnection(QString, QColor)));
     connect( socket, SIGNAL(UserDisconnect(QString)),
              this, SLOT(removeUserDisconnect(QString)));
-    connect( parent, SIGNAL(writeURI(QString)),
+    connect( socket, SIGNAL(writeURI(QString)),
              this, SLOT(on_write_uri(QString)));
 
     /* CONNECT per lo stile dei caratteri */
@@ -554,6 +554,7 @@ void MainWindow::changeViewAfterStyle(QString firstID, QString lastID) {
         if(l->getLetterID() == lastID) break;
     }
     connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
+
 }
 
 void MainWindow::addUserConnection(QString username, QColor color){
