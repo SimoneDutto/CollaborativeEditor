@@ -30,9 +30,6 @@ Account::Account(Socket *sock, QWidget *parent, QString name) :
     // set picture
     QPixmap pix("path -- TO DO");
     ui->label->setPixmap(pix);
-
-    connect( this, SIGNAL(openThisFile(QString)),
-             this->socket, SLOT(sendOpenFile(QString)));
 }
 
 Account::~Account()
@@ -47,15 +44,7 @@ void Account::on_pushButton_clicked()
     QString surname = ui->lineEdit_2->text();
     QString nick = ui->lineEdit_3->text();
     QString mail = ui->lineEdit_4->text();
+    this->close();
 }
 
-void Account::on_pushButton_2_clicked()
-{
-    //tornare alla schermata precedente
-    MainWindow *main;
-    main = new MainWindow(this->socket, this->socket->getFHandler(), this, name);
-    hide();
-    main->show();
-    emit openThisFile(name);
-    hide();
-}
+

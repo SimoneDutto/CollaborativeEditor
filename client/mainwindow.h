@@ -61,6 +61,14 @@ private slots:
     void on_counter_clicked();
     void on_write_uri(QString uri);
 
+    void on_actionAlign_to_Left_triggered();
+
+    void on_actionAlign_to_Right_triggered();
+
+    void on_actionAlign_to_Center_triggered();
+
+    void on_actionAlign_to_Justify_triggered();
+
 private:
     Ui::MainWindow *ui;
     Socket *socket;
