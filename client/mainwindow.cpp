@@ -52,6 +52,9 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
     //ui->lineEdit->setText(nome);
 
     /* Personalizzo e aggiungo le label degli utenti connessi */
+    QString styleSheet = QString("QGroupBox {border: 0px;}");
+    ui->groupBox->setStyleSheet(styleSheet);
+
     ui->user1->hide();
     ui->user2->hide();
     ui->user3->hide();
