@@ -1,6 +1,7 @@
 #include "form.h"
 #include "ui_form.h"
 #include <QShortcut>
+#include "error.h"
 
 Form::Form(Socket *sock, QWidget *parent) :
     QDialog(parent),
@@ -35,7 +36,14 @@ Form::~Form()
 void Form::on_pushButton_clicked()
 {
     QString filename = ui->lineEdit->text();
-    emit newFile(filename);
-    qDebug() << "Inviata la richiesta a socket.cpp di creazione nuovo file: " << filename;
-    hide();
+    if(filename.isEmpty()){
+        Error *e = new Error(this);
+        e->show();
+    }
+    else{
+        emit newFile(filename);
+        qDebug() << "Inviata la richiesta a socket.cpp di creazione nuovo file: " << filename;
+        hide();
+    }
+
 }
