@@ -16,6 +16,9 @@ public:
     explicit Uri(Socket *sock, QWidget *parent = nullptr);
     ~Uri();
 
+private slots:
+    void on_pushButton_clicked();
+
 private:
     Ui::Uri *ui;
     Socket *sock;

@@ -20,6 +20,7 @@ private:
     Socket *socket;
     MainWindow *mainWindow;
     Login *loginWindow;
+    QString pathUserImage;
 
 public:
     explicit SignUp(Socket *sock = nullptr, QWidget *parent = nullptr);
@@ -27,6 +28,9 @@ public:
 
 private slots:
     void on_pushButton_clicked();
+    void on_setImage_clicked();
+    void on_lineEdit_textEdited(const QString &arg1);
+    void on_discardImage_clicked();
 
 public slots:
     void sendToLogin();

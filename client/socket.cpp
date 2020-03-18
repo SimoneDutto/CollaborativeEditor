@@ -50,7 +50,7 @@ Socket::Socket(const QString &host, quint16 port)
 }*/
 
 
-void Socket::sendSignUpRequest(QString username, QString password) {
+void Socket::sendSignUpRequest(QString username, QString password, QString pathUserImage) {
     // RICHIESTA DI REGISTRAZIONE NUOVO UTENTE
     QJsonObject obj;
     QByteArray toSend;
@@ -95,6 +95,7 @@ void Socket::checkSignUp() {
             // NO QUESTE CONNECT: vengono fatte dopo al login
             disconnect(socket, SIGNAL(readyRead()), this, SLOT(checkSignUp()));
             connect( socket, SIGNAL(readyRead()), this, SLOT(checkLoginAndGetListFileName()) , Qt::UniqueConnection);
+
             emit signUpSuccess();
         }
     }

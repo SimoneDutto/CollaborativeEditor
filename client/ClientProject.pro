@@ -23,6 +23,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
     account.cpp \
     dialog.cpp \
+    error.cpp \
     newopen.cpp \
     filehandler.cpp \
     form.cpp \
@@ -39,6 +40,7 @@ SOURCES += \
 HEADERS += \
     account.h \
     dialog.h \
+    error.h \
     newopen.h \
     filehandler.h \
     form.h \
@@ -54,6 +56,7 @@ HEADERS += \
 FORMS += \
     account.ui \
     dialog.ui \
+    error.ui \
     newopen.ui \
     form.ui \
     login.ui \

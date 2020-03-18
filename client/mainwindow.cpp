@@ -45,12 +45,15 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
 
     setWindowTitle(nome);
     ui->label_2->setStyleSheet("background-color:lightgray; color:black");
+    ui->label_2->setTextInteractionFlags(Qt::TextSelectableByMouse);
     //ui->label->setStyleSheet("background-color:lightgray");
-
 
     //ui->lineEdit->setText(nome);
 
     /* Personalizzo e aggiungo le label degli utenti connessi */
+    QString styleSheet = QString("QGroupBox {border: 0px;}");
+    ui->groupBox->setStyleSheet(styleSheet);
+
     ui->user1->hide();
     ui->user2->hide();
     ui->user3->hide();
@@ -682,7 +685,7 @@ void MainWindow::on_actionLog_Out_triggered()
 void MainWindow::on_actionEdit_Profile_triggered()
 {
     account = new Account(this->socket, this, this->windowTitle());
-    hide();
+    //hide();
     account->show();
 
 }
@@ -723,4 +726,24 @@ void MainWindow::on_counter_clicked()
 
 void MainWindow::on_write_uri(QString uri){
     ui->label_2->setText(uri);
+}
+
+void MainWindow::on_actionAlign_to_Left_triggered()
+{
+    ui->textEdit->setAlignment(Qt::AlignLeft);
+}
+
+void MainWindow::on_actionAlign_to_Right_triggered()
+{
+    ui->textEdit->setAlignment(Qt::AlignRight);
+}
+
+void MainWindow::on_actionAlign_to_Center_triggered()
+{
+    ui->textEdit->setAlignment(Qt::AlignCenter);
+}
+
+void MainWindow::on_actionAlign_to_Justify_triggered()
+{
+    ui->textEdit->setAlignment(Qt::AlignJustify);
 }
