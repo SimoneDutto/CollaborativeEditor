@@ -31,7 +31,7 @@ public:
     int getClientID();
     QMap<QString, int> getMapFiles();
     QMap<QString, QColor> getUserColor();
-
+    bool isConnected();
     void isSigningUp(bool flag);
 
 private:
@@ -45,6 +45,7 @@ private:
     QMap<QString, int> mapFiles;
     QMap<QString, QColor> userColor;
     bool isDoingSignUp;
+    bool connected;
 
 public slots:
     void sendSignUpRequest(QString username, QString password, QString pathImage);

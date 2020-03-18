@@ -19,6 +19,10 @@ Welcome::Welcome(Socket *sock, QWidget *parent) :
     this->setPalette(pal);
     this->show();
     setWindowTitle("");
+    if(!sock->isConnected())
+    {
+        emit sock->noConnection();
+    }
 }
 
 Welcome::~Welcome()

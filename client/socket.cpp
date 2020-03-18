@@ -30,11 +30,12 @@ Socket::Socket(const QString &host, quint16 port)
     if(socket->waitForConnected(3000))
     {
         qDebug() << "Connesso";
+        connected=1;
     }
     else {
         //NON CONNESSO
         qDebug() << "Non connesso";
-        //emit notConnected();
+        connected=0;
     }
 }
 
@@ -581,7 +582,9 @@ FileHandler* Socket::getFHandler(){
 int Socket::getClientID(){
     return this->clientID;
 }
-
+bool Socket::isConnected(){
+    return connected;
+}
 void Socket::isSigningUp(bool flag) {
     this->isDoingSignUp = flag;
 }
