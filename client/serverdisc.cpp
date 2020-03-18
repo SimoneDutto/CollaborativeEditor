@@ -18,6 +18,7 @@ serverDisc::~serverDisc()
 
 void serverDisc::on_pushButton_clicked()
 {
+    emit logOut();
     qApp->quit();
     QProcess::startDetached(qApp->arguments()[0], qApp->arguments());
 }

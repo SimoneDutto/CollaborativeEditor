@@ -41,7 +41,7 @@ void Welcome::on_pushButton_2_clicked()
 }
 
 void Welcome::notConnected(){
-    serverDisc *s = new serverDisc(sock, this);
+    serverDisc *s = new serverDisc(this);
     hide();
     s->show();
 }

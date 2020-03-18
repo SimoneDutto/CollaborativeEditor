@@ -14,6 +14,7 @@
 #include <QPdfWriter>
 #include <QPrinter>
 #include <QStandardItem>
+#include "serverdisc.h"
 
 
 MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QString nome) :
@@ -747,3 +748,31 @@ void MainWindow::on_actionAlign_to_Justify_triggered()
 {
     ui->textEdit->setAlignment(Qt::AlignJustify);
 }
+
+void MainWindow::notConnected(){
+    serverDisc *s = new serverDisc(this);
+    s->show();
+}
+
+/*void MainWindow::on_actionshow_cursor_triggered()
+{
+    disconnect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
+    QTextCharFormat fmt;
+    QTextCharFormat fmt2;
+    fmt.setBackground(Qt::white);
+    fmt2.setBackground(QColor(209,209,214));
+    QTextCursor cursor = ui->textEdit->textCursor();
+    int pos = cursor.position();
+    ui->textEdit->setTextCursor(cursor);
+    cursor.setPosition(pos);
+    cursor.movePosition(QTextCursor::Start, QTextCursor::KeepAnchor);
+    cursor.setCharFormat(fmt2);
+    cursor.setPosition(pos);
+    cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+    cursor.setCharFormat(fmt2);
+    cursor.setPosition(pos);
+    cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
+    cursor.setCharFormat(fmt);
+    connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
+}
+*/
