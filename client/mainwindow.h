@@ -68,6 +68,9 @@ private slots:
     void on_actionAlign_to_Center_triggered();
 
     void on_actionAlign_to_Justify_triggered();
+    void notConnected();
+
+    //void on_actionshow_cursor_triggered();
 
 private:
     Ui::MainWindow *ui;

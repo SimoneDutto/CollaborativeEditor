@@ -1,5 +1,6 @@
 #include "welcome.h"
 #include "ui_welcome.h"
+#include "serverdisc.h"
 
 Welcome::Welcome(Socket *sock, QWidget *parent) :
     QDialog(parent),
@@ -37,4 +38,10 @@ void Welcome::on_pushButton_2_clicked()
     signup = new SignUp(sock, this);
     hide();
     signup->show();
+}
+
+void Welcome::notConnected(){
+    serverDisc *s = new serverDisc(this);
+    hide();
+    s->show();
 }
