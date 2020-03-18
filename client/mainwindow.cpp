@@ -48,7 +48,6 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
     ui->label_2->setTextInteractionFlags(Qt::TextSelectableByMouse);
     //ui->label->setStyleSheet("background-color:lightgray");
 
-
     //ui->lineEdit->setText(nome);
 
     /* Personalizzo e aggiungo le label degli utenti connessi */

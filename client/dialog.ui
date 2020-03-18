@@ -7,34 +7,87 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>300</height>
+    <height>243</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
-   <item>
-    <widget class="QLabel" name="label">
-     <property name="text">
-      <string>Choose file</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QListWidget" name="listWidget"/>
-   </item>
-   <item>
-    <widget class="QPushButton" name="pushButton">
-     <property name="text">
-      <string>Open</string>
-     </property>
-    </widget>
-   </item>
-  </layout>
+  <widget class="QListWidget" name="listWidget">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>50</y>
+     <width>241</width>
+     <height>131</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label">
+   <property name="geometry">
+    <rect>
+     <x>100</x>
+     <y>20</y>
+     <width>78</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Choose File</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignCenter</set>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButton">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>190</y>
+     <width>241</width>
+     <height>32</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Open</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_2">
+   <property name="geometry">
+    <rect>
+     <x>290</x>
+     <y>90</y>
+     <width>60</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Insert URI</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButton_2">
+   <property name="geometry">
+    <rect>
+     <x>270</x>
+     <y>150</y>
+     <width>112</width>
+     <height>32</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Check URI</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="lineEdit">
+   <property name="geometry">
+    <rect>
+     <x>270</x>
+     <y>120</y>
+     <width>112</width>
+     <height>21</height>
+    </rect>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections/>
