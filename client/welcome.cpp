@@ -10,7 +10,7 @@ Welcome::Welcome(Socket *sock, QWidget *parent) :
     ui->setupUi(this);
     QPalette pal = palette();
     this->setWindowFlags(Qt::Window);
-
+    connect(sock, SIGNAL(noConnection()), this, SLOT(notConnected()));
     // set black background
     pal.setColor(QPalette::Background, QColor(58,58,60));
     pal.setColor(QPalette::WindowText, Qt::white);

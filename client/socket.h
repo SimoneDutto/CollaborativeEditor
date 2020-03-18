@@ -97,6 +97,7 @@ signals:
     void uriIsNotOk();
 
     void writeURI(QString uri);
+    void noConnection();
 };
 
 

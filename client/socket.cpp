@@ -25,7 +25,6 @@ Socket::Socket(const QString &host, quint16 port)
     //connect( socket, SIGNAL(error(SocketError socketError)), SLOT(socketError(int)) );
     // Qui NO connect per login: se login fallisce, non si riconnette il segnale
     connect( socket, SIGNAL(readyRead()),  SLOT(checkLoginAndGetListFileName()) , Qt::UniqueConnection);
-
     socket->connectToHost(host, port);
 
     if(socket->waitForConnected(3000))
@@ -35,6 +34,7 @@ Socket::Socket(const QString &host, quint16 port)
     else {
         //NON CONNESSO
         qDebug() << "Non connesso";
+        //emit notConnected();
     }
 }
 
@@ -534,11 +534,13 @@ void Socket::socketConnected()
 void Socket::socketConnectionClosed()
 {
         qDebug() << "Connection closed by the server\n";
+        emit noConnection();
 }
 
 void Socket::socketClosed()
 {
         qDebug() << "Connection closed\n";
+
 }
 
 void Socket::socketError(int e)
