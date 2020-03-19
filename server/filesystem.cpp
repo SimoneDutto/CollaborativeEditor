@@ -258,9 +258,9 @@ void FileSystem::sendFile(int fileid, QTcpSocket *socket){
             qDebug() << splitToSend.mid(from, chunk).data();
             qDebug() << "--------------------------------------------------";
             if(remaining > 0)
-                emit dataRead(splitToSend.mid(from, chunk), socket, remaining);
+                emit dataRead(splitToSend.mid(from, chunk), socket, remaining, "FILE");
             else if (remaining == 0)
-                emit dataRead(splitToSend.mid(from, chunk+1), socket, remaining);
+                emit dataRead(splitToSend.mid(from, chunk+1), socket, remaining, "FILE");
             from += chunk;
         }
 
@@ -290,7 +290,6 @@ void FileSystem::sendFile(int fileid, QTcpSocket *socket){
 
         int remaining = size;
 
-
         // manda i chunk
         while(remaining > 0)
         {
@@ -303,7 +302,7 @@ void FileSystem::sendFile(int fileid, QTcpSocket *socket){
             remaining -= chunk;
             buffer_tot.append(qa);
             qDebug() << "emitting dataRead(), remaining = " << remaining << "chunk = " << chunk;
-            emit dataRead(qa, socket, remaining);
+            emit dataRead(qa, socket, remaining, "FILE");
         }
         inFile.close();
 
@@ -431,6 +430,27 @@ void FileSystem::checkLogin(QString username, QString password, QTcpSocket *sock
     final_object.insert("id", QJsonValue(id));
     final_object.insert("type", "LOGIN");
     sendJson(final_object, socket);
+    QFile inFile("icon_"+QString::number(id));
+    inFile.open(QFile::ReadOnly);
+    int size = static_cast<int>(inFile.size());
+    int remaining = size;
+    qDebug() << size;
+    // manda i chunk
+    while(remaining > 0)
+    {
+        int chunk;
+        if(remaining > DATA_SIZE)
+            chunk = DATA_SIZE;
+        else
+            chunk = remaining;
+        QByteArray qa = inFile.read(chunk);
+        remaining -= chunk;
+        qDebug() << "emitting dataRead(), remaining = " << remaining << "chunk = " << chunk;
+        emit dataRead(qa, socket, remaining, "ICON");
+    }
+    inFile.close();
+
+    qDebug() << "Icon sent";
 
 }
 
@@ -579,22 +599,23 @@ std::map<int, FileHandler*> FileSystem::getFiles() {
         return sock_id.value(socket);
     else return -1;
 }*/
-// i catch the exeption but maybe it is more efficient to search before at()
+
 void FileSystem::disconnectClient(QTcpSocket* socket){
-    auto it = sock_file.find(socket);
-    auto it1 = sock_id.find(socket);
-    if(it == sock_file.end() || it1 == sock_id.end())
-        return;
+    auto it = sock_id.find(socket);
+    auto it1 = sock_file.find(socket);
+    if(it == sock_id.end()) return;
+    sock_id.erase(socket);
+    QString username = sock_username.at(socket);
+    sock_username.erase(socket);
+    usernames.remove(username);
+    if(it1 == sock_file.end()) return;
     int fileID = it->second;
     int userID = it1->second;
     FileHandler *fh = files.at(fileID);
-    QString username = sock_username.at(socket);
     this->updateFileSiteCounter(fileID, userID, fh->getSiteCounter(socket));
     fh->removeActiveUser(socket, sock_username.at(socket));
-    sock_id.erase(socket);
     sock_file.erase(socket);
-    sock_username.erase(socket);
-    usernames.remove(username);
+
 }
 
 void FileSystem::sendJson(QJsonObject json, QTcpSocket* socket){

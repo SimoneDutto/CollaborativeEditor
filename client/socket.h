@@ -39,6 +39,7 @@ private:
     QTcpSocket *socket;
     QByteArray buffer;
     QByteArray json_buffer;
+    QByteArray icon_buffer;
     long int size=0;
     FileHandler* fileh;
     int clientID;

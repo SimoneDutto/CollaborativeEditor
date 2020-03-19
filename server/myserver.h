@@ -23,7 +23,7 @@ private slots:
     void onNewConnection();
     void handleNotifications(QTcpSocket *socket, QByteArray data);
     void onDisconnected();
-    void sendFileChunk(QByteArray chunk, QTcpSocket *socket, int remainingSize);
+    void sendFileChunk(QByteArray chunk, QTcpSocket *socket, int remainingSize, QString type);
     void readBuffer();
 signals:
     void bufferReady(QTcpSocket* socket, QByteArray data);

@@ -53,7 +53,7 @@ public:
 
 signals:
     void signUpResponse(QString message, bool success, QTcpSocket* socket);
-    void dataRead(QByteArray chunk, QTcpSocket* socket, int remainingSize);
+    void dataRead(QByteArray chunk, QTcpSocket* socket, int remainingSize, QString type);
 
 private slots:
     void sendInsert(QVector<QTcpSocket*> users, QByteArray message, bool modifiedIndex, int newIndex, QTcpSocket* client);

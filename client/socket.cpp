@@ -267,7 +267,23 @@ void Socket::notificationsHandler(QByteArray data){
             this->fileh->setValues(std::move(letters));
             emit readyFile();
         }
-
+    }
+    else if(type.compare("ICON")==0){
+        int remaining = object.value("remaining").toInt();
+        QString chunk = object.value("chunk").toString();
+        icon_buffer.append(chunk);
+        if(remaining == 0){
+            QFile file(QString::number(clientID)+".png");
+            if ( file.open(QFile::WriteOnly|QFile::Truncate) )
+            {
+                QTextStream stream( &file );
+                stream << icon_buffer << endl;
+            }
+            file.close();
+            icon_buffer.clear();
+            qDebug() << "Icon received";
+            //emit iconReady();
+        }
     }
     else if (type.compare("INSERT")==0) {
         QChar newLetterValue = object.value("letter").toString().at(0);

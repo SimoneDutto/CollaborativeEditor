@@ -13,7 +13,7 @@ MyServer::MyServer(QObject *parent) :
 {
     fsys = FileSystem::getInstance();
     connect(m_server, SIGNAL(newConnection()), SLOT(onNewConnection()));
-    connect(fsys, SIGNAL(dataRead(QByteArray, QTcpSocket*, int)),this, SLOT(sendFileChunk(QByteArray, QTcpSocket*, int)));
+    connect(fsys, SIGNAL(dataRead(QByteArray, QTcpSocket*, int, QString)),this, SLOT(sendFileChunk(QByteArray, QTcpSocket*, int, QString)));
     connect(this, SIGNAL(bufferReady(QTcpSocket*, QByteArray)), SLOT(handleNotifications(QTcpSocket*,QByteArray)));
 }
 
@@ -197,12 +197,12 @@ void MyServer::onDisconnected()
     socket->deleteLater();
 }
 
-void MyServer::sendFileChunk(QByteArray chunk, QTcpSocket* socket, int remainingSize) {
+void MyServer::sendFileChunk(QByteArray chunk, QTcpSocket* socket, int remainingSize, QString type) {
     QJsonObject object;
     QByteArray toSend;
 
     QString s_data = chunk.data();
-    object.insert("type", "FILE");
+    object.insert("type", type);
     object.insert("chunk", s_data);
     object.insert("remaining", remainingSize);
     if(socket->state() == QAbstractSocket::ConnectedState)
