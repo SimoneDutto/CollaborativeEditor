@@ -580,10 +580,14 @@ std::map<int, FileHandler*> FileSystem::getFiles() {
         return sock_id.value(socket);
     else return -1;
 }*/
-
+// i catch the exeption but maybe it is more efficient to search before at()
 void FileSystem::disconnectClient(QTcpSocket* socket){
-    int fileID = sock_file.at(socket);
-    int userID = sock_id.at(socket);
+    auto it = sock_file.find(socket);
+    auto it1 = sock_id.find(socket);
+    if(it == sock_file.end() || it1 == sock_id.end())
+        return;
+    int fileID = it->second;
+    int userID = it1->second;
     FileHandler *fh = files.at(fileID);
     QString username = sock_username.at(socket);
     this->updateFileSiteCounter(fileID, userID, fh->getSiteCounter(socket));
