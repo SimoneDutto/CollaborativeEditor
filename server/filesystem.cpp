@@ -429,18 +429,17 @@ void FileSystem::checkLogin(QString username, QString password, QTcpSocket *sock
         }
     }
     final_object.insert("id", QJsonValue(id));
-
-    if(socket->state() == QAbstractSocket::ConnectedState){
-        qDebug() << "Risposta al LOGIN:\n" << QJsonDocument(final_object).toJson().data();
-        socket->write(QJsonDocument(final_object).toJson());
-        socket->waitForBytesWritten(1000);
-    }
-
+    final_object.insert("type", "LOGIN");
+    sendJson(final_object, socket);
 
 }
 
 void FileSystem::storeNewUser(QString username, QString psw, QTcpSocket *socket) {
     QSqlQuery sqlQuery;
+    QJsonObject json;
+    QByteArray sendSize;
+
+    json.insert("type", "SIGNUP_RESPONSE");
 
     // check che username non sia gia' stato preso
     sqlQuery.prepare("SELECT COUNT(*) FROM PASSWORD WHERE username=(:username)");
@@ -456,13 +455,13 @@ void FileSystem::storeNewUser(QString username, QString psw, QTcpSocket *socket)
     else{
         qDebug() << "Query not executed";
         // EMIT SEGNALE PROBLEMA SERVER FAILED TO RESPOND
-        emit signUpResponse("SERVER_FAILURE", false, socket);
-        return;
+        json.insert("success", false);
     }
     if(count > 0){
         qDebug("Username already taken");
         // EMIT SEGNALE CAMBIA USERNAME
-        emit signUpResponse("INVALID_USERNAME", false, socket);
+        json.insert("success", false);
+        sendJson(json, socket);
         return;
     }
 
@@ -478,13 +477,13 @@ void FileSystem::storeNewUser(QString username, QString psw, QTcpSocket *socket)
 
     if (sqlQuery.exec()){
         // EMIT SIGN UP SUCCESSFUL
-        emit signUpResponse("SUCCESS", true, socket);
+        json.insert("success", true);
     } else {
         qDebug() << "INSERT new user not executed!";
         // EMIT segnale server failed to respond
-        emit signUpResponse("SERVER_FAILURE", false, socket);
-        return;
+        json.insert("success", false);
     }
+    sendJson(json, socket);
 }
 
 

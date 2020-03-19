@@ -13,7 +13,6 @@ MyServer::MyServer(QObject *parent) :
 {
     fsys = FileSystem::getInstance();
     connect(m_server, SIGNAL(newConnection()), SLOT(onNewConnection()));
-    connect(fsys, SIGNAL(signUpResponse(QString,bool,QTcpSocket*)), this, SLOT(sendSignUpResponse(QString,bool,QTcpSocket*)));
     connect(fsys, SIGNAL(dataRead(QByteArray, QTcpSocket*, int)),this, SLOT(sendFileChunk(QByteArray, QTcpSocket*, int)));
     connect(this, SIGNAL(bufferReady(QTcpSocket*, QByteArray)), SLOT(handleNotifications(QTcpSocket*,QByteArray)));
 }
@@ -196,25 +195,6 @@ void MyServer::onDisconnected()
            qPrintable(socket->peerAddress().toString()), socket->peerPort());
 
     socket->deleteLater();
-}
-
-
-void MyServer::sendSignUpResponse(QString message, bool success, QTcpSocket* socket) {
-    QJsonObject json;
-    QByteArray sendSize;
-
-    json.insert("type", "SIGNUP_RESPONSE");
-    json.insert("success", success);
-    json.insert("msg", message);
-
-    if(socket->state() == QAbstractSocket::ConnectedState) {
-        qDebug() << "Size = " << QJsonDocument(json).toJson().size();
-        //socket->write(sendSize.number(QJsonDocument(json).toJson().size()), sizeof (long int));
-        //socket->waitForBytesWritten();
-        socket->write(QJsonDocument(json).toJson());
-        socket->waitForBytesWritten(1000);
-    }
-    qDebug() << "Signup_response = " << QJsonDocument(json).toJson().data();
 }
 
 void MyServer::sendFileChunk(QByteArray chunk, QTcpSocket* socket, int remainingSize) {

@@ -46,6 +46,9 @@ private:
     QMap<QString, QColor> userColor;
     bool isDoingSignUp;
 
+    void checkLoginAndGetListFileName(QJsonObject);
+    void checkSignUp(QJsonObject);
+
 public slots:
     void sendSignUpRequest(QString username, QString password, QString pathImage);
     void sendLogin(QString username, QString password);
@@ -58,8 +61,6 @@ private slots:
     void socketClosed();
     void socketError(int e);
 
-    void checkLoginAndGetListFileName();
-    void checkSignUp();
     void notificationsHandler(QByteArray buffer);
     void readBuffer();
     //void setSignals();

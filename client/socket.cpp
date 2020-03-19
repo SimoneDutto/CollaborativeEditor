@@ -24,8 +24,9 @@ Socket::Socket(const QString &host, quint16 port)
     connect( socket, SIGNAL(disconnected()), SLOT(socketConnectionClosed()) );
     //connect( socket, SIGNAL(error(SocketError socketError)), SLOT(socketError(int)) );
     // Qui NO connect per login: se login fallisce, non si riconnette il segnale
-    connect( socket, SIGNAL(readyRead()),  SLOT(checkLoginAndGetListFileName()) , Qt::UniqueConnection);
-
+    //connect( socket, SIGNAL(readyRead()),  SLOT(checkLoginAndGetListFileName()) , Qt::UniqueConnection);
+    connect(socket, SIGNAL(readyRead()), SLOT(readBuffer()));
+    connect(this, SIGNAL(bufferReady(QByteArray)), SLOT(notificationsHandler(QByteArray)));
     socket->connectToHost(host, port);
 
     if(socket->waitForConnected(3000))
@@ -71,33 +72,18 @@ void Socket::sendSignUpRequest(QString username, QString password, QString pathU
     nLogin++;
 }
 
-void Socket::checkSignUp() {
-    QByteArray data = socket->readAll();
-    QJsonDocument document = QJsonDocument::fromJson(data);
-    QJsonObject object = document.object();
-    QString type = object.value("type").toString();
-    qDebug() << "Tipo di richiesta: " << type;
-
-    if (type.compare("SIGNUP_RESPONSE")==0) {
-        bool successful = object.value("success").toBool();
-        QString message = object.value("msg").toString();
-        if(!successful) {
-            //connect(socket, SIGNAL(readyRead()), this, SLOT(checkSignUp()));
-            if(message.compare("INVALID_USERNAME") == 0)
-                emit invalidUsername();
-            else if (message.compare("SERVER_FAILURE") == 0) // emit segnale sign up not successful
-                emit signUpError();
-        } else {
-            // emit segnale sign up successful
-            qDebug() << "Sign up successful";
-            //connect(socket, SIGNAL(readyRead()), SLOT(readBuffer()));
-            //connect(this, SIGNAL(bufferReady(QByteArray)), SLOT(notificationsHandler(QByteArray))
-            // NO QUESTE CONNECT: vengono fatte dopo al login
-            disconnect(socket, SIGNAL(readyRead()), this, SLOT(checkSignUp()));
-            connect( socket, SIGNAL(readyRead()), this, SLOT(checkLoginAndGetListFileName()) , Qt::UniqueConnection);
-
-            emit signUpSuccess();
-        }
+void Socket::checkSignUp(QJsonObject object) {
+    bool successful = object.value("success").toBool();
+    QString message = object.value("msg").toString();
+    if(!successful) {
+        if(message.compare("INVALID_USERNAME") == 0)
+            emit invalidUsername();
+        else if (message.compare("SERVER_FAILURE") == 0) // emit segnale sign up not successful
+            emit signUpError();
+    } else {
+        // emit segnale sign up successful
+        qDebug() << "Sign up successful";
+        emit signUpSuccess();
     }
 }
 
@@ -136,25 +122,17 @@ void Socket::sendAccess(QString URI){
     }
 }
 
-void Socket::checkLoginAndGetListFileName()
+void Socket::checkLoginAndGetListFileName(QJsonObject object)
 {
-    qDebug() << "Inizio a leggere i file a cui ho accesso e controllo i dati del login";
-    QByteArray data = socket->readAll();
-    QJsonDocument document = QJsonDocument::fromJson(data);
-    QJsonObject object = document.object();
-
     clientID = object.value("id").toInt();
     if(clientID == -1){
         //disconnect(socket, SIGNAL(readyRead()), this, SLOT(checkLoginAndGetListFileName())); SE DISCONNETTO, NON VIENE CHIAMATA LA FUNZIONE QUANDO VENGONO INSERITI NUOVI DATI
         emit loginError();
         return;
     }
-
     QJsonValue value = object.value("files");
     QJsonArray nameFilesArray = value.toArray();
-
     qDebug() << "Accessed files:";
-
     QVector<QString> listFiles_tmp;
     foreach (const QJsonValue& v, nameFilesArray)
     {
@@ -163,13 +141,11 @@ void Socket::checkLoginAndGetListFileName()
 
         this->mapFiles.insert(filename, fileid);
     }
-
     /*Le connect per gestire le notifiche che arrivano dal server le setto nel costruttore di MainWindow*/
-    disconnect(socket, SIGNAL(readyRead()), this, SLOT(checkLoginAndGetListFileName()));
-    connect(socket, SIGNAL(readyRead()), SLOT(readBuffer()));
-    connect(this, SIGNAL(bufferReady(QByteArray)), SLOT(notificationsHandler(QByteArray)));
+//    disconnect(socket, SIGNAL(readyRead()), this, SLOT(checkLoginAndGetListFileName()));
+//    connect(socket, SIGNAL(readyRead()), SLOT(readBuffer()));
+//    connect(this, SIGNAL(bufferReady(QByteArray)), SLOT(notificationsHandler(QByteArray)));
     //connect(socket, SIGNAL(myReadyRead()), SLOT(notificationsHandler()));
-
     emit loginSuccess();
     qDebug() << "Finished!";
 }
@@ -217,6 +193,8 @@ void Socket::notificationsHandler(QByteArray data){
      * CHECKNAME
      * SIGNUP_RESPONSE
      * STYLE
+     * LOGIN
+     * SIGNUP_RESPONSE
     */
 
     if(type.compare("OPEN")==0){
@@ -360,29 +338,22 @@ void Socket::notificationsHandler(QByteArray data){
         emit UserDisconnect(username);
     }
     else if(type.compare("ACCESS_RESPONSE")==0){
-            int fileid = object.value("fileid").toInt();
-            QString filename = object.value("filename").toString();
-            if(fileid > 0){
-                this->mapFiles.insert(filename, fileid);
-                emit uriIsOk(filename);
-            }
-            else{
-                emit uriIsNotOk();
-            }
+        int fileid = object.value("fileid").toInt();
+        QString filename = object.value("filename").toString();
+        if(fileid > 0){
+            this->mapFiles.insert(filename, fileid);
+            emit uriIsOk(filename);
         }
-    /*else if (type.compare("SIGNUP_RESPONSE")==0) {
-        bool successful = object.value("success").toBool();
-        QString message = object.value("msg").toString();
-        if(!successful) {
-            if(message.compare("INVALID_USERNAME"))
-                emit invalidUsername();
-            else if (message.compare("SERVER_FAILURE")) // emit segnale sign up not successful
-                emit signUpError();
-        } else
-            // emit segnale sign up successful
-            qDebug() << "Sign up successful";
-            emit signUpSuccess();
-    }*/
+        else{
+            emit uriIsNotOk();
+        }
+    }
+    else if(type.compare("LOGIN")==0){
+        checkLoginAndGetListFileName(object);
+    }
+    else if (type.compare("SIGNUP_RESPONSE")==0) {
+        checkSignUp(object);
+    }
     //if(socket->bytesAvailable())
       //  emit myReadyRead();
     qDebug() << "Finished!";
