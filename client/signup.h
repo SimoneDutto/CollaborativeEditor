@@ -32,6 +32,8 @@ private slots:
     void on_lineEdit_textEdited(const QString &arg1);
     void on_discardImage_clicked();
 
+    void on_pushButton_2_clicked();
+
 public slots:
     void sendToLogin();
     void repeatSignUp();

@@ -2,6 +2,7 @@
 #include "ui_login.h"
 #include <QMessageBox>
 #include <QShortcut>
+#include "signup.h"
 
 Login::Login(Socket *sock, QWidget *parent)
     : QMainWindow(parent)
@@ -56,4 +57,11 @@ void Login::resumeLogin()
 void Login::redoLogin()
 {
     QMessageBox::warning(this, "Login Failed", "Retry");
+}
+
+void Login::on_pushButton_2_clicked()
+{
+    SignUp *signup = new SignUp(socket, this);
+    hide();
+    signup->show();
 }
