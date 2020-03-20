@@ -3,6 +3,7 @@
 #include <QDebug>
 #include <QtEndian>
 #include <QDataStream>
+#include <QImageWriter>
 
 inline qint32 ArrayToInt(QByteArray source);
 extern int nLogin = 0;
@@ -273,15 +274,27 @@ void Socket::notificationsHandler(QByteArray data){
         QString chunk = object.value("chunk").toString();
         icon_buffer.append(chunk);
         if(remaining == 0){
-            QFile file(QString::number(clientID)+".png");
-            if ( file.open(QFile::WriteOnly|QFile::Truncate) )
-            {
-                QTextStream stream( &file );
-                stream << icon_buffer << endl;
-            }
-            file.close();
+            QImage img(2048,1024,QImage::Format_Indexed8);
+            img = QImage::fromData(QByteArray::fromBase64(icon_buffer),"png");
+//            QString imagePath(QStringLiteral("path/image.jpeg"));
+//            if(img.save(QString::number(clientID),"png")){
+//                qDebug() << "Icon saved";
+//            }
+//            else{
+
+//                qDebug() << "Icon not save";
+//            }
+            QImageWriter writer(QString::number(clientID)+".png");
+            writer.write(img);
+            qDebug() <<writer.error();
+//            QFile file(QString::number(clientID)+".png");
+//            if ( file.open(QFile::WriteOnly|QFile::Truncate) )
+//            {
+//                QTextStream stream( &file );
+//                stream << icon_buffer << endl;
+//            }
+//            file.close();
             icon_buffer.clear();
-            qDebug() << "Icon received";
             //emit iconReady();
         }
     }

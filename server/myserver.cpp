@@ -200,8 +200,8 @@ void MyServer::onDisconnected()
 void MyServer::sendFileChunk(QByteArray chunk, QTcpSocket* socket, int remainingSize, QString type) {
     QJsonObject object;
     QByteArray toSend;
-
-    QString s_data = chunk.data();
+    QString s_data;
+    s_data = chunk.data();
     object.insert("type", type);
     object.insert("chunk", s_data);
     object.insert("remaining", remainingSize);

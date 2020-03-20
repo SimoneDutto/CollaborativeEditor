@@ -6,6 +6,7 @@
 #include <QObject>
 #include <QSignalMapper>
 #include <QTcpSocket>
+#include <QBuffer>
 #include "buffer.h"
 class QTcpServer;
 class FileSystem;

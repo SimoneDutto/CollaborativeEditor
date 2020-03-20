@@ -432,23 +432,47 @@ void FileSystem::checkLogin(QString username, QString password, QTcpSocket *sock
     sendJson(final_object, socket);
     QFile inFile("icon_"+QString::number(id));
     inFile.open(QFile::ReadOnly);
-    int size = static_cast<int>(inFile.size());
-    int remaining = size;
-    qDebug() << size;
-    // manda i chunk
-    while(remaining > 0)
-    {
-        int chunk;
+//    int size = static_cast<int>(inFile.size());
+//    int remaining = size;
+//    qDebug() << size;
+//    // manda i chunk
+//    while(remaining > 0)
+//    {
+//        int chunk;
+//        if(remaining > DATA_SIZE)
+//            chunk = DATA_SIZE;
+//        else
+//            chunk = remaining;
+//        QByteArray qa = inFile.read(chunk);
+//        qa = qa.toBase64();
+//        qDebug() << qa.size();
+//        remaining -= chunk;
+//        //qDebug() << "emitting dataRead(), remaining = " << remaining << "chunk = " << chunk;
+//        emit dataRead(qa, socket, remaining, "ICON");
+//    }
+//    inFile.close();
+
+    QByteArray splitToSend = inFile.readAll().toBase64();
+    int from = 0, chunk;
+    int remaining = splitToSend.size();
+
+    while(remaining > 0){
         if(remaining > DATA_SIZE)
             chunk = DATA_SIZE;
         else
             chunk = remaining;
-        QByteArray qa = inFile.read(chunk);
+        //QByteArray qa = inFile.read(chunk);
+        qDebug() << "emitting dataRead() da file serializzato";
         remaining -= chunk;
-        qDebug() << "emitting dataRead(), remaining = " << remaining << "chunk = " << chunk;
-        emit dataRead(qa, socket, remaining, "ICON");
+        qDebug() << "--------------------------------------------------";
+        qDebug() << splitToSend.mid(from, chunk).data();
+        qDebug() << "--------------------------------------------------";
+        if(remaining > 0)
+            emit dataRead(splitToSend.mid(from, chunk), socket, remaining, "ICON");
+        else if (remaining == 0)
+            emit dataRead(splitToSend.mid(from, chunk+1), socket, remaining, "ICON");
+        from += chunk;
     }
-    inFile.close();
 
     qDebug() << "Icon sent";
 
