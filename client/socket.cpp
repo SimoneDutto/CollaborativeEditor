@@ -33,10 +33,12 @@ Socket::Socket(const QString &host, quint16 port)
     if(socket->waitForConnected(3000))
     {
         qDebug() << "Connesso";
+        connected = true;
     }
     else {
         //NON CONNESSO
         qDebug() << "Non connesso";
+        connected = false;
     }
 }
 
@@ -534,11 +536,13 @@ void Socket::socketConnected()
 void Socket::socketConnectionClosed()
 {
         qDebug() << "Connection closed by the server\n";
+        emit noConnection();
 }
 
 void Socket::socketClosed()
 {
         qDebug() << "Connection closed\n";
+        emit noConnection();
 }
 
 void Socket::socketError(int e)
@@ -578,6 +582,10 @@ FileHandler* Socket::getFHandler(){
 
 int Socket::getClientID(){
     return this->clientID;
+}
+
+bool Socket::getConnection(){
+    return this->connected;
 }
 
 void Socket::isSigningUp(bool flag) {

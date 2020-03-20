@@ -33,6 +33,7 @@ public:
     QMap<QString, QColor> getUserColor();
 
     void isSigningUp(bool flag);
+    bool getConnection();
 
 private:
     Ui::Socket *ui;
@@ -46,6 +47,7 @@ private:
     QMap<QString, int> mapFiles;
     QMap<QString, QColor> userColor;
     bool isDoingSignUp;
+    bool connected;
 
     void checkLoginAndGetListFileName(QJsonObject);
     void checkSignUp(QJsonObject);
@@ -99,6 +101,8 @@ signals:
     void uriIsNotOk();
 
     void writeURI(QString uri);
+
+    void noConnection();
 };
 
 
