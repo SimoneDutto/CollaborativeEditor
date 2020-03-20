@@ -32,6 +32,7 @@ private:
     FileSystem *fsys;
     QTcpServer *m_server;
     QMap<QTcpSocket*, Buffer*> barray_psocket;
+    QMap<QTcpSocket*, Buffer*> iconarray_psocket;
 };
 
 

@@ -100,6 +100,7 @@ void MyServer::handleNotifications(QTcpSocket *socket, QByteArray data)
      * LOGIN
      * SIGNUP
      * STYLE
+     * ICON
     */
 
     if(type.compare("OPEN")==0){
@@ -168,7 +169,28 @@ void MyServer::handleNotifications(QTcpSocket *socket, QByteArray data)
     else if(type.compare("SIGNUP")==0) {
         QString username = rootObject.value("username").toString();
         QString psw = rootObject.value("password").toString();
+
         fsys->storeNewUser(username, psw, socket);
+
+    }
+    else if(type.compare("ICON")==0){
+        int remaining = rootObject.value("remaining").toInt();
+        QString chunk = rootObject.value("chunk").toString();
+        auto buffer_f = iconarray_psocket.find(socket);
+        Buffer* buffer;
+        if(buffer_f != iconarray_psocket.end()){
+            buffer = buffer_f.value();
+        }
+        else{
+            buffer = new Buffer();
+            iconarray_psocket.insert(socket, buffer);
+        }
+        buffer->data.append(chunk);
+
+        if(remaining == 0){
+            fsys->saveFile(buffer->data, socket);
+            buffer->data.clear();
+        }
     }
     else if(type.compare("STYLE")==0) {
         int fileID = rootObject.value(("fileid")).toInt();

@@ -5,8 +5,9 @@
 #include <QDataStream>
 #include <QImageWriter>
 
+#define DATA_SIZE 1024
+
 inline qint32 ArrayToInt(QByteArray source);
-extern int nLogin = 0;
 
 Socket::Socket(QWidget *parent) :
     QDialog(parent),
@@ -61,18 +62,62 @@ void Socket::sendSignUpRequest(QString username, QString password, QString pathU
     obj.insert("type", "SIGNUP");
     obj.insert("username", username);
     obj.insert("password", password);
+
     if(socket->state() == QAbstractSocket::ConnectedState){
-        qDebug() << "Richiesta di registrazione:\n" << QJsonDocument(obj).toJson().data();
-        socket->write(toSend.number(QJsonDocument(obj).toJson().size()), sizeof(long int));
+        QByteArray qarray = QJsonDocument(obj).toJson();
+        qint32 msg_size = qarray.size();
+        QByteArray toSend;
+        socket->write(toSend.number(msg_size), sizeof (long int));
         socket->waitForBytesWritten();
         socket->write(QJsonDocument(obj).toJson());
         socket->waitForBytesWritten(1000);
     }
-    if(nLogin == 0) {
-        disconnect( socket, SIGNAL(readyRead()), this, SLOT(checkLoginAndGetListFileName()) );
-        connect( socket, SIGNAL(readyRead()),  this, SLOT(checkSignUp()), Qt::UniqueConnection);
+    pathIcon = pathUserImage;
+    //sendIcon(pathUserImage);
+}
+void Socket::sendIcon(QString path){
+    QFile inFile(path);
+    inFile.open(QFile::ReadOnly);
+    QByteArray splitToSend = inFile.readAll().toBase64();
+    int from = 0, chunk;
+    int remaining = splitToSend.size();
+    while(remaining > 0){
+        if(remaining > DATA_SIZE)
+            chunk = DATA_SIZE;
+        else
+            chunk = remaining;
+        //QByteArray qa = inFile.read(chunk);
+        qDebug() << "emitting dataRead() da file serializzato";
+        remaining -= chunk;
+        qDebug() << "--------------------------------------------------";
+        qDebug() << splitToSend.mid(from, chunk).data();
+        qDebug() << "--------------------------------------------------";
+        if(remaining > 0)
+            sendFileChunk(splitToSend.mid(from, chunk), socket, remaining);
+        else if (remaining == 0)
+            sendFileChunk(splitToSend.mid(from, chunk+1), socket, remaining);
+        from += chunk;
     }
-    nLogin++;
+    qDebug() << "Icon sent";
+}
+void Socket::sendFileChunk(QByteArray chunk, QTcpSocket* socket, int remainingSize) {
+    QJsonObject object;
+    QByteArray toSend;
+    QString s_data;
+    s_data = chunk.data();
+    object.insert("type", "ICON");
+    object.insert("chunk", s_data);
+    object.insert("remaining", remainingSize);
+    if(socket->state() == QAbstractSocket::ConnectedState)
+    {
+        //qDebug() << "Invio file";
+        qDebug() << "size: " << QJsonDocument(object).toJson().size();
+        qDebug() << "file with content: " << object;
+        socket->write(toSend.number(QJsonDocument(object).toJson().size()), sizeof (long int));
+        socket->waitForBytesWritten();
+        socket->write(QJsonDocument(object).toJson());
+        socket->waitForBytesWritten();
+    }
 }
 
 void Socket::checkSignUp(QJsonObject object) {
@@ -87,6 +132,7 @@ void Socket::checkSignUp(QJsonObject object) {
         // emit segnale sign up successful
         qDebug() << "Sign up successful";
         emit signUpSuccess();
+        sendIcon(pathIcon);
     }
 }
 
@@ -144,11 +190,6 @@ void Socket::checkLoginAndGetListFileName(QJsonObject object)
 
         this->mapFiles.insert(filename, fileid);
     }
-    /*Le connect per gestire le notifiche che arrivano dal server le setto nel costruttore di MainWindow*/
-//    disconnect(socket, SIGNAL(readyRead()), this, SLOT(checkLoginAndGetListFileName()));
-//    connect(socket, SIGNAL(readyRead()), SLOT(readBuffer()));
-//    connect(this, SIGNAL(bufferReady(QByteArray)), SLOT(notificationsHandler(QByteArray)));
-    //connect(socket, SIGNAL(myReadyRead()), SLOT(notificationsHandler()));
     emit loginSuccess();
     qDebug() << "Finished!";
 }

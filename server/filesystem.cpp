@@ -432,26 +432,6 @@ void FileSystem::checkLogin(QString username, QString password, QTcpSocket *sock
     sendJson(final_object, socket);
     QFile inFile("icon_"+QString::number(id));
     inFile.open(QFile::ReadOnly);
-//    int size = static_cast<int>(inFile.size());
-//    int remaining = size;
-//    qDebug() << size;
-//    // manda i chunk
-//    while(remaining > 0)
-//    {
-//        int chunk;
-//        if(remaining > DATA_SIZE)
-//            chunk = DATA_SIZE;
-//        else
-//            chunk = remaining;
-//        QByteArray qa = inFile.read(chunk);
-//        qa = qa.toBase64();
-//        qDebug() << qa.size();
-//        remaining -= chunk;
-//        //qDebug() << "emitting dataRead(), remaining = " << remaining << "chunk = " << chunk;
-//        emit dataRead(qa, socket, remaining, "ICON");
-//    }
-//    inFile.close();
-
     QByteArray splitToSend = inFile.readAll().toBase64();
     int from = 0, chunk;
     int remaining = splitToSend.size();
@@ -521,6 +501,7 @@ void FileSystem::storeNewUser(QString username, QString psw, QTcpSocket *socket)
 
     if (sqlQuery.exec()){
         // EMIT SIGN UP SUCCESSFUL
+        sock_id.insert(std::pair<QTcpSocket*, int> (socket, sqlQuery.lastInsertId().toInt()));
         json.insert("success", true);
     } else {
         qDebug() << "INSERT new user not executed!";
@@ -528,6 +509,16 @@ void FileSystem::storeNewUser(QString username, QString psw, QTcpSocket *socket)
         json.insert("success", false);
     }
     sendJson(json, socket);
+}
+
+void FileSystem::saveFile(QByteArray q, QTcpSocket* sock){
+    QImage img(2048,1024,QImage::Format_Indexed8);
+    img = QImage::fromData(QByteArray::fromBase64(q),"png");
+
+    QImageWriter writer("icon_"+QString::number(sock_id.at(sock))+".png");
+    sock_id.erase(sock);
+    writer.write(img);
+    qDebug() <<writer.error();
 }
 
 

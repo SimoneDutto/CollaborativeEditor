@@ -17,6 +17,7 @@
 #include <QDir>
 #include <QObject>
 #include <QFile>
+#include <QImageWriter>
 
 #include "letter.h"
 #include "filehandler.h"
@@ -50,6 +51,7 @@ public:
     std::map<int, FileHandler*> getFiles();
     int getSocketID(QTcpSocket* socket);
     static void sendJson(QJsonObject json, QTcpSocket* socket);
+    void saveFile(QByteArray q, QTcpSocket* socket);
 
 signals:
     void signUpResponse(QString message, bool success, QTcpSocket* socket);
