@@ -665,19 +665,25 @@ void MainWindow::on_textEdit_cursorPositionChanged() {
     /*Se il testo selezionato ha stile misto, i bottoni accendono lo stile*/
     if(cursor.hasSelection()==true){
         if(ui->textEdit->fontWeight()!=75){
-            //BoldButton OFF
+            ui->actionBold->setChecked(false);
         }
-        else {}//BoldButton ON
+        else {
+            ui->actionBold->setChecked(true);
+        }
 
         if(ui->textEdit->fontItalic()!=true){
-            //ItalicButton OFF
+            ui->actionItalic->setChecked(false);
         }
-        else {}//ItalicButton ON
+        else {
+            ui->actionItalic->setChecked(true);
+        }
 
         if(ui->textEdit->fontUnderline()!=true){
-            //UnderlineButton OFF
+            ui->actionUnderlined->setChecked(false);
         }
-        else {}//UnderlineButton ON
+        else {
+            ui->actionUnderlined->setChecked(true);
+        }
 
     }
 
@@ -686,20 +692,26 @@ void MainWindow::on_textEdit_cursorPositionChanged() {
     else {
         auto format = cursor.charFormat();
 
-        if(format.fontWeight()==55){
-            //BoldButton OFF
+        if(format.fontWeight()!=75){
+            ui->actionBold->setChecked(false);
         }
-        else {} //BoldButton ON
+        else {
+            ui->actionBold->setChecked(true);
+        }
 
         if(format.fontItalic()==false){
-            //ItalicButton OFF
+            ui->actionItalic->setChecked(false);
         }
-        else {} //ItalicButton ON
+        else {
+            ui->actionItalic->setChecked(true);
+        }
 
         if(format.fontUnderline()==false){
-            //UnderlineButton OFF
+            ui->actionUnderlined->setChecked(false);
         }
-        else {} //UnderlineButton ON
+        else {
+            ui->actionUnderlined->setChecked(true);
+        }
     }
 
 }
