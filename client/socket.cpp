@@ -331,7 +331,6 @@ void Socket::notificationsHandler(QByteArray data){
             writer.write(img);
             qDebug() <<writer.error();
             icon_buffer.clear();
-            //emit iconReady(QString::number(clientID)+".png"); VITO questo segnale devi dichairare, collegare ad uno slot
         }
     }
     else if (type.compare("INSERT")==0) {
