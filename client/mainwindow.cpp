@@ -60,6 +60,34 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
     ui->user3->hide();
     ui->counter->hide();
 
+    /* Aggiungo l'icona dell'utente */
+
+    /* Gestire il caso in cui non ci sia nessuna icona */
+    /*
+     * QString styleSheet = "QLabel { background-color: rgb(255, 254, 239); color: black; border-style: solid; border-width: 1.2px; border-color: black;}";
+     * ui->myicon->setStyleSheet(styleSheet);
+     * QFont font("Arial", 30);
+     * ui->userImage->setFont(font);
+     * ui->myicon->setText("U");
+    */
+
+    QString imageName = QString::number(socket->getClientID())+".png";
+    QPixmap userPixmap = QPixmap(imageName);
+
+    if(userPixmap != QPixmap()){
+        QPixmap scaled = userPixmap.scaled(ui->myicon->width(), ui->myicon->height(), Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
+        ui->myicon->setPixmap(scaled);
+    }
+
+    else {
+        /* Da personalizzare secondo i dati del client (nome-colore) */
+        QString styleSheet = "QLabel { background-color: rgb(255, 252, 247); color: black; border-style: solid; border-width: 3px; border-radius: 15px; border-color: blue; font: ; }";
+        ui->myicon->setStyleSheet(styleSheet);
+        QFont font("Arial");
+        ui->myicon->setFont(font);
+        ui->myicon->setText("ME");
+    }
+
 
     /* CONNECT per segnali uscenti, inoltrare le modifiche fatte */
     connect( this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
@@ -637,19 +665,25 @@ void MainWindow::on_textEdit_cursorPositionChanged() {
     /*Se il testo selezionato ha stile misto, i bottoni accendono lo stile*/
     if(cursor.hasSelection()==true){
         if(ui->textEdit->fontWeight()!=75){
-            //BoldButton OFF
+            ui->actionBold->setChecked(false);
         }
-        else {}//BoldButton ON
+        else {
+            ui->actionBold->setChecked(true);
+        }
 
         if(ui->textEdit->fontItalic()!=true){
-            //ItalicButton OFF
+            ui->actionItalic->setChecked(false);
         }
-        else {}//ItalicButton ON
+        else {
+            ui->actionItalic->setChecked(true);
+        }
 
         if(ui->textEdit->fontUnderline()!=true){
-            //UnderlineButton OFF
+            ui->actionUnderlined->setChecked(false);
         }
-        else {}//UnderlineButton ON
+        else {
+            ui->actionUnderlined->setChecked(true);
+        }
 
     }
 
@@ -658,20 +692,26 @@ void MainWindow::on_textEdit_cursorPositionChanged() {
     else {
         auto format = cursor.charFormat();
 
-        if(format.fontWeight()==55){
-            //BoldButton OFF
+        if(format.fontWeight()!=75){
+            ui->actionBold->setChecked(false);
         }
-        else {} //BoldButton ON
+        else {
+            ui->actionBold->setChecked(true);
+        }
 
         if(format.fontItalic()==false){
-            //ItalicButton OFF
+            ui->actionItalic->setChecked(false);
         }
-        else {} //ItalicButton ON
+        else {
+            ui->actionItalic->setChecked(true);
+        }
 
         if(format.fontUnderline()==false){
-            //UnderlineButton OFF
+            ui->actionUnderlined->setChecked(false);
         }
-        else {} //UnderlineButton ON
+        else {
+            ui->actionUnderlined->setChecked(true);
+        }
     }
 
 }
