@@ -136,3 +136,10 @@ void SignUp::on_discardImage_clicked()
     ui->discardImage->hide();
     this->pathUserImage="";
 }
+
+void SignUp::on_pushButton_2_clicked()
+{
+    loginWindow = new Login(socket, this);
+    hide();
+    loginWindow->show();
+}
