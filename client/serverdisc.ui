@@ -13,27 +13,11 @@
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <widget class="QLabel" name="label_2">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>110</y>
-     <width>321</width>
-     <height>20</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>It seems like you are not connected to the server.</string>
-   </property>
-   <property name="alignment">
-    <set>Qt::AlignCenter</set>
-   </property>
-  </widget>
   <widget class="QLabel" name="label_3">
    <property name="geometry">
     <rect>
      <x>120</x>
-     <y>10</y>
+     <y>60</y>
      <width>71</width>
      <height>61</height>
     </rect>
@@ -42,7 +26,7 @@
     <string/>
    </property>
    <property name="pixmap">
-    <pixmap resource="resource.qrc">:/rec/icone/error.png</pixmap>
+    <pixmap resource="resource.qrc">:/rec/icone/error2.png</pixmap>
    </property>
   </widget>
   <widget class="QPushButton" name="pushButton">
@@ -62,7 +46,7 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>80</y>
+     <y>20</y>
      <width>281</width>
      <height>20</height>
     </rect>
@@ -75,7 +59,7 @@
     </font>
    </property>
    <property name="text">
-    <string>Ops.. something went wrong!</string>
+    <string>You are not connected!</string>
    </property>
    <property name="alignment">
     <set>Qt::AlignCenter</set>

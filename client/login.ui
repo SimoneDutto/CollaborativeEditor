@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>418</width>
-    <height>281</height>
+    <width>428</width>
+    <height>306</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -90,34 +90,37 @@
      </layout>
     </widget>
    </widget>
-   <widget class="QLabel" name="label">
+   <widget class="QGroupBox" name="groupBox">
     <property name="geometry">
      <rect>
-      <x>137</x>
-      <y>200</y>
-      <width>151</width>
-      <height>20</height>
+      <x>130</x>
+      <y>180</y>
+      <width>162</width>
+      <height>82</height>
      </rect>
     </property>
-    <property name="text">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt; font-weight:600;&quot;&gt;Not registered yet?&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    <property name="title">
+     <string/>
     </property>
-    <property name="alignment">
-     <set>Qt::AlignCenter</set>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="pushButton_2">
-    <property name="geometry">
-     <rect>
-      <x>141</x>
-      <y>220</y>
-      <width>141</width>
-      <height>32</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Sign Up</string>
-    </property>
+    <layout class="QVBoxLayout" name="verticalLayout_4">
+     <item>
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt; font-weight:600;&quot;&gt;Not registered yet?&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushButton_2">
+       <property name="text">
+        <string>Sign Up</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
@@ -125,7 +128,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>418</width>
+     <width>428</width>
      <height>22</height>
     </rect>
    </property>
