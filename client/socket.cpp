@@ -224,12 +224,30 @@ void Socket::notificationsHandler(QByteArray data){
         this->fileh->setSize(object.value("size").toInt());
         this->fileh->setSiteCounter(object.value("siteCounter").toInt());
         emit writeURI(object.value("URI").toString());
-        QJsonArray array_tmp = object.value("activeUser").toArray();
-        for(auto user : array_tmp) {
-            QString username = user.toString();
-            QColor random = QColor(rand()%255, rand()%255, rand()%255, rand()%255);
-            userColor.insert(username, random);
-            emit UserConnect(username, random);
+        if(object.contains("activeUser") && object.contains("activeUserIDs") && object.contains("userCursors")) {
+            QJsonArray array_tmp = object.value("activeUser").toArray();
+            QJsonArray userIDs = object.value("activeUserIDs").toArray();
+            QJsonArray userCursors = object.value("userCursors").toArray();
+            int i = 0;
+            // reset older values
+            if(!userColor.isEmpty())
+                userColor.clear();
+            if(!this->userCursors.isEmpty())
+                this->userCursors.clear();
+            if(userIDColor.isEmpty())
+                userIDColor.clear();
+
+            for(auto user : array_tmp) {
+                QString username = user.toString();
+                QColor random = QColor(rand()%255, rand()%255, rand()%255, rand()%255);
+                int userID = userIDs[i].toInt();
+                int userPos = userCursors[i].toInt();
+                userColor.insert(username, random);
+                userIDColor.insert(userID, random);
+                this->userCursors.insert(userID, userPos);
+                i++;
+                emit UserConnect(username, random);
+            }
         }
         // fileid < 0 non puoi aprire il file
     }
@@ -287,7 +305,8 @@ void Socket::notificationsHandler(QByteArray data){
 
             /*Salvo il file come vettore di Letters nel fileHandler*/
             this->fileh->setValues(std::move(letters));
-            emit readyFile();
+            // passare mappa<userid,pos>, mappa<userid,colore>
+            emit readyFile(userCursors, userIDColor);
         }
 
     }
@@ -350,13 +369,20 @@ void Socket::notificationsHandler(QByteArray data){
     }
     else if(type.compare("USER_CONNECT")==0){
         QString username = object.value("username").toString();
+        int userID = object.value("userID").toInt();
+        int cursor = object.value("cursor").toInt();
         QColor random = QColor(rand()%255, rand()%255, rand()%255, rand()%255);
         userColor.insert(username, random);
+        userIDColor.insert(userID, random);
+        userCursors.insert(userID, cursor);
         emit UserConnect(username, random);
     }
     else if(type.compare("USER_DISCONNECT")==0){
         QString username = object.value("username").toString();
+        int userID = object.value("userID").toInt();
         userColor.remove(username);
+        userIDColor.remove(userID);
+        userCursors.remove(userID);
         emit UserDisconnect(username);
     }
     else if(type.compare("ACCESS_RESPONSE")==0){

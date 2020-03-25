@@ -6,15 +6,18 @@ FileHandler::FileHandler(const QVector<Letter*>&& lett, int fileid, QObject *par
     id = fileid;
 }
 
-void FileHandler::insertActiveUser(QTcpSocket* user, int siteCounter, QString username){
+void FileHandler::insertActiveUser(QTcpSocket* user, int siteCounter, QString username, int userID, int cursorPosition){
     users.append(user);
     counter_user++;
     usersSiteCounters.insert(user, siteCounter);
+    usersCursorPosition.insert(user, cursorPosition);
     QJsonObject json;
     QByteArray sendSize;
 
     json.insert("type", "USER_CONNECT");
     json.insert("username", username);
+    json.insert("userID", userID);
+    json.insert("cursor", cursorPosition);
     for(QTcpSocket* u: users){
         if(u == user) continue;
         if(u->state() == QAbstractSocket::ConnectedState){
@@ -32,8 +35,10 @@ void FileHandler::insertActiveUser(QTcpSocket* user, int siteCounter, QString us
     }
 }
 
-void FileHandler::removeActiveUser(QTcpSocket *user, QString username){
+void FileHandler::removeActiveUser(QTcpSocket *user, QString username, int userID){
     users.removeOne(user);
+    usersSiteCounters.remove(user);
+    usersCursorPosition.remove(user);
     counter_user--;
     if(counter_user == 0){
         // Salvarlo in memoria secondaria, io lo farei con un segnale
@@ -59,6 +64,7 @@ void FileHandler::removeActiveUser(QTcpSocket *user, QString username){
 
     json.insert("type", "USER_DISCONNECT");
     json.insert("username", username);
+    json.insert("userID", userID);
     for(QTcpSocket* u: users){
         if(u == user) continue;
         if(u->state() == QAbstractSocket::ConnectedState){
@@ -208,4 +214,12 @@ QVector<Letter*> FileHandler::getLetter(){
 
 int FileHandler::getSiteCounter(QTcpSocket *user) {
     return this->usersSiteCounters.value(user);
+}
+
+int FileHandler::getUserCursorPosition(QTcpSocket *user) {
+    return this->usersCursorPosition.value(user);
+}
+
+bool FileHandler::thereAreUsers() {
+    return !users.isEmpty();
 }

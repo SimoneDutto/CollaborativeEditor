@@ -44,6 +44,8 @@ private:
     int clientID;
     QMap<QString, int> mapFiles;
     QMap<QString, QColor> userColor;
+    QMap<int, QColor> userIDColor;
+    QMap<int, int> userCursors;
     bool isDoingSignUp;
 
 public slots:
@@ -82,7 +84,7 @@ signals:
     void loginError();
 
     /*Notifiche durante l'uso*/
-    void readyFile();
+    void readyFile(QMap<int,int>,QMap<int,QColor>);
     void readyInsert(QJsonArray position, QChar newLetterValue, int externalIndex, int siteID, int siteCounter, QTextCharFormat format);
     void readyDelete(QString deletedLetterID);
     void readyStyleChange(QString firstID, QString lastID, QString changedStyle);

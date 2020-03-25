@@ -2,7 +2,7 @@
 #include <QDebug>
 
 FileHandler::FileHandler(QObject *parent)
-  : QObject(parent), siteCounter(0)
+  : QObject(parent), siteCounter(0), cursor(0)
 {}
 
 /**
@@ -294,6 +294,7 @@ void FileHandler::setValues(QVector<Letter *> letters){
         this->letters.clear();
     }
     this->letters = letters;
+    this->cursor = letters.size();
 }
 
 QVector<Letter*> FileHandler::getVectorFile(){
@@ -330,4 +331,8 @@ void FileHandler::setURI(QString URI){
 
 QString FileHandler::getURI(){
     return this->URI;
+}
+
+int FileHandler::getCursor() {
+    return this->cursor;
 }

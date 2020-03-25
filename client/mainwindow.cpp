@@ -94,7 +94,7 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
               fHandler,  SLOT(remoteInsert(QJsonArray, QChar, int, int, int, QTextCharFormat)));
     connect( socket, SIGNAL(readyDelete(QString)),
               fHandler, SLOT(remoteDelete(QString)));
-    connect( socket, SIGNAL(readyFile()),  this, SLOT(fileIsHere()));
+    connect( socket, SIGNAL(readyFile(QMap<int,int>,QMap<int,QColor>)),  this, SLOT(fileIsHere(QMap<int,int>,QMap<int,QColor>)));
     connect( fHandler, SIGNAL(readyRemoteInsert(QChar, int, QTextCharFormat)),
              this, SLOT(changeViewAfterInsert(QChar, int, QTextCharFormat)));
     connect( fHandler, SIGNAL(readyRemoteDelete(int)),
@@ -503,7 +503,7 @@ void MainWindow::on_lineEdit_editingFinished()
     //emit sendNameFile(ui->lineEdit->text());
 }
 
-void MainWindow::fileIsHere(){
+void MainWindow::fileIsHere(QMap<int,int> id_pos, QMap<int,QColor> id_colore){
     qDebug() << "FileIsHere";
     disconnect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
 
@@ -522,16 +522,16 @@ void MainWindow::fileIsHere(){
 
     /*simulo le mappe che dovrebbero arrivarmi */
 
-    QMap<int,int> id_pos;
-    QMap<int, QColor> id_colore;
+//    QMap<int,int> id_pos;
+//    QMap<int, QColor> id_colore;
 
-    id_pos.insert(1,6);
-    id_pos.insert(5,3);
-    id_pos.insert(3,12);
+//    id_pos.insert(1,6);
+//    id_pos.insert(5,3);
+//    id_pos.insert(3,12);
 
-    id_colore.insert(1, Qt::white);
-    id_colore.insert(5, Qt::red);
-    id_colore.insert(3, Qt::blue);
+//    id_colore.insert(1, Qt::white);
+//    id_colore.insert(5, Qt::red);
+//    id_colore.insert(3, Qt::blue);
 
     /* la parte sopra andrà cancellata */
 

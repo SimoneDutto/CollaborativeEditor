@@ -15,6 +15,7 @@ private:
     QVector<Letter*> letters;
     int siteCounter;
     int size;
+    int cursor;
     QString URI;
     QVector<int> calculateInternalIndex(QVector<int> prevPos, QVector<int> nextPos);
 
@@ -28,8 +29,9 @@ public:
     void setSize(int size);
     int getSiteCounter();
     void setSiteCounter(int siteCounter);
-    void setURI(QString URI);
     QString getURI();
+    void setURI(QString URI);
+    int getCursor();
 
 public slots:
     void localInsert(int externalIndex, QChar newLetterValue, int clientID, QTextCharFormat format);
