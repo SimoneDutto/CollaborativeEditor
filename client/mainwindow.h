@@ -19,6 +19,7 @@ class MainWindow : public QMainWindow
 
 public:
     explicit MainWindow(Socket *sock = nullptr, FileHandler *fileHand = nullptr,QWidget *parent = nullptr, QString nome = nullptr);
+    static bool sorting(QPair<QPair<int,QColor>,int> &, QPair<QPair<int,QColor>,int> &);
     ~MainWindow();
 
 private slots:
@@ -59,6 +60,19 @@ private slots:
     //void changeViewAfterCursor(int pos, QColor color);
 
     void on_counter_clicked();
+    void on_write_uri(QString uri);
+
+    void on_actionAlign_to_Left_triggered();
+
+    void on_actionAlign_to_Right_triggered();
+
+    void on_actionAlign_to_Center_triggered();
+
+    void on_actionAlign_to_Justify_triggered();
+    void notConnected();
+
+    void on_cursor_triggered(QPair<int,int> idpos, QColor col);
+
 
 private:
     Ui::MainWindow *ui;
@@ -68,6 +82,8 @@ private:
     Form *form;
     Account *account;
     int letterCounter = 0;
+    QList<QPair<QPair<int,QColor>,int>> id_colore_cursore;
+
 
 signals:
     void myInsert(int externalIndex, QChar newLetterValue, int clientID, QTextCharFormat format);

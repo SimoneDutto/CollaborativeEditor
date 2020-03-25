@@ -47,7 +47,7 @@ private:
     bool isDoingSignUp;
 
 public slots:
-    void sendSignUpRequest(QString username, QString password);
+    void sendSignUpRequest(QString username, QString password, QString pathImage);
     void sendLogin(QString username, QString password);
     void sendAccess(QString URI);
 
@@ -95,6 +95,8 @@ signals:
 
     void uriIsOk(QString uri);
     void uriIsNotOk();
+
+    void writeURI(QString uri);
 };
 
 

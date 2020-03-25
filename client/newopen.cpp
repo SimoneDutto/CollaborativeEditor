@@ -1,6 +1,7 @@
 #include "newopen.h"
 #include "ui_newopen.h"
 #include <QShortcut>
+#include "error.h"
 
 NewOpen::NewOpen(Socket *sock, FileHandler *fHandler, QWidget *parent) :
     QDialog(parent),
@@ -57,15 +58,30 @@ NewOpen::~NewOpen()
 
 void NewOpen::on_pushButton_2_clicked() //Bottone: new Document
 {
+    disconnect(socket, SIGNAL(uriIsOk(QString)),
+             this, SLOT(uriIsOk(QString)));
+    disconnect(socket, SIGNAL(uriIsNotOk()),
+             this, SLOT(uriIsNotOk()));
     QString newfile = ui->lineEdit_2->text();
-    emit newFile(newfile);
-    mainwindow = new MainWindow(this->socket, this->socket->getFHandler(), this, newfile);
-    hide();
-    mainwindow->show();
+    if(newfile.isEmpty()){
+        Error *e = new Error(this);
+        e->show();
+    }
+    else{
+        emit newFile(newfile);
+        mainwindow = new MainWindow(this->socket, this->socket->getFHandler(), this, newfile);
+        hide();
+        mainwindow->show();
+    }
+
 }
 
 void NewOpen::on_pushButton_clicked() //Bottone: open Document
 {
+    disconnect(socket, SIGNAL(uriIsOk(QString)),
+             this, SLOT(uriIsOk(QString)));
+    disconnect(socket, SIGNAL(uriIsNotOk()),
+             this, SLOT(uriIsNotOk()));
     QString n = ui->listWidget->currentItem()->text();
     emit openThisFile(n);
     mainwindow = new MainWindow(this->socket, this->socket->getFHandler(), this, n);

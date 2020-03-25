@@ -1,22 +1,21 @@
-#include "uri.h"
-#include "ui_uri.h"
+#include "error.h"
+#include "ui_error.h"
 
-Uri::Uri(Socket *s, QWidget *parent) :
+Error::Error(QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::Uri),
-    sock(s)
+    ui(new Ui::Error)
 {
     ui->setupUi(this);
     setWindowTitle("Error");
     setWindowModality(Qt::WindowModal);
 }
 
-Uri::~Uri()
+Error::~Error()
 {
     delete ui;
 }
 
-void Uri::on_pushButton_clicked()
+void Error::on_pushButton_clicked()
 {
     this->close();
 }

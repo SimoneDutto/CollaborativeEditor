@@ -22,6 +22,14 @@
         <file>icone/underline2.png</file>
         <file>icone/nuovo2.png</file>
         <file>icone/open.png</file>
+        <file>icone/error.png</file>
+        <file>icone/centro.png</file>
+        <file>icone/destra.png</file>
+        <file>icone/giust.png</file>
+        <file>icone/sinistra.png</file>
+        <file>icone/camera_icon.png</file>
+        <file>icone/discard_icon.png</file>
+        <file>icone/error2.png</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>

@@ -19,6 +19,7 @@ Dialog::Dialog(Socket *sock, QWidget *parent) :
     p.setColor(QPalette::Base, QColor(209,209,214)); // set color "Red" for textedit base
     p.setColor(QPalette::Text, Qt::black); // set text color which is selected from color pallete
     ui->listWidget->setPalette(p);
+    ui->lineEdit->setPalette(p);
     this->show();
     setWindowTitle("Files");
     /*
@@ -35,6 +36,12 @@ Dialog::Dialog(Socket *sock, QWidget *parent) :
 
     connect( this, SIGNAL(openThisFile(QString)),
              this->socket, SLOT(sendOpenFile(QString)));
+    connect(this, SIGNAL(checkUri(QString)),
+            this->socket, SLOT(sendAccess(QString)));
+    connect(socket, SIGNAL(uriIsOk(QString)),
+             this, SLOT(uriIsOk(QString)));
+    connect(socket, SIGNAL(uriIsNotOk()),
+             this, SLOT(uriIsNotOk()));
 }
 
 Dialog::~Dialog()
@@ -46,4 +53,21 @@ void Dialog::on_pushButton_clicked()
 {
     emit openThisFile(ui->listWidget->currentItem()->text());
     hide();
+}
+
+void Dialog::on_pushButton_2_clicked()
+{
+    QString uri = ui->lineEdit->text();
+    emit checkUri(uri);
+}
+
+void Dialog::uriIsOk(QString uri){
+    ui->listWidget->addItem(uri);
+    ui->listWidget->findItems(uri,Qt::MatchExactly).first()->setBackground(QColor(52,199,89));
+
+}
+
+void Dialog::uriIsNotOk(){
+    Uri *uri = new Uri(socket,this);
+    uri->show();
 }

@@ -2,7 +2,7 @@ QT       += core gui
 QT += network widgets
 QT += quickcontrols2
 QT += printsupport
-TARGET = PDFPrintMaybe
+TARGET = GoogleFakeDocs
 
 requires(qtConfig(combobox))
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
@@ -23,6 +23,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
     account.cpp \
     dialog.cpp \
+    error.cpp \
     newopen.cpp \
     filehandler.cpp \
     form.cpp \
@@ -31,6 +32,7 @@ SOURCES += \
     login.cpp \
     mainwindow.cpp \
     onlineuser.cpp \
+    serverdisc.cpp \
     signup.cpp \
     socket.cpp \
     uri.cpp \
@@ -39,6 +41,7 @@ SOURCES += \
 HEADERS += \
     account.h \
     dialog.h \
+    error.h \
     newopen.h \
     filehandler.h \
     form.h \
@@ -46,6 +49,7 @@ HEADERS += \
     login.h \
     mainwindow.h \
     onlineuser.h \
+    serverdisc.h \
     signup.h \
     socket.h \
     uri.h \
@@ -54,11 +58,13 @@ HEADERS += \
 FORMS += \
     account.ui \
     dialog.ui \
+    error.ui \
     newopen.ui \
     form.ui \
     login.ui \
     mainwindow.ui \
     onlineuser.ui \
+    serverdisc.ui \
     signup.ui \
     socket.ui \
     uri.ui \

@@ -14,6 +14,9 @@
 #include <QPdfWriter>
 #include <QPrinter>
 #include <QStandardItem>
+#include "serverdisc.h"
+#include <QDesktopWidget>
+#include <algorithm>
 
 
 MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QString nome) :
@@ -44,12 +47,31 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
 
 
     setWindowTitle(nome);
-    ui->label_2->setStyleSheet("background-color:lightgray");
+    ui->label_2->setStyleSheet("background-color:lightgray; color:black");
+    ui->label_2->setTextInteractionFlags(Qt::TextSelectableByMouse);
     //ui->label->setStyleSheet("background-color:lightgray");
-    ui->label_2->setText(fileHand->getURI());
+
+    auto availableSize = qApp->desktop();
+       int width = availableSize->width();
+       int height = availableSize->height();
+       width *= 0.8; // 80% of the screen size
+       height *= 0.8; // 80% of the screen size
+       QSize newSize( width, height );
+
+       setGeometry(
+           QStyle::alignedRect(
+               Qt::LeftToRight,
+               Qt::AlignCenter,
+               newSize,
+               qApp->desktop()->rect()
+           )
+       );
     //ui->lineEdit->setText(nome);
 
     /* Personalizzo e aggiungo le label degli utenti connessi */
+    QString styleSheet = QString("QGroupBox {border: 0px;}");
+    ui->groupBox->setStyleSheet(styleSheet);
+
     ui->user1->hide();
     ui->user2->hide();
     ui->user3->hide();
@@ -85,16 +107,25 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
              this, SLOT(addUserConnection(QString, QColor)));
     connect( socket, SIGNAL(UserDisconnect(QString)),
              this, SLOT(removeUserDisconnect(QString)));
+    connect( socket, SIGNAL(writeURI(QString)),
+             this, SLOT(on_write_uri(QString)));
 
     /* CONNECT per lo stile dei caratteri */
     connect( this, SIGNAL(styleChange(QMap<QString, QTextCharFormat>, QString, QString, bool, bool, bool)),
               fHandler, SLOT(localStyleChange(QMap<QString, QTextCharFormat>, QString, QString, bool, bool, bool)) );
+
 
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+bool MainWindow::sorting(QPair<QPair<int,QColor>,int> &e1, QPair<QPair<int,QColor>,int> &e2){
+if(e1.second < e2.second)
+return true;
+else return false;
 }
 
 void MainWindow::on_actionNew_triggered()
@@ -487,6 +518,31 @@ void MainWindow::fileIsHere(){
     letterCounter = ui->textEdit->toPlainText().size();
     qDebug() << "letter cnt : = "<< letterCounter;
 
+    /* cursore */
+
+    /*simulo le mappe che dovrebbero arrivarmi */
+
+    QMap<int,int> id_pos;
+    QMap<int, QColor> id_colore;
+
+    id_pos.insert(1,6);
+    id_pos.insert(5,3);
+    id_pos.insert(3,12);
+
+    id_colore.insert(1, Qt::white);
+    id_colore.insert(5, Qt::red);
+    id_colore.insert(3, Qt::blue);
+
+    /* la parte sopra andrà cancellata */
+
+    // riempio la lista indicizzata
+
+    for(int utente : id_pos.keys()){
+        id_colore_cursore.append(qMakePair(qMakePair(utente,id_colore.value(utente)),id_pos.value(utente)));
+    }
+
+    std::sort(id_colore_cursore.begin(), id_colore_cursore.end(), sorting);
+
     connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
 }
 
@@ -609,16 +665,6 @@ void MainWindow::removeUserDisconnect(QString username){
 
 }
 
-/*void MainWindow::setCursor(int pos, QString color)
-{
-    QString cursore = "|";
-    QString colore = "<span style=\" font-size:8pt; font-weight:600; color:" + color + '"' + ";\" >";
-    colore.append(cursore);
-    colore.append("</span>");
-    QTextCursor c;
-    c.setPosition(pos);
-    c.insertHtml(colore);
-}*/
 
 //TODO: inserire gestione bottoni
 void MainWindow::on_textEdit_cursorPositionChanged() {
@@ -679,7 +725,7 @@ void MainWindow::on_actionLog_Out_triggered()
 void MainWindow::on_actionEdit_Profile_triggered()
 {
     account = new Account(this->socket, this, this->windowTitle());
-    hide();
+    //hide();
     account->show();
 
 }
@@ -717,3 +763,101 @@ void MainWindow::on_counter_clicked()
 
 
 }
+
+void MainWindow::on_write_uri(QString uri){
+    ui->label_2->setText(uri);
+}
+
+void MainWindow::on_actionAlign_to_Left_triggered()
+{
+    ui->textEdit->setAlignment(Qt::AlignLeft);
+}
+
+void MainWindow::on_actionAlign_to_Right_triggered()
+{
+    ui->textEdit->setAlignment(Qt::AlignRight);
+}
+
+void MainWindow::on_actionAlign_to_Center_triggered()
+{
+    ui->textEdit->setAlignment(Qt::AlignCenter);
+}
+
+void MainWindow::on_actionAlign_to_Justify_triggered()
+{
+    ui->textEdit->setAlignment(Qt::AlignJustify);
+}
+
+void MainWindow::notConnected(){
+    serverDisc *s = new serverDisc(this);
+    s->show();
+}
+
+
+void MainWindow::on_cursor_triggered(QPair<int,int> idpos, QColor col)
+{
+    // controllo che nella mappa colorecursore non sia gia presente l'id
+
+    disconnect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
+    QTextCharFormat fmt;
+    QTextCharFormat fmt2;
+
+    fmt2.setBackground(QColor(209,209,214));
+    QTextCursor cursor = ui->textEdit->textCursor();
+
+    // simulo la coppia userid-pos e il colore che mi arriveranno come parametri
+    //QPair<int, int> idpos = qMakePair(5, 11);
+    //QColor col = Qt::red;
+
+    // controllo che nella mappa colorecursore non sia gia presente il colore
+    bool trovato = false;
+    for(int i = 0; i< id_colore_cursore.size(); i++){
+        //se c'è lo sostituisco
+        if (id_colore_cursore.at(i).first.first == idpos.first ){
+            id_colore_cursore.replace(i, qMakePair(qMakePair(idpos.first,col), idpos.second));
+            trovato = true;
+            break;
+        }
+    }
+        //altrimenti lo aggiungo
+        if (trovato == false)
+            id_colore_cursore.append(qMakePair(qMakePair(idpos.first,col), idpos.second));
+
+
+
+    std::sort(id_colore_cursore.begin(), id_colore_cursore.end(), sorting);
+
+        QColor colore = id_colore_cursore.value(0).first.second;
+        int pos = id_colore_cursore.value(0).second;
+
+        fmt.setBackground(colore);
+
+        cursor.setPosition(pos);
+        cursor.movePosition(QTextCursor::Start, QTextCursor::KeepAnchor);
+        cursor.setCharFormat(fmt2);
+        cursor.setPosition(pos);
+        cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+        cursor.setCharFormat(fmt2);
+        cursor.setPosition(pos);
+        cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
+        cursor.setCharFormat(fmt);
+
+    for(int i = 1; i < id_colore_cursore.size(); i++){
+        QColor colore = id_colore_cursore.value(i).first.second;
+        int pos = id_colore_cursore.value(i).second;
+
+        fmt.setBackground(colore);
+        cursor.setPosition(pos);
+        cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+        cursor.mergeCharFormat(fmt2);
+        cursor.setPosition(pos);
+        cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
+        cursor.mergeCharFormat(fmt);
+    }
+
+    connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
+
+}
+
+
+

@@ -1,14 +1,21 @@
 #include "signup.h"
 #include "ui_signup.h"
+#include <QDir>
 #include <QMessageBox>
+#include <QFileDialog>
+#include <QBitmap>
+#include <QPainter>
 
 SignUp::SignUp(Socket* sock, QWidget* parent)
     : QDialog(parent),
     ui(new Ui::SignUp),
-    socket(sock)
+    socket(sock),
+    pathUserImage("")
 {
     ui->setupUi(this);
     QPalette pal = palette();
+    QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
+    this->setWindowFlags(Qt::Window);
 
     // set black background
     pal.setColor(QPalette::Background, QColor(58,58,60));
@@ -21,6 +28,32 @@ SignUp::SignUp(Socket* sock, QWidget* parent)
     ui->lineEdit->setPalette(p);
     ui->lineEdit_2->setPalette(p);
     ui->lineEdit_3->setPalette(p);
+
+    /* User's Image */
+    QString styleSheet = "QLabel { background-color: rgb(255, 254, 239); color: black; border-style: solid; border-width: 1.2px; border-color: black;}";
+    ui->userImage->setStyleSheet(styleSheet);
+    QFont font("Arial", 30);
+    ui->userImage->setFont(font);
+    ui->userImage->setText("U"); //Si dovrebbe impostare la propria iniziale
+
+    /* Camera Button */
+    QIcon *user_icon= new QIcon(":/rec/icone/camera_icon.png");
+    ui->setImage->setIcon(*user_icon);
+    ui->setImage->setIconSize(QSize(18, 18));
+
+    styleSheet = "QPushButton {background-color: white; border-style: solid; border-width: 1px; border-radius: 15px; border-color: rgb(0, 0, 0);} QPushButton:hover {background-color: rgb(233, 233, 233)} QPushButton:pressed {background-color: rgb(181, 181, 181)}";
+    ui->setImage->setStyleSheet(styleSheet);
+
+    /* Discard Button */
+    QIcon *discard_icon= new QIcon(":/rec/icone/discard_icon.png");
+    ui->discardImage->setIcon(*discard_icon);
+    ui->discardImage->setIconSize(QSize(18, 18));
+
+    styleSheet = "QPushButton {background-color: white; border-style: solid; border-width: 1px; border-radius: 15px; border-color: rgb(0, 0, 0);} QPushButton:hover {background-color: rgb(233, 233, 233)} QPushButton:pressed {background-color: rgb(181, 181, 181)}";
+    ui->discardImage->setStyleSheet(styleSheet);
+    ui->discardImage->hide();
+
+
     this->show();
     setWindowTitle("Sign Up");
     socket->isSigningUp(true);
@@ -34,11 +67,16 @@ SignUp::~SignUp() {
 }
 
 void SignUp::on_pushButton_clicked() {
-    QString username = ui->lineEdit->text();
-    QByteArray password = ui->lineEdit_2->text().toLatin1();
-    QByteArray conferma = ui->lineEdit_3->text().toLatin1();
 
-    socket->sendSignUpRequest(username, password);
+    if(QString::compare(ui->lineEdit_2->text(), ui->lineEdit_3->text()) == 0){
+        QString username = ui->lineEdit->text();
+        QByteArray password = ui->lineEdit_2->text().toLatin1();
+        QString pathImage = this->pathUserImage;
+
+        socket->sendSignUpRequest(username, password, pathImage);
+    }
+
+    else QMessageBox::warning(this, "Ops...", "Passwords are not equal");
 }
 
 void SignUp::sendToLogin() {
@@ -55,4 +93,54 @@ void SignUp::repeatSignUp() {
 
 void SignUp::changeUsername() {
     QMessageBox::warning(this, "Ops...", "Username already in use: pick another one!");
+}
+
+
+void SignUp::on_setImage_clicked()
+{
+    QString iconName = QFileDialog::getOpenFileName(this, tr("Choose"), "", tr("Images (*.png *.jpg *.jpeg *.bmp)"));
+
+    if(QString::compare(iconName, QString()) != 0)
+    {
+        QPixmap userPixmap = QPixmap(iconName);
+        QPixmap scaled = userPixmap.scaled(ui->userImage->width(), ui->userImage->height(), Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
+        ui->userImage->setPixmap(scaled);
+
+        ui->discardImage->show();
+        this->pathUserImage = iconName;
+    }
+}
+
+void SignUp::on_lineEdit_textEdited(const QString &presentText)
+{
+    if(ui->userImage->pixmap() == nullptr){
+        if(QString::compare(presentText, QString()) != 0){
+            ui->userImage->setText(presentText.at(0).toUpper());
+        }
+
+        else ui->userImage->setText("U");
+    }
+
+}
+
+void SignUp::on_discardImage_clicked()
+{
+    ui->userImage->clear();
+    QString presentText = ui->lineEdit->text();
+
+    if(QString::compare(presentText, QString()) != 0){
+        ui->userImage->setText(presentText.at(0).toUpper());
+    }
+
+    else ui->userImage->setText("U");
+
+    ui->discardImage->hide();
+    this->pathUserImage="";
+}
+
+void SignUp::on_pushButton_2_clicked()
+{
+    loginWindow = new Login(socket, this);
+    hide();
+    loginWindow->show();
 }
