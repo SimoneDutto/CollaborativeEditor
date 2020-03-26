@@ -258,9 +258,9 @@ void FileSystem::sendFile(int fileid, QTcpSocket *socket){
             qDebug() << splitToSend.mid(from, chunk).data();
             qDebug() << "--------------------------------------------------";
             if(remaining > 0)
-                emit dataRead(splitToSend.mid(from, chunk), socket, remaining);
+                emit dataRead(splitToSend.mid(from, chunk), socket, remaining, "FILE");
             else if (remaining == 0)
-                emit dataRead(splitToSend.mid(from, chunk+1), socket, remaining);
+                emit dataRead(splitToSend.mid(from, chunk+1), socket, remaining, "FILE");
             from += chunk;
         }
 
@@ -290,7 +290,6 @@ void FileSystem::sendFile(int fileid, QTcpSocket *socket){
 
         int remaining = size;
 
-
         // manda i chunk
         while(remaining > 0)
         {
@@ -303,7 +302,7 @@ void FileSystem::sendFile(int fileid, QTcpSocket *socket){
             remaining -= chunk;
             buffer_tot.append(qa);
             qDebug() << "emitting dataRead(), remaining = " << remaining << "chunk = " << chunk;
-            emit dataRead(qa, socket, remaining);
+            emit dataRead(qa, socket, remaining, "FILE");
         }
         inFile.close();
 
@@ -429,18 +428,42 @@ void FileSystem::checkLogin(QString username, QString password, QTcpSocket *sock
         }
     }
     final_object.insert("id", QJsonValue(id));
+    final_object.insert("type", "LOGIN");
+    sendJson(final_object, socket);
+    QFile inFile("icon_"+QString::number(id));
+    inFile.open(QFile::ReadOnly);
+    QByteArray splitToSend = inFile.readAll().toBase64();
+    int from = 0, chunk;
+    int remaining = splitToSend.size();
 
-    if(socket->state() == QAbstractSocket::ConnectedState){
-        qDebug() << "Risposta al LOGIN:\n" << QJsonDocument(final_object).toJson().data();
-        socket->write(QJsonDocument(final_object).toJson());
-        socket->waitForBytesWritten(1000);
+    while(remaining > 0){
+        if(remaining > DATA_SIZE)
+            chunk = DATA_SIZE;
+        else
+            chunk = remaining;
+        //QByteArray qa = inFile.read(chunk);
+        qDebug() << "emitting dataRead() da file serializzato";
+        remaining -= chunk;
+        qDebug() << "--------------------------------------------------";
+        qDebug() << splitToSend.mid(from, chunk).data();
+        qDebug() << "--------------------------------------------------";
+        if(remaining > 0)
+            emit dataRead(splitToSend.mid(from, chunk), socket, remaining, "ICON");
+        else if (remaining == 0)
+            emit dataRead(splitToSend.mid(from, chunk+1), socket, remaining, "ICON");
+        from += chunk;
     }
 
+    qDebug() << "Icon sent";
 
 }
 
 void FileSystem::storeNewUser(QString username, QString psw, QTcpSocket *socket) {
     QSqlQuery sqlQuery;
+    QJsonObject json;
+    QByteArray sendSize;
+
+    json.insert("type", "SIGNUP_RESPONSE");
 
     // check che username non sia gia' stato preso
     sqlQuery.prepare("SELECT COUNT(*) FROM PASSWORD WHERE username=(:username)");
@@ -456,13 +479,13 @@ void FileSystem::storeNewUser(QString username, QString psw, QTcpSocket *socket)
     else{
         qDebug() << "Query not executed";
         // EMIT SEGNALE PROBLEMA SERVER FAILED TO RESPOND
-        emit signUpResponse("SERVER_FAILURE", false, socket);
-        return;
+        json.insert("success", false);
     }
     if(count > 0){
         qDebug("Username already taken");
         // EMIT SEGNALE CAMBIA USERNAME
-        emit signUpResponse("INVALID_USERNAME", false, socket);
+        json.insert("success", false);
+        sendJson(json, socket);
         return;
     }
 
@@ -478,13 +501,24 @@ void FileSystem::storeNewUser(QString username, QString psw, QTcpSocket *socket)
 
     if (sqlQuery.exec()){
         // EMIT SIGN UP SUCCESSFUL
-        emit signUpResponse("SUCCESS", true, socket);
+        sock_id.insert(std::pair<QTcpSocket*, int> (socket, sqlQuery.lastInsertId().toInt()));
+        json.insert("success", true);
     } else {
         qDebug() << "INSERT new user not executed!";
         // EMIT segnale server failed to respond
-        emit signUpResponse("SERVER_FAILURE", false, socket);
-        return;
+        json.insert("success", false);
     }
+    sendJson(json, socket);
+}
+
+void FileSystem::saveFile(QByteArray q, QTcpSocket* sock){
+    QImage img(2048,1024,QImage::Format_Indexed8);
+    img = QImage::fromData(QByteArray::fromBase64(q),"png");
+
+    QImageWriter writer("icon_"+QString::number(sock_id.at(sock))+".png");
+    sock_id.erase(sock);
+    writer.write(img);
+    qDebug() <<writer.error();
 }
 
 
@@ -582,16 +616,21 @@ std::map<int, FileHandler*> FileSystem::getFiles() {
 }*/
 
 void FileSystem::disconnectClient(QTcpSocket* socket){
-    int fileID = sock_file.at(socket);
-    int userID = sock_id.at(socket);
-    FileHandler *fh = files.at(fileID);
-    QString username = sock_username.at(socket);
-    this->updateFileSiteCounter(fileID, userID, fh->getSiteCounter(socket));
-    fh->removeActiveUser(socket, sock_username.at(socket));
+    auto it = sock_id.find(socket);
+    auto it1 = sock_file.find(socket);
+    if(it == sock_id.end()) return;
     sock_id.erase(socket);
-    sock_file.erase(socket);
+    QString username = sock_username.at(socket);
     sock_username.erase(socket);
     usernames.remove(username);
+    if(it1 == sock_file.end()) return;
+    int fileID = it->second;
+    int userID = it1->second;
+    FileHandler *fh = files.at(fileID);
+    this->updateFileSiteCounter(fileID, userID, fh->getSiteCounter(socket));
+    fh->removeActiveUser(socket, sock_username.at(socket));
+    sock_file.erase(socket);
+
 }
 
 void FileSystem::sendJson(QJsonObject json, QTcpSocket* socket){
