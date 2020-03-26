@@ -120,7 +120,7 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
               fHandler,  SLOT(remoteInsert(QJsonArray, QChar, int, int, int, QTextCharFormat)));
     connect( socket, SIGNAL(readyDelete(QString)),
               fHandler, SLOT(remoteDelete(QString)));
-    connect( socket, SIGNAL(readyFile()),  this, SLOT(fileIsHere()));
+    connect( socket, SIGNAL(readyFile(QMap<int,int>,QMap<int,QColor>)),  this, SLOT(fileIsHere(QMap<int,int>,QMap<int,QColor>)));
     connect( fHandler, SIGNAL(readyRemoteInsert(QChar, int, QTextCharFormat)),
              this, SLOT(changeViewAfterInsert(QChar, int, QTextCharFormat)));
     connect( fHandler, SIGNAL(readyRemoteDelete(int)),
@@ -131,8 +131,8 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
              fHandler, SLOT(remoteStyleChange(QString, QString, QString)));
     connect( socket, SIGNAL(UserConnect(QString, QColor)),
              this, SLOT(addUserConnection(QString, QColor)));
-    connect( socket, SIGNAL(UserDisconnect(QString)),
-             this, SLOT(removeUserDisconnect(QString)));
+    connect( socket, SIGNAL(UserDisconnect(QString,int)),
+             this, SLOT(removeUserDisconnect(QString,int)));
     connect( socket, SIGNAL(writeURI(QString)),
              this, SLOT(on_write_uri(QString)));
 
@@ -140,6 +140,11 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
     connect( this, SIGNAL(styleChange(QMap<QString, QTextCharFormat>, QString, QString, bool, bool, bool)),
               fHandler, SLOT(localStyleChange(QMap<QString, QTextCharFormat>, QString, QString, bool, bool, bool)) );
 
+    /* CONNECT per cursore */
+    connect( socket, SIGNAL(userCursor(QPair<int,int>,QColor)),
+             this, SLOT(on_cursor_triggered(QPair<int,int>,QColor)));
+    connect( this, SIGNAL(sendCursorChange(int)),
+             fHandler, SLOT(localCursorChange(int)));
 
     /* CONNECT per collegare le ClickableLabel */
     connect( ui->user1, SIGNAL(clicked()),
@@ -540,7 +545,7 @@ void MainWindow::on_lineEdit_editingFinished()
     //emit sendNameFile(ui->lineEdit->text());
 }
 
-void MainWindow::fileIsHere(){
+void MainWindow::fileIsHere(QMap<int,int> id_pos, QMap<int,QColor> id_colore){
     qDebug() << "FileIsHere";
     disconnect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
 
@@ -559,16 +564,16 @@ void MainWindow::fileIsHere(){
 
     /*simulo le mappe che dovrebbero arrivarmi */
 
-    QMap<int,int> id_pos;
-    QMap<int, QColor> id_colore;
+//    QMap<int,int> id_pos;
+//    QMap<int, QColor> id_colore;
 
-    id_pos.insert(1,6);
-    id_pos.insert(5,3);
-    id_pos.insert(3,12);
+//    id_pos.insert(1,6);
+//    id_pos.insert(5,3);
+//    id_pos.insert(3,12);
 
-    id_colore.insert(1, Qt::white);
-    id_colore.insert(5, Qt::red);
-    id_colore.insert(3, Qt::blue);
+//    id_colore.insert(1, Qt::white);
+//    id_colore.insert(5, Qt::red);
+//    id_colore.insert(3, Qt::blue);
 
     /* la parte sopra andrà cancellata */
 
@@ -678,7 +683,8 @@ void MainWindow::addUserConnection(QString username, QColor color){
 
 }
 
-void MainWindow::removeUserDisconnect(int userid){
+void MainWindow::removeUserDisconnect(QString username, int userID){
+
 
     int numberUsersOnline = socket->getUserColor().size();
 
@@ -715,6 +721,9 @@ void MainWindow::on_textEdit_cursorPositionChanged() {
     /*Questa funzione gestirà la vista dei bottoni dello stile, ovvero se si vedrenno accessi o spenti. */
 
     QTextCursor cursor(ui->textEdit->textCursor());
+    int pos = cursor.position();
+    // emit segnale per notificare altri utenti del cambiamento
+    emit sendCursorChange(pos);
 
     /*Se il testo selezionato ha stile misto, i bottoni accendono lo stile*/
     if(cursor.hasSelection()==true){
@@ -801,13 +810,13 @@ void MainWindow::on_actionExport_as_PDF_triggered()
     QString fn = QFileDialog::getSaveFileName(this, tr("Select output file"), QString(), tr("PDF Files(*.pdf)"));
       if (fn.isEmpty())
         return;
-        QPrinter printer;
-        printer.setPageMargins(10.0,10.0,10.0,10.0,printer.Millimeter);
-        printer.setOutputFormat(QPrinter::PdfFormat);
-        printer.setColorMode(QPrinter::Color);
-        printer.setOutputFileName(fn);
-        document.print(&printer);
-        emit exportAsPDF();
+    QPrinter printer;
+    printer.setPageMargins(10.0,10.0,10.0,10.0,printer.Millimeter);
+    printer.setOutputFormat(QPrinter::PdfFormat);
+    printer.setColorMode(QPrinter::Color);
+    printer.setOutputFileName(fn);
+    document.print(&printer);
+    //emit exportAsPDF();
 }
 
 void MainWindow::on_counter_clicked()

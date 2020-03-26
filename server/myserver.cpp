@@ -100,6 +100,7 @@ void MyServer::handleNotifications(QTcpSocket *socket, QByteArray data)
      * LOGIN
      * SIGNUP
      * STYLE
+     * CURSOR
      * ICON
     */
 
@@ -202,6 +203,14 @@ void MyServer::handleNotifications(QTcpSocket *socket, QByteArray data)
             //int siteID = rootObject.value("siteID").toInt();
             //int siteCounter = rootObject.value("siteCounter").toInt();
             fHandler->changeStyle(initialIndex, lastIndex, changedStyle, socket, data);
+        }
+    }
+    else if(type.compare("CURSOR")==0) {
+        int fileID = rootObject.value("fileid").toInt();
+        if(fsys->getFiles().find(fileID) != fsys->getFiles().end()) {   // file exists
+            FileHandler* fHandler = fsys->getFiles().at(fileID);
+            int pos = rootObject.value("position").toInt();
+            fHandler->changeCursor(socket, data, pos);
         }
     }
 
