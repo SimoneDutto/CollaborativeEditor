@@ -15,6 +15,8 @@
 #include <QPrinter>
 #include <QStandardItem>
 #include "serverdisc.h"
+#include <QDesktopWidget>
+#include <algorithm>
 
 
 MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QString nome) :
@@ -49,6 +51,21 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
     ui->label_2->setTextInteractionFlags(Qt::TextSelectableByMouse);
     //ui->label->setStyleSheet("background-color:lightgray");
 
+    auto availableSize = qApp->desktop();
+       int width = availableSize->width();
+       int height = availableSize->height();
+       width *= 0.8; // 80% of the screen size
+       height *= 0.8; // 80% of the screen size
+       QSize newSize( width, height );
+
+       setGeometry(
+           QStyle::alignedRect(
+               Qt::LeftToRight,
+               Qt::AlignCenter,
+               newSize,
+               qApp->desktop()->rect()
+           )
+       );
     //ui->lineEdit->setText(nome);
 
     /* Personalizzo e aggiungo le label degli utenti connessi */
@@ -59,6 +76,32 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
     ui->user2->hide();
     ui->user3->hide();
     ui->counter->hide();
+
+    /* Aggiungo nome e icona dell'utente */
+
+    QString username = socket->getClientUsername();
+
+    styleSheet = "QLabel { background-color: rgb(255, 252, 247); color: black; border-style: solid; border-width: 1px; border-radius: 3px; border-color: black; font: ; }";
+    ui->username->setStyleSheet(styleSheet);
+    QFont font("Arial");
+    ui->username->setFont(font);
+    ui->username->setText(username);
+
+    QString imageName = QString::number(socket->getClientID())+".png";
+    QPixmap userPixmap = QPixmap(imageName);
+
+    if(userPixmap != QPixmap()){
+        QPixmap scaled = userPixmap.scaled(ui->myicon->width(), ui->myicon->height(), Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
+        ui->myicon->setPixmap(scaled);
+    }
+
+    else {
+        styleSheet = "QLabel { background-color: rgb(255, 252, 247); color: black; border-style: solid; border-width: 2px; border-radius: 6px; border-color: orange; font: ; }";
+        ui->myicon->setStyleSheet(styleSheet);
+        QFont font("Arial", 30);
+        ui->myicon->setFont(font);
+        ui->myicon->setText(username.at(0).toUpper());
+    }
 
 
     /* CONNECT per segnali uscenti, inoltrare le modifiche fatte */
@@ -77,7 +120,7 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
               fHandler,  SLOT(remoteInsert(QJsonArray, QChar, int, int, int, QTextCharFormat)));
     connect( socket, SIGNAL(readyDelete(QString)),
               fHandler, SLOT(remoteDelete(QString)));
-    connect( socket, SIGNAL(readyFile()),  this, SLOT(fileIsHere()));
+    connect( socket, SIGNAL(readyFile(QMap<int,int>,QMap<int,QColor>)),  this, SLOT(fileIsHere(QMap<int,int>,QMap<int,QColor>)));
     connect( fHandler, SIGNAL(readyRemoteInsert(QChar, int, QTextCharFormat)),
              this, SLOT(changeViewAfterInsert(QChar, int, QTextCharFormat)));
     connect( fHandler, SIGNAL(readyRemoteDelete(int)),
@@ -88,8 +131,8 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
              fHandler, SLOT(remoteStyleChange(QString, QString, QString)));
     connect( socket, SIGNAL(UserConnect(QString, QColor)),
              this, SLOT(addUserConnection(QString, QColor)));
-    connect( socket, SIGNAL(UserDisconnect(QString)),
-             this, SLOT(removeUserDisconnect(QString)));
+    connect( socket, SIGNAL(UserDisconnect(QString,int)),
+             this, SLOT(removeUserDisconnect(QString,int)));
     connect( socket, SIGNAL(writeURI(QString)),
              this, SLOT(on_write_uri(QString)));
 
@@ -97,11 +140,34 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
     connect( this, SIGNAL(styleChange(QMap<QString, QTextCharFormat>, QString, QString, bool, bool, bool)),
               fHandler, SLOT(localStyleChange(QMap<QString, QTextCharFormat>, QString, QString, bool, bool, bool)) );
 
+    /* CONNECT per cursore */
+    connect( socket, SIGNAL(userCursor(QPair<int,int>,QColor)),
+             this, SLOT(on_cursor_triggered(QPair<int,int>,QColor)));
+    connect( this, SIGNAL(sendCursorChange(int)),
+             fHandler, SLOT(localCursorChange(int)));
+
+    /* CONNECT per collegare le ClickableLabel */
+    connect( ui->user1, SIGNAL(clicked()),
+             this, SLOT(on_counter_clicked()));
+    connect( ui->user2, SIGNAL(clicked()),
+             this, SLOT(on_counter_clicked()));
+    connect( ui->user3, SIGNAL(clicked()),
+             this, SLOT(on_counter_clicked()));
+    connect( ui->myicon, SIGNAL(clicked()),
+             this, SLOT(on_actionEdit_Profile_triggered()));
+
+
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+bool MainWindow::sorting(QPair<QPair<int,QColor>,int> &e1, QPair<QPair<int,QColor>,int> &e2){
+if(e1.second < e2.second)
+return true;
+else return false;
 }
 
 void MainWindow::on_actionNew_triggered()
@@ -479,7 +545,7 @@ void MainWindow::on_lineEdit_editingFinished()
     //emit sendNameFile(ui->lineEdit->text());
 }
 
-void MainWindow::fileIsHere(){
+void MainWindow::fileIsHere(QMap<int,int> id_pos, QMap<int,QColor> id_colore){
     qDebug() << "FileIsHere";
     disconnect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
 
@@ -493,6 +559,31 @@ void MainWindow::fileIsHere(){
     }
     letterCounter = ui->textEdit->toPlainText().size();
     qDebug() << "letter cnt : = "<< letterCounter;
+
+    /* cursore */
+
+    /*simulo le mappe che dovrebbero arrivarmi */
+
+//    QMap<int,int> id_pos;
+//    QMap<int, QColor> id_colore;
+
+//    id_pos.insert(1,6);
+//    id_pos.insert(5,3);
+//    id_pos.insert(3,12);
+
+//    id_colore.insert(1, Qt::white);
+//    id_colore.insert(5, Qt::red);
+//    id_colore.insert(3, Qt::blue);
+
+    /* la parte sopra andrà cancellata */
+
+    // riempio la lista indicizzata
+
+    for(int utente : id_pos.keys()){
+        id_colore_cursore.append(qMakePair(qMakePair(utente,id_colore.value(utente)),id_pos.value(utente)));
+    }
+
+    std::sort(id_colore_cursore.begin(), id_colore_cursore.end(), sorting);
 
     connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
 }
@@ -592,7 +683,8 @@ void MainWindow::addUserConnection(QString username, QColor color){
 
 }
 
-void MainWindow::removeUserDisconnect(QString username){
+void MainWindow::removeUserDisconnect(QString username, int userID){
+
 
     int numberUsersOnline = socket->getUserColor().size();
 
@@ -612,20 +704,16 @@ void MainWindow::removeUserDisconnect(QString username){
         ui->counter->hide();
     }
 
+    for(int i = 0; i< id_colore_cursore.size(); i++){
+        //se c'è lo sostituisco
+        if (id_colore_cursore.at(i).first.first == userID ){
+            id_colore_cursore.removeAt(i);
+        }
+    }
     /*La lista completa degli Online Users la inizializzo nel OnlineUser Constructor*/
 
 }
 
-/*void MainWindow::setCursor(int pos, QString color)
-{
-    QString cursore = "|";
-    QString colore = "<span style=\" font-size:8pt; font-weight:600; color:" + color + '"' + ";\" >";
-    colore.append(cursore);
-    colore.append("</span>");
-    QTextCursor c;
-    c.setPosition(pos);
-    c.insertHtml(colore);
-}*/
 
 //TODO: inserire gestione bottoni
 void MainWindow::on_textEdit_cursorPositionChanged() {
@@ -633,23 +721,32 @@ void MainWindow::on_textEdit_cursorPositionChanged() {
     /*Questa funzione gestirà la vista dei bottoni dello stile, ovvero se si vedrenno accessi o spenti. */
 
     QTextCursor cursor(ui->textEdit->textCursor());
+    int pos = cursor.position();
+    // emit segnale per notificare altri utenti del cambiamento
+    emit sendCursorChange(pos);
 
     /*Se il testo selezionato ha stile misto, i bottoni accendono lo stile*/
     if(cursor.hasSelection()==true){
         if(ui->textEdit->fontWeight()!=75){
-            //BoldButton OFF
+            ui->actionBold->setChecked(false);
         }
-        else {}//BoldButton ON
+        else {
+            ui->actionBold->setChecked(true);
+        }
 
         if(ui->textEdit->fontItalic()!=true){
-            //ItalicButton OFF
+            ui->actionItalic->setChecked(false);
         }
-        else {}//ItalicButton ON
+        else {
+            ui->actionItalic->setChecked(true);
+        }
 
         if(ui->textEdit->fontUnderline()!=true){
-            //UnderlineButton OFF
+            ui->actionUnderlined->setChecked(false);
         }
-        else {}//UnderlineButton ON
+        else {
+            ui->actionUnderlined->setChecked(true);
+        }
 
     }
 
@@ -658,20 +755,26 @@ void MainWindow::on_textEdit_cursorPositionChanged() {
     else {
         auto format = cursor.charFormat();
 
-        if(format.fontWeight()==55){
-            //BoldButton OFF
+        if(format.fontWeight()!=75){
+            ui->actionBold->setChecked(false);
         }
-        else {} //BoldButton ON
+        else {
+            ui->actionBold->setChecked(true);
+        }
 
         if(format.fontItalic()==false){
-            //ItalicButton OFF
+            ui->actionItalic->setChecked(false);
         }
-        else {} //ItalicButton ON
+        else {
+            ui->actionItalic->setChecked(true);
+        }
 
         if(format.fontUnderline()==false){
-            //UnderlineButton OFF
+            ui->actionUnderlined->setChecked(false);
         }
-        else {} //UnderlineButton ON
+        else {
+            ui->actionUnderlined->setChecked(true);
+        }
     }
 
 }
@@ -686,7 +789,6 @@ void MainWindow::on_actionLog_Out_triggered()
 void MainWindow::on_actionEdit_Profile_triggered()
 {
     account = new Account(this->socket, this, this->windowTitle());
-    //hide();
     account->show();
 
 }
@@ -708,21 +810,19 @@ void MainWindow::on_actionExport_as_PDF_triggered()
     QString fn = QFileDialog::getSaveFileName(this, tr("Select output file"), QString(), tr("PDF Files(*.pdf)"));
       if (fn.isEmpty())
         return;
-        QPrinter printer;
-        printer.setPageMargins(10.0,10.0,10.0,10.0,printer.Millimeter);
-        printer.setOutputFormat(QPrinter::PdfFormat);
-        printer.setColorMode(QPrinter::Color);
-        printer.setOutputFileName(fn);
-        document.print(&printer);
-        emit exportAsPDF();
+    QPrinter printer;
+    printer.setPageMargins(10.0,10.0,10.0,10.0,printer.Millimeter);
+    printer.setOutputFormat(QPrinter::PdfFormat);
+    printer.setColorMode(QPrinter::Color);
+    printer.setOutputFileName(fn);
+    document.print(&printer);
+    //emit exportAsPDF();
 }
 
 void MainWindow::on_counter_clicked()
 {
     OnlineUser *onlineList = new OnlineUser(socket, this);
     onlineList->show();
-
-
 }
 
 void MainWindow::on_write_uri(QString uri){
@@ -754,25 +854,71 @@ void MainWindow::notConnected(){
     s->show();
 }
 
-/*void MainWindow::on_actionshow_cursor_triggered()
+
+void MainWindow::on_cursor_triggered(QPair<int,int> idpos, QColor col)
 {
+    // controllo che nella mappa colorecursore non sia gia presente l'id
+
     disconnect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
     QTextCharFormat fmt;
     QTextCharFormat fmt2;
-    fmt.setBackground(Qt::white);
+
     fmt2.setBackground(QColor(209,209,214));
     QTextCursor cursor = ui->textEdit->textCursor();
-    int pos = cursor.position();
-    ui->textEdit->setTextCursor(cursor);
-    cursor.setPosition(pos);
-    cursor.movePosition(QTextCursor::Start, QTextCursor::KeepAnchor);
-    cursor.setCharFormat(fmt2);
-    cursor.setPosition(pos);
-    cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
-    cursor.setCharFormat(fmt2);
-    cursor.setPosition(pos);
-    cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
-    cursor.setCharFormat(fmt);
+
+    // simulo la coppia userid-pos e il colore che mi arriveranno come parametri
+    //QPair<int, int> idpos = qMakePair(5, 11);
+    //QColor col = Qt::red;
+
+    // controllo che nella mappa colorecursore non sia gia presente il colore
+    bool trovato = false;
+    for(int i = 0; i< id_colore_cursore.size(); i++){
+        //se c'è lo sostituisco
+        if (id_colore_cursore.at(i).first.first == idpos.first ){
+            id_colore_cursore.replace(i, qMakePair(qMakePair(idpos.first,col), idpos.second));
+            trovato = true;
+            break;
+        }
+    }
+        //altrimenti lo aggiungo
+        if (trovato == false)
+            id_colore_cursore.append(qMakePair(qMakePair(idpos.first,col), idpos.second));
+
+
+
+    std::sort(id_colore_cursore.begin(), id_colore_cursore.end(), sorting);
+
+        QColor colore = id_colore_cursore.value(0).first.second;
+        int pos = id_colore_cursore.value(0).second;
+
+        fmt.setBackground(colore);
+
+        cursor.setPosition(pos);
+        cursor.movePosition(QTextCursor::Start, QTextCursor::KeepAnchor);
+        cursor.setCharFormat(fmt2);
+        cursor.setPosition(pos);
+        cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+        cursor.setCharFormat(fmt2);
+        cursor.setPosition(pos);
+        cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
+        cursor.setCharFormat(fmt);
+
+    for(int i = 1; i < id_colore_cursore.size(); i++){
+        QColor colore = id_colore_cursore.value(i).first.second;
+        int pos = id_colore_cursore.value(i).second;
+
+        fmt.setBackground(colore);
+        cursor.setPosition(pos);
+        cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+        cursor.mergeCharFormat(fmt2);
+        cursor.setPosition(pos);
+        cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
+        cursor.mergeCharFormat(fmt);
+    }
+
     connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
+
 }
-*/
+
+
+

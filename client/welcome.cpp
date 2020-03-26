@@ -18,6 +18,7 @@ Welcome::Welcome(Socket *sock, QWidget *parent) :
     this->setAutoFillBackground(true);
     this->setPalette(pal);
     this->show();
+    if(!sock->getConnection()) emit sock->noConnection();
     setWindowTitle("");
     if(!sock->isConnected())
     {

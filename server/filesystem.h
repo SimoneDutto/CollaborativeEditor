@@ -17,6 +17,7 @@
 #include <QDir>
 #include <QObject>
 #include <QFile>
+#include <QImageWriter>
 
 #include "letter.h"
 #include "filehandler.h"
@@ -50,15 +51,17 @@ public:
     std::map<int, FileHandler*> getFiles();
     int getSocketID(QTcpSocket* socket);
     static void sendJson(QJsonObject json, QTcpSocket* socket);
+    void saveFile(QByteArray q, QTcpSocket* socket);
 
 signals:
     void signUpResponse(QString message, bool success, QTcpSocket* socket);
-    void dataRead(QByteArray chunk, QTcpSocket* socket, int remainingSize);
+    void dataRead(QByteArray chunk, QTcpSocket* socket, int remainingSize, QString type);
 
 private slots:
     void sendInsert(QVector<QTcpSocket*> users, QByteArray message, bool modifiedIndex, int newIndex, QTcpSocket* client);
     void sendDelete(QVector<QTcpSocket*> users, QByteArray message, QTcpSocket* client);
     void sendStyleChange(QVector<QTcpSocket*> users, QByteArray message, QTcpSocket* client);
+    void sendCursorChange(QVector<QTcpSocket*> users, QByteArray message, QTcpSocket* client);
 };
 
 #endif // FILESYSTEM_H

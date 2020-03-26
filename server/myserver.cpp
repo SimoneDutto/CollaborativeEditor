@@ -13,8 +13,7 @@ MyServer::MyServer(QObject *parent) :
 {
     fsys = FileSystem::getInstance();
     connect(m_server, SIGNAL(newConnection()), SLOT(onNewConnection()));
-    connect(fsys, SIGNAL(signUpResponse(QString,bool,QTcpSocket*)), this, SLOT(sendSignUpResponse(QString,bool,QTcpSocket*)));
-    connect(fsys, SIGNAL(dataRead(QByteArray, QTcpSocket*, int)),this, SLOT(sendFileChunk(QByteArray, QTcpSocket*, int)));
+    connect(fsys, SIGNAL(dataRead(QByteArray, QTcpSocket*, int, QString)),this, SLOT(sendFileChunk(QByteArray, QTcpSocket*, int, QString)));
     connect(this, SIGNAL(bufferReady(QTcpSocket*, QByteArray)), SLOT(handleNotifications(QTcpSocket*,QByteArray)));
 }
 
@@ -101,6 +100,8 @@ void MyServer::handleNotifications(QTcpSocket *socket, QByteArray data)
      * LOGIN
      * SIGNUP
      * STYLE
+     * CURSOR
+     * ICON
     */
 
     if(type.compare("OPEN")==0){
@@ -169,7 +170,28 @@ void MyServer::handleNotifications(QTcpSocket *socket, QByteArray data)
     else if(type.compare("SIGNUP")==0) {
         QString username = rootObject.value("username").toString();
         QString psw = rootObject.value("password").toString();
+
         fsys->storeNewUser(username, psw, socket);
+
+    }
+    else if(type.compare("ICON")==0){
+        int remaining = rootObject.value("remaining").toInt();
+        QString chunk = rootObject.value("chunk").toString();
+        auto buffer_f = iconarray_psocket.find(socket);
+        Buffer* buffer;
+        if(buffer_f != iconarray_psocket.end()){
+            buffer = buffer_f.value();
+        }
+        else{
+            buffer = new Buffer();
+            iconarray_psocket.insert(socket, buffer);
+        }
+        buffer->data.append(chunk);
+
+        if(remaining == 0){
+            fsys->saveFile(buffer->data, socket);
+            buffer->data.clear();
+        }
     }
     else if(type.compare("STYLE")==0) {
         int fileID = rootObject.value(("fileid")).toInt();
@@ -181,6 +203,14 @@ void MyServer::handleNotifications(QTcpSocket *socket, QByteArray data)
             //int siteID = rootObject.value("siteID").toInt();
             //int siteCounter = rootObject.value("siteCounter").toInt();
             fHandler->changeStyle(initialIndex, lastIndex, changedStyle, socket, data);
+        }
+    }
+    else if(type.compare("CURSOR")==0) {
+        int fileID = rootObject.value("fileid").toInt();
+        if(fsys->getFiles().find(fileID) != fsys->getFiles().end()) {   // file exists
+            FileHandler* fHandler = fsys->getFiles().at(fileID);
+            int pos = rootObject.value("position").toInt();
+            fHandler->changeCursor(socket, data, pos);
         }
     }
 
@@ -198,31 +228,12 @@ void MyServer::onDisconnected()
     socket->deleteLater();
 }
 
-
-void MyServer::sendSignUpResponse(QString message, bool success, QTcpSocket* socket) {
-    QJsonObject json;
-    QByteArray sendSize;
-
-    json.insert("type", "SIGNUP_RESPONSE");
-    json.insert("success", success);
-    json.insert("msg", message);
-
-    if(socket->state() == QAbstractSocket::ConnectedState) {
-        qDebug() << "Size = " << QJsonDocument(json).toJson().size();
-        //socket->write(sendSize.number(QJsonDocument(json).toJson().size()), sizeof (long int));
-        //socket->waitForBytesWritten();
-        socket->write(QJsonDocument(json).toJson());
-        socket->waitForBytesWritten(1000);
-    }
-    qDebug() << "Signup_response = " << QJsonDocument(json).toJson().data();
-}
-
-void MyServer::sendFileChunk(QByteArray chunk, QTcpSocket* socket, int remainingSize) {
+void MyServer::sendFileChunk(QByteArray chunk, QTcpSocket* socket, int remainingSize, QString type) {
     QJsonObject object;
     QByteArray toSend;
-
-    QString s_data = chunk.data();
-    object.insert("type", "FILE");
+    QString s_data;
+    s_data = chunk.data();
+    object.insert("type", type);
     object.insert("chunk", s_data);
     object.insert("remaining", remainingSize);
     if(socket->state() == QAbstractSocket::ConnectedState)

@@ -29,23 +29,36 @@ public:
     ~Socket();
     FileHandler* getFHandler();
     int getClientID();
+    QString getClientUsername();
     QMap<QString, int> getMapFiles();
     QMap<QString, QColor> getUserColor();
     bool isConnected();
     void isSigningUp(bool flag);
+    bool getConnection();
 
 private:
     Ui::Socket *ui;
     QTcpSocket *socket;
     QByteArray buffer;
     QByteArray json_buffer;
+    QByteArray icon_buffer;
     long int size=0;
     FileHandler* fileh;
     int clientID;
+    QString username;
     QMap<QString, int> mapFiles;
     QMap<QString, QColor> userColor;
+    QMap<int, QColor> userIDColor;
+    QMap<int, int> userCursors;
+
+    QString pathIcon;
     bool isDoingSignUp;
     bool connected;
+
+    void checkLoginAndGetListFileName(QJsonObject);
+    void checkSignUp(QJsonObject);
+    void sendIcon(QString path);
+    void sendFileChunk(QByteArray chunk, QTcpSocket* socket, int remainingSize);
 
 public slots:
     void sendSignUpRequest(QString username, QString password, QString pathImage);
@@ -59,8 +72,6 @@ private slots:
     void socketClosed();
     void socketError(int e);
 
-    void checkLoginAndGetListFileName();
-    void checkSignUp();
     void notificationsHandler(QByteArray buffer);
     void readBuffer();
     //void setSignals();
@@ -71,6 +82,7 @@ private slots:
     int sendCheckFileName(QString fileNameTmp);
     int sendNewFile(QString filename);
     int sendChangeStyle(QString firstLetterID, QString lastLetterID, int fileID, QString changedStyle);
+    int sendCursor(int position);
 
 signals:
     /* Registrazione */
@@ -83,12 +95,13 @@ signals:
     void loginError();
 
     /*Notifiche durante l'uso*/
-    void readyFile();
+    void readyFile(QMap<int,int>,QMap<int,QColor>);
     void readyInsert(QJsonArray position, QChar newLetterValue, int externalIndex, int siteID, int siteCounter, QTextCharFormat format);
     void readyDelete(QString deletedLetterID);
     void readyStyleChange(QString firstID, QString lastID, QString changedStyle);
     void UserConnect(QString username, QColor colorUser);
-    void UserDisconnect(QString username);
+    void userCursor(QPair<int,int> userID_pos, QColor color);
+    void UserDisconnect(QString username, int userID);
 
     /*Signal connected to readyReady()*/
     void myReadyRead();
@@ -98,6 +111,7 @@ signals:
     void uriIsNotOk();
 
     void writeURI(QString uri);
+
     void noConnection();
 };
 

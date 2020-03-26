@@ -2,7 +2,7 @@ QT       += core gui
 QT += network widgets
 QT += quickcontrols2
 QT += printsupport
-TARGET = PDFPrintMaybe
+TARGET = GoogleFakeDocs
 
 requires(qtConfig(combobox))
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
@@ -22,6 +22,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     account.cpp \
+    clickablelabel.cpp \
     dialog.cpp \
     error.cpp \
     newopen.cpp \
@@ -40,6 +41,7 @@ SOURCES += \
 
 HEADERS += \
     account.h \
+    clickablelabel.h \
     dialog.h \
     error.h \
     newopen.h \
