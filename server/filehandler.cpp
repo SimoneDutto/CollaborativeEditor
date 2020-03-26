@@ -204,6 +204,11 @@ void FileHandler::changeStyle(QString initialIndex, QString lastIndex, QString f
     emit remoteStyleChangeNotify(this->users, message, client);
 }
 
+void FileHandler::changeCursor(QTcpSocket *client, QByteArray message, int position) {
+    usersCursorPosition[client] = position;
+    emit remoteCursorChangeNotify(this->users, message, client);
+}
+
 QVector<QTcpSocket*> FileHandler::getUsers(){
     return this->users;
 }

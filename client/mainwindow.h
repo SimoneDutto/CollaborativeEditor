@@ -46,7 +46,7 @@ private slots:
     void changeViewAfterDelete(int externalIndex);
     void changeViewAfterStyle(QString firstLetterID, QString lastLetterID);
     void addUserConnection(QString username, QColor colorUser);
-    void removeUserDisconnect(QString username);
+    void removeUserDisconnect(QString username, int userID);
 
     void on_textEdit_cursorPositionChanged();
 
@@ -93,6 +93,7 @@ signals:
     void styleChange(QMap<QString, QTextCharFormat>, QString startID, QString lastID, bool boldTriggered, bool italicTriggered, bool underlinedTriggered);
     void exportAsPDF();
     void logOut();
+    void sendCursorChange(int position);
     //void localStyleChange(QString initialID, QString finalID, QTextCharFormat);
 };
 

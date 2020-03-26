@@ -72,6 +72,7 @@ private slots:
     int sendCheckFileName(QString fileNameTmp);
     int sendNewFile(QString filename);
     int sendChangeStyle(QString firstLetterID, QString lastLetterID, int fileID, QString changedStyle);
+    int sendCursor(int position);
 
 signals:
     /* Registrazione */
@@ -89,7 +90,8 @@ signals:
     void readyDelete(QString deletedLetterID);
     void readyStyleChange(QString firstID, QString lastID, QString changedStyle);
     void UserConnect(QString username, QColor colorUser);
-    void UserDisconnect(QString username);
+    void userCursor(QPair<int,int> userID_pos, QColor color);
+    void UserDisconnect(QString username, int userID);
 
     /*Signal connected to readyReady()*/
     void myReadyRead();

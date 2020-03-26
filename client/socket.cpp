@@ -302,6 +302,8 @@ void Socket::notificationsHandler(QByteArray data){
             connect( this->fileh, SIGNAL(localDeleteNotify(QString, int, int)), this, SLOT(sendDelete(QString, int, int)) );
             connect( this->fileh, SIGNAL(localStyleChangeNotify(QString, QString, int, QString)),
                      this, SLOT(sendChangeStyle(QString, QString, int, QString)));
+            connect( this->fileh, SIGNAL(localCursorChangeNotify(int)),
+                     this, SLOT(sendCursor(int)));
 
             /*Salvo il file come vettore di Letters nel fileHandler*/
             this->fileh->setValues(std::move(letters));
@@ -376,6 +378,7 @@ void Socket::notificationsHandler(QByteArray data){
         userIDColor.insert(userID, random);
         userCursors.insert(userID, cursor);
         emit UserConnect(username, random);
+        emit userCursor(qMakePair(userID,cursor), random);
     }
     else if(type.compare("USER_DISCONNECT")==0){
         QString username = object.value("username").toString();
@@ -383,19 +386,29 @@ void Socket::notificationsHandler(QByteArray data){
         userColor.remove(username);
         userIDColor.remove(userID);
         userCursors.remove(userID);
-        emit UserDisconnect(username);
+        emit UserDisconnect(username, userID);
     }
     else if(type.compare("ACCESS_RESPONSE")==0){
-            int fileid = object.value("fileid").toInt();
-            QString filename = object.value("filename").toString();
-            if(fileid > 0){
-                this->mapFiles.insert(filename, fileid);
-                emit uriIsOk(filename);
-            }
-            else{
-                emit uriIsNotOk();
-            }
+        int fileid = object.value("fileid").toInt();
+        QString filename = object.value("filename").toString();
+        if(fileid > 0){
+            this->mapFiles.insert(filename, fileid);
+            emit uriIsOk(filename);
         }
+        else{
+            emit uriIsNotOk();
+        }
+    }
+    else if(type.compare("CURSOR")==0) {
+        int userID = object.value("userID").toInt();
+        if(userCursors.contains(userID) && userIDColor.contains(userID)) {
+            // utente attivo sul file
+            int position = object.value("position").toInt();
+            userCursors[userID] = position;
+            QColor color = userIDColor.value(userID);
+            emit userCursor(qMakePair(userID, position), color);
+        }
+    }
     /*else if (type.compare("SIGNUP_RESPONSE")==0) {
         bool successful = object.value("success").toBool();
         QString message = object.value("msg").toString();
@@ -537,6 +550,27 @@ int Socket::sendChangeStyle(QString firstLetterID, QString lastLetterID, int fil
     obj.insert("startIndex", firstLetterID);
     obj.insert("lastIndex", lastLetterID);
     obj.insert("changedStyle", changedStyle);
+
+    if(socket->state() == QAbstractSocket::ConnectedState){
+        QByteArray qarray = QJsonDocument(obj).toJson();
+        qint32 msg_size = qarray.size();
+        QByteArray toSend;
+        socket->write(toSend.number(msg_size), sizeof (long int));
+        socket->waitForBytesWritten();
+        socket->write(QJsonDocument(obj).toJson());
+        socket->waitForBytesWritten();
+        qDebug() << "Richiesta:\n" << QJsonDocument(obj).toJson().data();
+    }
+
+    return socket->waitForBytesWritten(1000);
+}
+
+int Socket::sendCursor(int position) {
+    QJsonObject obj;
+    obj.insert("type", "CURSOR");
+    obj.insert("userID", clientID);
+    obj.insert("position", position);
+    obj.insert("fileid", fileh->getFileId());
 
     if(socket->state() == QAbstractSocket::ConnectedState){
         QByteArray qarray = QJsonDocument(obj).toJson();

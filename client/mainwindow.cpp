@@ -105,8 +105,8 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
              fHandler, SLOT(remoteStyleChange(QString, QString, QString)));
     connect( socket, SIGNAL(UserConnect(QString, QColor)),
              this, SLOT(addUserConnection(QString, QColor)));
-    connect( socket, SIGNAL(UserDisconnect(QString)),
-             this, SLOT(removeUserDisconnect(QString)));
+    connect( socket, SIGNAL(UserDisconnect(QString,int)),
+             this, SLOT(removeUserDisconnect(QString,int)));
     connect( socket, SIGNAL(writeURI(QString)),
              this, SLOT(on_write_uri(QString)));
 
@@ -114,6 +114,11 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
     connect( this, SIGNAL(styleChange(QMap<QString, QTextCharFormat>, QString, QString, bool, bool, bool)),
               fHandler, SLOT(localStyleChange(QMap<QString, QTextCharFormat>, QString, QString, bool, bool, bool)) );
 
+    /* CONNECT per cursore */
+    connect( socket, SIGNAL(userCursor(QPair<int,int>,QColor)),
+             this, SLOT(on_cursor_triggered(QPair<int,int>,QColor)));
+    connect( this, SIGNAL(sendCursorChange(int)),
+             fHandler, SLOT(localCursorChange(int)));
 
 }
 
@@ -641,7 +646,7 @@ void MainWindow::addUserConnection(QString username, QColor color){
 
 }
 
-void MainWindow::removeUserDisconnect(QString username){
+void MainWindow::removeUserDisconnect(QString username, int userID){
 
     int numberUsersOnline = socket->getUserColor().size();
 
@@ -672,6 +677,9 @@ void MainWindow::on_textEdit_cursorPositionChanged() {
     /*Questa funzione gestirà la vista dei bottoni dello stile, ovvero se si vedrenno accessi o spenti. */
 
     QTextCursor cursor(ui->textEdit->textCursor());
+    int pos = cursor.position();
+    // emit segnale per notificare altri utenti del cambiamento
+    emit sendCursorChange(pos);
 
     /*Se il testo selezionato ha stile misto, i bottoni accendono lo stile*/
     if(cursor.hasSelection()==true){
