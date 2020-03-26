@@ -641,7 +641,7 @@ void MainWindow::addUserConnection(QString username, QColor color){
 
 }
 
-void MainWindow::removeUserDisconnect(QString username){
+void MainWindow::removeUserDisconnect(int userid){
 
     int numberUsersOnline = socket->getUserColor().size();
 
@@ -660,6 +660,12 @@ void MainWindow::removeUserDisconnect(QString username){
     else {
         ui->counter->hide();
     }
+
+    for(int i = 0; i< id_colore_cursore.size(); i++){
+        //se c'è lo sostituisco
+        if (id_colore_cursore.at(i).first.first == userid ){
+            id_colore_cursore.removeAt(i);
+        }
 
     /*La lista completa degli Online Users la inizializzo nel OnlineUser Constructor*/
 
