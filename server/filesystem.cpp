@@ -38,7 +38,7 @@ void FileSystem::createFile(QString filename, QTcpSocket *socket){
 
     auto file = sock_file.find(socket);
     if(file != sock_file.end()){
-        // disconnessione di un client da un file
+        qDebug() << "disconnessione di un client da un file";
         FileHandler *fh = files.at(file->second);
         fh->removeActiveUser(socket, sock_username.at(socket), sock_id.at(socket));
     }
@@ -84,6 +84,7 @@ void FileSystem::createFile(QString filename, QTcpSocket *socket){
         QVector<Letter*> letters;
 
         fh = new FileHandler(std::move(letters), fileid);
+        qDebug() << "insert active user";
         fh->insertActiveUser(socket,0, sock_username.at(socket), id->second, 0);
 
         sock_file.insert(std::pair<QTcpSocket*, int> (socket, fileid));
@@ -231,6 +232,7 @@ void FileSystem::sendFile(int fileid, QTcpSocket *socket){
         file_info.insert("URI", URI);
         //qDebug() << "Ciao";
         if(it->second->thereAreUsers()) {
+            qDebug()<< "propagate new active user";
             QJsonArray userArray, userIDArray, userCursorArray;
             QVector<QTcpSocket*> users = it->second->getUsers();
             for(QTcpSocket* user: users){

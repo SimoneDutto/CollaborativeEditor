@@ -217,6 +217,9 @@ void Socket::notificationsHandler(QByteArray data){
      * CHECKNAME
      * SIGNUP_RESPONSE
      * STYLE
+     * USER_CONNECT
+     * USER_DISCONNECT
+     * CURSOR
     */
 
     if(type.compare("OPEN")==0){
@@ -355,6 +358,15 @@ void Socket::notificationsHandler(QByteArray data){
             this->fileh->setFileId(id);
             this->fileh->setSize(0);
             this->fileh->getVectorFile().clear();
+
+            /*Creo il FileHandler*/
+            connect( this->fileh, SIGNAL(localInsertNotify(QChar, QJsonArray, int, int, int, QTextCharFormat)),
+                     this, SLOT(sendInsert(QChar, QJsonArray, int, int, int, QTextCharFormat)) );
+            connect( this->fileh, SIGNAL(localDeleteNotify(QString, int, int)), this, SLOT(sendDelete(QString, int, int)) );
+            connect( this->fileh, SIGNAL(localStyleChangeNotify(QString, QString, int, QString)),
+                     this, SLOT(sendChangeStyle(QString, QString, int, QString)));
+            connect( this->fileh, SIGNAL(localCursorChangeNotify(int)),
+                     this, SLOT(sendCursor(int)));
             qDebug() << "Il file è stato creato correttamente!";
         }
         else{
