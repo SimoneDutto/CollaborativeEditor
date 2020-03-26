@@ -29,6 +29,7 @@ public:
     ~Socket();
     FileHandler* getFHandler();
     int getClientID();
+    QString getClientUsername();
     QMap<QString, int> getMapFiles();
     QMap<QString, QColor> getUserColor();
 
@@ -44,6 +45,7 @@ private:
     long int size=0;
     FileHandler* fileh;
     int clientID;
+    QString username;
     QMap<QString, int> mapFiles;
     QMap<QString, QColor> userColor;
     QString pathIcon;

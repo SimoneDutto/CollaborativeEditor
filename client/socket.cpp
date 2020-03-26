@@ -138,6 +138,9 @@ void Socket::checkSignUp(QJsonObject object) {
 
 void Socket::sendLogin(QString username, QString password)
 {
+    /* Salvo il nome utente */
+    this->username = username;
+
     //RICHIESTA DI LOGIN
     QJsonObject obj;
     obj.insert("type", "LOGIN");
@@ -615,6 +618,10 @@ FileHandler* Socket::getFHandler(){
 
 int Socket::getClientID(){
     return this->clientID;
+}
+
+QString Socket::getClientUsername(){
+    return this->username;
 }
 
 bool Socket::getConnection(){

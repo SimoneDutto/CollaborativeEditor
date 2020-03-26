@@ -60,16 +60,15 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
     ui->user3->hide();
     ui->counter->hide();
 
-    /* Aggiungo l'icona dell'utente */
+    /* Aggiungo nome e icona dell'utente */
 
-    /* Gestire il caso in cui non ci sia nessuna icona */
-    /*
-     * QString styleSheet = "QLabel { background-color: rgb(255, 254, 239); color: black; border-style: solid; border-width: 1.2px; border-color: black;}";
-     * ui->myicon->setStyleSheet(styleSheet);
-     * QFont font("Arial", 30);
-     * ui->userImage->setFont(font);
-     * ui->myicon->setText("U");
-    */
+    QString username = socket->getClientUsername();
+
+    styleSheet = "QLabel { background-color: rgb(255, 252, 247); color: black; border-style: solid; border-width: 1px; border-radius: 3px; border-color: black; font: ; }";
+    ui->username->setStyleSheet(styleSheet);
+    QFont font("Arial");
+    ui->username->setFont(font);
+    ui->username->setText(username);
 
     QString imageName = QString::number(socket->getClientID())+".png";
     QPixmap userPixmap = QPixmap(imageName);
@@ -80,12 +79,11 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
     }
 
     else {
-        /* Da personalizzare secondo i dati del client (nome-colore) */
-        QString styleSheet = "QLabel { background-color: rgb(255, 252, 247); color: black; border-style: solid; border-width: 3px; border-radius: 15px; border-color: blue; font: ; }";
+        styleSheet = "QLabel { background-color: rgb(255, 252, 247); color: black; border-style: solid; border-width: 2px; border-radius: 6px; border-color: orange; font: ; }";
         ui->myicon->setStyleSheet(styleSheet);
-        QFont font("Arial");
+        QFont font("Arial", 30);
         ui->myicon->setFont(font);
-        ui->myicon->setText("ME");
+        ui->myicon->setText(username.at(0).toUpper());
     }
 
 
@@ -124,6 +122,17 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
     /* CONNECT per lo stile dei caratteri */
     connect( this, SIGNAL(styleChange(QMap<QString, QTextCharFormat>, QString, QString, bool, bool, bool)),
               fHandler, SLOT(localStyleChange(QMap<QString, QTextCharFormat>, QString, QString, bool, bool, bool)) );
+
+    /* CONNECT per collegare le ClickableLabel */
+    connect( ui->user1, SIGNAL(clicked()),
+             this, SLOT(on_counter_clicked()));
+    connect( ui->user2, SIGNAL(clicked()),
+             this, SLOT(on_counter_clicked()));
+    connect( ui->user3, SIGNAL(clicked()),
+             this, SLOT(on_counter_clicked()));
+    connect( ui->myicon, SIGNAL(clicked()),
+             this, SLOT(on_actionEdit_Profile_triggered()));
+
 
 }
 
@@ -726,7 +735,6 @@ void MainWindow::on_actionLog_Out_triggered()
 void MainWindow::on_actionEdit_Profile_triggered()
 {
     account = new Account(this->socket, this, this->windowTitle());
-    //hide();
     account->show();
 
 }
@@ -761,8 +769,6 @@ void MainWindow::on_counter_clicked()
 {
     OnlineUser *onlineList = new OnlineUser(socket, this);
     onlineList->show();
-
-
 }
 
 void MainWindow::on_write_uri(QString uri){

@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include "socket.h"
+#include <QPixmap>
 
 namespace Ui {
 class Account;
