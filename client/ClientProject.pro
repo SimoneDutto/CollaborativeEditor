@@ -22,6 +22,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     account.cpp \
+    clickablelabel.cpp \
     dialog.cpp \
     error.cpp \
     newopen.cpp \
@@ -40,6 +41,7 @@ SOURCES += \
 
 HEADERS += \
     account.h \
+    clickablelabel.h \
     dialog.h \
     error.h \
     newopen.h \

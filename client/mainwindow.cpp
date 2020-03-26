@@ -77,6 +77,32 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
     ui->user3->hide();
     ui->counter->hide();
 
+    /* Aggiungo nome e icona dell'utente */
+
+    QString username = socket->getClientUsername();
+
+    styleSheet = "QLabel { background-color: rgb(255, 252, 247); color: black; border-style: solid; border-width: 1px; border-radius: 3px; border-color: black; font: ; }";
+    ui->username->setStyleSheet(styleSheet);
+    QFont font("Arial");
+    ui->username->setFont(font);
+    ui->username->setText(username);
+
+    QString imageName = QString::number(socket->getClientID())+".png";
+    QPixmap userPixmap = QPixmap(imageName);
+
+    if(userPixmap != QPixmap()){
+        QPixmap scaled = userPixmap.scaled(ui->myicon->width(), ui->myicon->height(), Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
+        ui->myicon->setPixmap(scaled);
+    }
+
+    else {
+        styleSheet = "QLabel { background-color: rgb(255, 252, 247); color: black; border-style: solid; border-width: 2px; border-radius: 6px; border-color: orange; font: ; }";
+        ui->myicon->setStyleSheet(styleSheet);
+        QFont font("Arial", 30);
+        ui->myicon->setFont(font);
+        ui->myicon->setText(username.at(0).toUpper());
+    }
+
 
     /* CONNECT per segnali uscenti, inoltrare le modifiche fatte */
     connect( this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
@@ -113,6 +139,17 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
     /* CONNECT per lo stile dei caratteri */
     connect( this, SIGNAL(styleChange(QMap<QString, QTextCharFormat>, QString, QString, bool, bool, bool)),
               fHandler, SLOT(localStyleChange(QMap<QString, QTextCharFormat>, QString, QString, bool, bool, bool)) );
+
+
+    /* CONNECT per collegare le ClickableLabel */
+    connect( ui->user1, SIGNAL(clicked()),
+             this, SLOT(on_counter_clicked()));
+    connect( ui->user2, SIGNAL(clicked()),
+             this, SLOT(on_counter_clicked()));
+    connect( ui->user3, SIGNAL(clicked()),
+             this, SLOT(on_counter_clicked()));
+    connect( ui->myicon, SIGNAL(clicked()),
+             this, SLOT(on_actionEdit_Profile_triggered()));
 
 
 }
@@ -682,19 +719,25 @@ void MainWindow::on_textEdit_cursorPositionChanged() {
     /*Se il testo selezionato ha stile misto, i bottoni accendono lo stile*/
     if(cursor.hasSelection()==true){
         if(ui->textEdit->fontWeight()!=75){
-            //BoldButton OFF
+            ui->actionBold->setChecked(false);
         }
-        else {}//BoldButton ON
+        else {
+            ui->actionBold->setChecked(true);
+        }
 
         if(ui->textEdit->fontItalic()!=true){
-            //ItalicButton OFF
+            ui->actionItalic->setChecked(false);
         }
-        else {}//ItalicButton ON
+        else {
+            ui->actionItalic->setChecked(true);
+        }
 
         if(ui->textEdit->fontUnderline()!=true){
-            //UnderlineButton OFF
+            ui->actionUnderlined->setChecked(false);
         }
-        else {}//UnderlineButton ON
+        else {
+            ui->actionUnderlined->setChecked(true);
+        }
 
     }
 
@@ -703,20 +746,26 @@ void MainWindow::on_textEdit_cursorPositionChanged() {
     else {
         auto format = cursor.charFormat();
 
-        if(format.fontWeight()==55){
-            //BoldButton OFF
+        if(format.fontWeight()!=75){
+            ui->actionBold->setChecked(false);
         }
-        else {} //BoldButton ON
+        else {
+            ui->actionBold->setChecked(true);
+        }
 
         if(format.fontItalic()==false){
-            //ItalicButton OFF
+            ui->actionItalic->setChecked(false);
         }
-        else {} //ItalicButton ON
+        else {
+            ui->actionItalic->setChecked(true);
+        }
 
         if(format.fontUnderline()==false){
-            //UnderlineButton OFF
+            ui->actionUnderlined->setChecked(false);
         }
-        else {} //UnderlineButton ON
+        else {
+            ui->actionUnderlined->setChecked(true);
+        }
     }
 
 }
@@ -731,7 +780,6 @@ void MainWindow::on_actionLog_Out_triggered()
 void MainWindow::on_actionEdit_Profile_triggered()
 {
     account = new Account(this->socket, this, this->windowTitle());
-    //hide();
     account->show();
 
 }
@@ -766,8 +814,6 @@ void MainWindow::on_counter_clicked()
 {
     OnlineUser *onlineList = new OnlineUser(socket, this);
     onlineList->show();
-
-
 }
 
 void MainWindow::on_write_uri(QString uri){
