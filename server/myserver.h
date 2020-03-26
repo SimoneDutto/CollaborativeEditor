@@ -6,6 +6,7 @@
 #include <QObject>
 #include <QSignalMapper>
 #include <QTcpSocket>
+#include <QBuffer>
 #include "buffer.h"
 class QTcpServer;
 class FileSystem;
@@ -23,8 +24,7 @@ private slots:
     void onNewConnection();
     void handleNotifications(QTcpSocket *socket, QByteArray data);
     void onDisconnected();
-    void sendSignUpResponse(QString message, bool success, QTcpSocket* socket);
-    void sendFileChunk(QByteArray chunk, QTcpSocket *socket, int remainingSize);
+    void sendFileChunk(QByteArray chunk, QTcpSocket *socket, int remainingSize, QString type);
     void readBuffer();
 signals:
     void bufferReady(QTcpSocket* socket, QByteArray data);
@@ -32,6 +32,7 @@ private:
     FileSystem *fsys;
     QTcpServer *m_server;
     QMap<QTcpSocket*, Buffer*> barray_psocket;
+    QMap<QTcpSocket*, Buffer*> iconarray_psocket;
 };
 
 

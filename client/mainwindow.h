@@ -8,6 +8,7 @@
 #include "account.h"
 #include "uri.h"
 #include "onlineuser.h"
+#include "clickablelabel.h"
 
 namespace Ui {
 class MainWindow;

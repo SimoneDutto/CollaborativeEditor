@@ -29,24 +29,36 @@ public:
     ~Socket();
     FileHandler* getFHandler();
     int getClientID();
+    QString getClientUsername();
     QMap<QString, int> getMapFiles();
     QMap<QString, QColor> getUserColor();
 
     void isSigningUp(bool flag);
+    bool getConnection();
 
 private:
     Ui::Socket *ui;
     QTcpSocket *socket;
     QByteArray buffer;
     QByteArray json_buffer;
+    QByteArray icon_buffer;
     long int size=0;
     FileHandler* fileh;
     int clientID;
+    QString username;
     QMap<QString, int> mapFiles;
     QMap<QString, QColor> userColor;
     QMap<int, QColor> userIDColor;
     QMap<int, int> userCursors;
+
+    QString pathIcon;
     bool isDoingSignUp;
+    bool connected;
+
+    void checkLoginAndGetListFileName(QJsonObject);
+    void checkSignUp(QJsonObject);
+    void sendIcon(QString path);
+    void sendFileChunk(QByteArray chunk, QTcpSocket* socket, int remainingSize);
 
 public slots:
     void sendSignUpRequest(QString username, QString password, QString pathImage);
@@ -60,8 +72,6 @@ private slots:
     void socketClosed();
     void socketError(int e);
 
-    void checkLoginAndGetListFileName();
-    void checkSignUp();
     void notificationsHandler(QByteArray buffer);
     void readBuffer();
     //void setSignals();
@@ -101,6 +111,8 @@ signals:
     void uriIsNotOk();
 
     void writeURI(QString uri);
+
+    void noConnection();
 };
 
 
