@@ -25,11 +25,25 @@ Account::Account(Socket *sock, QWidget *parent, QString name) :
     ui->lineEdit_2->setPalette(p);
     ui->lineEdit_3->setPalette(p);
     ui->lineEdit_4->setPalette(p);
-    this->show();
 
-    // set picture
-    QPixmap pix("path -- TO DO");
-    ui->label->setPixmap(pix);
+    /* Imposto la User Image */
+    QString imageName = QString::number(socket->getClientID())+".png";
+    QPixmap userPixmap = QPixmap(imageName);
+
+    if(userPixmap != QPixmap()){
+        QPixmap scaled = userPixmap.scaled(ui->userImage->width(), ui->userImage->height(), Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
+        ui->userImage->setPixmap(scaled);
+    }
+
+    else {
+        QString styleSheet = "QLabel { background-color: rgb(255, 254, 239); color: black; border-style: solid; border-width: 1.2px; border-color: black;}";
+        ui->userImage->setStyleSheet(styleSheet);
+        QFont font("Arial", 50);
+        ui->userImage->setFont(font);
+        ui->userImage->setText("U"); //Si dovrebbe impostare la propria iniziale
+    }
+
+    this->show();
 }
 
 Account::~Account()

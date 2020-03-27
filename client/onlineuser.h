@@ -4,6 +4,7 @@
 #include <QDialog>
 #include <QListWidgetItem>
 #include <QListWidget>
+#include <QPalette>
 #include "socket.h"
 
 namespace Ui {
