@@ -42,12 +42,12 @@ private slots:
     void on_actionBackgorund_Color_triggered();
     void on_textEdit_textChanged();
     void on_lineEdit_editingFinished();
-    void fileIsHere();
+    void fileIsHere(QMap<int,int>, QMap<int,QColor>);
     void changeViewAfterInsert(QChar l, int pos, QTextCharFormat format);
     void changeViewAfterDelete(int externalIndex);
     void changeViewAfterStyle(QString firstLetterID, QString lastLetterID);
     void addUserConnection(QString username, QColor colorUser);
-    void removeUserDisconnect(int userid);
+    void removeUserDisconnect(QString username, int userID);
 
     void on_textEdit_cursorPositionChanged();
 
@@ -94,6 +94,7 @@ signals:
     void styleChange(QMap<QString, QTextCharFormat>, QString startID, QString lastID, bool boldTriggered, bool italicTriggered, bool underlinedTriggered);
     void exportAsPDF();
     void logOut();
+    void sendCursorChange(int position);
     //void localStyleChange(QString initialID, QString finalID, QTextCharFormat);
 };
 
