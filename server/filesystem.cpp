@@ -38,9 +38,9 @@ void FileSystem::createFile(QString filename, QTcpSocket *socket){
 
     auto file = sock_file.find(socket);
     if(file != sock_file.end()){
-        // disconnessione di un client da un file
+        qDebug() << "disconnessione di un client da un file";
         FileHandler *fh = files.at(file->second);
-        fh->removeActiveUser(socket, sock_username.at(socket));
+        fh->removeActiveUser(socket, sock_username.at(socket), sock_id.at(socket));
     }
     QSqlQuery query;
     query.prepare("SELECT COUNT(*) FROM files WHERE userid=((:userid) AND filename=(:filename))");
@@ -84,7 +84,8 @@ void FileSystem::createFile(QString filename, QTcpSocket *socket){
         QVector<Letter*> letters;
 
         fh = new FileHandler(std::move(letters), fileid);
-        fh->insertActiveUser(socket,0, sock_username.at(socket));
+        qDebug() << "insert active user";
+        fh->insertActiveUser(socket,0, sock_username.at(socket), id->second, 0);
 
         sock_file.insert(std::pair<QTcpSocket*, int> (socket, fileid));
         //sock_file.insert(socket, fileid); //associate file to socket
@@ -97,6 +98,9 @@ void FileSystem::createFile(QString filename, QTcpSocket *socket){
         connect(fh, SIGNAL(remoteStyleChangeNotify(QVector<QTcpSocket*>, QByteArray, QTcpSocket*)),
                 this, SLOT(sendStyleChange(QVector<QTcpSocket*>, QByteArray, QTcpSocket*)));
 
+        connect( fh, SIGNAL(remoteCursorChangeNotify(QVector<QTcpSocket*>, QByteArray, QTcpSocket*)),
+                 this, SLOT(sendCursorChange(QVector<QTcpSocket*>, QByteArray, QTcpSocket*)));
+
         QByteArray ba;
         ba.append(QString::number(fileid));
         QString URI = ba.toBase64();
@@ -105,7 +109,7 @@ void FileSystem::createFile(QString filename, QTcpSocket *socket){
         file_info.insert("type", "NEW");
         file_info.insert("fileid", fileid);
         file_info.insert("URI", URI);
-        // Send size of message "OPEN"
+        // Send size of message "NEW"
         sendJson(file_info, socket);
 
         qDebug() << "Insert executed";
@@ -194,7 +198,7 @@ void FileSystem::sendFile(int fileid, QTcpSocket *socket){
     if(file != sock_file.end()){
         // disconnessione di un client da un file
         FileHandler *fh = files.at(fileid);
-        fh->removeActiveUser(socket, sock_username.at(socket));
+        fh->removeActiveUser(socket, sock_username.at(socket), sock_id.at(socket));
     }
     QSqlQuery query;
     int siteCounter=0;
@@ -226,14 +230,20 @@ void FileSystem::sendFile(int fileid, QTcpSocket *socket){
         file_info.insert("size", size);
         file_info.insert("siteCounter", siteCounter);
         file_info.insert("URI", URI);
-        qDebug() << "Ciao";
-        QJsonArray userArray;
-        QVector<QTcpSocket*> users = it->second->getUsers();
-        for(QTcpSocket* user: users){
-            userArray.push_back(sock_username.at(user));
+        //qDebug() << "Ciao";
+        if(it->second->thereAreUsers()) {
+            qDebug()<< "propagate new active user";
+            QJsonArray userArray, userIDArray, userCursorArray;
+            QVector<QTcpSocket*> users = it->second->getUsers();
+            for(QTcpSocket* user: users){
+                userArray.push_back(sock_username.at(user));
+                userIDArray.push_back(sock_id.at(user));
+                userCursorArray.push_back(it->second->getUserCursorPosition(user));
+            }
+            file_info.insert("activeUser", userArray);
+            file_info.insert("activeUserIDs", userIDArray);
+            file_info.insert("userCursors", userCursorArray);
         }
-        file_info.insert("activeUser", userArray);
-
         sendJson(file_info, socket);
 
         QJsonArray file_array;
@@ -264,9 +274,9 @@ void FileSystem::sendFile(int fileid, QTcpSocket *socket){
             from += chunk;
         }
 
-        qDebug() << "File sent";
+        qDebug() << "File sent. cursor = " << file_array.size();
         FileHandler *fh = it->second;
-        fh->insertActiveUser(socket, siteCounter, sock_username.at(socket));
+        fh->insertActiveUser(socket, siteCounter, sock_username.at(socket), sock_id.at(socket), file_array.size());
 
         sock_file.insert(std::pair<QTcpSocket*, int> (socket, fileid)); //associate file to socket
 
@@ -354,7 +364,12 @@ void FileSystem::sendFile(int fileid, QTcpSocket *socket){
         connect(fh, SIGNAL(remoteStyleChangeNotify(QVector<QTcpSocket*>, QByteArray, QTcpSocket*)),
                 this, SLOT(sendStyleChange(QVector<QTcpSocket*>, QByteArray, QTcpSocket*)));
 
-        fh->insertActiveUser(socket, siteCounter, sock_username.at(socket));
+        connect( fh, SIGNAL(remoteCursorChangeNotify(QVector<QTcpSocket*>, QByteArray, QTcpSocket*)),
+                 this, SLOT(sendCursorChange(QVector<QTcpSocket*>, QByteArray, QTcpSocket*)));
+
+        qDebug() << "cursore = " << letterArray.size();
+
+        fh->insertActiveUser(socket, siteCounter, sock_username.at(socket), sock_id.at(socket), letterArray.size());
 
         files.insert(std::pair<int, FileHandler*> (fileid, fh));
         sock_file.insert(std::pair<QTcpSocket*, int> (socket, fileid)); //associate file to socket
@@ -395,7 +410,7 @@ void FileSystem::checkLogin(QString username, QString password, QTcpSocket *sock
         }
     }
     else{
-        qDebug() << "Query not executed";
+        qDebug() << "Query not executed:" << query.lastError();
     }
     auto us = usernames.find(username);
     if(us != usernames.end()) id = -1;
@@ -592,6 +607,22 @@ void FileSystem::sendStyleChange(QVector<QTcpSocket*> users, QByteArray message,
     }
 }
 
+void FileSystem::sendCursorChange(QVector<QTcpSocket*> users, QByteArray message, QTcpSocket* client) {
+    QVectorIterator<QTcpSocket*> i(users);
+    QByteArray sendSize;
+
+    while (i.hasNext()){
+        QTcpSocket* socket = i.next();
+        if(socket == client) continue;
+        if(socket->state() == QAbstractSocket::ConnectedState) {
+            socket->write(sendSize.number(message.size()), sizeof (long int));
+            socket->waitForBytesWritten();
+            socket->write(message);
+            socket->waitForBytesWritten(1000);
+        }
+    }
+}
+
 void FileSystem::updateFileSiteCounter(int fileID, int userID, int siteCounter){
     QSqlQuery query;
     query.prepare("UPDATE Files SET siteCounter=(:siteCounter) WHERE UserId=(:userID) AND FileId=(:fileID)");
@@ -628,9 +659,9 @@ void FileSystem::disconnectClient(QTcpSocket* socket){
     int userID = it1->second;
     FileHandler *fh = files.at(fileID);
     this->updateFileSiteCounter(fileID, userID, fh->getSiteCounter(socket));
-    fh->removeActiveUser(socket, sock_username.at(socket));
-    sock_file.erase(socket);
 
+    fh->removeActiveUser(socket, sock_username.at(socket), sock_id.at(socket));
+    sock_file.erase(socket);
 }
 
 void FileSystem::sendJson(QJsonObject json, QTcpSocket* socket){

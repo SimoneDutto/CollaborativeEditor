@@ -2,7 +2,7 @@
 #include <QDebug>
 
 FileHandler::FileHandler(QObject *parent)
-  : QObject(parent), siteCounter(0)
+  : QObject(parent), siteCounter(0), cursor(0)
 {}
 
 /**
@@ -150,7 +150,6 @@ void FileHandler::localInsert(int externalIndex, QChar newLetterValue, int clien
     /*Inviare notifica via socket*/
     QJsonArray positionJsonArray;
     std::copy (position.begin(), position.end(), std::back_inserter(positionJsonArray));
-    qDebug() << "Letter inserted in position:";
 
     emit localInsertNotify(newLetterValue, positionJsonArray, clientID, siteCounter, externalIndex, format);
 }
@@ -168,45 +167,6 @@ void FileHandler::localDelete(int firstExternalIndex, int lastExternalIndex) {
         /*Inviare notifica via socket*/
         emit localDeleteNotify(letterID, this->fileid, this->siteCounter);
     }
-}
-
-void FileHandler::remoteInsert(QJsonArray position, QChar newLetterValue, int externalIndex, int siteID, int siteCounter, QTextCharFormat format) {
-
-    // Get index and fractionals vector
-    QVector<int> fractionals;
-
-    if(!position.isEmpty()) {
-        //int index = position.at(0).toInt();
-        //position.removeAt(0);
-
-        for(auto fractional : position) {
-            fractionals.append(fractional.toInt());
-        }
-
-        QString letterID = QString::number(siteID).append("-").append(QString::number(siteCounter));
-
-        this->letters.insert(this->letters.begin()+externalIndex-1, new Letter(newLetterValue, fractionals, letterID, format));
-    }
-
-    /*Aggiornare la GUI*/
-    emit readyRemoteInsert(newLetterValue, externalIndex-1, format);
-}
-
-void FileHandler::remoteDelete(QString deletedLetterID) {
-    int externalIndex = 0;
-
-    for (Letter *l : this->letters) {
-        if(l->getLetterID().compare(deletedLetterID) == 0) {
-            this->letters.remove(externalIndex);
-            break;
-        }
-       externalIndex++;
-    }
-
-    externalIndex++;    // align externalIndex with GUI rapresentation
-
-    /*Aggiornare la GUI*/
-    emit readyRemoteDelete(externalIndex);
 }
 
 void FileHandler::localStyleChange(QMap<QString, QTextCharFormat> letterFormatMap, QString startID, QString lastID, bool boldTriggered, bool italicTriggered, bool underlinedTriggered) {
@@ -272,6 +232,52 @@ void FileHandler::localStyleChange(QMap<QString, QTextCharFormat> letterFormatMa
     emit localStyleChangeNotify(startID, lastID, this->fileid, changedStyle);
 }
 
+void FileHandler::localCursorChange(int position) {
+    this->cursor = position;
+    /* Notify server */
+    emit localCursorChangeNotify(position);
+}
+
+void FileHandler::remoteInsert(QJsonArray position, QChar newLetterValue, int externalIndex, int siteID, int siteCounter, QTextCharFormat format) {
+
+    // Get index and fractionals vector
+    QVector<int> fractionals;
+
+    if(!position.isEmpty()) {
+        //int index = position.at(0).toInt();
+        //position.removeAt(0);
+
+        for(auto fractional : position) {
+            fractionals.append(fractional.toInt());
+        }
+
+        QString letterID = QString::number(siteID).append("-").append(QString::number(siteCounter));
+
+        this->letters.insert(this->letters.begin()+externalIndex-1, new Letter(newLetterValue, fractionals, letterID, format));
+    }
+
+    /*Aggiornare la GUI*/
+    emit readyRemoteInsert(newLetterValue, externalIndex-1, format);
+}
+
+void FileHandler::remoteDelete(QString deletedLetterID) {
+    int externalIndex = 0;
+
+    for (Letter *l : this->letters) {
+        if(l->getLetterID().compare(deletedLetterID) == 0) {
+            this->letters.remove(externalIndex);
+            break;
+        }
+       externalIndex++;
+    }
+
+    externalIndex++;    // align externalIndex with GUI rapresentation
+
+    /*Aggiornare la GUI*/
+    emit readyRemoteDelete(externalIndex);
+}
+
+
 void FileHandler::remoteStyleChange(QString firstLetterID, QString lastLetterID, QString changedStyle) {
     /* Edit letters style locally */
     bool intervalStarted = false;
@@ -294,6 +300,7 @@ void FileHandler::setValues(QVector<Letter *> letters){
         this->letters.clear();
     }
     this->letters = letters;
+    this->cursor = letters.size();
 }
 
 QVector<Letter*> FileHandler::getVectorFile(){
@@ -330,4 +337,12 @@ void FileHandler::setURI(QString URI){
 
 QString FileHandler::getURI(){
     return this->URI;
+}
+
+int FileHandler::getCursor() {
+    return this->cursor;
+}
+
+void FileHandler::setCursor(int newPosition) {
+    this->cursor = newPosition;
 }

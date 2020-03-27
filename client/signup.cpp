@@ -15,6 +15,7 @@ SignUp::SignUp(Socket* sock, QWidget* parent)
     ui->setupUi(this);
     QPalette pal = palette();
     QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
+    this->setWindowFlags(Qt::Window);
 
     // set black background
     pal.setColor(QPalette::Background, QColor(58,58,60));

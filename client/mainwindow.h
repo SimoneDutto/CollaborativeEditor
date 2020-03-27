@@ -8,6 +8,7 @@
 #include "account.h"
 #include "uri.h"
 #include "onlineuser.h"
+#include "clickablelabel.h"
 
 namespace Ui {
 class MainWindow;
@@ -19,6 +20,7 @@ class MainWindow : public QMainWindow
 
 public:
     explicit MainWindow(Socket *sock = nullptr, FileHandler *fileHand = nullptr,QWidget *parent = nullptr, QString nome = nullptr);
+    static bool sorting(QPair<QPair<int,QColor>,int> &, QPair<QPair<int,QColor>,int> &);
     ~MainWindow();
 
 private slots:
@@ -40,12 +42,12 @@ private slots:
     void on_actionBackgorund_Color_triggered();
     void on_textEdit_textChanged();
     void on_lineEdit_editingFinished();
-    void fileIsHere();
+    void fileIsHere(QMap<int,int>, QMap<int,QColor>);
     void changeViewAfterInsert(QChar l, int pos, QTextCharFormat format);
     void changeViewAfterDelete(int externalIndex);
     void changeViewAfterStyle(QString firstLetterID, QString lastLetterID);
     void addUserConnection(QString username, QColor colorUser);
-    void removeUserDisconnect(QString username);
+    void removeUserDisconnect(QString username, int userID);
 
     void on_textEdit_cursorPositionChanged();
 
@@ -70,7 +72,8 @@ private slots:
     void on_actionAlign_to_Justify_triggered();
     void notConnected();
 
-    //void on_actionshow_cursor_triggered();
+    void on_cursor_triggered(QPair<int,int> idpos, QColor col);
+
 
 private:
     Ui::MainWindow *ui;
@@ -80,6 +83,8 @@ private:
     Form *form;
     Account *account;
     int letterCounter = 0;
+    QList<QPair<QPair<int,QColor>,int>> id_colore_cursore;
+
 
 signals:
     void myInsert(int externalIndex, QChar newLetterValue, int clientID, QTextCharFormat format);
@@ -89,6 +94,7 @@ signals:
     void styleChange(QMap<QString, QTextCharFormat>, QString startID, QString lastID, bool boldTriggered, bool italicTriggered, bool underlinedTriggered);
     void exportAsPDF();
     void logOut();
+    void sendCursorChange(int position);
     //void localStyleChange(QString initialID, QString finalID, QTextCharFormat);
 };
 
