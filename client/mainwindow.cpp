@@ -670,7 +670,7 @@ void MainWindow::removeUserDisconnect(int userid){
     /*La lista completa degli Online Users la inizializzo nel OnlineUser Constructor*/
 
 }
-
+}
 
 //TODO: inserire gestione bottoni
 void MainWindow::on_textEdit_cursorPositionChanged() {
