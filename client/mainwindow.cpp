@@ -713,7 +713,6 @@ void MainWindow::removeUserDisconnect(QString username, int userID){
     /*La lista completa degli Online Users la inizializzo nel OnlineUser Constructor*/
 
 }
-}
 
 //TODO: inserire gestione bottoni
 void MainWindow::on_textEdit_cursorPositionChanged() {
