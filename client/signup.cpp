@@ -98,16 +98,16 @@ void SignUp::changeUsername() {
 
 void SignUp::on_setImage_clicked()
 {
-//    QString iconName = QFileDialog::getOpenFileName(this, tr("Choose"), "", tr("Images (*.png *.jpg *.jpeg *.bmp)"));
-//    if(QString::compare(iconName, QString()) != 0)
-//    {
-//        QPixmap userPixmap = QPixmap(iconName);
-//        QPixmap scaled = userPixmap.scaled(ui->userImage->width(), ui->userImage->height(), Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
-//        ui->userImage->setPixmap(scaled);
+    QString iconName = QFileDialog::getOpenFileName(this, tr("Choose"), "", tr("Images (*.png *.jpg *.jpeg *.bmp)"));
+    if(QString::compare(iconName, QString()) != 0)
+    {
+        QPixmap userPixmap = QPixmap(iconName);
+        QPixmap scaled = userPixmap.scaled(ui->userImage->width(), ui->userImage->height(), Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
+        ui->userImage->setPixmap(scaled);
 
-//        ui->discardImage->show();
-//        this->pathUserImage = iconName;
-//    }
+        ui->discardImage->show();
+        this->pathUserImage = iconName;
+    }
 }
 
 void SignUp::on_lineEdit_textEdited(const QString &presentText)
@@ -123,18 +123,17 @@ void SignUp::on_lineEdit_textEdited(const QString &presentText)
 }
 
 void SignUp::on_discardImage_clicked(){
-//{
-//    ui->userImage->clear();
-//    QString presentText = ui->lineEdit->text();
+    ui->userImage->clear();
+    QString presentText = ui->lineEdit->text();
 
-//    if(QString::compare(presentText, QString()) != 0){
-//        ui->userImage->setText(presentText.at(0).toUpper());
-//    }
+    if(QString::compare(presentText, QString()) != 0){
+        ui->userImage->setText(presentText.at(0).toUpper());
+    }
 
-//    else ui->userImage->setText("U");
+    else ui->userImage->setText("U");
 
-//    ui->discardImage->hide();
-//    this->pathUserImage="";
+    ui->discardImage->hide();
+    this->pathUserImage="";
 }
 
 void SignUp::on_pushButton_2_clicked()
