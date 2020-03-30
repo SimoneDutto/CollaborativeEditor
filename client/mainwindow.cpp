@@ -81,10 +81,10 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
 
     QString username = socket->getClientUsername();
 
-    styleSheet = "QLabel { background-color: rgb(255, 252, 247); color: black; border-style: solid; border-width: 1px; border-radius: 3px; border-color: black; font: ; }";
+    /*styleSheet = "QLabel { background-color: rgb(255, 252, 247); color: black; border-style: solid; border-width: 1px; border-radius: 3px; border-color: black; font: ; }";
     ui->username->setStyleSheet(styleSheet);
     QFont font("Arial");
-    ui->username->setFont(font);
+    ui->username->setFont(font);*/
     ui->username->setText(username);
 
     QString imageName = QString::number(socket->getClientID())+".png";
