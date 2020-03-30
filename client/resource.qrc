@@ -29,6 +29,7 @@
         <file>icone/sinistra.png</file>
         <file>icone/camera_icon.png</file>
         <file>icone/discard_icon.png</file>
+        <file>icone/error2.png</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>
