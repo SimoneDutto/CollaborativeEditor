@@ -81,7 +81,7 @@ private slots:
     int sendDelete(QString deletedLetterID, int fileID, int siteCounter);
     int sendCheckFileName(QString fileNameTmp);
     int sendNewFile(QString filename);
-    int sendChangeStyle(QString firstLetterID, QString lastLetterID, int fileID, QString changedStyle);
+    int sendChangeStyle(QString firstLetterID, QString lastLetterID, int fileID, QString changedStyle, QString font);
     int sendCursor(int position);
 
 signals:
@@ -98,7 +98,7 @@ signals:
     void readyFile(QMap<int,int>,QMap<int,QColor>);
     void readyInsert(QJsonArray position, QChar newLetterValue, int externalIndex, int siteID, int siteCounter, QTextCharFormat format);
     void readyDelete(QString deletedLetterID);
-    void readyStyleChange(QString firstID, QString lastID, QString changedStyle);
+    void readyStyleChange(QString firstID, QString lastID, QString changedStyle, QString font);
     void UserConnect(QString username, QColor colorUser);
     void userCursor(QPair<int,int> userID_pos, QColor color);
     void UserDisconnect(QString username, int userID);

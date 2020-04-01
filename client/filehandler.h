@@ -37,16 +37,16 @@ public:
 public slots:
     void localInsert(int externalIndex, QChar newLetterValue, int clientID, QTextCharFormat format);
     void localDelete(int firstExternalIndex, int lastExternalIndex);
-    void localStyleChange(QMap<QString, QTextCharFormat> letterFormatMap, QString startID, QString lastID, bool boldTriggered, bool italicTriggered, bool underlinedTriggered);
+    void localStyleChange(QMap<QString, QTextCharFormat> letterFormatMap, QString startID, QString lastID, bool boldTriggered, bool italicTriggered, bool underlinedTriggered, QString font);
     void localCursorChange(int position);
 
     void remoteInsert(QJsonArray position, QChar newLetterValue, int externalIndex, int siteID, int siteCounter, QTextCharFormat format);
     void remoteDelete(QString deletedLetterID);
-    void remoteStyleChange(QString firstLetterID, QString lastLetterID, QString changedStyle);
+    void remoteStyleChange(QString firstLetterID, QString lastLetterID, QString changedStyle, QString font);
 signals:
     void localInsertNotify(QChar newLetterValue, QJsonArray position, int siteID, int siteCounter, int externalIndex, QTextCharFormat format);
     void localDeleteNotify(QString deletedLetterID, int fileid, int siteCounter);
-    void localStyleChangeNotify(QString firstLetterID, QString lastLetterID, int fileID, QString changedStyle);
+    void localStyleChangeNotify(QString firstLetterID, QString lastLetterID, int fileID, QString changedStyle, QString font);
     void localCursorChangeNotify(int position);
 
     void readyRemoteInsert(QChar newLetter, int externalIndex, QTextCharFormat format);
