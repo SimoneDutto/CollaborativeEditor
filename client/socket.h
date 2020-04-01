@@ -64,6 +64,7 @@ public slots:
     void sendSignUpRequest(QString username, QString password, QString pathImage);
     void sendLogin(QString username, QString password);
     void sendAccess(QString URI);
+    void sendChange(QString nickname, QString psw, QString path);
 
 private slots:
     void closeConnection();

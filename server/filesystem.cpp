@@ -445,7 +445,7 @@ void FileSystem::checkLogin(QString username, QString password, QTcpSocket *sock
     final_object.insert("id", QJsonValue(id));
     final_object.insert("type", "LOGIN");
     sendJson(final_object, socket);
-    QFile inFile("icon_"+QString::number(id));
+    QFile inFile("icon_"+QString::number(id)+".png");
     inFile.open(QFile::ReadOnly);
     QByteArray splitToSend = inFile.readAll().toBase64();
     int from = 0, chunk;
@@ -536,6 +536,25 @@ void FileSystem::saveFile(QByteArray q, QTcpSocket* sock){
     qDebug() <<writer.error();
 }
 
+void FileSystem::changePassword(QString password, QTcpSocket* socket){
+    auto it = sock_id.find(socket);
+    if(it == sock_id.end()) return;
+    QString old_username = sock_username.at(socket);
+    QSqlQuery sqlQuery;
+    QByteArray saltedPsw = password.append(STR_SALT_KEY).toUtf8();
+    QString encryptedPsw = QString(QCryptographicHash::hash(saltedPsw, QCryptographicHash::Md5));
+
+    sqlQuery.prepare("UPDATE Password SET password=(:password) WHERE username=(:username)");
+    sqlQuery.bindValue(":username", old_username);
+    sqlQuery.bindValue(":password", encryptedPsw);
+
+    if (sqlQuery.exec()){
+        // EMIT SIGN UP SUCCESSFUL
+        qDebug() << "Successfully updated username and psw";
+    } else {
+        qDebug() << "Didnt manage to update username and psw";
+    }
+}
 
 void FileSystem::sendInsert(QVector<QTcpSocket*> users, QByteArray message, bool modifiedIndex, int newIndex, QTcpSocket *client) {
     QJsonObject obj;
@@ -660,7 +679,7 @@ void FileSystem::disconnectClient(QTcpSocket* socket){
     FileHandler *fh = files.at(fileID);
     this->updateFileSiteCounter(fileID, userID, fh->getSiteCounter(socket));
 
-    fh->removeActiveUser(socket, sock_username.at(socket), sock_id.at(socket));
+    fh->removeActiveUser(socket, username, it->second);
     sock_file.erase(socket);
 }
 

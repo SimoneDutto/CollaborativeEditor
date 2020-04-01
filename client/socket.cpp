@@ -55,6 +55,25 @@ Socket::Socket(const QString &host, quint16 port)
     emit bufferReady(data);
 }*/
 
+void Socket::sendChange(QString username,QString psw, QString path){
+    QJsonObject obj;
+    QByteArray toSend;
+    if(username.compare("null")!=0 || psw.compare("null")!=0){
+        obj.insert("type", "CHANGE");
+        obj.insert("username",username);
+        obj.insert("password", psw);
+        if(socket->state() == QAbstractSocket::ConnectedState){
+            QByteArray qarray = QJsonDocument(obj).toJson();
+            qint32 msg_size = qarray.size();
+            QByteArray toSend;
+            socket->write(toSend.number(msg_size), sizeof (long int));
+            socket->waitForBytesWritten();
+            socket->write(QJsonDocument(obj).toJson());
+            socket->waitForBytesWritten(1000);
+        }
+    }
+    if(path.compare("null")!=0) sendIcon(path);
+}
 
 void Socket::sendSignUpRequest(QString username, QString password, QString pathUserImage) {
     // RICHIESTA DI REGISTRAZIONE NUOVO UTENTE
@@ -74,7 +93,6 @@ void Socket::sendSignUpRequest(QString username, QString password, QString pathU
         socket->waitForBytesWritten(1000);
     }
     pathIcon = pathUserImage;
-    //sendIcon(pathUserImage);
 }
 void Socket::sendIcon(QString path){
     QFile inFile(path);
@@ -357,7 +375,7 @@ void Socket::notificationsHandler(QByteArray data){
 //            }
             QImageWriter writer(QString::number(clientID)+".png");
             writer.write(img);
-            qDebug() <<writer.error();
+            qDebug() << writer.error();
             icon_buffer.clear();
         }
     }
