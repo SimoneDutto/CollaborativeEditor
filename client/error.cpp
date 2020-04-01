@@ -7,7 +7,7 @@ Error::Error(QWidget *parent) :
 {
     ui->setupUi(this);
     setWindowTitle("Error");
-    this->setWindowFlags(Qt::Window);
+    setWindowModality(Qt::WindowModal);
 }
 
 Error::~Error()

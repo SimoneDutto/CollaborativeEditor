@@ -8,7 +8,7 @@ serverDisc::serverDisc(QWidget *parent) :
 {
     ui->setupUi(this);
     setWindowTitle("Server Error");
-    setWindowModality(Qt::WindowModal);
+    this->setWindowFlags(Qt::Window);
 }
 
 serverDisc::~serverDisc()
