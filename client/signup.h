@@ -31,7 +31,6 @@ private slots:
     void on_setImage_clicked();
     void on_lineEdit_textEdited(const QString &arg1);
     void on_discardImage_clicked();
-
     void on_pushButton_2_clicked();
 
 public slots:
