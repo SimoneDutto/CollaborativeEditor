@@ -68,8 +68,8 @@ Account::Account(Socket *sock, QWidget *parent, QString name) :
     /* Connect */
     connect( this, SIGNAL(updateClientImageOnMainWindow(QString)),
              parent, SLOT(changeClientImage(QString)));
-    /*connect( this, SIGNAL(updateInfoClient(QString, QString)),
-             sock, SLOT(sendChange(QString, QString)));*/
+    connect( this, SIGNAL(updateInfoClient(QString, QString)),
+             sock, SLOT(sendChange(QString, QString)));
 
     this->show();
 }
@@ -121,7 +121,7 @@ void Account::on_pushButton_clicked()
         }
 
         /* Se l'immagine non è stata cambiata invio la stringa "notChanged" */
-        else emit updateInfoClient(new_password, "notChanged");
+        else emit updateInfoClient(new_password, "null");
 
         this->saveChanges = true;
         this->close();
