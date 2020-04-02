@@ -37,10 +37,10 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
     this->show();
 
     QPalette p = ui->textEdit->palette(); // define pallete for textEdit..
-    p.setColor(QPalette::Base, QColor(209,209,214)); // set color "Red" for textedit base
+    p.setColor(QPalette::Base, QColor(245,245,245)); // set color "Red" for textedit base
     p.setColor(QPalette::Text, Qt::black); // set text color which is selected from color pallete
     ui->textEdit->setPalette(p);
-
+    ui->textEdit->setStyleSheet("QTextEdit { padding:20}");
     // set picture
     /*QPixmap pix("path -- TO DO");
     ui->user1->setPixmap(pix);*/
@@ -846,7 +846,7 @@ void MainWindow::on_cursor_triggered(QPair<int,int> idpos, QColor col)
     QTextCharFormat fmt;
     QTextCharFormat fmt2;
 
-    fmt2.setBackground(QColor(209,209,214));
+    fmt2.setBackground(QColor(245,245,245));
     QTextCursor cursor = ui->textEdit->textCursor();
 
     // simulo la coppia userid-pos e il colore che mi arriveranno come parametri
