@@ -55,12 +55,11 @@ Socket::Socket(const QString &host, quint16 port)
     emit bufferReady(data);
 }*/
 
-void Socket::sendChange(QString username,QString psw, QString path){
+void Socket::sendChange(QString psw, QString path){
     QJsonObject obj;
     QByteArray toSend;
-    if(username.compare("null")!=0 || psw.compare("null")!=0){
+    if(psw.compare("")!=0){
         obj.insert("type", "CHANGE");
-        obj.insert("username",username);
         obj.insert("password", psw);
         if(socket->state() == QAbstractSocket::ConnectedState){
             QByteArray qarray = QJsonDocument(obj).toJson();

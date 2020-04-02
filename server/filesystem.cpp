@@ -445,6 +445,7 @@ void FileSystem::checkLogin(QString username, QString password, QTcpSocket *sock
     final_object.insert("id", QJsonValue(id));
     final_object.insert("type", "LOGIN");
     sendJson(final_object, socket);
+    if(id == -1) return;
     QFile inFile("icon_"+QString::number(id)+".png");
     inFile.open(QFile::ReadOnly);
     QByteArray splitToSend = inFile.readAll().toBase64();
@@ -544,15 +545,16 @@ void FileSystem::changePassword(QString password, QTcpSocket* socket){
     QByteArray saltedPsw = password.append(STR_SALT_KEY).toUtf8();
     QString encryptedPsw = QString(QCryptographicHash::hash(saltedPsw, QCryptographicHash::Md5));
 
-    sqlQuery.prepare("UPDATE Password SET password=(:password) WHERE username=(:username)");
+    sqlQuery.prepare("UPDATE Password SET password=(:password) WHERE username=(:username);");
     sqlQuery.bindValue(":username", old_username);
     sqlQuery.bindValue(":password", encryptedPsw);
 
     if (sqlQuery.exec()){
         // EMIT SIGN UP SUCCESSFUL
-        qDebug() << "Successfully updated username and psw";
+        qDebug() << "Successfully updated psw";
+        qDebug()<< sqlQuery.lastError().text();
     } else {
-        qDebug() << "Didnt manage to update username and psw";
+        qDebug() << "No update psw";
     }
 }
 
@@ -669,13 +671,13 @@ void FileSystem::disconnectClient(QTcpSocket* socket){
     auto it = sock_id.find(socket);
     auto it1 = sock_file.find(socket);
     if(it == sock_id.end()) return;
+    int userID = it->second;
     sock_id.erase(socket);
     QString username = sock_username.at(socket);
     sock_username.erase(socket);
     usernames.remove(username);
     if(it1 == sock_file.end()) return;
-    int fileID = it->second;
-    int userID = it1->second;
+    int fileID = it1->second;
     FileHandler *fh = files.at(fileID);
     this->updateFileSiteCounter(fileID, userID, fh->getSiteCounter(socket));
 
