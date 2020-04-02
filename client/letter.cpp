@@ -139,7 +139,7 @@ void Letter::setFormat(QTextCharFormat format){
     this->format=format;
 }
 
-void Letter::setStyleFromString(QString format) {
+void Letter::setStyleFromString(QString format, QString font) {
     if(format.compare("Bold") == 0)
         this->format.setFontWeight(75);
     else if(format.compare("NotBold") == 0)
@@ -152,6 +152,8 @@ void Letter::setStyleFromString(QString format) {
         this->format.setFontUnderline(true);
     else if(format.compare("Underlined") == 0)
         this->format.setFontUnderline(false);
+    else if(format.compare("Font")==0)
+        this->format.setFont(font);
 }
 
 QTextCharFormat Letter::getFormat(){

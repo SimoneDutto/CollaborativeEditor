@@ -346,8 +346,8 @@ void Socket::notificationsHandler(QByteArray data){
             connect( this->fileh, SIGNAL(localInsertNotify(QChar, QJsonArray, int, int, int, QTextCharFormat)),
                      this, SLOT(sendInsert(QChar, QJsonArray, int, int, int, QTextCharFormat)) );
             connect( this->fileh, SIGNAL(localDeleteNotify(QString, int, int)), this, SLOT(sendDelete(QString, int, int)) );
-            connect( this->fileh, SIGNAL(localStyleChangeNotify(QString, QString, int, QString)),
-                     this, SLOT(sendChangeStyle(QString, QString, int, QString)));
+            connect( this->fileh, SIGNAL(localStyleChangeNotify(QString, QString, int, QString, QString)),
+                     this, SLOT(sendChangeStyle(QString, QString, int, QString, QString)));
             connect( this->fileh, SIGNAL(localCursorChangeNotify(int)),
                      this, SLOT(sendCursor(int)));
 
@@ -426,8 +426,8 @@ void Socket::notificationsHandler(QByteArray data){
             connect( this->fileh, SIGNAL(localInsertNotify(QChar, QJsonArray, int, int, int, QTextCharFormat)),
                      this, SLOT(sendInsert(QChar, QJsonArray, int, int, int, QTextCharFormat)) );
             connect( this->fileh, SIGNAL(localDeleteNotify(QString, int, int)), this, SLOT(sendDelete(QString, int, int)) );
-            connect( this->fileh, SIGNAL(localStyleChangeNotify(QString, QString, int, QString)),
-                     this, SLOT(sendChangeStyle(QString, QString, int, QString)));
+            connect( this->fileh, SIGNAL(localStyleChangeNotify(QString, QString, int, QString, QString)),
+                     this, SLOT(sendChangeStyle(QString, QString, int, QString, QString)));
             connect( this->fileh, SIGNAL(localCursorChangeNotify(int)),
                      this, SLOT(sendCursor(int)));
             qDebug() << "Il file è stato creato correttamente!";
@@ -442,7 +442,8 @@ void Socket::notificationsHandler(QByteArray data){
         QString initialIndex = object.value("startIndex").toString();
         QString lastIndex = object.value("lastIndex").toString();
         QString changedStyle = object.value("changedStyle").toString();
-        emit readyStyleChange(initialIndex, lastIndex, changedStyle);
+        QString font = object.value("font").toString();
+        emit readyStyleChange(initialIndex, lastIndex, changedStyle, font);
     }
     else if(type.compare("USER_CONNECT")==0){
         QString username = object.value("username").toString();
@@ -621,7 +622,7 @@ int Socket::sendNewFile(QString filename){
     return socket->waitForBytesWritten(1000);
 }
 
-int Socket::sendChangeStyle(QString firstLetterID, QString lastLetterID, int fileID, QString changedStyle){
+int Socket::sendChangeStyle(QString firstLetterID, QString lastLetterID, int fileID, QString changedStyle, QString font){
     /* Notificare il cambiamento di stile */
     //QString startID = letterFormatMap.firstKey();
     //QString endID = letterFormatMap.lastKey();
@@ -632,6 +633,7 @@ int Socket::sendChangeStyle(QString firstLetterID, QString lastLetterID, int fil
     obj.insert("startIndex", firstLetterID);
     obj.insert("lastIndex", lastLetterID);
     obj.insert("changedStyle", changedStyle);
+    obj.insert("font", font);
 
     if(socket->state() == QAbstractSocket::ConnectedState){
         QByteArray qarray = QJsonDocument(obj).toJson();
