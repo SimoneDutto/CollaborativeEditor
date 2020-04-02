@@ -37,10 +37,10 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
     this->show();
 
     QPalette p = ui->textEdit->palette(); // define pallete for textEdit..
-    p.setColor(QPalette::Base, QColor(209,209,214)); // set color "Red" for textedit base
+    p.setColor(QPalette::Base, QColor(245,245,245)); // set color "Red" for textedit base
     p.setColor(QPalette::Text, Qt::black); // set text color which is selected from color pallete
     ui->textEdit->setPalette(p);
-
+    ui->textEdit->setStyleSheet("QTextEdit { padding:20}");
     // set picture
     /*QPixmap pix("path -- TO DO");
     ui->user1->setPixmap(pix);*/
@@ -80,12 +80,12 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
     /* Aggiungo nome e icona dell'utente */
 
     QString username = socket->getClientUsername();
-
-    styleSheet = "QLabel { background-color: rgb(255, 252, 247); color: black; border-style: solid; border-width: 1px; border-radius: 3px; border-color: black; font: ; }";
-    ui->username->setStyleSheet(styleSheet);
-    QFont font("Arial");
-    ui->username->setFont(font);
     ui->username->setText(username);
+
+    styleSheet = "QLabel { background-color: rgb(255, 252, 247); color: black; border-style: solid; border-width: 2px; border-radius: 6px; border-color: orange; font: ; }";
+    ui->myicon->setStyleSheet(styleSheet);
+    QFont font("Arial", 30);
+    ui->myicon->setFont(font);
 
     QString imageName = QString::number(socket->getClientID())+".png";
     QPixmap userPixmap = QPixmap(imageName);
@@ -96,10 +96,6 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
     }
 
     else {
-        styleSheet = "QLabel { background-color: rgb(255, 252, 247); color: black; border-style: solid; border-width: 2px; border-radius: 6px; border-color: orange; font: ; }";
-        ui->myicon->setStyleSheet(styleSheet);
-        QFont font("Arial", 30);
-        ui->myicon->setFont(font);
         ui->myicon->setText(username.at(0).toUpper());
     }
 
@@ -155,8 +151,6 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
              this, SLOT(on_counter_clicked()));
     connect( ui->myicon, SIGNAL(clicked()),
              this, SLOT(on_actionEdit_Profile_triggered()));
-
-
 }
 
 MainWindow::~MainWindow()
@@ -762,6 +756,23 @@ void MainWindow::on_textEdit_cursorPositionChanged() {
 
 }
 
+void MainWindow::changeClientImage(QString imageName){
+
+    if(imageName != "") {
+        QPixmap userPixmap = QPixmap(imageName);
+
+        if(userPixmap != QPixmap()){
+            QPixmap scaled = userPixmap.scaled(ui->myicon->width(), ui->myicon->height(), Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
+            ui->myicon->setPixmap(scaled);
+        }
+
+        else ui->myicon->setText(socket->getClientUsername().at(0).toUpper());
+    }
+
+    else ui->myicon->setText(socket->getClientUsername().at(0).toUpper());
+
+}
+
 void MainWindow::on_actionLog_Out_triggered()
 {
     emit logOut();
@@ -846,7 +857,7 @@ void MainWindow::on_cursor_triggered(QPair<int,int> idpos, QColor col)
     QTextCharFormat fmt;
     QTextCharFormat fmt2;
 
-    fmt2.setBackground(QColor(209,209,214));
+    fmt2.setBackground(QColor(245,245,245));
     QTextCursor cursor = ui->textEdit->textCursor();
 
     // simulo la coppia userid-pos e il colore che mi arriveranno come parametri

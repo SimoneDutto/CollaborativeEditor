@@ -14,8 +14,8 @@
    <string>Login</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QFormLayout" name="formLayout">
-    <item row="0" column="0">
+   <layout class="QVBoxLayout" name="verticalLayout_4">
+    <item>
      <widget class="QGroupBox" name="LoginBox">
       <property name="title">
        <string/>
@@ -82,7 +82,7 @@
       </layout>
      </widget>
     </item>
-    <item row="1" column="0">
+    <item>
      <widget class="QGroupBox" name="groupBox">
       <property name="title">
        <string/>

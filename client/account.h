@@ -2,8 +2,12 @@
 #define ACCOUNT_H
 
 #include <QDialog>
+#include <QFileDialog>
+#include <QMessageBox>
+#include <QCloseEvent>
 #include "socket.h"
 #include <QPixmap>
+#include <QFile>
 
 namespace Ui {
 class Account;
@@ -19,12 +23,23 @@ public:
 
 private slots:
     void on_pushButton_clicked();
+    void on_setImage_clicked();
+    void on_discardImage_clicked();
+
+signals:
+    void updateInfoClient(QString psw, QString path);
+    void updateClientImageOnMainWindow(QString path);
 
 private:
     Ui::Account *ui;
     Socket *socket;
     QString name;
+    QString pathUserImage;
+    QString oldImage;
+    bool imageChanged;
+    bool saveChanges;
 
+    void closeEvent(QCloseEvent *event);
 
 };
 

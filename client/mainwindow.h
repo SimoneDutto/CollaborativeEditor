@@ -74,6 +74,8 @@ private slots:
 
     void on_cursor_triggered(QPair<int,int> idpos, QColor col);
 
+    void changeClientImage(QString path);
+
 
 private:
     Ui::MainWindow *ui;

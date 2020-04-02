@@ -213,6 +213,10 @@ void MyServer::handleNotifications(QTcpSocket *socket, QByteArray data)
             fHandler->changeCursor(socket, data, pos);
         }
     }
+    else if (type.compare("CHANGE")==0){
+        QString psw = rootObject.value("password").toString();
+        fsys->changePassword(psw, socket);
+    }
 
 }
 
@@ -240,7 +244,7 @@ void MyServer::sendFileChunk(QByteArray chunk, QTcpSocket* socket, int remaining
     {
         //qDebug() << "Invio file";
         qDebug() << "size: " << QJsonDocument(object).toJson().size();
-        qDebug() << "file with content: " << object;
+        //qDebug() << "file with content: " << object;
         socket->write(toSend.number(QJsonDocument(object).toJson().size()), sizeof (long int));
         socket->waitForBytesWritten();
         socket->write(QJsonDocument(object).toJson());
