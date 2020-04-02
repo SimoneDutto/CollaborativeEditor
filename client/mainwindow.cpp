@@ -37,10 +37,10 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
     this->show();
 
     QPalette p = ui->textEdit->palette(); // define pallete for textEdit..
-    p.setColor(QPalette::Base, QColor(209,209,214)); // set color "Red" for textedit base
+    p.setColor(QPalette::Base, QColor(245,245,245)); // set color "Red" for textedit base
     p.setColor(QPalette::Text, Qt::black); // set text color which is selected from color pallete
     ui->textEdit->setPalette(p);
-
+    ui->textEdit->setStyleSheet("QTextEdit { padding:20}");
     // set picture
     /*QPixmap pix("path -- TO DO");
     ui->user1->setPixmap(pix);*/
@@ -80,12 +80,12 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
     /* Aggiungo nome e icona dell'utente */
 
     QString username = socket->getClientUsername();
-
-    styleSheet = "QLabel { background-color: rgb(255, 252, 247); color: black; border-style: solid; border-width: 1px; border-radius: 3px; border-color: black; font: ; }";
-    ui->username->setStyleSheet(styleSheet);
-    QFont font("Arial");
-    ui->username->setFont(font);
     ui->username->setText(username);
+
+    styleSheet = "QLabel { background-color: rgb(255, 252, 247); color: black; border-style: solid; border-width: 2px; border-radius: 6px; border-color: orange; font: ; }";
+    ui->myicon->setStyleSheet(styleSheet);
+    QFont font("Arial", 30);
+    ui->myicon->setFont(font);
 
     QString imageName = QString::number(socket->getClientID())+".png";
     QPixmap userPixmap = QPixmap(imageName);
@@ -96,10 +96,6 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
     }
 
     else {
-        styleSheet = "QLabel { background-color: rgb(255, 252, 247); color: black; border-style: solid; border-width: 2px; border-radius: 6px; border-color: orange; font: ; }";
-        ui->myicon->setStyleSheet(styleSheet);
-        QFont font("Arial", 30);
-        ui->myicon->setFont(font);
         ui->myicon->setText(username.at(0).toUpper());
     }
 
@@ -155,8 +151,6 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
              this, SLOT(on_counter_clicked()));
     connect( ui->myicon, SIGNAL(clicked()),
              this, SLOT(on_actionEdit_Profile_triggered()));
-
-
 }
 
 MainWindow::~MainWindow()
@@ -497,6 +491,7 @@ void MainWindow::on_textEdit_textChanged()
         letterCounter++;
         //ui->statusBar->showMessage(c);
         emit myInsert(externalIndex, newLetterValue, socket->getClientID(), cursor.charFormat());
+        emit sendCursorChange(externalIndex);
     }
     else if (numberOfLetters < letterCounter){  /*Testo cambiato con DELETE */
         /*disconnect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
@@ -518,24 +513,6 @@ void MainWindow::on_textEdit_textChanged()
         emit myDelete(externalIndex+1, externalIndex+deletedLetters);
     }
 }
-
-/*void MainWindow::changeViewAfterCursor(int pos, QColor c){
-    QTextCharFormat fmt;
-    QTextCharFormat fmt2;
-    fmt.setBackground(c);
-    fmt2.setBackground(Qt::white);
-    QTextCursor cursor;
-    ui->textEdit->setTextCursor(cursor);
-    cursor.setPosition(pos);
-    cursor.movePosition(QTextCursor::Start, QTextCursor::KeepAnchor);
-    cursor.setCharFormat(fmt2);
-    cursor.setPosition(pos);
-    cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
-    cursor.setCharFormat(fmt2);
-    cursor.setPosition(pos);
-    cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
-    cursor.setCharFormat(fmt);
-}*/
 
 
 
@@ -683,7 +660,7 @@ void MainWindow::addUserConnection(QString username, QColor color){
 
 }
 
-void MainWindow::removeUserDisconnect(QString username, int userID){
+void MainWindow::removeUserDisconnect(QString, int userID){
 
 
     int numberUsersOnline = socket->getUserColor().size();
@@ -714,7 +691,6 @@ void MainWindow::removeUserDisconnect(QString username, int userID){
 
 }
 
-
 //TODO: inserire gestione bottoni
 void MainWindow::on_textEdit_cursorPositionChanged() {
 
@@ -723,7 +699,8 @@ void MainWindow::on_textEdit_cursorPositionChanged() {
     QTextCursor cursor(ui->textEdit->textCursor());
     int pos = cursor.position();
     // emit segnale per notificare altri utenti del cambiamento
-    emit sendCursorChange(pos);
+    if(pos <= ui->textEdit->toPlainText().size())
+        emit sendCursorChange(pos);
 
     /*Se il testo selezionato ha stile misto, i bottoni accendono lo stile*/
     if(cursor.hasSelection()==true){
@@ -776,6 +753,23 @@ void MainWindow::on_textEdit_cursorPositionChanged() {
             ui->actionUnderlined->setChecked(true);
         }
     }
+
+}
+
+void MainWindow::changeClientImage(QString imageName){
+
+    if(imageName != "") {
+        QPixmap userPixmap = QPixmap(imageName);
+
+        if(userPixmap != QPixmap()){
+            QPixmap scaled = userPixmap.scaled(ui->myicon->width(), ui->myicon->height(), Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
+            ui->myicon->setPixmap(scaled);
+        }
+
+        else ui->myicon->setText(socket->getClientUsername().at(0).toUpper());
+    }
+
+    else ui->myicon->setText(socket->getClientUsername().at(0).toUpper());
 
 }
 
@@ -863,7 +857,7 @@ void MainWindow::on_cursor_triggered(QPair<int,int> idpos, QColor col)
     QTextCharFormat fmt;
     QTextCharFormat fmt2;
 
-    fmt2.setBackground(QColor(209,209,214));
+    fmt2.setBackground(QColor(245,245,245));
     QTextCursor cursor = ui->textEdit->textCursor();
 
     // simulo la coppia userid-pos e il colore che mi arriveranno come parametri
@@ -884,36 +878,40 @@ void MainWindow::on_cursor_triggered(QPair<int,int> idpos, QColor col)
         if (trovato == false)
             id_colore_cursore.append(qMakePair(qMakePair(idpos.first,col), idpos.second));
 
-
-
     std::sort(id_colore_cursore.begin(), id_colore_cursore.end(), sorting);
 
         QColor colore = id_colore_cursore.value(0).first.second;
         int pos = id_colore_cursore.value(0).second;
 
+
         fmt.setBackground(colore);
 
         cursor.setPosition(pos);
         cursor.movePosition(QTextCursor::Start, QTextCursor::KeepAnchor);
+        qDebug() << "testo from Start: " << cursor.selectedText();
         cursor.setCharFormat(fmt2);
         cursor.setPosition(pos);
         cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+         qDebug() << "testo to End: " << cursor.selectedText();
         cursor.setCharFormat(fmt2);
         cursor.setPosition(pos);
         cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
+         qDebug() << "testo left: " << cursor.selectedText();
         cursor.setCharFormat(fmt);
+
 
     for(int i = 1; i < id_colore_cursore.size(); i++){
         QColor colore = id_colore_cursore.value(i).first.second;
         int pos = id_colore_cursore.value(i).second;
 
         fmt.setBackground(colore);
+
         cursor.setPosition(pos);
         cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
-        cursor.mergeCharFormat(fmt2);
+        cursor.setCharFormat(fmt2);
         cursor.setPosition(pos);
         cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
-        cursor.mergeCharFormat(fmt);
+        cursor.setCharFormat(fmt);
     }
 
     connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
