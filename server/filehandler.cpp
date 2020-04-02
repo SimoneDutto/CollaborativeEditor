@@ -228,3 +228,8 @@ int FileHandler::getUserCursorPosition(QTcpSocket *user) {
 bool FileHandler::thereAreUsers() {
     return !users.isEmpty();
 }
+
+FileHandler::~FileHandler(){
+    for (auto it = letters.begin() ; it != letters.end() ; it++ )
+       delete it->second;
+}
