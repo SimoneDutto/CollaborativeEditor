@@ -80,12 +80,12 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
     /* Aggiungo nome e icona dell'utente */
 
     QString username = socket->getClientUsername();
-
-    styleSheet = "QLabel { background-color: rgb(255, 252, 247); color: black; border-style: solid; border-width: 1px; border-radius: 3px; border-color: black; font: ; }";
-    ui->username->setStyleSheet(styleSheet);
-    QFont font("Arial");
-    ui->username->setFont(font);
     ui->username->setText(username);
+
+    styleSheet = "QLabel { background-color: rgb(255, 252, 247); color: black; border-style: solid; border-width: 2px; border-radius: 6px; border-color: orange; font: ; }";
+    ui->myicon->setStyleSheet(styleSheet);
+    QFont font("Arial", 30);
+    ui->myicon->setFont(font);
 
     QString imageName = QString::number(socket->getClientID())+".png";
     QPixmap userPixmap = QPixmap(imageName);
@@ -96,10 +96,6 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
     }
 
     else {
-        styleSheet = "QLabel { background-color: rgb(255, 252, 247); color: black; border-style: solid; border-width: 2px; border-radius: 6px; border-color: orange; font: ; }";
-        ui->myicon->setStyleSheet(styleSheet);
-        QFont font("Arial", 30);
-        ui->myicon->setFont(font);
         ui->myicon->setText(username.at(0).toUpper());
     }
 
@@ -155,8 +151,6 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
              this, SLOT(on_counter_clicked()));
     connect( ui->myicon, SIGNAL(clicked()),
              this, SLOT(on_actionEdit_Profile_triggered()));
-
-
 }
 
 MainWindow::~MainWindow()
@@ -759,6 +753,23 @@ void MainWindow::on_textEdit_cursorPositionChanged() {
             ui->actionUnderlined->setChecked(true);
         }
     }
+
+}
+
+void MainWindow::changeClientImage(QString imageName){
+
+    if(imageName != "") {
+        QPixmap userPixmap = QPixmap(imageName);
+
+        if(userPixmap != QPixmap()){
+            QPixmap scaled = userPixmap.scaled(ui->myicon->width(), ui->myicon->height(), Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
+            ui->myicon->setPixmap(scaled);
+        }
+
+        else ui->myicon->setText(socket->getClientUsername().at(0).toUpper());
+    }
+
+    else ui->myicon->setText(socket->getClientUsername().at(0).toUpper());
 
 }
 

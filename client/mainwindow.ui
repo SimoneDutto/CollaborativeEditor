@@ -46,7 +46,7 @@
       </property>
       <property name="minimumSize">
        <size>
-        <width>325</width>
+        <width>360</width>
         <height>100</height>
        </size>
       </property>
@@ -71,10 +71,10 @@
        </property>
        <property name="geometry">
         <rect>
-         <x>15</x>
+         <x>24</x>
          <y>30</y>
-         <width>31</width>
-         <height>31</height>
+         <width>43</width>
+         <height>43</height>
         </rect>
        </property>
        <property name="sizePolicy">
@@ -97,7 +97,7 @@
        </property>
        <property name="font">
         <font>
-         <pointsize>19</pointsize>
+         <pointsize>22</pointsize>
          <weight>75</weight>
          <bold>true</bold>
         </font>
@@ -118,10 +118,10 @@
        </property>
        <property name="geometry">
         <rect>
-         <x>60</x>
+         <x>86</x>
          <y>30</y>
-         <width>30</width>
-         <height>30</height>
+         <width>43</width>
+         <height>43</height>
         </rect>
        </property>
        <property name="sizePolicy">
@@ -132,7 +132,7 @@
        </property>
        <property name="font">
         <font>
-         <pointsize>19</pointsize>
+         <pointsize>22</pointsize>
          <weight>75</weight>
          <bold>true</bold>
         </font>
@@ -153,10 +153,10 @@
        </property>
        <property name="geometry">
         <rect>
-         <x>105</x>
+         <x>148</x>
          <y>30</y>
-         <width>30</width>
-         <height>30</height>
+         <width>43</width>
+         <height>43</height>
         </rect>
        </property>
        <property name="sizePolicy">
@@ -167,7 +167,7 @@
        </property>
        <property name="font">
         <font>
-         <pointsize>19</pointsize>
+         <pointsize>22</pointsize>
          <weight>75</weight>
          <bold>true</bold>
         </font>
@@ -188,10 +188,10 @@
        </property>
        <property name="geometry">
         <rect>
-         <x>140</x>
+         <x>210</x>
          <y>30</y>
-         <width>50</width>
-         <height>30</height>
+         <width>43</width>
+         <height>43</height>
         </rect>
        </property>
        <property name="sizePolicy">
@@ -199,6 +199,11 @@
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>22</pointsize>
+        </font>
        </property>
        <property name="text">
         <string>+1 </string>
@@ -225,7 +230,7 @@
        </property>
        <property name="geometry">
         <rect>
-         <x>248</x>
+         <x>282</x>
          <y>0</y>
          <width>70</width>
          <height>70</height>
@@ -257,11 +262,18 @@
       <widget class="QLabel" name="username">
        <property name="geometry">
         <rect>
-         <x>254</x>
+         <x>290</x>
          <y>75</y>
          <width>58</width>
          <height>16</height>
         </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>15</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
        </property>
        <property name="text">
         <string>Username</string>

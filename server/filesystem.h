@@ -52,6 +52,7 @@ public:
     int getSocketID(QTcpSocket* socket);
     static void sendJson(QJsonObject json, QTcpSocket* socket);
     void saveFile(QByteArray q, QTcpSocket* socket);
+    void changePassword(QString password, QTcpSocket* socket);
 
 signals:
     void signUpResponse(QString message, bool success, QTcpSocket* socket);
