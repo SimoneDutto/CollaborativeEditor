@@ -491,7 +491,7 @@ void MainWindow::on_textEdit_textChanged()
         letterCounter++;
         //ui->statusBar->showMessage(c);
         emit myInsert(externalIndex, newLetterValue, socket->getClientID(), cursor.charFormat());
-        emit sendCursorChange(externalIndex);
+        //emit sendCursorChange(externalIndex);
     }
     else if (numberOfLetters < letterCounter){  /*Testo cambiato con DELETE */
         /*disconnect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
@@ -699,7 +699,7 @@ void MainWindow::on_textEdit_cursorPositionChanged() {
     QTextCursor cursor(ui->textEdit->textCursor());
     int pos = cursor.position();
     // emit segnale per notificare altri utenti del cambiamento
-    if(pos <= ui->textEdit->toPlainText().size())
+    //if(pos <= ui->textEdit->toPlainText().size())
         emit sendCursorChange(pos);
 
     /*Se il testo selezionato ha stile misto, i bottoni accendono lo stile*/
@@ -882,7 +882,6 @@ void MainWindow::on_cursor_triggered(QPair<int,int> idpos, QColor col)
 
         QColor colore = id_colore_cursore.value(0).first.second;
         int pos = id_colore_cursore.value(0).second;
-
 
         fmt.setBackground(colore);
 
