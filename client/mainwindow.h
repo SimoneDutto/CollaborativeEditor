@@ -48,6 +48,8 @@ private slots:
     void changeViewAfterStyle(QString firstLetterID, QString lastLetterID);
     void addUserConnection(QString username, QColor colorUser);
     void removeUserDisconnect(QString username, int userID);
+    void currentFontChanged(QFont font);
+    void fontSizeChanged(int size);
 
     void on_textEdit_cursorPositionChanged();
 
@@ -98,6 +100,8 @@ signals:
     void logOut();
     void sendCursorChange(int position);
     //void localStyleChange(QString initialID, QString finalID, QTextCharFormat);
+    void setCurrFont(QFont currFont);
+    void setCurrFontSize(int sizeFont);
 };
 
 #endif // MAINWINDOW_H

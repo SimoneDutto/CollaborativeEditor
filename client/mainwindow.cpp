@@ -16,7 +16,10 @@
 #include <QStandardItem>
 #include "serverdisc.h"
 #include <QDesktopWidget>
+#include <QComboBox>
+#include <QFontComboBox>
 #include <algorithm>
+#include <QFontDatabase>
 
 
 MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QString nome) :
@@ -41,6 +44,7 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
     p.setColor(QPalette::Text, Qt::black); // set text color which is selected from color pallete
     ui->textEdit->setPalette(p);
     ui->textEdit->setStyleSheet("QTextEdit { padding:20}");
+    ui->textEdit->setAcceptRichText(true);
     // set picture
     /*QPixmap pix("path -- TO DO");
     ui->user1->setPixmap(pix);*/
@@ -99,6 +103,34 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
         ui->myicon->setText(username.at(0).toUpper());
     }
 
+    /* Aggiungo ComboBox e SizeBox */
+    QAction *rightAll = ui->mainToolBar->actions().at(9);
+
+    QComboBox* sizeComboBox = new QComboBox;
+    QStringList* numList = new QStringList;
+
+    for(int i=1; i<101; i++){
+        numList->append(QString::number(i));
+    }
+    sizeComboBox->addItems(*numList);
+    sizeComboBox->setStyleSheet("combobox-popup: 0;");
+
+
+    QFontComboBox* fontComboBox = new QFontComboBox;
+
+    ui->mainToolBar->insertWidget(rightAll, fontComboBox);
+    ui->mainToolBar->insertWidget(rightAll, sizeComboBox);
+
+
+    /* CONNECT per collegare Font e Size */
+    connect( fontComboBox, SIGNAL(currentFontChanged(QFont)),
+             this, SLOT(currentFontChanged(QFont)));
+    connect( this, SIGNAL(setCurrFont(QFont)),
+             fontComboBox, SLOT(setCurrentFont(QFont)));
+    connect( sizeComboBox, SIGNAL(currentIndexChanged(int)),
+             this, SLOT(fontSizeChanged(int)));
+    connect( this, SIGNAL(setCurrFontSize(int)),
+             sizeComboBox, SLOT(setCurrentIndex(int)));
 
     /* CONNECT per segnali uscenti, inoltrare le modifiche fatte */
     connect( this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
@@ -297,8 +329,6 @@ void MainWindow::on_actionBold_triggered()
             ui->textEdit->setFontWeight(50);
 
         /* Aggiorno il modello */
-
-
         QMap<QString, QTextCharFormat> formatCharMap;
         auto vettore = this->fHandler->getVectorFile();
         int i=0;
@@ -693,6 +723,10 @@ void MainWindow::removeUserDisconnect(QString, int userID){
 
 //TODO: inserire gestione bottoni
 void MainWindow::on_textEdit_cursorPositionChanged() {
+    disconnect(ui->mainToolBar->widgetForAction(ui->mainToolBar->actions().at(9)), SIGNAL(currentFontChanged(QFont)),
+               this, SLOT(currentFontChanged(QFont)));
+    disconnect(ui->mainToolBar->widgetForAction(ui->mainToolBar->actions().at(10)), SIGNAL(currentIndexChanged(int)),
+               this, SLOT(fontSizeChanged(int)));
 
     /*Questa funzione gestirà la vista dei bottoni dello stile, ovvero se si vedrenno accessi o spenti. */
 
@@ -725,6 +759,14 @@ void MainWindow::on_textEdit_cursorPositionChanged() {
             ui->actionUnderlined->setChecked(true);
         }
 
+        auto currFont = ui->textEdit->currentCharFormat().font();
+        emit setCurrFont(currFont);
+        emit setCurrFontSize(currFont.pointSize()-1);
+
+        connect(ui->mainToolBar->widgetForAction(ui->mainToolBar->actions().at(9)), SIGNAL(currentFontChanged(QFont)),
+                this, SLOT(currentFontChanged(QFont)));
+        connect(ui->mainToolBar->widgetForAction(ui->mainToolBar->actions().at(10)), SIGNAL(currentIndexChanged(int)),
+                this, SLOT(fontSizeChanged(int)));
     }
 
 
@@ -752,6 +794,10 @@ void MainWindow::on_textEdit_cursorPositionChanged() {
         else {
             ui->actionUnderlined->setChecked(true);
         }
+
+        auto currFont = ui->textEdit->currentCharFormat().font();
+        emit setCurrFont(currFont);
+        emit setCurrFontSize(currFont.pointSize()-1);
     }
 
 }
@@ -918,5 +964,100 @@ void MainWindow::on_cursor_triggered(QPair<int,int> idpos, QColor col)
 
 }
 
+void MainWindow::currentFontChanged(QFont font){
+    auto cursor = ui->textEdit->textCursor();
 
+    /* CASO1: Non sto selezionando niente */
+    if(cursor.selectionStart() - cursor.selectionEnd() == 0){
+        auto currFont = ui->textEdit->currentCharFormat();
+        currFont.setFont(font);
+        ui->textEdit->setCurrentCharFormat(currFont);
+    }
+
+    /*CASO2: Cambio il font di una selezione*/
+    else{
+        disconnect(this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
+                  fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
+        disconnect(this, SIGNAL(myDelete(int,int)),
+                  fHandler, SLOT(localDelete(int,int)));
+
+        auto currFont = ui->textEdit->currentCharFormat();
+        currFont.setFont(font);
+        ui->textEdit->setCurrentCharFormat(currFont);
+
+        /* Aggiorno il modello */
+        QMap<QString, QTextCharFormat> formatCharMap;
+        auto vettore = this->fHandler->getVectorFile();
+        int i=0;
+
+        int start = cursor.selectionStart();
+        int end = cursor.selectionEnd()-1;
+
+        QString startID = vettore.at(start)->getLetterID();
+        QString lastID = vettore.at(end)->getLetterID();
+
+        for(i=start; i<=end; i++){
+            /* Se testo selezionato misto, allora settare, altrimenti se tutto settato, togliere */
+            cursor.setPosition(i+1);
+            auto letterFormat = cursor.charFormat();
+            formatCharMap.insert(vettore.at(i)->getLetterID(), letterFormat);
+        }
+
+        emit styleChange(formatCharMap, startID, lastID, false, false, true, "none");
+
+        connect( this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
+                  fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
+        connect( this, SIGNAL(myDelete(int,int)),
+                  fHandler, SLOT(localDelete(int,int)));
+    }
+}
+
+void MainWindow::fontSizeChanged(int size){
+    int fontSize = size+1;
+    auto cursor = ui->textEdit->textCursor();
+
+    /* CASO1: Non sto selezionando niente */
+    if(cursor.selectionStart() - cursor.selectionEnd() == 0){
+        auto currFont = ui->textEdit->currentCharFormat();
+        currFont.setFontPointSize(fontSize);
+        ui->textEdit->setCurrentCharFormat(currFont);
+    }
+
+    /*CASO2: Cambio il font di una selezione*/
+    else{
+        disconnect(this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
+                  fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
+        disconnect(this, SIGNAL(myDelete(int,int)),
+                  fHandler, SLOT(localDelete(int,int)));
+
+        auto currFont = ui->textEdit->currentCharFormat();
+        currFont.setFontPointSize(fontSize);
+        ui->textEdit->setCurrentCharFormat(currFont);
+
+        /* Aggiorno il modello */
+        QMap<QString, QTextCharFormat> formatCharMap;
+        auto vettore = this->fHandler->getVectorFile();
+        int i=0;
+
+        int start = cursor.selectionStart();
+        int end = cursor.selectionEnd()-1;
+
+        QString startID = vettore.at(start)->getLetterID();
+        QString lastID = vettore.at(end)->getLetterID();
+
+        for(i=start; i<=end; i++){
+            /* Se testo selezionato misto, allora settare, altrimenti se tutto settato, togliere */
+            cursor.setPosition(i+1);
+            auto letterFormat = cursor.charFormat();
+            formatCharMap.insert(vettore.at(i)->getLetterID(), letterFormat);
+        }
+
+        emit styleChange(formatCharMap, startID, lastID, false, false, true, "none");
+
+        connect( this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
+                  fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
+        connect( this, SIGNAL(myDelete(int,int)),
+                  fHandler, SLOT(localDelete(int,int)));
+    }
+}
 
