@@ -23,7 +23,6 @@ public:
     explicit FileHandler(QObject *parent = nullptr);
     void setValues(QVector<Letter*> letters);
     QVector<Letter*> getVectorFile();
-    int getFileSize();
     int getFileId();
     void setFileId(int fileid);
     int getSize();
