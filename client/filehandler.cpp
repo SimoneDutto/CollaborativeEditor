@@ -310,6 +310,10 @@ QVector<Letter*> FileHandler::getVectorFile(){
     return this->letters;
 }
 
+int FileHandler::getFileSize(){
+    return this->letters.size();
+}
+
 int FileHandler::getFileId(){
     return this->fileid;
 }
