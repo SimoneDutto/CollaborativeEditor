@@ -34,7 +34,7 @@ public:
     bool hasSameFractionals(Letter other);
     bool comesFirst(Letter other);
     void setFormat(QTextCharFormat format);
-    void setStyleFromString(QString format);
+    void setStyleFromString(QString format, QString font);
     QString getUsername();
     QTextCharFormat getFormat();
     ~Letter(){}

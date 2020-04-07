@@ -123,8 +123,8 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
              this, SLOT(changeViewAfterDelete(int)));
     connect( fHandler, SIGNAL(readyRemoteStyleChange(QString, QString)),
              this, SLOT(changeViewAfterStyle(QString, QString)));
-    connect( socket, SIGNAL(readyStyleChange(QString, QString, QString)),
-             fHandler, SLOT(remoteStyleChange(QString, QString, QString)));
+    connect( socket, SIGNAL(readyStyleChange(QString, QString, QString, QString)),
+             fHandler, SLOT(remoteStyleChange(QString, QString, QString, QString)));
     connect( socket, SIGNAL(UserConnect(QString, QColor)),
              this, SLOT(addUserConnection(QString, QColor)));
     connect( socket, SIGNAL(UserDisconnect(QString,int)),
@@ -133,8 +133,8 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
              this, SLOT(on_write_uri(QString)));
 
     /* CONNECT per lo stile dei caratteri */
-    connect( this, SIGNAL(styleChange(QMap<QString, QTextCharFormat>, QString, QString, bool, bool, bool)),
-              fHandler, SLOT(localStyleChange(QMap<QString, QTextCharFormat>, QString, QString, bool, bool, bool)) );
+    connect( this, SIGNAL(styleChange(QMap<QString, QTextCharFormat>, QString, QString, bool, bool, bool, QString)),
+              fHandler, SLOT(localStyleChange(QMap<QString, QTextCharFormat>, QString, QString, bool, bool, bool, QString)) );
 
     /* CONNECT per cursore */
     connect( socket, SIGNAL(userCursor(QPair<int,int>,QColor)),
@@ -318,7 +318,7 @@ void MainWindow::on_actionBold_triggered()
             formatCharMap.insert(vettore.at(i)->getLetterID(), letterFormat);
         }
 
-        emit styleChange(formatCharMap, startID, lastID, true, false, false);
+        emit styleChange(formatCharMap, startID, lastID, true, false, false, "none");
 
         connect( this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
                   fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
@@ -383,7 +383,7 @@ void MainWindow::on_actionItalic_triggered()
             formatCharMap.insert(vettore.at(i)->getLetterID(), letterFormat);
         }
 
-        emit styleChange(formatCharMap, startID, lastID, false, true, false);
+        emit styleChange(formatCharMap, startID, lastID, false, true, false, "none");
 
         connect( this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
                   fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
@@ -440,7 +440,7 @@ void MainWindow::on_actionUnderlined_triggered()
             formatCharMap.insert(vettore.at(i)->getLetterID(), letterFormat);
         }
 
-        emit styleChange(formatCharMap, startID, lastID, false, false, true);
+        emit styleChange(formatCharMap, startID, lastID, false, false, true, "none");
 
         connect( this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
                   fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
@@ -874,29 +874,29 @@ void MainWindow::on_cursor_triggered(QPair<int,int> idpos, QColor col)
             break;
         }
     }
-        //altrimenti lo aggiungo
-        if (trovato == false)
-            id_colore_cursore.append(qMakePair(qMakePair(idpos.first,col), idpos.second));
+    //altrimenti lo aggiungo
+    if (trovato == false)
+        id_colore_cursore.append(qMakePair(qMakePair(idpos.first,col), idpos.second));
 
     std::sort(id_colore_cursore.begin(), id_colore_cursore.end(), sorting);
 
-        QColor colore = id_colore_cursore.value(0).first.second;
-        int pos = id_colore_cursore.value(0).second;
+    QColor colore = id_colore_cursore.value(0).first.second;
+    int pos = id_colore_cursore.value(0).second;
 
-        fmt.setBackground(colore);
+    fmt.setBackground(colore);
 
-        cursor.setPosition(pos);
-        cursor.movePosition(QTextCursor::Start, QTextCursor::KeepAnchor);
-        qDebug() << "testo from Start: " << cursor.selectedText();
-        cursor.setCharFormat(fmt2);
-        cursor.setPosition(pos);
-        cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
-         qDebug() << "testo to End: " << cursor.selectedText();
-        cursor.setCharFormat(fmt2);
-        cursor.setPosition(pos);
-        cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
-         qDebug() << "testo left: " << cursor.selectedText();
-        cursor.setCharFormat(fmt);
+    cursor.setPosition(pos);
+    cursor.movePosition(QTextCursor::Start, QTextCursor::KeepAnchor);
+    qDebug() << "testo from Start: " << cursor.selectedText();
+    cursor.setCharFormat(fmt2);
+    cursor.setPosition(pos);
+    cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+     qDebug() << "testo to End: " << cursor.selectedText();
+    cursor.setCharFormat(fmt2);
+    cursor.setPosition(pos);
+    cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
+     qDebug() << "testo left: " << cursor.selectedText();
+    cursor.setCharFormat(fmt);
 
 
     for(int i = 1; i < id_colore_cursore.size(); i++){
