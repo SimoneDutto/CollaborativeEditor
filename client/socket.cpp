@@ -480,12 +480,6 @@ void Socket::notificationsHandler(QByteArray data){
         if(userCursors.contains(userID) && userIDColor.contains(userID)) {
             // utente attivo sul file
             int position = object.value("position").toInt();
-            if(this->fileh->getFileSize() < position) {
-                // re-send notification
-                qDebug() << "SEND NOTIFICATION AGAIN. Size = "<<this->fileh->getFileSize()<<" pos = "<<position;
-                emit bufferReady(data);
-                return;
-            }
             userCursors[userID] = position;
             QColor color = userIDColor.value(userID);
             emit userCursor(qMakePair(userID, position), color);
@@ -516,6 +510,7 @@ void Socket::notificationsHandler(QByteArray data){
     qDebug() << "Finished!";
     emit socket->readyRead();
 }
+
 
 int Socket::sendInsert(QChar newLetterValue, QJsonArray position, int siteID, int siteCounter, int externalIndex, QTextCharFormat format)
 {
