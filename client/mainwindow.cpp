@@ -929,6 +929,7 @@ void MainWindow::on_cursor_triggered(QPair<int,int> idpos, QColor col)
     QColor colore = id_colore_cursore.value(0).first.second;
     int pos = id_colore_cursore.value(0).second;
 
+
     fmt.setBackground(colore);
 
     cursor.setPosition(pos);

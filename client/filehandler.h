@@ -26,7 +26,6 @@ public:
     int getFileId();
     void setFileId(int fileid);
     int getSize();
-    int getFileSize();
     void setSize(int size);
     int getSiteCounter();
     void setSiteCounter(int siteCounter);

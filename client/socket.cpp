@@ -485,7 +485,6 @@ void Socket::notificationsHandler(QByteArray data){
             emit userCursor(qMakePair(userID, position), color);
         }
     }
-
     /*else if (type.compare("SIGNUP_RESPONSE")==0) {
         bool successful = object.value("success").toBool();
         QString message = object.value("msg").toString();

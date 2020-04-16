@@ -314,10 +314,6 @@ int FileHandler::getFileId(){
     return this->fileid;
 }
 
-int FileHandler::getFileSize(){
-    return this->letters.size();
-}
-
 void FileHandler::setFileId(int fileid){
     this->fileid = fileid;
 }
