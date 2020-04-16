@@ -229,7 +229,7 @@ bool FileHandler::thereAreUsers() {
     return !users.isEmpty();
 }
 
-FileHandler::~FileHandler(){
-    for (auto it = letters.begin() ; it != letters.end() ; it++ )
-       delete it->second;
-}
+//FileHandler::~FileHandler(){
+//    for (auto it = letters.begin() ; it != letters.end() ; it++ )
+//       delete it->second;
+//}

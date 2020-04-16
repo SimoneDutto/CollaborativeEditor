@@ -169,7 +169,7 @@ void FileHandler::localDelete(int firstExternalIndex, int lastExternalIndex) {
     }
 }
 
-void FileHandler::localStyleChange(QMap<QString, QTextCharFormat> letterFormatMap, QString startID, QString lastID, bool boldTriggered, bool italicTriggered, bool underlinedTriggered) {
+void FileHandler::localStyleChange(QMap<QString, QTextCharFormat> letterFormatMap, QString startID, QString lastID, bool boldTriggered, bool italicTriggered, bool underlinedTriggered, QString font) {
 //    Letter::Styles changedStyle = Letter::Styles::Normal;
     QString changedStyle;
     bool first = true;
@@ -199,27 +199,30 @@ void FileHandler::localStyleChange(QMap<QString, QTextCharFormat> letterFormatMa
                 if(boldTriggered) {
                     if(l->getFormat().fontWeight() == 50) {
                         changedStyle.append("Bold");
-                        l->setStyleFromString("Bold");
+                        l->setStyleFromString("Bold", font);
                     } else {
                         changedStyle.append("NotBold");
-                        l->setStyleFromString("NotBold");
+                        l->setStyleFromString("NotBold", font);
                     }
                 } else if(italicTriggered) {
                     if(!l->getFormat().fontItalic()) {
                         changedStyle.append("Italic");
-                        l->setStyleFromString("Italic");
+                        l->setStyleFromString("Italic", font);
                     } else {
                         changedStyle.append("NotItalic");
-                        l->setStyleFromString("NotItalic");
+                        l->setStyleFromString("NotItalic", font);
                     }
                 } else if(underlinedTriggered) {
                     if(!l->getFormat().fontUnderline()) {
                         changedStyle.append("Underlined");
-                        l->setStyleFromString("Underlined");
+                        l->setStyleFromString("Underlined", font);
                     } else {
                         changedStyle.append("NotUnderlined");
-                        l->setStyleFromString("NotUnderlined");
+                        l->setStyleFromString("NotUnderlined", font);
                     }
+                } else if(font.compare("none") != 0) {
+                    changedStyle.append("font");
+                    l->setStyleFromString("font", font);
                 }
 
                 first = false;
@@ -229,7 +232,7 @@ void FileHandler::localStyleChange(QMap<QString, QTextCharFormat> letterFormatMa
     }
 
     /* Send change to server */
-    emit localStyleChangeNotify(startID, lastID, this->fileid, changedStyle);
+    emit localStyleChangeNotify(startID, lastID, this->fileid, changedStyle, font);
 }
 
 void FileHandler::localCursorChange(int position) {
@@ -278,14 +281,14 @@ void FileHandler::remoteDelete(QString deletedLetterID) {
 }
 
 
-void FileHandler::remoteStyleChange(QString firstLetterID, QString lastLetterID, QString changedStyle) {
+void FileHandler::remoteStyleChange(QString firstLetterID, QString lastLetterID, QString changedStyle, QString font) {
     /* Edit letters style locally */
     bool intervalStarted = false;
 
     for(Letter *l : this->letters) {
         if(l->getLetterID().compare(firstLetterID) == 0 || intervalStarted) {
             intervalStarted = true;
-            l->setStyleFromString(changedStyle);
+            l->setStyleFromString(changedStyle, font);
             if(l->getLetterID().compare(lastLetterID) == 0)
                 break;
         }
@@ -309,6 +312,10 @@ QVector<Letter*> FileHandler::getVectorFile(){
 
 int FileHandler::getFileId(){
     return this->fileid;
+}
+
+int FileHandler::getFileSize(){
+    return this->letters.size();
 }
 
 void FileHandler::setFileId(int fileid){
