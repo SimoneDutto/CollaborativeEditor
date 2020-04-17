@@ -159,3 +159,7 @@ void Letter::setStyleFromString(QString format, QString font) {
 QTextCharFormat Letter::getFormat(){
     return this->format;
 }
+
+QString Letter::getUsername(){
+    return this->username;
+}

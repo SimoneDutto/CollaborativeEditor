@@ -9,6 +9,7 @@
 #include "uri.h"
 #include "onlineuser.h"
 #include "clickablelabel.h"
+#include "usersletterswindow.h"
 
 namespace Ui {
 class MainWindow;
@@ -78,6 +79,8 @@ private slots:
 
     void changeClientImage(QString path);
 
+
+    void on_actionhistory_triggered();
 
 private:
     Ui::MainWindow *ui;

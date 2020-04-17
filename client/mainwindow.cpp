@@ -1061,3 +1061,9 @@ void MainWindow::fontSizeChanged(int size){
     }
 }
 
+
+void MainWindow::on_actionhistory_triggered()
+{
+    usersLettersWindow* history = new usersLettersWindow(fHandler->getVectorFile(), this);
+    history->show();
+}
