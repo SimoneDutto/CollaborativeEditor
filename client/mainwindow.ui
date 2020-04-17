@@ -298,10 +298,10 @@ p, li { white-space: pre-wrap; }
        </property>
        <property name="geometry">
         <rect>
-         <x>282</x>
-         <y>0</y>
-         <width>70</width>
-         <height>70</height>
+         <x>291</x>
+         <y>9</y>
+         <width>61</width>
+         <height>61</height>
         </rect>
        </property>
        <property name="sizePolicy">
@@ -626,7 +626,7 @@ p, li { white-space: pre-wrap; }
   <action name="actionLog_Out">
    <property name="icon">
     <iconset resource="resource.qrc">
-     <normaloff>:/rec/icone/logout.png</normaloff>:/rec/icone/logout.png</iconset>
+     <normaloff>:/rec/icone/log2.png</normaloff>:/rec/icone/log2.png</iconset>
    </property>
    <property name="text">
     <string>Log Out</string>
@@ -656,7 +656,7 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="icon">
     <iconset resource="resource.qrc">
-     <normaloff>:/rec/icone/sinistra.png</normaloff>:/rec/icone/sinistra.png</iconset>
+     <normaloff>:/rec/icone/sinistra2.png</normaloff>:/rec/icone/sinistra2.png</iconset>
    </property>
    <property name="text">
     <string>Align to Left</string>
@@ -668,7 +668,7 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="icon">
     <iconset resource="resource.qrc">
-     <normaloff>:/rec/icone/destra.png</normaloff>:/rec/icone/destra.png</iconset>
+     <normaloff>:/rec/icone/destra2.png</normaloff>:/rec/icone/destra2.png</iconset>
    </property>
    <property name="text">
     <string>Align to Right</string>
@@ -680,7 +680,7 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="icon">
     <iconset resource="resource.qrc">
-     <normaloff>:/rec/icone/centro.png</normaloff>:/rec/icone/centro.png</iconset>
+     <normaloff>:/rec/icone/centro2.png</normaloff>:/rec/icone/centro2.png</iconset>
    </property>
    <property name="text">
     <string>Align to Center</string>
@@ -692,7 +692,7 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="icon">
     <iconset resource="resource.qrc">
-     <normaloff>:/rec/icone/giust.png</normaloff>:/rec/icone/giust.png</iconset>
+     <normaloff>:/rec/icone/giust2.png</normaloff>:/rec/icone/giust2.png</iconset>
    </property>
    <property name="text">
     <string>Align to Justify</string>

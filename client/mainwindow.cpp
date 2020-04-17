@@ -52,6 +52,7 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
 
     setWindowTitle(nome);
     ui->label_2->setStyleSheet("background-color:lightgray; color:black");
+    ui->username->setStyleSheet("color:white");
     ui->label_2->setTextInteractionFlags(Qt::TextSelectableByMouse);
     //ui->label->setStyleSheet("background-color:lightgray");
 
@@ -911,15 +912,19 @@ void MainWindow::on_cursor_triggered(QPair<int,int> idpos, QColor col)
     bool trovato = false;
     for(int i = 0; i< id_colore_cursore.size(); i++){
         //se c'è lo sostituisco
-        if (id_colore_cursore.at(i).first.first == idpos.first && idpos.second>=0){
-            id_colore_cursore.replace(i, qMakePair(qMakePair(idpos.first,col), idpos.second));
-            trovato = true;
-            break;
+        if (id_colore_cursore.at(i).first.first == idpos.first){
+            if(idpos.second >= 0){
+                id_colore_cursore.replace(i, qMakePair(qMakePair(idpos.first,col), idpos.second));
+                trovato = true;
+                break;
+            }
+            else{
+                id_colore_cursore.removeAt(i);
+                trovato = true;
+                break;
+            }
         }
-        else{
-            id_colore_cursore.removeAt(i);
-            trovato = true;
-        }
+
     }
     //altrimenti lo aggiungo
     if (trovato == false)
