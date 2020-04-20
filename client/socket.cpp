@@ -192,6 +192,21 @@ void Socket::sendAccess(QString URI){
     }
 }
 
+void Socket::sendHistory(){
+    QJsonObject obj;
+    obj.insert("type", "HISTORY");
+    obj.insert("fileid", this->fileh->getFileId());
+    if(socket->state() == QAbstractSocket::ConnectedState){
+        QByteArray qarray = QJsonDocument(obj).toJson();
+        qint32 msg_size = qarray.size();
+        QByteArray toSend;
+        socket->write(toSend.number(msg_size), sizeof (long int));
+        socket->waitForBytesWritten();
+        socket->write(QJsonDocument(obj).toJson());
+        socket->waitForBytesWritten(1000);
+    }
+}
+
 void Socket::checkLoginAndGetListFileName(QJsonObject object)
 {
     clientID = object.value("id").toInt();
@@ -213,6 +228,23 @@ void Socket::checkLoginAndGetListFileName(QJsonObject object)
     }
     emit loginSuccess();
     qDebug() << "Finished!";
+}
+
+void Socket::getUsernames(QJsonObject object){
+    QJsonValue value = object.value("usernames");
+    QJsonArray nameFilesArray = value.toArray();
+    qDebug() << "Usernames:";
+    QVector<QString> listFiles_tmp;
+    QMap<int, QString> mapUsername;
+
+    foreach (const QJsonValue& v, nameFilesArray)
+    {
+        QString username = v.toObject().value("username").toString();
+        int userid = v.toObject().value("rowid").toInt();
+        qDebug() << username;
+        mapUsername.insert(userid, username);
+    }
+    //emit HistorySuccess(mapUsername);
 }
 
 void Socket::readBuffer(){
@@ -263,6 +295,7 @@ void Socket::notificationsHandler(QByteArray data){
      * CURSOR
      * LOGIN
      * SIGNUP_RESPONSE
+     * HISTORY
     */
 
     if(type.compare("OPEN")==0){
@@ -505,6 +538,9 @@ void Socket::notificationsHandler(QByteArray data){
     }
     else if (type.compare("SIGNUP_RESPONSE")==0) {
         checkSignUp(object);
+    }
+    else if (type.compare("HISTORY")==0){
+         getUsernames(object);
     }
     //if(socket->bytesAvailable())
       //  emit myReadyRead();
