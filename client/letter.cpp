@@ -35,7 +35,6 @@ Letter& Letter::operator=(const Letter && source) {
         this->letter = std::move(source.letter);
         this->letterID = std::move(source.letterID);
         this->format = std::move(source.format);
-        this->username = std::move(source.username);
         this->fractionalIndexes.erase(this->fractionalIndexes.begin(), this->fractionalIndexes.end());
         this->fractionalIndexes.append(std::move(source.fractionalIndexes));
     }
@@ -160,13 +159,9 @@ void Letter::setStyleFromString(QString format, QString font) {
 }
 
 int Letter::getUserId(){
-
+    return this->letterID.split("-").at(0).toInt();
 }
 
 QTextCharFormat Letter::getFormat(){
     return this->format;
-}
-
-QString Letter::getUsername(){
-    return this->username;
 }

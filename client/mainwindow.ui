@@ -703,7 +703,7 @@ p, li { white-space: pre-wrap; }
   <action name="actionhistory">
    <property name="icon">
     <iconset resource="resource.qrc">
-     <normaloff>:/rec/icone/profile.png</normaloff>:/rec/icone/profile.png</iconset>
+     <normaloff>:/rec/icone/history.png</normaloff>:/rec/icone/history.png</iconset>
    </property>
    <property name="text">
     <string>history</string>

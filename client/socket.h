@@ -105,6 +105,7 @@ signals:
     void UserConnect(QString username, QColor colorUser);
     void userCursor(QPair<int,int> userID_pos, QColor color);
     void UserDisconnect(QString username, int userID);
+    void HistorySuccess(QMap<int, QString> mapUsername);
 
     /*Signal connected to readyReady()*/
     void myReadyRead();

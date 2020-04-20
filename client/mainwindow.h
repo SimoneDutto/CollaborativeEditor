@@ -51,6 +51,8 @@ private slots:
     void removeUserDisconnect(QString username, int userID);
     void currentFontChanged(QFont font);
     void fontSizeChanged(int size);
+    void uploadHistory(QMap<int, QString> mapUsers);
+
 
     void on_textEdit_cursorPositionChanged();
 

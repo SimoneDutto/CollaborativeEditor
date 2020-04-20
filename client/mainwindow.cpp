@@ -141,6 +141,7 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
               socket, SLOT(sendCheckFileName(QString)));
     connect( this, SIGNAL(newFile(QString)),
              socket, SLOT(sendNewFile(QString)));
+    connect( this, SIGNAL(sendHist()), socket, SLOT(sendHistory()));
 
     /* CONNECT per segnali entranti, applicare sulla GUI le modifiche che arrivano sul socket */
 
@@ -163,6 +164,8 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
              this, SLOT(removeUserDisconnect(QString,int)));
     connect( socket, SIGNAL(writeURI(QString)),
              this, SLOT(on_write_uri(QString)));
+    connect( socket, SIGNAL(HistorySuccess(QMap<int, QString>)),
+             this, SLOT(uploadHistory(QMap<int, QString>)));
 
     /* CONNECT per lo stile dei caratteri */
     connect( this, SIGNAL(styleChange(QMap<QString, QTextCharFormat>, QString, QString, bool, bool, bool, QString)),
@@ -183,7 +186,6 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
              this, SLOT(on_counter_clicked()));
     connect( ui->myicon, SIGNAL(clicked()),
              this, SLOT(on_actionEdit_Profile_triggered()));
-    connect( this, SIGNAL(sendHist()), socket, SLOT(sendHistory()));
 }
 
 MainWindow::~MainWindow()
@@ -1065,7 +1067,10 @@ void MainWindow::fontSizeChanged(int size){
 
 void MainWindow::on_actionhistory_triggered()
 {
-//    usersLettersWindow* history = new usersLettersWindow(fHandler->getVectorFile(), this);
-//    history->show();
     emit sendHist();
+}
+
+void MainWindow::uploadHistory(QMap<int, QString> mapIdUsername){
+    usersLettersWindow* history = new usersLettersWindow(mapIdUsername, fHandler->getVectorFile(), this);
+    history->show();
 }

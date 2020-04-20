@@ -244,7 +244,7 @@ void Socket::getUsernames(QJsonObject object){
         qDebug() << username;
         mapUsername.insert(userid, username);
     }
-    //emit HistorySuccess(mapUsername);
+    emit HistorySuccess(mapUsername);
 }
 
 void Socket::readBuffer(){

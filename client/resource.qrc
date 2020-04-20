@@ -30,6 +30,7 @@
         <file>icone/camera_icon.png</file>
         <file>icone/discard_icon.png</file>
         <file>icone/error2.png</file>
+        <file>icone/history.png</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>

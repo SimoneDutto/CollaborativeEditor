@@ -1,10 +1,11 @@
 #include "usersletterswindow.h"
 #include "ui_usersletterswindow.h"
 
-usersLettersWindow::usersLettersWindow(QVector<Letter*> letters, QWidget *parent) :
+usersLettersWindow::usersLettersWindow(QMap<int, QString> mapIdUsername, QVector<Letter*> letters, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::usersLettersWindow),
-    letters(letters)
+    letters(letters),
+    mapIdUsername(mapIdUsername)
 {
     /* Setto fissa la dimensione della finestra */
     ui->setupUi(this);
@@ -16,22 +17,14 @@ usersLettersWindow::usersLettersWindow(QVector<Letter*> letters, QWidget *parent
     QTextCursor cursor(ui->testo->textCursor());
     cursor.setPosition(0);
 
-    /****************/
-    QList<QString> listTEST = {"Marco", "Luca", "Gio", "Lucia", "Alessia"};
-
-    QMap<int, QString> listUsername;
-    int i = 0;
-    /****************/
-
     for(Letter *l : letters){
-        //QMap<QString, QColor>::iterator ite = colorUser.find(l->getUsername());
+        QMap<int, QString>::iterator usernameIte = mapIdUsername.find(l->getUserId());
+        if(usernameIte == mapIdUsername.end()){
+            qDebug() << "Nella mapIdUsername non ho trovato l'id desiderato!!!";
+        }
+        QString username = usernameIte.value();
 
-        /****************/
-        i++;
-
-        QMap<QString, QColor>::iterator ite = colorUser.find(listTEST.at(i%5));
-
-        /****************/
+        QMap<QString, QColor>::iterator ite = colorUser.find(username);
 
         if(ite != colorUser.end()){
             //Già esiste la coppia User-Color e aggiungo la lettere con sfondo il colore
@@ -45,18 +38,10 @@ usersLettersWindow::usersLettersWindow(QVector<Letter*> letters, QWidget *parent
             QColor* color = new QColor(rand()%255, rand()%255, rand()%255, rand()%255);
             QColor newColor = color->lighter(120);
             newColor.setAlpha(150);
-            //colorUser.insert(l->getUsername(), newColor);
-
-            /****************/
-            colorUser.insert(listTEST.at(i%5), newColor);
-            /****************/
+            colorUser.insert(username, newColor);
 
             //Aggiungo lo User nella ListUsers
-            //QListWidgetItem *user = new QListWidgetItem(l->getUsername());
-
-            /****************/
-            QListWidgetItem *user = new QListWidgetItem(listTEST.at(i%5));
-            /****************/
+            QListWidgetItem *user = new QListWidgetItem(username);
 
             newColor.setAlpha(255);
             newColor.lighter(255);
