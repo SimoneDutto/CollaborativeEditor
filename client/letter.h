@@ -26,6 +26,7 @@ public:
     QString getLetterID();
     int getSiteID();
     int getIndex();
+    int getUserId();
     int getNumberOfFractionals();
     void setIndex(int index);
     void setStyle(QString style);

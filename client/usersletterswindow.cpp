@@ -18,6 +18,8 @@ usersLettersWindow::usersLettersWindow(QVector<Letter*> letters, QWidget *parent
 
     /****************/
     QList<QString> listTEST = {"Marco", "Luca", "Gio", "Lucia", "Alessia"};
+
+    QMap<int, QString> listUsername;
     int i = 0;
     /****************/
 
@@ -26,6 +28,7 @@ usersLettersWindow::usersLettersWindow(QVector<Letter*> letters, QWidget *parent
 
         /****************/
         i++;
+
         QMap<QString, QColor>::iterator ite = colorUser.find(listTEST.at(i%5));
 
         /****************/

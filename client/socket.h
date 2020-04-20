@@ -59,12 +59,14 @@ private:
     void checkSignUp(QJsonObject);
     void sendIcon(QString path);
     void sendFileChunk(QByteArray chunk, QTcpSocket* socket, int remainingSize);
+    void getUsernames(QJsonObject);
 
 public slots:
     void sendSignUpRequest(QString username, QString password, QString pathImage);
     void sendLogin(QString username, QString password);
     void sendAccess(QString URI);
     void sendChange(QString psw, QString path);
+    void sendHistory();
 
 private slots:
     void closeConnection();

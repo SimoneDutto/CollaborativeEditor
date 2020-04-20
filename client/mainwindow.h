@@ -105,6 +105,7 @@ signals:
     //void localStyleChange(QString initialID, QString finalID, QTextCharFormat);
     void setCurrFont(QFont currFont);
     void setCurrFontSize(int sizeFont);
+    void sendHist();
 };
 
 #endif // MAINWINDOW_H

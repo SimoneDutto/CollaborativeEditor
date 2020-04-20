@@ -183,6 +183,7 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
              this, SLOT(on_counter_clicked()));
     connect( ui->myicon, SIGNAL(clicked()),
              this, SLOT(on_actionEdit_Profile_triggered()));
+    connect( this, SIGNAL(sendHist()), socket, SLOT(sendHistory()));
 }
 
 MainWindow::~MainWindow()
@@ -1064,6 +1065,7 @@ void MainWindow::fontSizeChanged(int size){
 
 void MainWindow::on_actionhistory_triggered()
 {
-    usersLettersWindow* history = new usersLettersWindow(fHandler->getVectorFile(), this);
-    history->show();
+//    usersLettersWindow* history = new usersLettersWindow(fHandler->getVectorFile(), this);
+//    history->show();
+    emit sendHist();
 }
