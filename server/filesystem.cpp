@@ -685,6 +685,59 @@ void FileSystem::disconnectClient(QTcpSocket* socket){
     sock_file.erase(socket);
 }
 
+void FileSystem::fileHistory(int fileid, QTcpSocket* socket){
+    QSqlQuery sqlQuery;
+    QJsonObject json;
+    QJsonArray username_array;
+    QByteArray sendSize;
+    QList<QString> userids;
+    json.insert("type", "HISTORY");
+
+    // check che username non sia gia' stato preso
+    sqlQuery.prepare("SELECT userid  FROM Files WHERE fileid=(:fileid)");
+    sqlQuery.bindValue(":fileid", fileid);
+    int count = -1;
+    if (sqlQuery.exec())
+    {
+        while (sqlQuery.next())
+        {
+            QString fileid = sqlQuery.value("userid").toString();
+            userids.append(fileid);
+        }
+    }
+    else {
+            qDebug() << "No userid found";
+    }
+
+    qDebug() << userids;
+    QString q = "(";
+    for (QString id: userids){
+        q += id+",";
+    }
+    q.chop(1);
+    q+=")";
+    qDebug() << "ciao " << q;
+    sqlQuery.prepare("SELECT rowid, username FROM PASSWORD WHERE rowid IN "+q);
+    if (sqlQuery.exec())
+    {
+        while (sqlQuery.next())
+        {
+            QJsonObject item_data;
+            int rowid = sqlQuery.value("rowid").toInt();
+            QString username = sqlQuery.value("username").toString();
+            item_data.insert("rowid", QJsonValue(rowid));
+            item_data.insert("username", QJsonValue(username));
+
+            username_array.push_back(QJsonValue(item_data));
+        }
+        json.insert(QString("usernames"), QJsonValue(username_array));
+    }
+    else {
+            qDebug() << "No usernames found";
+    }
+    sendJson(json, socket);
+}
+
 void FileSystem::sendJson(QJsonObject json, QTcpSocket* socket){
 
     if(socket->state() == QAbstractSocket::ConnectedState){

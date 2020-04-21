@@ -102,6 +102,7 @@ void MyServer::handleNotifications(QTcpSocket *socket, QByteArray data)
      * STYLE
      * CURSOR
      * ICON
+     * HISTORY
     */
 
     if(type.compare("OPEN")==0){
@@ -216,6 +217,10 @@ void MyServer::handleNotifications(QTcpSocket *socket, QByteArray data)
     else if (type.compare("CHANGE")==0){
         QString psw = rootObject.value("password").toString();
         fsys->changePassword(psw, socket);
+    }
+    else if (type.compare("HISTORY")==0){
+        int fileid = rootObject.value("fileid").toInt();
+        fsys->fileHistory(fileid, socket);
     }
 
 }

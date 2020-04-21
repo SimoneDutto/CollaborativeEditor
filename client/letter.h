@@ -15,7 +15,6 @@ private:
     QVector<int> fractionalIndexes;
     QString letterID;
     QTextCharFormat format;
-    QString username;
 public:
     Letter(QChar letter, QVector<int> fractionals, QString letterID, QTextCharFormat format);
     Letter(const Letter& l);
@@ -26,6 +25,7 @@ public:
     QString getLetterID();
     int getSiteID();
     int getIndex();
+    int getUserId();
     int getNumberOfFractionals();
     void setIndex(int index);
     void setStyle(QString style);
@@ -35,7 +35,6 @@ public:
     bool comesFirst(Letter other);
     void setFormat(QTextCharFormat format);
     void setStyleFromString(QString format, QString font);
-    QString getUsername();
     QTextCharFormat getFormat();
     ~Letter(){}
 };
