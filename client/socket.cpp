@@ -356,19 +356,11 @@ void Socket::notificationsHandler(QByteArray data){
 
                 /* Estrarre formato lettera */
                 QTextCharFormat format;
-                bool isBold = v.toObject().value("isBold").toBool();
-                bool isItalic = v.toObject().value("isItalic").toBool();
-                bool isUnderlined = v.toObject().value("isUnderlined").toBool();
-
-                if(isBold)
-                    format.setFontWeight(75);
-                else format.setFontWeight(50);
-                if(isItalic)
-                    format.setFontItalic(true);
-                else format.setFontItalic(false);
-                if(isUnderlined)
-                    format.setFontUnderline(true);
-                else format.setFontUnderline(false);
+                QString font = v.toObject().value("font").toString();
+                qDebug() << "font received = " << font;
+                QFont f;
+                f.fromString(font);
+                format.setFont(f);
 
                 letters.append(std::move(new Letter(letter, fractionals, ID, format)));
                 //qDebug() << "Lettera:" << letter;
@@ -418,11 +410,12 @@ void Socket::notificationsHandler(QByteArray data){
         int siteCounter = object.value("siteCounter").toInt();
         int externalIndex = object.value("externalIndex").toInt();
 
-        /* Estrarre formato lettera */
+        /* Estrarre stile lettera */
         QTextCharFormat format;
-        bool isBold = object.value("isBold").toBool();
+        /*bool isBold = object.value("isBold").toBool();
         bool isItalic = object.value("isItalic").toBool();
         bool isUnderlined = object.value("isUnderlined").toBool();
+        QString font = object.value("font").toString();
 
         if(isBold)
             format.setFontWeight(75);
@@ -434,7 +427,13 @@ void Socket::notificationsHandler(QByteArray data){
             format.setFontUnderline(true);
         else format.setFontUnderline(false);
 
+        if(font != nullptr && font.compare("none") != 0)
+            format.setFont(font);*/
 
+        QString font = object.value("font").toString();
+        QFont f;
+        f.fromString(font);
+        format.setFont(f);
         /*Inserire nel modello questa lettera e aggiornare la UI*/
         emit readyInsert(position, newLetterValue, externalIndex, siteID, siteCounter, format);
         
@@ -496,6 +495,7 @@ void Socket::notificationsHandler(QByteArray data){
         userIDColor.remove(userID);
         userCursors.remove(userID);
         emit UserDisconnect(username, userID);
+        // TODO inserire cursor position -1 per mainwindow
     }
     else if(type.compare("ACCESS_RESPONSE")==0){
         int fileid = object.value("fileid").toInt();
@@ -560,6 +560,7 @@ int Socket::sendInsert(QChar newLetterValue, QJsonArray position, int siteID, in
     obj.insert("isBold", QJsonValue(format.fontWeight()==75));
     obj.insert("isItalic", QJsonValue(format.fontItalic()));
     obj.insert("isUnderlined", QJsonValue(format.fontUnderline()));
+    obj.insert("font", QJsonValue(format.font().toString()));
     obj.insert("siteID", siteID);
     obj.insert("siteCounter", siteCounter);
     obj.insert("externalIndex", externalIndex);
@@ -669,7 +670,7 @@ int Socket::sendChangeStyle(QString firstLetterID, QString lastLetterID, int fil
     obj.insert("fileid", fileID);
     obj.insert("startIndex", firstLetterID);
     obj.insert("lastIndex", lastLetterID);
-    obj.insert("changedStyle", changedStyle);
+    //obj.insert("changedStyle", changedStyle);
     obj.insert("font", font);
 
     if(socket->state() == QAbstractSocket::ConnectedState){

@@ -136,19 +136,31 @@ void MyServer::handleNotifications(QTcpSocket *socket, QByteArray data)
             int siteCounter = rootObject.value("siteCounter").toInt();
             // Get letter format
             QTextCharFormat format;
-            bool isBold = rootObject.value("isBold").toBool();
+            /*bool isBold = rootObject.value("isBold").toBool();
             bool isItalic = rootObject.value("isItalic").toBool();
             bool isUnderlined = rootObject.value("isUnderlined").toBool();
-
+            QString font = rootObject.value("font").toString();
+            qDebug() << isBold << isItalic << isUnderlined << format.font();
+            format.setFont(QFont(font));
             if(isBold)
-                format.setFontWeight(75);
+                format.setFontWeight(QFont::Bold);
             else format.setFontWeight(50);
+            qDebug() << format.font();
             if(isItalic)
                 format.setFontItalic(true);
             else format.setFontItalic(false);
+            qDebug() << format.font();
             if(isUnderlined)
                 format.setFontUnderline(true);
             else format.setFontUnderline(false);
+            qDebug() << format.font();*/
+
+            QString font = rootObject.value("font").toString();
+            QFont f;
+            f.fromString(font);
+            format.setFont(f);
+            qDebug() << format.font();
+            qDebug() << "Format: " << format.font().toString() << " stile = " << format.font().italic() << format.font().weight() << format.fontUnderline();
 
             fHandler->remoteInsert(position, newLetterValue, externalIndex, siteID, siteCounter, data, socket, format);
         }
@@ -201,9 +213,10 @@ void MyServer::handleNotifications(QTcpSocket *socket, QByteArray data)
             QString initialIndex = rootObject.value("startIndex").toString();
             QString lastIndex = rootObject.value("lastIndex").toString();
             QString changedStyle = rootObject.value("changedStyle").toString();
+            QString font = rootObject.value("font").toString();
             //int siteID = rootObject.value("siteID").toInt();
             //int siteCounter = rootObject.value("siteCounter").toInt();
-            fHandler->changeStyle(initialIndex, lastIndex, changedStyle, socket, data);
+            fHandler->changeStyle(initialIndex, lastIndex, changedStyle, font, socket, data);
         }
     }
     else if(type.compare("CURSOR")==0) {

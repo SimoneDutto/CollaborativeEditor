@@ -31,7 +31,7 @@ public:
     int getIndex();
     int getNumberOfFractionals();
     QTextCharFormat getFormat();
-    void setStyleFromString(QString format);
+    void setStyleFromString(QString format, QString font);
     //int getCounter();
     //void incrementCounter();
     void setIndex(int index);

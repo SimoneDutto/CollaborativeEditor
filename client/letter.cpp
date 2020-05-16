@@ -142,7 +142,7 @@ void Letter::setFormat(QTextCharFormat format){
 }
 
 void Letter::setStyleFromString(QString format, QString font) {
-    if(format.compare("Bold") == 0)
+    /*if(format.compare("Bold") == 0)
         this->format.setFontWeight(75);
     else if(format.compare("NotBold") == 0)
         this->format.setFontWeight(50);
@@ -154,8 +154,17 @@ void Letter::setStyleFromString(QString format, QString font) {
         this->format.setFontUnderline(true);
     else if(format.compare("Underlined") == 0)
         this->format.setFontUnderline(false);
-    else if(format.compare("Font")==0)
-        this->format.setFont(font);
+    else if(format.compare("font")==0) {
+        QFont f = this->format.font();
+        f.fromString(font);
+        qDebug() << "CHANGE FONT" << f;
+        this->format.setFont(f);
+        qDebug() << this->format.font();
+    }*/
+    QFont f;
+    f.fromString(font);
+    this->format.setFont(f, QTextCharFormat::FontPropertiesSpecifiedOnly);
+
 }
 
 int Letter::getUserId(){
@@ -163,5 +172,6 @@ int Letter::getUserId(){
 }
 
 QTextCharFormat Letter::getFormat(){
+    qDebug() <<"Letter format:"  << this->format.font().toString() << " " << this->format.fontItalic();
     return this->format;
 }
