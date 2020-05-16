@@ -29,7 +29,7 @@ public:
 
     void remoteInsert(QJsonArray position, QChar newLetterValue, int externalIndex, int siteID, int siteCounter,  QByteArray message, QTcpSocket *client, QTextCharFormat format);
     void remoteDelete(QString deletedLetterID,  QByteArray message, QTcpSocket* client, int siteCounter);
-    void changeStyle(QString initialIndex, QString lastIndex, QString format, QTcpSocket* client, QByteArray message);
+    void changeStyle(QString initialIndex, QString lastIndex, QString format, QString font, QTcpSocket* client, QByteArray message);
     void changeCursor(QTcpSocket* client, QByteArray message, int position);
 
     void insertActiveUser(QTcpSocket* user, int siteCounter, QString username, int userID, int cursorPosition);

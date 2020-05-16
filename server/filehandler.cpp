@@ -188,13 +188,13 @@ void FileHandler::remoteDelete(QString deletedLetterID,  QByteArray message, QTc
     emit remoteDeleteNotify(this->users, message, client);
 }
 
-void FileHandler::changeStyle(QString initialIndex, QString lastIndex, QString format, QTcpSocket *client, QByteArray message) {
+void FileHandler::changeStyle(QString initialIndex, QString lastIndex, QString format, QString font, QTcpSocket *client, QByteArray message) {
     bool intervalStarted = false;
 
     for(Letter *l : this->letters) {
         if(l->getLetterID().compare(initialIndex) == 0 || intervalStarted) {
             intervalStarted = true;
-            l->setStyleFromString(format);
+            l->setStyleFromString(format, font);
             if(l->getLetterID().compare(lastIndex) == 0)
                 break;
         }

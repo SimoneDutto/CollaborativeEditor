@@ -1,4 +1,5 @@
 #include "letter.h"
+#include <qdebug.h>
 
 Letter::Letter(QChar letter, QVector<int> fractionals, QString letterID, QTextCharFormat format) :
     letter(letter),
@@ -58,8 +59,11 @@ QTextCharFormat Letter::getFormat() {
     return this->format;
 }
 
-void Letter::setStyleFromString(QString format) {
-    if(format.compare("Bold") == 0)
+void Letter::setStyleFromString(QString format, QString font) { // TODO togliere format
+    QFont f;
+    f.fromString(font);
+    this->format.setFont(f, QTextCharFormat::FontPropertiesSpecifiedOnly);
+    /*if(format.compare("Bold") == 0)
         this->format.setFontWeight(75);
     else if(format.compare("NotBold") == 0)
         this->format.setFontWeight(50);
@@ -71,6 +75,10 @@ void Letter::setStyleFromString(QString format) {
         this->format.setFontUnderline(true);
     else if(format.compare("Underlined") == 0)
         this->format.setFontUnderline(false);
+    else if(format.compare("font")==0) {
+
+    }*/
+    qDebug() << "font cambiato" << this->format.font();
 }
 
 void Letter::addFractionalDigit(int value) {
@@ -118,6 +126,7 @@ QJsonObject Letter::toJSon(){
     obj.insert("isBold", QJsonValue(format.fontWeight()==75));
     obj.insert("isItalic", QJsonValue(format.fontItalic()));
     obj.insert("isUnderlined", QJsonValue(format.fontUnderline()));
+    obj.insert("font", QJsonValue(format.font().toString()));
     obj.insert("position", positionJsonArray);
 
     return obj;
