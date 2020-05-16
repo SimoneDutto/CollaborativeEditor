@@ -1058,7 +1058,7 @@ void MainWindow::fontSizeChanged(int size){
                   fHandler, SLOT(localDelete(int,int)));
         //disconnect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
 
-        auto currFont = ui->textEdit->currentCharFormat();
+        QTextCharFormat currFont = ui->textEdit->currentCharFormat();
         currFont.setFontPointSize(fontSize);
         ui->textEdit->setCurrentCharFormat(currFont);
 
@@ -1080,7 +1080,7 @@ void MainWindow::fontSizeChanged(int size){
             formatCharMap.insert(vettore.at(i)->getLetterID(), letterFormat);
         }
         // TODO aggiungere info sulla dim del font
-        emit styleChange(formatCharMap, startID, lastID, false, false, false, "none");
+        emit styleChange(formatCharMap, startID, lastID, false, false, false, currFont.font().toString());
 
         connect( this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
                   fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
