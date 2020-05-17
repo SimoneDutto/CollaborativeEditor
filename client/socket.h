@@ -44,7 +44,7 @@ private:
     QByteArray buffer;
     QByteArray json_buffer;
     QByteArray icon_buffer;
-    long int size=0;
+    quint64 size=0;
     FileHandler* fileh;
     int clientID;
     QString username;
