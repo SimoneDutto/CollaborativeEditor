@@ -167,6 +167,10 @@ void Letter::setStyleFromString(QString format, QString font) {
 
 }
 
+void Letter::setAlignment(Qt::AlignmentFlag alignment) {
+    this->alignment = alignment;
+}
+
 int Letter::getUserId(){
     return this->letterID.split("-").at(0).toInt();
 }

@@ -108,6 +108,7 @@ signals:
     void setCurrFont(QFont currFont);
     void setCurrFontSize(int sizeFont);
     void sendHist();
+    void sendAlignment(Qt::AlignmentFlag alignment, int cursorPosition);
 };
 
 #endif // MAINWINDOW_H

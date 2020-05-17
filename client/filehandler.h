@@ -40,6 +40,7 @@ public slots:
     void localDelete(int firstExternalIndex, int lastExternalIndex);
     void localStyleChange(QMap<QString, QTextCharFormat> letterFormatMap, QString startID, QString lastID, bool boldTriggered, bool italicTriggered, bool underlinedTriggered, QString font);
     void localCursorChange(int position);
+    void localAlignChange(Qt::AlignmentFlag alignment, int cursorPosition); // paragrafo preso dal cursore
 
     void remoteInsert(QJsonArray position, QChar newLetterValue, int externalIndex, int siteID, int siteCounter, QTextCharFormat format);
     void remoteDelete(QString deletedLetterID);
@@ -49,6 +50,7 @@ signals:
     void localDeleteNotify(QString deletedLetterID, int fileid, int siteCounter);
     void localStyleChangeNotify(QString firstLetterID, QString lastLetterID, int fileID, QString changedStyle, QString font);
     void localCursorChangeNotify(int position);
+    void localAlignChangeNotify(Qt::AlignmentFlag align, int cursorPosition);
 
     void readyRemoteInsert(QChar newLetter, int externalIndex, QTextCharFormat format);
     void readyRemoteDelete(int externalIndex);
