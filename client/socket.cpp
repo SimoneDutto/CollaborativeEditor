@@ -414,24 +414,6 @@ void Socket::notificationsHandler(QByteArray data){
 
         /* Estrarre stile lettera */
         QTextCharFormat format;
-        /*bool isBold = object.value("isBold").toBool();
-        bool isItalic = object.value("isItalic").toBool();
-        bool isUnderlined = object.value("isUnderlined").toBool();
-        QString font = object.value("font").toString();
-
-        if(isBold)
-            format.setFontWeight(75);
-        else format.setFontWeight(50);
-        if(isItalic)
-            format.setFontItalic(true);
-        else format.setFontItalic(false);
-        if(isUnderlined)
-            format.setFontUnderline(true);
-        else format.setFontUnderline(false);
-
-        if(font != nullptr && font.compare("none") != 0)
-            format.setFont(font);*/
-
         QString font = object.value("font").toString();
         QFont f;
         f.fromString(font);
@@ -498,8 +480,9 @@ void Socket::notificationsHandler(QByteArray data){
         userColor.remove(username);
         userIDColor.remove(userID);
         userCursors.remove(userID);
-        emit UserDisconnect(username, userID);
         // TODO inserire cursor position -1 per mainwindow
+        emit userCursor(qMakePair(userID,-1), nullptr);
+        emit UserDisconnect(username, userID);
     }
     else if(type.compare("ACCESS_RESPONSE")==0){
         int fileid = object.value("fileid").toInt();
