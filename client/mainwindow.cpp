@@ -59,8 +59,8 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
     auto availableSize = qApp->desktop();
        int width = availableSize->width();
        int height = availableSize->height();
-       width *= 0.8; // 80% of the screen size
-       height *= 0.8; // 80% of the screen size
+       width *= 0.7; // 80% of the screen size
+       height *= 0.7; // 80% of the screen size
        QSize newSize( width, height );
 
        setGeometry(

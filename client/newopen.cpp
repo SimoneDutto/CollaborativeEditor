@@ -106,3 +106,9 @@ void NewOpen::uriIsNotOk(){
     uri = new Uri(socket,this);
     uri->show();
 }
+
+void NewOpen::on_pushButton_4_clicked()
+{
+    account = new Account(this->socket, this, this->windowTitle());
+    account->show();
+}

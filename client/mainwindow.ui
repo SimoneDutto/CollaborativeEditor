@@ -383,8 +383,6 @@ p, li { white-space: pre-wrap; }
     <addaction name="actionCopy"/>
     <addaction name="actionPaste"/>
     <addaction name="separator"/>
-    <addaction name="actionUndo"/>
-    <addaction name="actionRedo"/>
    </widget>
    <widget class="QMenu" name="menuAbout">
     <property name="title">
@@ -436,9 +434,6 @@ p, li { white-space: pre-wrap; }
    </attribute>
    <addaction name="actionNew"/>
    <addaction name="actionOpen"/>
-   <addaction name="separator"/>
-   <addaction name="actionUndo"/>
-   <addaction name="actionRedo"/>
    <addaction name="separator"/>
    <addaction name="actionItalic"/>
    <addaction name="actionUnderlined"/>
@@ -509,18 +504,6 @@ p, li { white-space: pre-wrap; }
     <string>Ctrl+V</string>
    </property>
   </action>
-  <action name="actionUndo">
-   <property name="icon">
-    <iconset resource="resource.qrc">
-     <normaloff>:/rec/icone/undo.png</normaloff>:/rec/icone/undo.png</iconset>
-   </property>
-   <property name="text">
-    <string>Undo</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+Z</string>
-   </property>
-  </action>
   <action name="actionAbout_us">
    <property name="icon">
     <iconset resource="resource.qrc">
@@ -528,18 +511,6 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="text">
     <string>About us</string>
-   </property>
-  </action>
-  <action name="actionRedo">
-   <property name="icon">
-    <iconset resource="resource.qrc">
-     <normaloff>:/rec/icone/redo.png</normaloff>:/rec/icone/redo.png</iconset>
-   </property>
-   <property name="text">
-    <string>Redo</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+Y</string>
    </property>
   </action>
   <action name="actionBold">
@@ -603,15 +574,6 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="text">
     <string>Color</string>
-   </property>
-  </action>
-  <action name="actionBackgorund_Color">
-   <property name="icon">
-    <iconset resource="resource.qrc">
-     <normaloff>:/rec/icone/backcolor.png</normaloff>:/rec/icone/backcolor.png</iconset>
-   </property>
-   <property name="text">
-    <string>Background Color</string>
    </property>
   </action>
   <action name="actionEdit_Profile">
@@ -696,6 +658,15 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="text">
     <string>Align to Justify</string>
+   </property>
+  </action>
+  <action name="actionBackgorund_Color">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/rec/icone/backcolor.png</normaloff>:/rec/icone/backcolor.png</iconset>
+   </property>
+   <property name="text">
+    <string>Background Color</string>
    </property>
   </action>
  </widget>
