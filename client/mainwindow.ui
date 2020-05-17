@@ -449,6 +449,7 @@ p, li { white-space: pre-wrap; }
    <addaction name="actionAlign_to_Center"/>
    <addaction name="actionAlign_to_Justify"/>
    <addaction name="separator"/>
+   <addaction name="actionhistory"/>
    <addaction name="actionLog_Out"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
@@ -696,6 +697,15 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="text">
     <string>Align to Justify</string>
+   </property>
+  </action>
+  <action name="actionhistory">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/rec/icone/history.png</normaloff>:/rec/icone/history.png</iconset>
+   </property>
+   <property name="text">
+    <string>history</string>
    </property>
   </action>
  </widget>

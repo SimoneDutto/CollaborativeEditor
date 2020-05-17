@@ -37,6 +37,7 @@ SOURCES += \
     signup.cpp \
     socket.cpp \
     uri.cpp \
+    usersletterswindow.cpp \
     welcome.cpp
 
 HEADERS += \
@@ -55,6 +56,7 @@ HEADERS += \
     signup.h \
     socket.h \
     uri.h \
+    usersletterswindow.h \
     welcome.h
 
 FORMS += \
@@ -70,6 +72,7 @@ FORMS += \
     signup.ui \
     socket.ui \
     uri.ui \
+    usersletterswindow.ui \
     welcome.ui
 
 # Default rules for deployment.

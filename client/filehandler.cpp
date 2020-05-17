@@ -170,75 +170,32 @@ void FileHandler::localDelete(int firstExternalIndex, int lastExternalIndex) {
 }
 
 void FileHandler::localStyleChange(QMap<QString, QTextCharFormat> letterFormatMap, QString startID, QString lastID, bool boldTriggered, bool italicTriggered, bool underlinedTriggered, QString font) {
-//    Letter::Styles changedStyle = Letter::Styles::Normal;
     QString changedStyle;
+    QString fontString;
     bool first = true;
     /* Edit letters style locally */
     for(Letter *l : this->letters) {
         if(letterFormatMap.contains(l->getLetterID())) {
             // Look for the change
-//            qDebug() << l->getFormat().fontItalic();
-//            qDebug() << letterFormatMap.value(l->getLetterID()).fontItalic();
-            //TODO: check stringa
-            if(first) {
-                /*qDebug() << "format: " << l->getFormat().fontWeight();
-                qDebug() << "new format: " << letterFormatMap.value(l->getLetterID()).fontWeight();
-                if(!l->getFormat().fontItalic() && letterFormatMap.value(l->getLetterID()).fontItalic())
-                    changedStyle.append("Italic");
-                else if(!l->getFormat().fontUnderline() && letterFormatMap.value(l->getLetterID()).fontUnderline())
-                    changedStyle.append("Underlined");
-                else if(l->getFormat().fontWeight() == 50 && letterFormatMap.value(l->getLetterID()).fontWeight() == 75)
-                    changedStyle.append("Bold");
-                else if(l->getFormat().fontItalic() && !letterFormatMap.value(l->getLetterID()).fontItalic())
-                    changedStyle.append("NotItalic");   // da Italic a non Italic
-                else if(l->getFormat().fontUnderline() && !letterFormatMap.value(l->getLetterID()).fontUnderline())
-                    changedStyle.append("NotUnderlined");
-                else if(l->getFormat().fontWeight() == 75 && letterFormatMap.value(l->getLetterID()).fontWeight() == 50)
-                    changedStyle.append("NotBold");*/
-
-                if(boldTriggered) {
-                    if(l->getFormat().fontWeight() == 50) {
-                        changedStyle.append("Bold");
-                        l->setStyleFromString("Bold", font);
-                    } else {
-                        changedStyle.append("NotBold");
-                        l->setStyleFromString("NotBold", font);
-                    }
-                } else if(italicTriggered) {
-                    if(!l->getFormat().fontItalic()) {
-                        changedStyle.append("Italic");
-                        l->setStyleFromString("Italic", font);
-                    } else {
-                        changedStyle.append("NotItalic");
-                        l->setStyleFromString("NotItalic", font);
-                    }
-                } else if(underlinedTriggered) {
-                    if(!l->getFormat().fontUnderline()) {
-                        changedStyle.append("Underlined");
-                        l->setStyleFromString("Underlined", font);
-                    } else {
-                        changedStyle.append("NotUnderlined");
-                        l->setStyleFromString("NotUnderlined", font);
-                    }
-                } else if(font.compare("none") != 0) {
-                    changedStyle.append("font");
-                    l->setStyleFromString("font", font);
-                }
-
-                first = false;
-                qDebug() << "Style: " << changedStyle;
-            }
+            if(first)
+                fontString = letterFormatMap.take(l->getLetterID()).font().toString();
+            l->setStyleFromString("", letterFormatMap.take(l->getLetterID()).font().toString());
         }
     }
 
     /* Send change to server */
-    emit localStyleChangeNotify(startID, lastID, this->fileid, changedStyle, font);
+    emit localStyleChangeNotify(startID, lastID, this->fileid, changedStyle, fontString);
 }
 
 void FileHandler::localCursorChange(int position) {
     this->cursor = position;
     /* Notify server */
     emit localCursorChangeNotify(position);
+}
+
+void FileHandler::localAlignChange(Qt::AlignmentFlag alignment, int cursorPosition) {   // aggiungere start e end
+    // TODO: memorizzare allineamento del paragrafo (dove prendo queste info?)
+    // emit localAlignChangeNotify(alignment, cursorPosition);
 }
 
 void FileHandler::remoteInsert(QJsonArray position, QChar newLetterValue, int externalIndex, int siteID, int siteCounter, QTextCharFormat format) {

@@ -337,9 +337,10 @@ void FileSystem::sendFile(int fileid, QTcpSocket *socket){
             }
             // GET FORMAT LETTER
             QTextCharFormat format;
-            bool isBold = v.toObject().value("isBold").toBool();
+            /*bool isBold = v.toObject().value("isBold").toBool();
             bool isItalic = v.toObject().value("isItalic").toBool();
             bool isUnderlined = v.toObject().value("isUnderlined").toBool();
+            QString font = v.toObject().value("font").toString();
 
             if(isBold)
                 format.setFontWeight(75);
@@ -350,6 +351,13 @@ void FileSystem::sendFile(int fileid, QTcpSocket *socket){
             if(isUnderlined)
                 format.setFontUnderline(true);
             else format.setFontUnderline(false);
+
+            if(font != nullptr && font.compare("none") != 0)
+                format.setFont(font);*/
+            QString font = v.toObject().value("font").toString();
+            QFont f;
+            f.fromString(font);
+            format.setFont(f);
 
             Letter *letter_tmp = new Letter(letter, fractionals, ID, format);
             letters.append(std::move(letter_tmp));
@@ -568,6 +576,10 @@ void FileSystem::sendInsert(QVector<QTcpSocket*> users, QByteArray message, bool
         obj.insert("filename", rootObject.value("filename").toString());
         obj.insert("letter", rootObject.value("letter").toString());
         obj.insert("position", rootObject.value("position").toArray());
+        obj.insert("isBold", rootObject.value("isBold").toBool());
+        obj.insert("isItalic", rootObject.value("isItalic").toBool());
+        obj.insert("isUnderlined", rootObject.value("isUnderlined").toBool());
+        obj.insert("font", rootObject.value("font").toString());
         obj.insert("siteID", rootObject.value("siteID").toString());
         obj.insert("siteCounter", rootObject.value("siteCounter").toInt());
         obj.insert("externalIndex", newIndex);
@@ -683,6 +695,59 @@ void FileSystem::disconnectClient(QTcpSocket* socket){
 
     fh->removeActiveUser(socket, username, it->second);
     sock_file.erase(socket);
+}
+
+void FileSystem::fileHistory(int fileid, QTcpSocket* socket){
+    QSqlQuery sqlQuery;
+    QJsonObject json;
+    QJsonArray username_array;
+    QByteArray sendSize;
+    QList<QString> userids;
+    json.insert("type", "HISTORY");
+
+    // check che username non sia gia' stato preso
+    sqlQuery.prepare("SELECT userid  FROM Files WHERE fileid=(:fileid)");
+    sqlQuery.bindValue(":fileid", fileid);
+    int count = -1;
+    if (sqlQuery.exec())
+    {
+        while (sqlQuery.next())
+        {
+            QString fileid = sqlQuery.value("userid").toString();
+            userids.append(fileid);
+        }
+    }
+    else {
+            qDebug() << "No userid found";
+    }
+
+    qDebug() << userids;
+    QString q = "(";
+    for (QString id: userids){
+        q += id+",";
+    }
+    q.chop(1);
+    q+=")";
+    qDebug() << "ciao " << q;
+    sqlQuery.prepare("SELECT rowid, username FROM PASSWORD WHERE rowid IN "+q);
+    if (sqlQuery.exec())
+    {
+        while (sqlQuery.next())
+        {
+            QJsonObject item_data;
+            int rowid = sqlQuery.value("rowid").toInt();
+            QString username = sqlQuery.value("username").toString();
+            item_data.insert("rowid", QJsonValue(rowid));
+            item_data.insert("username", QJsonValue(username));
+
+            username_array.push_back(QJsonValue(item_data));
+        }
+        json.insert(QString("usernames"), QJsonValue(username_array));
+    }
+    else {
+            qDebug() << "No usernames found";
+    }
+    sendJson(json, socket);
 }
 
 void FileSystem::sendJson(QJsonObject json, QTcpSocket* socket){

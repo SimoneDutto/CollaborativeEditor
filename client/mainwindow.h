@@ -9,6 +9,7 @@
 #include "uri.h"
 #include "onlineuser.h"
 #include "clickablelabel.h"
+#include "usersletterswindow.h"
 
 namespace Ui {
 class MainWindow;
@@ -50,6 +51,8 @@ private slots:
     void removeUserDisconnect(QString username, int userID);
     void currentFontChanged(QFont font);
     void fontSizeChanged(int size);
+    void uploadHistory(QMap<int, QString> mapUsers);
+
 
     void on_textEdit_cursorPositionChanged();
 
@@ -79,6 +82,8 @@ private slots:
     void changeClientImage(QString path);
 
 
+    void on_actionhistory_triggered();
+
 private:
     Ui::MainWindow *ui;
     Socket *socket;
@@ -102,6 +107,8 @@ signals:
     //void localStyleChange(QString initialID, QString finalID, QTextCharFormat);
     void setCurrFont(QFont currFont);
     void setCurrFontSize(int sizeFont);
+    void sendHist();
+    void sendAlignment(Qt::AlignmentFlag alignment, int cursorPosition);
 };
 
 #endif // MAINWINDOW_H
