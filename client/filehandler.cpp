@@ -177,43 +177,6 @@ void FileHandler::localStyleChange(QMap<QString, QTextCharFormat> letterFormatMa
     for(Letter *l : this->letters) {
         if(letterFormatMap.contains(l->getLetterID())) {
             // Look for the change
-//            qDebug() << l->getFormat().fontItalic();
-//            qDebug() << letterFormatMap.value(l->getLetterID()).fontItalic();
-            //TODO: check stringa
-            /*if(first) {
-                if(boldTriggered) {
-                    if(l->getFormat().fontWeight() == 50) {
-                        changedStyle.append("Bold");
-                        l->setStyleFromString("Bold", font);
-                    } else {
-                        changedStyle.append("NotBold");
-                        l->setStyleFromString("NotBold", font);
-                    }
-                } else if(italicTriggered) {
-                    if(!l->getFormat().fontItalic()) {
-                        changedStyle.append("Italic");
-                        l->setStyleFromString("Italic", font);
-                    } else {
-                        changedStyle.append("NotItalic");
-                        l->setStyleFromString("NotItalic", font);
-                    }
-                } else if(underlinedTriggered) {
-                    if(!l->getFormat().fontUnderline()) {
-                        changedStyle.append("Underlined");
-                        l->setStyleFromString("Underlined", font);
-                    } else {
-                        changedStyle.append("NotUnderlined");
-                        l->setStyleFromString("NotUnderlined", font);
-                    }
-                } else if(font.compare("none") != 0) {
-                    changedStyle.append("font");
-                    l->setStyleFromString("font", font);
-                }
-
-                first = false;
-                qDebug() << "Style: " << changedStyle;
-            }
-        }*/
             if(first)
                 fontString = letterFormatMap.take(l->getLetterID()).font().toString();
             l->setStyleFromString("", letterFormatMap.take(l->getLetterID()).font().toString());
@@ -228,6 +191,11 @@ void FileHandler::localCursorChange(int position) {
     this->cursor = position;
     /* Notify server */
     emit localCursorChangeNotify(position);
+}
+
+void FileHandler::localAlignChange(Qt::AlignmentFlag alignment, int cursorPosition) {   // aggiungere start e end
+    // TODO: memorizzare allineamento del paragrafo (dove prendo queste info?)
+    // emit localAlignChangeNotify(alignment, cursorPosition);
 }
 
 void FileHandler::remoteInsert(QJsonArray position, QChar newLetterValue, int externalIndex, int siteID, int siteCounter, QTextCharFormat format) {

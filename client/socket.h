@@ -86,6 +86,7 @@ private slots:
     int sendNewFile(QString filename);
     int sendChangeStyle(QString firstLetterID, QString lastLetterID, int fileID, QString changedStyle, QString font);
     int sendCursor(int position);
+    int sendAlignment(Qt::AlignmentFlag alignment, int cursorPosition); // riga?
 
 signals:
     /* Registrazione */
