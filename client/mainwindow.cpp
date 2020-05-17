@@ -52,6 +52,7 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
 
     setWindowTitle(nome);
     ui->label_2->setStyleSheet("background-color:lightgray; color:black");
+    ui->username->setStyleSheet("color:white");
     ui->label_2->setTextInteractionFlags(Qt::TextSelectableByMouse);
     //ui->label->setStyleSheet("background-color:lightgray");
 
@@ -744,14 +745,8 @@ void MainWindow::removeUserDisconnect(QString, int userID){
         ui->counter->hide();
     }
 
-    for(int i = 0; i< id_colore_cursore.size(); i++){
-        //se c'è lo sostituisco
-        if (id_colore_cursore.at(i).first.first == userID ){
-            id_colore_cursore.removeAt(i);
-        }
-    }
-    /*La lista completa degli Online Users la inizializzo nel OnlineUser Constructor*/
 
+    /*La lista completa degli Online Users la inizializzo nel OnlineUser Constructor*/
 }
 
 //TODO: inserire gestione bottoni
@@ -985,6 +980,9 @@ void MainWindow::on_cursor_triggered(QPair<int,int> idpos, QColor col)
     // controllo che nella mappa colorecursore non sia gia presente l'id
 
     disconnect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
+
+
+
     QTextCharFormat fmt;
     QTextCharFormat fmt2;
 
@@ -995,11 +993,19 @@ void MainWindow::on_cursor_triggered(QPair<int,int> idpos, QColor col)
     bool trovato = false;
     for(int i = 0; i< id_colore_cursore.size(); i++){
         //se c'è lo sostituisco
-        if (id_colore_cursore.at(i).first.first == idpos.first ){
-            id_colore_cursore.replace(i, qMakePair(qMakePair(idpos.first,col), idpos.second));
-            trovato = true;
-            break;
+        if (id_colore_cursore.at(i).first.first == idpos.first){
+            if(idpos.second >= 0){
+                id_colore_cursore.replace(i, qMakePair(qMakePair(idpos.first,col), idpos.second));
+                trovato = true;
+                break;
+            }
+            else{
+                id_colore_cursore.removeAt(i);
+                trovato = true;
+                break;
+            }
         }
+
     }
     //altrimenti lo aggiungo
     if (trovato == false)
