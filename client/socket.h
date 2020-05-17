@@ -59,12 +59,14 @@ private:
     void checkSignUp(QJsonObject);
     void sendIcon(QString path);
     void sendFileChunk(QByteArray chunk, QTcpSocket* socket, int remainingSize);
+    void getUsernames(QJsonObject);
 
 public slots:
     void sendSignUpRequest(QString username, QString password, QString pathImage);
     void sendLogin(QString username, QString password);
     void sendAccess(QString URI);
     void sendChange(QString psw, QString path);
+    void sendHistory();
 
 private slots:
     void closeConnection();
@@ -84,6 +86,7 @@ private slots:
     int sendNewFile(QString filename);
     int sendChangeStyle(QString firstLetterID, QString lastLetterID, int fileID, QString changedStyle, QString font);
     int sendCursor(int position);
+    int sendAlignment(Qt::AlignmentFlag alignment, int cursorPosition); // riga?
 
 signals:
     /* Registrazione */
@@ -103,6 +106,7 @@ signals:
     void UserConnect(QString username, QColor colorUser);
     void userCursor(QPair<int,int> userID_pos, QColor color);
     void UserDisconnect(QString username, int userID);
+    void HistorySuccess(QMap<int, QString> mapUsername);
 
     /*Signal connected to readyReady()*/
     void myReadyRead();
