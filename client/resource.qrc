@@ -35,6 +35,7 @@
         <file>icone/giust2.png</file>
         <file>icone/sinistra2.png</file>
         <file>icone/log2.png</file>
+        <file>icone/history.png</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>
