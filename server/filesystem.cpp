@@ -504,11 +504,13 @@ void FileSystem::storeNewUser(QString username, QString psw, QTcpSocket *socket)
         qDebug() << "Query not executed";
         // EMIT SEGNALE PROBLEMA SERVER FAILED TO RESPOND
         json.insert("success", false);
+        json.insert("msg", "SERVER_FAILURE");
     }
     if(count > 0){
         qDebug("Username already taken");
         // EMIT SEGNALE CAMBIA USERNAME
         json.insert("success", false);
+        json.insert("msg", "INVALID_USERNAME");
         sendJson(json, socket);
         return;
     }
@@ -531,6 +533,7 @@ void FileSystem::storeNewUser(QString username, QString psw, QTcpSocket *socket)
         qDebug() << "INSERT new user not executed!";
         // EMIT segnale server failed to respond
         json.insert("success", false);
+        json.insert("msg", "SERVER_FAILURE");
     }
     sendJson(json, socket);
 }
@@ -540,7 +543,7 @@ void FileSystem::saveFile(QByteArray q, QTcpSocket* sock){
     img = QImage::fromData(QByteArray::fromBase64(q),"png");
 
     QImageWriter writer("icon_"+QString::number(sock_id.at(sock))+".png");
-    sock_id.erase(sock);
+    //sock_id.erase(sock);
     writer.write(img);
     qDebug() <<writer.error();
 }
