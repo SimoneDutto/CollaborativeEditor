@@ -169,7 +169,7 @@ void FileHandler::localDelete(int firstExternalIndex, int lastExternalIndex) {
     }
 }
 
-void FileHandler::localStyleChange(QMap<QString, QTextCharFormat> letterFormatMap, QString startID, QString lastID, bool boldTriggered, bool italicTriggered, bool underlinedTriggered, QString font) {
+void FileHandler::localStyleChange(QMap<QString, QTextCharFormat> letterFormatMap, QString startID, QString lastID, bool boldTriggered, bool italicTriggered, bool underlinedTriggered) {
     QString changedStyle;
     QString fontString;
     bool first = true;
@@ -177,14 +177,12 @@ void FileHandler::localStyleChange(QMap<QString, QTextCharFormat> letterFormatMa
     for(Letter *l : this->letters) {
         if(letterFormatMap.contains(l->getLetterID())) {
             // Look for the change
-            if(first)
-                fontString = letterFormatMap.take(l->getLetterID()).font().toString();
+            fontString = letterFormatMap.take(l->getLetterID()).font().toString();
             l->setStyleFromString("", letterFormatMap.take(l->getLetterID()).font().toString());
+            /* Send change to server */
+            emit localStyleChangeNotify(l->getLetterID(), l->getLetterID(), this->fileid, changedStyle, fontString);
         }
     }
-
-    /* Send change to server */
-    emit localStyleChangeNotify(startID, lastID, this->fileid, changedStyle, fontString);
 }
 
 void FileHandler::localCursorChange(int position) {

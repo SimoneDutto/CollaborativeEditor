@@ -480,7 +480,6 @@ void Socket::notificationsHandler(QByteArray data){
         userColor.remove(username);
         userIDColor.remove(userID);
         userCursors.remove(userID);
-        // TODO inserire cursor position -1 per mainwindow
         emit userCursor(qMakePair(userID,-1), nullptr);
         emit UserDisconnect(username, userID);
     }
