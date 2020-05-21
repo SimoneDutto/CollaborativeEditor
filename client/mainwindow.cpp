@@ -171,8 +171,8 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
              this, SLOT(changeViewAfterStyle(QString, QString)));
     connect( socket, SIGNAL(readyStyleChange(QString, QString, QString, QString)),
              fHandler, SLOT(remoteStyleChange(QString, QString, QString, QString)));
-    /* connect( this, SIGNAL(sendAlignment(Qt::AlignmentFlag,int)),
-             fHandler, SLOT(localAlignChange(Qt::AlignmentFlag,int))); */
+    connect( this, SIGNAL(sendAlignment(Qt::AlignmentFlag,int)),
+             fHandler, SLOT(localAlignChange(Qt::AlignmentFlag,int)));
 
     /* CONNECT per cursore */
     connect( socket, SIGNAL(userCursor(QPair<int,int>,QColor)),
@@ -533,6 +533,7 @@ void MainWindow::on_actionBackgorund_Color_triggered()
         ui->textEdit->setTextBackgroundColor(color);
 }
 
+
 void MainWindow::on_textEdit_textChanged()
 {
     /*Testo cambiato con INSERT */
@@ -790,11 +791,6 @@ void MainWindow::on_textEdit_cursorPositionChanged() {
         auto currFont = ui->textEdit->currentCharFormat().font();
         emit setCurrFont(currFont);
         emit setCurrFontSize(currFont.pointSize()-1);
-
-        connect(ui->mainToolBar->widgetForAction(ui->mainToolBar->actions().at(9)), SIGNAL(currentFontChanged(QFont)),
-                this, SLOT(currentFontChanged(QFont)));
-        connect(ui->mainToolBar->widgetForAction(ui->mainToolBar->actions().at(10)), SIGNAL(currentIndexChanged(int)),
-                this, SLOT(fontSizeChanged(int)));
     }
 
 
@@ -827,6 +823,39 @@ void MainWindow::on_textEdit_cursorPositionChanged() {
         emit setCurrFont(currFont);
         emit setCurrFontSize(currFont.pointSize()-1);
     }
+
+    /* Controllo l'allineamento */
+    auto align = ui->textEdit->alignment();
+
+    if(align == Qt::AlignLeft){
+        ui->actionAlign_to_Left->setChecked(true);
+        ui->actionAlign_to_Right->setChecked(false);
+        ui->actionAlign_to_Center->setChecked(false);
+        ui->actionAlign_to_Justify->setChecked(false);
+    }
+    else if(align == Qt::AlignRight){
+        ui->actionAlign_to_Left->setChecked(false);
+        ui->actionAlign_to_Right->setChecked(true);
+        ui->actionAlign_to_Center->setChecked(false);
+        ui->actionAlign_to_Justify->setChecked(false);
+    }
+    else if(align == Qt::AlignCenter){
+        ui->actionAlign_to_Left->setChecked(false);
+        ui->actionAlign_to_Right->setChecked(false);
+        ui->actionAlign_to_Center->setChecked(true);
+        ui->actionAlign_to_Justify->setChecked(false);
+    }
+    else if(align == Qt::AlignJustify){
+        ui->actionAlign_to_Left->setChecked(false);
+        ui->actionAlign_to_Right->setChecked(false);
+        ui->actionAlign_to_Center->setChecked(false);
+        ui->actionAlign_to_Justify->setChecked(true);
+    }
+
+    connect(ui->mainToolBar->widgetForAction(ui->mainToolBar->actions().at(9)), SIGNAL(currentFontChanged(QFont)),
+            this, SLOT(currentFontChanged(QFont)));
+    connect(ui->mainToolBar->widgetForAction(ui->mainToolBar->actions().at(10)), SIGNAL(currentIndexChanged(int)),
+            this, SLOT(fontSizeChanged(int)));
 
 }
 
@@ -899,15 +928,27 @@ void MainWindow::on_write_uri(QString uri){
 
 void MainWindow::on_actionAlign_to_Left_triggered()
 {
+    if(ui->textEdit->toPlainText().length() < 1){
+        ui->actionAlign_to_Left->setChecked(true);
+        ui->actionAlign_to_Right->setChecked(false);
+        ui->actionAlign_to_Center->setChecked(false);
+        ui->actionAlign_to_Justify->setChecked(false);
+        return;
+    }
+
     disconnect(this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
               fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
     disconnect(this, SIGNAL(myDelete(int,int)),
               fHandler, SLOT(localDelete(int,int)));
 
     ui->textEdit->setAlignment(Qt::AlignLeft);
-    qDebug() << "alignment:" << ui->textEdit->alignment();
+    ui->actionAlign_to_Left->setChecked(true);
+    ui->actionAlign_to_Right->setChecked(false);
+    ui->actionAlign_to_Center->setChecked(false);
+    ui->actionAlign_to_Justify->setChecked(false);
+
     QTextCursor cursor = ui->textEdit->textCursor();
-    // emit sendAlignment(Qt::AlignLeft, cursor.position());
+    emit sendAlignment(Qt::AlignLeft, cursor.position());
 
     connect(this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
               fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
@@ -917,15 +958,27 @@ void MainWindow::on_actionAlign_to_Left_triggered()
 
 void MainWindow::on_actionAlign_to_Right_triggered()
 {
+    if(ui->textEdit->toPlainText().length() < 1){
+        ui->actionAlign_to_Left->setChecked(true);
+        ui->actionAlign_to_Right->setChecked(false);
+        ui->actionAlign_to_Center->setChecked(false);
+        ui->actionAlign_to_Justify->setChecked(false);
+        return;
+    }
+
     disconnect(this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
               fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
     disconnect(this, SIGNAL(myDelete(int,int)),
               fHandler, SLOT(localDelete(int,int)));
 
     ui->textEdit->setAlignment(Qt::AlignRight);
-    qDebug() << "alignment:" << ui->textEdit->alignment();
+    ui->actionAlign_to_Left->setChecked(false);
+    ui->actionAlign_to_Right->setChecked(true);
+    ui->actionAlign_to_Center->setChecked(false);
+    ui->actionAlign_to_Justify->setChecked(false);
+
     QTextCursor cursor = ui->textEdit->textCursor();
-    // emit sendAlignment(Qt::AlignRight, cursor.position());
+    emit sendAlignment(Qt::AlignRight, cursor.position());
 
     connect(this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
               fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
@@ -935,15 +988,27 @@ void MainWindow::on_actionAlign_to_Right_triggered()
 
 void MainWindow::on_actionAlign_to_Center_triggered()
 {
+    if(ui->textEdit->toPlainText().length() < 1){
+        ui->actionAlign_to_Left->setChecked(true);
+        ui->actionAlign_to_Right->setChecked(false);
+        ui->actionAlign_to_Center->setChecked(false);
+        ui->actionAlign_to_Justify->setChecked(false);
+        return;
+    }
+
     disconnect(this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
               fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
     disconnect(this, SIGNAL(myDelete(int,int)),
               fHandler, SLOT(localDelete(int,int)));
 
     ui->textEdit->setAlignment(Qt::AlignCenter);
-    qDebug() << "alignment:" << ui->textEdit->alignment();
+    ui->actionAlign_to_Left->setChecked(false);
+    ui->actionAlign_to_Right->setChecked(false);
+    ui->actionAlign_to_Center->setChecked(true);
+    ui->actionAlign_to_Justify->setChecked(false);
+
     QTextCursor cursor = ui->textEdit->textCursor();
-    // emit sendAlignment(Qt::AlignCenter, cursor.position());
+    emit sendAlignment(Qt::AlignCenter, cursor.position());
 
     connect(this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
               fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
@@ -953,15 +1018,27 @@ void MainWindow::on_actionAlign_to_Center_triggered()
 
 void MainWindow::on_actionAlign_to_Justify_triggered()
 {
+    if(ui->textEdit->toPlainText().length() < 1){
+        ui->actionAlign_to_Left->setChecked(true);
+        ui->actionAlign_to_Right->setChecked(false);
+        ui->actionAlign_to_Center->setChecked(false);
+        ui->actionAlign_to_Justify->setChecked(false);
+        return;
+    }
+
     disconnect(this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
               fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
     disconnect(this, SIGNAL(myDelete(int,int)),
               fHandler, SLOT(localDelete(int,int)));
 
     ui->textEdit->setAlignment(Qt::AlignJustify);
-    qDebug() << "alignment:" << ui->textEdit->alignment();
+    ui->actionAlign_to_Left->setChecked(false);
+    ui->actionAlign_to_Right->setChecked(false);
+    ui->actionAlign_to_Center->setChecked(false);
+    ui->actionAlign_to_Justify->setChecked(true);
+
     QTextCursor cursor = ui->textEdit->textCursor();
-    // emit sendAlignment(Qt::AlignJustify, cursor.position());
+    emit sendAlignment(Qt::AlignJustify, cursor.position());
 
     connect(this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
               fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
@@ -1159,4 +1236,10 @@ void MainWindow::on_actionhistory_triggered()
 void MainWindow::uploadHistory(QMap<int, QString> mapIdUsername){
     usersLettersWindow* history = new usersLettersWindow(mapIdUsername, fHandler->getVectorFile(), this);
     history->show();
+}
+
+void MainWindow::changeAlignment(Qt::AlignmentFlag alignment, int cursorPosition){
+    auto cursor = ui->textEdit->textCursor();
+    cursor.setPosition(cursorPosition);
+    ui->textEdit->setAlignment(alignment);
 }

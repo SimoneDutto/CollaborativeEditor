@@ -52,6 +52,7 @@ private slots:
     void currentFontChanged(QFont font);
     void fontSizeChanged(int size);
     void uploadHistory(QMap<int, QString> mapUsers);
+    void changeAlignment(Qt::AlignmentFlag alignment, int cursorPosition);
 
 
     void on_textEdit_cursorPositionChanged();
