@@ -408,7 +408,7 @@ p, li { white-space: pre-wrap; }
     <addaction name="actionUnderlined"/>
     <addaction name="separator"/>
     <addaction name="actionColor"/>
-    <addaction name="actionBackgorund_Color"/>
+    <addaction name="actionBackground_Color"/>
     <addaction name="separator"/>
     <addaction name="menuAlignment"/>
    </widget>
@@ -419,10 +419,18 @@ p, li { white-space: pre-wrap; }
     <addaction name="actionEdit_Profile"/>
     <addaction name="actionLog_Out"/>
    </widget>
+   <widget class="QMenu" name="menuTheme">
+    <property name="title">
+     <string>Theme</string>
+    </property>
+    <addaction name="actionLight"/>
+    <addaction name="actionDark"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
    <addaction name="menuFormat"/>
    <addaction name="menuAccount"/>
+   <addaction name="menuTheme"/>
    <addaction name="menuAbout"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
@@ -438,6 +446,9 @@ p, li { white-space: pre-wrap; }
    <addaction name="actionItalic"/>
    <addaction name="actionUnderlined"/>
    <addaction name="actionBold"/>
+   <addaction name="separator"/>
+   <addaction name="actionColor"/>
+   <addaction name="actionBackground_Color"/>
    <addaction name="separator"/>
    <addaction name="actionAlign_to_Left"/>
    <addaction name="actionAlign_to_Right"/>
@@ -571,7 +582,7 @@ p, li { white-space: pre-wrap; }
   <action name="actionColor">
    <property name="icon">
     <iconset resource="resource.qrc">
-     <normaloff>:/rec/icone/color.png</normaloff>:/rec/icone/color.png</iconset>
+     <normaloff>:/rec/icone/colore.png</normaloff>:/rec/icone/colore.png</iconset>
    </property>
    <property name="text">
     <string>Color</string>
@@ -668,6 +679,33 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="text">
     <string>history</string>
+   </property>
+  </action>
+  <action name="actionBackground_Color">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/rec/icone/sfondo.png</normaloff>:/rec/icone/sfondo.png</iconset>
+   </property>
+   <property name="text">
+    <string>Background Color</string>
+   </property>
+  </action>
+  <action name="actionLight">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/rec/icone/sole.png</normaloff>:/rec/icone/sole.png</iconset>
+   </property>
+   <property name="text">
+    <string>Light</string>
+   </property>
+  </action>
+  <action name="actionDark">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/rec/icone/luna.png</normaloff>:/rec/icone/luna.png</iconset>
+   </property>
+   <property name="text">
+    <string>Dark</string>
    </property>
   </action>
  </widget>

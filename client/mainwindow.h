@@ -40,7 +40,7 @@ private slots:
     void on_actionUnderlined_triggered();
     void on_actionFont_triggered();
     void on_actionColor_triggered();
-    void on_actionBackgorund_Color_triggered();
+    void on_actionBackground_Color_triggered();
     void on_textEdit_textChanged();
     void on_lineEdit_editingFinished();
     void fileIsHere(QMap<int,int>, QMap<int,QColor>);
@@ -84,6 +84,12 @@ private slots:
 
     void on_actionhistory_triggered();
 
+    void on_actionLight_triggered();
+
+    void on_actionDark_triggered();
+    void changeViewAfterColor(int start, int end, QColor c);
+
+
 private:
     Ui::MainWindow *ui;
     Socket *socket;
@@ -93,6 +99,7 @@ private:
     Account *account;
     int letterCounter = 0;
     QList<QPair<QPair<int,QColor>,int>> id_colore_cursore;
+    QPalette pal = palette();
 
 
 signals:

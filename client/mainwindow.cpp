@@ -29,7 +29,6 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
     fHandler(fileHand)
 {
     ui->setupUi(this);
-    QPalette pal = palette();
 
     // set black background
     pal.setColor(QPalette::Background, QColor(58,58,60));
@@ -521,16 +520,77 @@ void MainWindow::on_actionFont_triggered()
 
 void MainWindow::on_actionColor_triggered()
 {
-    QColor color = QColorDialog::getColor(Qt::white,this,"Choose a color");
-    if(color.isValid())
-        ui->textEdit->setTextColor(color);
-}
+    auto cursor = ui->textEdit->textCursor();
+    qDebug() << "Selection start: " << cursor.selectionStart() << " end: " << cursor.selectionEnd();
 
-void MainWindow::on_actionBackgorund_Color_triggered()
+        disconnect(this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
+                  fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
+        disconnect(this, SIGNAL(myDelete(int,int)),
+                  fHandler, SLOT(localDelete(int,int)));
+
+        QColor color = QColorDialog::getColor(Qt::white,this,"Choose a color");
+        if(color.isValid())
+            ui->textEdit->setTextColor(color);
+
+        /* Aggiorno il modello */
+        auto vettore = this->fHandler->getVectorFile();
+        int i=0;
+
+        int start = cursor.selectionStart();
+        int end = cursor.selectionEnd()-1;
+
+        QString startID = vettore.at(start)->getLetterID();
+        QString lastID = vettore.at(end)->getLetterID();
+
+        for(i=start; i<=end; i++){
+            cursor.setPosition(i+1);
+            vettore.at(i)->setColor(color);
+        }
+
+        //emit colorChanged(startID, lastID, color);
+
+        connect( this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
+                  fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
+        connect( this, SIGNAL(myDelete(int,int)),
+                  fHandler, SLOT(localDelete(int,int)));
+    }
+
+
+void MainWindow::on_actionBackground_Color_triggered()
 {
+    auto cursor = ui->textEdit->textCursor();
+    qDebug() << "Selection start: " << cursor.selectionStart() << " end: " << cursor.selectionEnd();
+
+        disconnect(this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
+                  fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
+        disconnect(this, SIGNAL(myDelete(int,int)),
+                  fHandler, SLOT(localDelete(int,int)));
+
     QColor color = QColorDialog::getColor(Qt::white,this,"Choose a color");
     if(color.isValid())
         ui->textEdit->setTextBackgroundColor(color);
+
+    /* Aggiorno il modello */
+    auto vettore = this->fHandler->getVectorFile();
+    int i=0;
+
+    int start = cursor.selectionStart();
+    int end = cursor.selectionEnd()-1;
+
+    QString startID = vettore.at(start)->getLetterID();
+    QString lastID = vettore.at(end)->getLetterID();
+
+    for(i=start; i<=end; i++){
+        cursor.setPosition(i+1);
+        vettore.at(i)->setBack(color);
+    }
+
+    //emit backgroundColorChanged(formatCharMap, startID, lastID, color);
+
+    connect( this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
+              fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
+    connect( this, SIGNAL(myDelete(int,int)),
+              fHandler, SLOT(localDelete(int,int)));
 }
 
 void MainWindow::on_textEdit_textChanged()
@@ -987,6 +1047,7 @@ void MainWindow::on_cursor_triggered(QPair<int,int> idpos, QColor col)
     QTextCharFormat fmt2;
 
     fmt2.setBackground(QColor(245,245,245));
+
     QTextCursor cursor = ui->textEdit->textCursor();
 
     // controllo che nella mappa colore-cursore non sia gia presente il colore
@@ -1159,4 +1220,45 @@ void MainWindow::on_actionhistory_triggered()
 void MainWindow::uploadHistory(QMap<int, QString> mapIdUsername){
     usersLettersWindow* history = new usersLettersWindow(mapIdUsername, fHandler->getVectorFile(), this);
     history->show();
+}
+
+void MainWindow::on_actionLight_triggered()
+{
+    pal.setColor(QPalette::Background, Qt::white);
+    pal.setColor(QPalette::WindowText, Qt::black);
+    pal.setColor(QPalette::ButtonText, Qt::black);
+    ui->username->setStyleSheet("color:black");
+    this->setAutoFillBackground(true);
+    this->setPalette(pal);
+    this->show();
+}
+
+void MainWindow::changeViewAfterColor(int start, int end, QColor colore){
+
+    disconnect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
+
+    QTextCharFormat fmt;
+    QTextCursor cursor = ui->textEdit->textCursor();
+
+    fmt.setForeground(colore);
+    int dif = end-start;
+    cursor.setPosition(end);
+    for(int i = 0; i< dif; i++){
+    cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
+     qDebug() << "testo left: " << cursor.selectedText();
+    cursor.mergeCharFormat(fmt);
+    }
+    connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
+}
+
+
+void MainWindow::on_actionDark_triggered()
+{
+    pal.setColor(QPalette::Background, QColor(58,58,60));
+    pal.setColor(QPalette::WindowText, Qt::white);
+    pal.setColor(QPalette::ButtonText, Qt::white);
+    ui->username->setStyleSheet("color:white");
+    this->setAutoFillBackground(true);
+    this->setPalette(pal);
+    this->show();
 }

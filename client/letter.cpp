@@ -179,3 +179,21 @@ QTextCharFormat Letter::getFormat(){
     qDebug() <<"Letter format:"  << this->format.font().toString() << " " << this->format.fontItalic();
     return this->format;
 }
+
+void Letter::setColor(QColor c)
+{
+    this->format.setForeground(c);
+}
+
+void Letter::setBack(QColor c){
+    this->format.setBackground(c);
+}
+
+QBrush Letter::getColor()
+{
+    return this->format.foreground();
+}
+
+QBrush Letter::getBack(){
+    return this->format.background();
+}
