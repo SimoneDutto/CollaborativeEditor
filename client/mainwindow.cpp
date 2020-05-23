@@ -20,6 +20,7 @@
 #include <QFontComboBox>
 #include <algorithm>
 #include <QFontDatabase>
+#include <QTextBlock>
 
 
 MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QString nome) :
@@ -133,8 +134,8 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
              sizeComboBox, SLOT(setCurrentIndex(int)));
 
     /* CONNECT per segnali uscenti, inoltrare le modifiche fatte */
-    connect( this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
-              fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
+    connect( this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat, Qt::AlignmentFlag)),
+              fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat, Qt::AlignmentFlag)));
     connect( this, SIGNAL(myDelete(int,int)),
               fHandler, SLOT(localDelete(int,int)));
     connect( this, SIGNAL(sendNameFile(QString)),
@@ -145,13 +146,13 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
 
     /* CONNECT per segnali entranti, applicare sulla GUI le modifiche che arrivano sul socket */
 
-    connect( socket, SIGNAL(readyInsert(QJsonArray, QChar, int, int, int, QTextCharFormat)),
-              fHandler,  SLOT(remoteInsert(QJsonArray, QChar, int, int, int, QTextCharFormat)));
+    connect( socket, SIGNAL(readyInsert(QJsonArray, QChar, int, int, int, QTextCharFormat, Qt::AlignmentFlag)),
+              fHandler,  SLOT(remoteInsert(QJsonArray, QChar, int, int, int, QTextCharFormat, Qt::AlignmentFlag)));
     connect( socket, SIGNAL(readyDelete(QString)),
               fHandler, SLOT(remoteDelete(QString)));
     connect( socket, SIGNAL(readyFile(QMap<int,int>,QMap<int,QColor>)),  this, SLOT(fileIsHere(QMap<int,int>,QMap<int,QColor>)));
-    connect( fHandler, SIGNAL(readyRemoteInsert(QChar, int, QTextCharFormat)),
-             this, SLOT(changeViewAfterInsert(QChar, int, QTextCharFormat)));
+    connect( fHandler, SIGNAL(readyRemoteInsert(QChar, int, QTextCharFormat, Qt::AlignmentFlag)),
+             this, SLOT(changeViewAfterInsert(QChar, int, QTextCharFormat, Qt::AlignmentFlag)));
     connect( fHandler, SIGNAL(readyRemoteDelete(int)),
              this, SLOT(changeViewAfterDelete(int)));
     connect( socket, SIGNAL(UserConnect(QString, QColor)),
@@ -164,14 +165,19 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
              this, SLOT(uploadHistory(QMap<int, QString>)));
 
     /* CONNECT per lo stile dei caratteri */
-    connect( this, SIGNAL(styleChange(QMap<QString, QTextCharFormat>, QString, QString, bool, bool, bool, QString)),
-              fHandler, SLOT(localStyleChange(QMap<QString, QTextCharFormat>, QString, QString, bool, bool, bool, QString)) );
+    connect( this, SIGNAL(styleChange(QMap<QString, QTextCharFormat>)),
+              fHandler, SLOT(localStyleChange(QMap<QString, QTextCharFormat>)) );
     connect( fHandler, SIGNAL(readyRemoteStyleChange(QString, QString)),
              this, SLOT(changeViewAfterStyle(QString, QString)));
     connect( socket, SIGNAL(readyStyleChange(QString, QString, QString, QString)),
              fHandler, SLOT(remoteStyleChange(QString, QString, QString, QString)));
-    /* connect( this, SIGNAL(sendAlignment(Qt::AlignmentFlag,int)),
-             fHandler, SLOT(localAlignChange(Qt::AlignmentFlag,int))); */
+
+    connect( this, SIGNAL(sendAlignment(Qt::AlignmentFlag,int,QString,QString)),
+             fHandler, SLOT(localAlignChange(Qt::AlignmentFlag,int,QString,QString)));
+    connect( socket, SIGNAL(readyAlignChange(Qt::AlignmentFlag,int,QString,QString)),
+             fHandler, SLOT(remoteAlignChange(Qt::AlignmentFlag,int,QString,QString)));
+    connect( fHandler, SIGNAL(readyRemoteAlignChange(Qt::AlignmentFlag,int)),
+             this, SLOT(changeAlignment(Qt::AlignmentFlag,int))); 
 
     /* CONNECT per cursore */
     connect( socket, SIGNAL(userCursor(QPair<int,int>,QColor)),
@@ -292,7 +298,7 @@ void MainWindow::on_actionUndo_triggered()
 void MainWindow::on_actionAbout_us_triggered()
 {
     QString about_text;
-      about_text  = "Authors: Isabella Romita, Debora Caldarola, Vito Tassielli, Simone Dutto\n";
+      about_text  = "Authors: Debora Caldarola, Simone Dutto, Isabella Romita, Vito Tassielli\n";
       about_text += "Date: 11/09/2019\n";
       about_text += "(C) Notepad  (R)\n";
 
@@ -311,7 +317,7 @@ void MainWindow::on_actionBold_triggered()
     auto cursor = ui->textEdit->textCursor();
     qDebug() << "Selection start: " << cursor.selectionStart() << " end: " << cursor.selectionEnd();
 
-    /*CASO1: Non sto selezionando niente, attivo/disattivo il grassetto*/
+    /* CASO1: Non sto selezionando niente, attivo/disattivo il grassetto */
     if(cursor.selectionStart() - cursor.selectionEnd() == 0){
         if(ui->textEdit->fontWeight()!=75)
             ui->textEdit->setFontWeight(75);
@@ -319,10 +325,10 @@ void MainWindow::on_actionBold_triggered()
             ui->textEdit->setFontWeight(50);
     }
 
-    /*CASO2: Cambio il grassetto di una selezione*/
+    /* CASO2: Cambio il grassetto di una selezione */
     else{
-        disconnect(this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
-                  fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
+        disconnect(this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat, Qt::AlignmentFlag)),
+                  fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat, Qt::AlignmentFlag)));
         disconnect(this, SIGNAL(myDelete(int,int)),
                   fHandler, SLOT(localDelete(int,int)));
 
@@ -353,10 +359,10 @@ void MainWindow::on_actionBold_triggered()
             formatCharMap.insert(vettore.at(i)->getLetterID(), letterFormat);
         }
 
-        emit styleChange(formatCharMap, startID, lastID, true, false, false, "none");
+        emit styleChange(formatCharMap);
 
-        connect( this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
-                  fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
+        connect( this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat, Qt::AlignmentFlag)),
+                  fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat, Qt::AlignmentFlag)));
         connect( this, SIGNAL(myDelete(int,int)),
                   fHandler, SLOT(localDelete(int,int)));
     }
@@ -377,21 +383,18 @@ void MainWindow::on_actionItalic_triggered()
 
     /*CASO2: Cambio il corsivo di una selezione*/
     else{
-        disconnect(this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
-                  fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
+        disconnect(this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat, Qt::AlignmentFlag)),
+                  fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat, Qt::AlignmentFlag)));
         disconnect(this, SIGNAL(myDelete(int,int)),
                   fHandler, SLOT(localDelete(int,int)));
 
         qDebug() << "Seleziono un testo per corsivo";
         qDebug() << ui->textEdit->fontItalic();
-        //bool italic;
-        //if(cursor.charFormat().fontItalic()==false)
+
         if(ui->textEdit->fontItalic()==false)
             ui->textEdit->setFontItalic(true);
-            //italic = true;
         else
             ui->textEdit->setFontItalic(false);
-            //italic = false;
 
         /* Aggiorno il modello */
         QMap<QString, QTextCharFormat> formatCharMap;
@@ -407,21 +410,16 @@ void MainWindow::on_actionItalic_triggered()
         for(i=start; i<=end; i++){
             cursor.setPosition(i+1);
             auto letterFormat = cursor.charFormat();
-            /*if(italic)
-                letterFormat.setFontItalic(true);
-            else letterFormat.setFontItalic(false);
-            cursor.setCharFormat(letterFormat);*/
             qDebug() << letterFormat.fontWeight() << "---" << letterFormat.fontUnderline() << "---" << letterFormat.fontItalic();
-            //vettore.at(i)->setFormat(letterFormat);
             qDebug() << "LetterID = " << vettore.at(i)->getLetterID();
 
             formatCharMap.insert(vettore.at(i)->getLetterID(), letterFormat);
         }
 
-        emit styleChange(formatCharMap, startID, lastID, false, true, false, "none");
+        emit styleChange(formatCharMap);
 
-        connect( this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
-                  fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
+        connect( this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat, Qt::AlignmentFlag)),
+                  fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat, Qt::AlignmentFlag)));
         connect( this, SIGNAL(myDelete(int,int)),
                   fHandler, SLOT(localDelete(int,int)));
     }
@@ -442,8 +440,8 @@ void MainWindow::on_actionUnderlined_triggered()
 
     /*CASO2: Cambio il sottolineato di una selezione*/
     else{
-        disconnect(this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
-                  fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
+        disconnect(this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat, Qt::AlignmentFlag)),
+                  fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat, Qt::AlignmentFlag)));
         disconnect(this, SIGNAL(myDelete(int,int)),
                   fHandler, SLOT(localDelete(int,int)));
 
@@ -471,14 +469,13 @@ void MainWindow::on_actionUnderlined_triggered()
             cursor.setPosition(i+1);
             auto letterFormat = cursor.charFormat();
             qDebug() << letterFormat.fontWeight() << "---" << letterFormat.fontUnderline() << "---" << letterFormat.fontItalic();
-            //vettore.at(i)->setFormat(letterFormat);
             formatCharMap.insert(vettore.at(i)->getLetterID(), letterFormat);
         }
 
-        emit styleChange(formatCharMap, startID, lastID, false, false, true, "none");
+        emit styleChange(formatCharMap);
 
-        connect( this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
-                  fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
+        connect( this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat, Qt::AlignmentFlag)),
+                  fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat, Qt::AlignmentFlag)));
         connect( this, SIGNAL(myDelete(int,int)),
                   fHandler, SLOT(localDelete(int,int)));
     }
@@ -593,43 +590,28 @@ void MainWindow::on_actionBackground_Color_triggered()
               fHandler, SLOT(localDelete(int,int)));
 }
 
+
 void MainWindow::on_textEdit_textChanged()
 {
-    /*Testo cambiato con INSERT */
     QTextCursor cursor(ui->textEdit->textCursor());
     int externalIndex = cursor.position();
     int numberOfLetters = ui->textEdit->toPlainText().size();
-
-    //ui->statusBar->showMessage(QString::number(pos));
-    /*qDebug() << "External index = " << externalIndex;
-    qDebug() << "Letter cnt prev = " << letterCounter;
-    qDebug() << "Letter cnt post = " << numberOfLetters;*/
+    /*qDebug() << "External index = " << externalIndex;*/
 
     if(numberOfLetters >= letterCounter) {   // Compare actual number of letters in editor to the previous situation
-        QChar newLetterValue = ui->textEdit->toPlainText().at(externalIndex-1);
-        qDebug() << "!!!!!!!!!!!!!!!!!!!!!insert";
-        if (receivers(SIGNAL(myInsert(int,QChar,int,QTextCharFormat))) > 0) {
+        /* Testo cambiato con INSERT */
+        //qDebug() << "!!!!!!!!!!!!!!!!!!!!!insert";
+        if (receivers(SIGNAL(myInsert(int,QChar,int,QTextCharFormat,Qt::AlignmentFlag))) > 0) {
+            QChar newLetterValue = ui->textEdit->toPlainText().at(externalIndex-1);
             letterCounter++;
-            qDebug() << "char format" << cursor.charFormat().font();
-            emit myInsert(externalIndex, newLetterValue, socket->getClientID(), cursor.charFormat());
+            emit myInsert(externalIndex, newLetterValue, socket->getClientID(), cursor.charFormat(), this->getFlag(ui->textEdit->alignment()));
             emit sendCursorChange(externalIndex);
         }
     }
-    else if (numberOfLetters < letterCounter){  /*Testo cambiato con DELETE */
-        /*disconnect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
-        // undo last operation to retrieve deleted chars (necessary to handle simultaneous deleting)
-        ui->textEdit->undo();
-        qDebug() << ui->textEdit->toPlainText();
-        int undoSize = ui->textEdit->toPlainText().size();
-        ui->textEdit->redo();
-        int redoSize = ui->textEdit->toPlainText().size();
-        qDebug() << ui->textEdit->toPlainText();
-        connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));*/
-
+    else if (numberOfLetters < letterCounter){
+        /* Testo cambiato con DELETE */
         // lettere consecutive => basta trovare la differenza delle dimensioni
         int deletedLetters = letterCounter - numberOfLetters;
-
-        // check: selection start 0 crasha. Selezione/deselezione più volte
         if (receivers(SIGNAL(myDelete(int,int))) > 0) {
             qDebug() << "!!!!!!!!!!!!!!!!!!!!!delete";
             letterCounter -= deletedLetters;
@@ -639,6 +621,15 @@ void MainWindow::on_textEdit_textChanged()
 }
 
 
+Qt::AlignmentFlag MainWindow::getFlag(Qt::Alignment a) {
+    if(a.testFlag(Qt::AlignLeft))
+        return Qt::AlignLeft;
+    else if(a.testFlag(Qt::AlignRight))
+        return Qt::AlignRight;
+    else if(a.testFlag(Qt::AlignCenter))
+        return Qt::AlignCenter;
+    else return Qt::AlignJustify;
+}
 
 void MainWindow::on_lineEdit_editingFinished()
 {
@@ -655,29 +646,21 @@ void MainWindow::fileIsHere(QMap<int,int> id_pos, QMap<int,QColor> id_colore){
     cursor.setPosition(0);
     auto vettore = this->fHandler->getVectorFile();
 
+    Qt::AlignmentFlag alignment;
+    bool first = true;
+
     for(auto lettera : vettore){
         cursor.insertText(lettera->getValue(), lettera->getFormat());
+        alignment = lettera->getAlignment();
+        QTextBlockFormat blockFormat = cursor.blockFormat();
+        blockFormat.setAlignment(alignment);
+        cursor.mergeBlockFormat(blockFormat);
     }
+
     letterCounter = ui->textEdit->toPlainText().size();
     qDebug() << "letter cnt : = "<< letterCounter;
 
     /* cursore */
-
-    /*simulo le mappe che dovrebbero arrivarmi */
-
-//    QMap<int,int> id_pos;
-//    QMap<int, QColor> id_colore;
-
-//    id_pos.insert(1,6);
-//    id_pos.insert(5,3);
-//    id_pos.insert(3,12);
-
-//    id_colore.insert(1, Qt::white);
-//    id_colore.insert(5, Qt::red);
-//    id_colore.insert(3, Qt::blue);
-
-    /* la parte sopra andrà cancellata */
-
     // riempio la lista indicizzata
 
     for(int utente : id_pos.keys()){
@@ -689,13 +672,19 @@ void MainWindow::fileIsHere(QMap<int,int> id_pos, QMap<int,QColor> id_colore){
     connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
 }
 
-void MainWindow::changeViewAfterInsert(QChar l, int pos, QTextCharFormat format)
+void MainWindow::changeViewAfterInsert(QChar l, int pos, QTextCharFormat format, Qt::AlignmentFlag alignment)
 {
     disconnect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
 
     QTextCursor cursor(ui->textEdit->textCursor());
     cursor.setPosition(pos);
     cursor.insertText(l, format);
+    /*QTextBlockFormat blockFormat = cursor.blockFormat();
+    blockFormat.setAlignment(alignment);
+    cursor.mergeBlockFormat(blockFormat);
+    ui->textEdit->setTextCursor(cursor);*/
+    ui->textEdit->setAlignment(alignment);
+    qDebug() <<"here";
     letterCounter++;
 
     //CONTROLLO SE ARRIVA IL FORMATO GIUSTO
@@ -809,7 +798,7 @@ void MainWindow::removeUserDisconnect(QString, int userID){
     /*La lista completa degli Online Users la inizializzo nel OnlineUser Constructor*/
 }
 
-//TODO: inserire gestione bottoni
+//TODO: inserire gestione bottoni alignment
 void MainWindow::on_textEdit_cursorPositionChanged() {
     disconnect(ui->mainToolBar->widgetForAction(ui->mainToolBar->actions().at(9)), SIGNAL(currentFontChanged(QFont)),
                this, SLOT(currentFontChanged(QFont)));
@@ -850,11 +839,6 @@ void MainWindow::on_textEdit_cursorPositionChanged() {
         auto currFont = ui->textEdit->currentCharFormat().font();
         emit setCurrFont(currFont);
         emit setCurrFontSize(currFont.pointSize()-1);
-
-        connect(ui->mainToolBar->widgetForAction(ui->mainToolBar->actions().at(9)), SIGNAL(currentFontChanged(QFont)),
-                this, SLOT(currentFontChanged(QFont)));
-        connect(ui->mainToolBar->widgetForAction(ui->mainToolBar->actions().at(10)), SIGNAL(currentIndexChanged(int)),
-                this, SLOT(fontSizeChanged(int)));
     }
 
 
@@ -887,6 +871,39 @@ void MainWindow::on_textEdit_cursorPositionChanged() {
         emit setCurrFont(currFont);
         emit setCurrFontSize(currFont.pointSize()-1);
     }
+
+    /* Controllo l'allineamento */
+    auto align = ui->textEdit->alignment();
+
+    if(align == Qt::AlignLeft){
+        ui->actionAlign_to_Left->setChecked(true);
+        ui->actionAlign_to_Right->setChecked(false);
+        ui->actionAlign_to_Center->setChecked(false);
+        ui->actionAlign_to_Justify->setChecked(false);
+    }
+    else if(align == Qt::AlignRight){
+        ui->actionAlign_to_Left->setChecked(false);
+        ui->actionAlign_to_Right->setChecked(true);
+        ui->actionAlign_to_Center->setChecked(false);
+        ui->actionAlign_to_Justify->setChecked(false);
+    }
+    else if(align == Qt::AlignCenter){
+        ui->actionAlign_to_Left->setChecked(false);
+        ui->actionAlign_to_Right->setChecked(false);
+        ui->actionAlign_to_Center->setChecked(true);
+        ui->actionAlign_to_Justify->setChecked(false);
+    }
+    else if(align == Qt::AlignJustify){
+        ui->actionAlign_to_Left->setChecked(false);
+        ui->actionAlign_to_Right->setChecked(false);
+        ui->actionAlign_to_Center->setChecked(false);
+        ui->actionAlign_to_Justify->setChecked(true);
+    }
+
+    connect(ui->mainToolBar->widgetForAction(ui->mainToolBar->actions().at(9)), SIGNAL(currentFontChanged(QFont)),
+            this, SLOT(currentFontChanged(QFont)));
+    connect(ui->mainToolBar->widgetForAction(ui->mainToolBar->actions().at(10)), SIGNAL(currentIndexChanged(int)),
+            this, SLOT(fontSizeChanged(int)));
 
 }
 
@@ -959,72 +976,236 @@ void MainWindow::on_write_uri(QString uri){
 
 void MainWindow::on_actionAlign_to_Left_triggered()
 {
-    disconnect(this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
-              fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
+    if(ui->textEdit->toPlainText().length() < 1){
+        ui->actionAlign_to_Left->setChecked(true);
+        ui->actionAlign_to_Right->setChecked(false);
+        ui->actionAlign_to_Center->setChecked(false);
+        ui->actionAlign_to_Justify->setChecked(false);
+        return;
+    }
+
+    disconnect(this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat, Qt::AlignmentFlag)),
+              fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat, Qt::AlignmentFlag)));
     disconnect(this, SIGNAL(myDelete(int,int)),
               fHandler, SLOT(localDelete(int,int)));
 
     ui->textEdit->setAlignment(Qt::AlignLeft);
-    qDebug() << "alignment:" << ui->textEdit->alignment();
-    QTextCursor cursor = ui->textEdit->textCursor();
-    // emit sendAlignment(Qt::AlignLeft, cursor.position());
+    ui->actionAlign_to_Left->setChecked(true);
+    ui->actionAlign_to_Right->setChecked(false);
+    ui->actionAlign_to_Center->setChecked(false);
+    ui->actionAlign_to_Justify->setChecked(false);
 
-    connect(this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
-              fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
+    QTextCursor cursor = ui->textEdit->textCursor();
+    int endSelection = cursor.selectionEnd();
+
+    QVector<Letter*> file = this->fHandler->getVectorFile();
+    QTextBlock paragraph = cursor.block();
+    int startIndex, length, lastIndex;
+    QString startID, lastID;
+    bool continueLoop = true;
+
+    while(continueLoop) {
+        /* Get startID and lastID of current paragraph */
+        startIndex = paragraph.position();
+        length = paragraph.length();
+        lastIndex = startIndex + length - 1;
+        if(length == 1) { // paragrafo vuoto
+            startID = "-1";
+            lastID = "-1";
+        } else {
+            startID = file.at(startIndex)->getLetterID();
+            if(file.size() > lastIndex) // file vector includes \n of that paragraph
+                lastID = file.at(lastIndex)->getLetterID();
+            else if(file.size() == lastIndex)
+                lastID = file.at(lastIndex-1)->getLetterID();
+        }
+        emit sendAlignment(Qt::AlignLeft, startIndex, startID, lastID);
+
+        if(paragraph.contains(endSelection))
+            continueLoop = false;
+        else paragraph = paragraph.next();
+    }
+
+    qDebug() << ui->textEdit->alignment() << Qt::AlignLeft;
+    connect(this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat, Qt::AlignmentFlag)),
+              fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat, Qt::AlignmentFlag)));
     connect(this, SIGNAL(myDelete(int,int)),
               fHandler, SLOT(localDelete(int,int)));
 }
 
 void MainWindow::on_actionAlign_to_Right_triggered()
 {
-    disconnect(this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
-              fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
+    if(ui->textEdit->toPlainText().length() < 1){
+        ui->actionAlign_to_Left->setChecked(true);
+        ui->actionAlign_to_Right->setChecked(false);
+        ui->actionAlign_to_Center->setChecked(false);
+        ui->actionAlign_to_Justify->setChecked(false);
+        return;
+    }
+
+    disconnect(this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat, Qt::AlignmentFlag)),
+              fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat, Qt::AlignmentFlag)));
     disconnect(this, SIGNAL(myDelete(int,int)),
               fHandler, SLOT(localDelete(int,int)));
 
     ui->textEdit->setAlignment(Qt::AlignRight);
-    qDebug() << "alignment:" << ui->textEdit->alignment();
-    QTextCursor cursor = ui->textEdit->textCursor();
-    // emit sendAlignment(Qt::AlignRight, cursor.position());
+    ui->actionAlign_to_Left->setChecked(false);
+    ui->actionAlign_to_Right->setChecked(true);
+    ui->actionAlign_to_Center->setChecked(false);
+    ui->actionAlign_to_Justify->setChecked(false);
 
-    connect(this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
-              fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
+    QTextCursor cursor = ui->textEdit->textCursor();
+    int endSelection = cursor.selectionEnd();
+
+    QVector<Letter*> file = this->fHandler->getVectorFile();
+    QTextBlock paragraph = cursor.block();
+    int startIndex, length, lastIndex;
+    QString startID, lastID;
+    bool continueLoop = true;
+
+    while(continueLoop) {
+        /* Get startID and lastID of current paragraph */
+        startIndex = paragraph.position();
+        length = paragraph.length();
+        lastIndex = startIndex + length - 1;
+        if(length == 1) { // paragrafo vuoto
+            startID = "-1";
+            lastID = "-1";
+        } else {
+            startID = file.at(startIndex)->getLetterID();
+            if(file.size() > lastIndex) // file vector includes \n of that paragraph
+                lastID = file.at(lastIndex)->getLetterID();
+            else if(file.size() == lastIndex)
+                lastID = file.at(lastIndex-1)->getLetterID();
+        }
+        emit sendAlignment(Qt::AlignRight, startIndex, startID, lastID);
+
+        if(paragraph.contains(endSelection))
+            continueLoop = false;
+        else paragraph = paragraph.next();
+        qDebug() << continueLoop;
+    }
+
+    connect(this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat, Qt::AlignmentFlag)),
+              fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat, Qt::AlignmentFlag)));
     connect(this, SIGNAL(myDelete(int,int)),
               fHandler, SLOT(localDelete(int,int)));
 }
 
 void MainWindow::on_actionAlign_to_Center_triggered()
 {
-    disconnect(this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
-              fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
+    if(ui->textEdit->toPlainText().length() < 1){
+        ui->actionAlign_to_Left->setChecked(true);
+        ui->actionAlign_to_Right->setChecked(false);
+        ui->actionAlign_to_Center->setChecked(false);
+        ui->actionAlign_to_Justify->setChecked(false);
+        return;
+    }
+
+    disconnect(this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat, Qt::AlignmentFlag)),
+              fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat, Qt::AlignmentFlag)));
     disconnect(this, SIGNAL(myDelete(int,int)),
               fHandler, SLOT(localDelete(int,int)));
 
     ui->textEdit->setAlignment(Qt::AlignCenter);
-    qDebug() << "alignment:" << ui->textEdit->alignment();
-    QTextCursor cursor = ui->textEdit->textCursor();
-    // emit sendAlignment(Qt::AlignCenter, cursor.position());
+    ui->actionAlign_to_Left->setChecked(false);
+    ui->actionAlign_to_Right->setChecked(false);
+    ui->actionAlign_to_Center->setChecked(true);
+    ui->actionAlign_to_Justify->setChecked(false);
 
-    connect(this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
-              fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
+    QTextCursor cursor = ui->textEdit->textCursor();
+    int endSelection = cursor.selectionEnd();
+
+    QVector<Letter*> file = this->fHandler->getVectorFile();
+    QTextBlock paragraph = cursor.block();
+    int startIndex, length, lastIndex;
+    QString startID, lastID;
+    bool continueLoop = true;
+
+    while(continueLoop) {
+        /* Get startID and lastID of current paragraph */
+        startIndex = paragraph.position();
+        length = paragraph.length();
+        lastIndex = startIndex + length - 1;
+        if(length == 1) { // paragrafo vuoto
+            startID = "-1";
+            lastID = "-1";
+        } else {
+            startID = file.at(startIndex)->getLetterID();
+            if(file.size() > lastIndex) // file vector includes \n of that paragraph
+                lastID = file.at(lastIndex)->getLetterID();
+            else if(file.size() == lastIndex)
+                lastID = file.at(lastIndex-1)->getLetterID();
+        }
+        emit sendAlignment(Qt::AlignCenter, startIndex, startID, lastID);
+
+        if(paragraph.contains(endSelection))
+            continueLoop = false;
+        else paragraph = paragraph.next();
+        qDebug() << continueLoop;
+    }
+
+    connect(this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat, Qt::AlignmentFlag)),
+              fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat, Qt::AlignmentFlag)));
     connect(this, SIGNAL(myDelete(int,int)),
               fHandler, SLOT(localDelete(int,int)));
 }
 
 void MainWindow::on_actionAlign_to_Justify_triggered()
 {
-    disconnect(this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
-              fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
+    if(ui->textEdit->toPlainText().length() < 1){
+        ui->actionAlign_to_Left->setChecked(true);
+        ui->actionAlign_to_Right->setChecked(false);
+        ui->actionAlign_to_Center->setChecked(false);
+        ui->actionAlign_to_Justify->setChecked(false);
+        return;
+    }
+
+    disconnect(this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat, Qt::AlignmentFlag)),
+              fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat, Qt::AlignmentFlag)));
     disconnect(this, SIGNAL(myDelete(int,int)),
               fHandler, SLOT(localDelete(int,int)));
 
     ui->textEdit->setAlignment(Qt::AlignJustify);
-    qDebug() << "alignment:" << ui->textEdit->alignment();
-    QTextCursor cursor = ui->textEdit->textCursor();
-    // emit sendAlignment(Qt::AlignJustify, cursor.position());
+    ui->actionAlign_to_Left->setChecked(false);
+    ui->actionAlign_to_Right->setChecked(false);
+    ui->actionAlign_to_Center->setChecked(false);
+    ui->actionAlign_to_Justify->setChecked(true);
 
-    connect(this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
-              fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
+    QTextCursor cursor = ui->textEdit->textCursor();
+    int endSelection = cursor.selectionEnd();
+
+    QVector<Letter*> file = this->fHandler->getVectorFile();
+    QTextBlock paragraph = cursor.block();
+    int startIndex, length, lastIndex;
+    QString startID, lastID;
+    bool continueLoop = true;
+
+    while(continueLoop) {
+        /* Get startID and lastID of current paragraph */
+        startIndex = paragraph.position();
+        length = paragraph.length();
+        lastIndex = startIndex + length - 1;
+        if(length == 1) { // paragrafo vuoto
+            startID = "-1";
+            lastID = "-1";
+        } else {
+            startID = file.at(startIndex)->getLetterID();
+            if(file.size() > lastIndex) // file vector includes \n of that paragraph
+                lastID = file.at(lastIndex)->getLetterID();
+            else if(file.size() == lastIndex)
+                lastID = file.at(lastIndex-1)->getLetterID();
+        }
+        emit sendAlignment(Qt::AlignJustify, startIndex, startID, lastID);
+
+        if(paragraph.contains(endSelection))
+            continueLoop = false;
+        else paragraph = paragraph.next();
+        qDebug() << continueLoop;
+    }
+
+    connect(this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat, Qt::AlignmentFlag)),
+              fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat, Qt::AlignmentFlag)));
     connect(this, SIGNAL(myDelete(int,int)),
               fHandler, SLOT(localDelete(int,int)));
 }
@@ -1117,21 +1298,21 @@ void MainWindow::currentFontChanged(QFont font){
     /* CASO1: Non sto selezionando niente */
     if(cursor.selectionStart() - cursor.selectionEnd() == 0){
         auto currFont = ui->textEdit->currentCharFormat();
-        currFont.setFont(font);
-        ui->textEdit->setCurrentCharFormat(currFont);
+        currFont.setFont(font, QTextCharFormat::FontPropertiesSpecifiedOnly);
+        ui->textEdit->mergeCurrentCharFormat(currFont);
     }
 
     /*CASO2: Cambio il font di una selezione*/
     else{
-        disconnect(this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
-                  fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
+        disconnect(this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat, Qt::AlignmentFlag)),
+                  fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat, Qt::AlignmentFlag)));
         disconnect(this, SIGNAL(myDelete(int,int)),
                   fHandler, SLOT(localDelete(int,int)));
 
         QTextCharFormat currFont = ui->textEdit->currentCharFormat();
         qDebug() << "CHANGE" << font << currFont.font();
-        currFont.setFont(font);
-        ui->textEdit->setCurrentCharFormat(currFont);
+        currFont.setFont(font, QTextCharFormat::FontPropertiesSpecifiedOnly);
+        ui->textEdit->mergeCurrentCharFormat(currFont);
 
         /* Aggiorno il modello */
         QMap<QString, QTextCharFormat> formatCharMap;
@@ -1151,10 +1332,10 @@ void MainWindow::currentFontChanged(QFont font){
             formatCharMap.insert(vettore.at(i)->getLetterID(), letterFormat);
         }
 
-        emit styleChange(formatCharMap, startID, lastID, false, false, false, font.toString());
+        emit styleChange(formatCharMap);
 
-        connect( this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
-                  fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
+        connect( this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat, Qt::AlignmentFlag)),
+                  fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat, Qt::AlignmentFlag)));
         connect( this, SIGNAL(myDelete(int,int)),
                   fHandler, SLOT(localDelete(int,int)));
     }
@@ -1168,20 +1349,19 @@ void MainWindow::fontSizeChanged(int size){
     if(cursor.selectionStart() - cursor.selectionEnd() == 0){
         auto currFont = ui->textEdit->currentCharFormat();
         currFont.setFontPointSize(fontSize);
-        ui->textEdit->setCurrentCharFormat(currFont);
+        ui->textEdit->mergeCurrentCharFormat(currFont);
     }
 
     /*CASO2: Cambio il font di una selezione*/
     else{
-        disconnect(this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
-                  fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
+        disconnect(this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat, Qt::AlignmentFlag)),
+                  fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat, Qt::AlignmentFlag)));
         disconnect(this, SIGNAL(myDelete(int,int)),
                   fHandler, SLOT(localDelete(int,int)));
-        //disconnect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
 
         QTextCharFormat currFont = ui->textEdit->currentCharFormat();
         currFont.setFontPointSize(fontSize);
-        ui->textEdit->setCurrentCharFormat(currFont);
+        ui->textEdit->mergeCurrentCharFormat(currFont);
 
         /* Aggiorno il modello */
         QMap<QString, QTextCharFormat> formatCharMap;
@@ -1201,13 +1381,12 @@ void MainWindow::fontSizeChanged(int size){
             formatCharMap.insert(vettore.at(i)->getLetterID(), letterFormat);
         }
 
-        emit styleChange(formatCharMap, startID, lastID, false, false, false, currFont.font().toString());
+        emit styleChange(formatCharMap);
 
-        connect( this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
-                  fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
+        connect( this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat, Qt::AlignmentFlag)),
+                  fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat, Qt::AlignmentFlag)));
         connect( this, SIGNAL(myDelete(int,int)),
                   fHandler, SLOT(localDelete(int,int)));
-        //connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
     }
 }
 
@@ -1221,6 +1400,7 @@ void MainWindow::uploadHistory(QMap<int, QString> mapIdUsername){
     usersLettersWindow* history = new usersLettersWindow(mapIdUsername, fHandler->getVectorFile(), this);
     history->show();
 }
+
 
 void MainWindow::on_actionLight_triggered()
 {
@@ -1261,4 +1441,26 @@ void MainWindow::on_actionDark_triggered()
     this->setAutoFillBackground(true);
     this->setPalette(pal);
     this->show();
+}
+
+void MainWindow::changeAlignment(Qt::AlignmentFlag alignment, int cursorPosition){
+    disconnect(this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat, Qt::AlignmentFlag)),
+              fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat, Qt::AlignmentFlag)));
+    disconnect(this, SIGNAL(myDelete(int,int)),
+              fHandler, SLOT(localDelete(int,int)));
+
+    QTextCursor cursor = ui->textEdit->textCursor();
+    int prevPos = cursor.position();
+    cursor.setPosition(cursorPosition);
+    QTextBlockFormat blockFormat = cursor.blockFormat();
+    blockFormat.setAlignment(alignment);
+    cursor.mergeBlockFormat(blockFormat);
+    cursor.setPosition(prevPos);
+    ui->textEdit->setTextCursor(cursor);
+
+    connect(this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat, Qt::AlignmentFlag)),
+              fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat, Qt::AlignmentFlag)));
+    connect(this, SIGNAL(myDelete(int,int)),
+              fHandler, SLOT(localDelete(int,int)));
+
 }

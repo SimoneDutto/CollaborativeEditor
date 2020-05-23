@@ -77,7 +77,7 @@ QVector<int> FileHandler::calculateInternalIndex(QVector<int> prevPos, QVector<i
     return position;
 }
 
-void FileHandler::localInsert(int externalIndex, QChar newLetterValue, int clientID, QTextCharFormat format) {
+void FileHandler::localInsert(int externalIndex, QChar newLetterValue, int clientID, QTextCharFormat format, Qt::AlignmentFlag alignment) {
 
     int lastIndex = 0;
     qDebug() << "Calcolo l'indice della lettera inserita localmente...";
@@ -142,7 +142,7 @@ void FileHandler::localInsert(int externalIndex, QChar newLetterValue, int clien
         }
     }
 
-    Letter *newLetter = new Letter(newLetterValue, position, letterID, format);
+    Letter *newLetter = new Letter(newLetterValue, position, letterID, format, alignment);
 
     qDebug() << "Letter inserted in position:" << position << " (external index " << externalIndex <<")";
     this->letters.insert(this->letters.begin()+(externalIndex-1), newLetter);
@@ -151,7 +151,7 @@ void FileHandler::localInsert(int externalIndex, QChar newLetterValue, int clien
     QJsonArray positionJsonArray;
     std::copy (position.begin(), position.end(), std::back_inserter(positionJsonArray));
 
-    emit localInsertNotify(newLetterValue, positionJsonArray, clientID, siteCounter, externalIndex, format);
+    emit localInsertNotify(newLetterValue, positionJsonArray, clientID, siteCounter, externalIndex, format, alignment);
 }
 
 void FileHandler::localDelete(int firstExternalIndex, int lastExternalIndex) {
@@ -169,22 +169,19 @@ void FileHandler::localDelete(int firstExternalIndex, int lastExternalIndex) {
     }
 }
 
-void FileHandler::localStyleChange(QMap<QString, QTextCharFormat> letterFormatMap, QString startID, QString lastID, bool boldTriggered, bool italicTriggered, bool underlinedTriggered, QString font) {
+void FileHandler::localStyleChange(QMap<QString,QTextCharFormat> letterFormatMap) {
     QString changedStyle;
     QString fontString;
-    bool first = true;
     /* Edit letters style locally */
     for(Letter *l : this->letters) {
         if(letterFormatMap.contains(l->getLetterID())) {
             // Look for the change
-            if(first)
-                fontString = letterFormatMap.take(l->getLetterID()).font().toString();
+            fontString = letterFormatMap.take(l->getLetterID()).font().toString();
             l->setStyleFromString("", letterFormatMap.take(l->getLetterID()).font().toString());
+            /* Send change to server */
+            emit localStyleChangeNotify(l->getLetterID(), l->getLetterID(), this->fileid, changedStyle, fontString);
         }
     }
-
-    /* Send change to server */
-    emit localStyleChangeNotify(startID, lastID, this->fileid, changedStyle, fontString);
 }
 
 void FileHandler::localCursorChange(int position) {
@@ -193,12 +190,26 @@ void FileHandler::localCursorChange(int position) {
     emit localCursorChangeNotify(position);
 }
 
-void FileHandler::localAlignChange(Qt::AlignmentFlag alignment, int cursorPosition) {   // aggiungere start e end
-    // TODO: memorizzare allineamento del paragrafo (dove prendo queste info?)
-    // emit localAlignChangeNotify(alignment, cursorPosition);
+void FileHandler::localAlignChange(Qt::AlignmentFlag alignment, int cursorPosition, QString startID, QString lastID) {
+    bool intervalStarted = false;
+    /* Store alignment information for each letter locally */
+    if(startID.compare("-1")!=0 && lastID.compare("-1")!=0) {
+        for(Letter *l : this->letters) {
+            if(!intervalStarted && l->getLetterID().compare(startID)==0) {
+                intervalStarted = true;
+                l->setAlignment(alignment);
+            } else if(intervalStarted) {
+                l->setAlignment(alignment);
+                if(l->getLetterID().compare(lastID)==0)
+                    break;
+            }
+        }
+    }
+    /* Send change to server */
+    emit localAlignChangeNotify(alignment, cursorPosition, startID, lastID);
 }
 
-void FileHandler::remoteInsert(QJsonArray position, QChar newLetterValue, int externalIndex, int siteID, int siteCounter, QTextCharFormat format) {
+void FileHandler::remoteInsert(QJsonArray position, QChar newLetterValue, int externalIndex, int siteID, int siteCounter, QTextCharFormat format, Qt::AlignmentFlag alignment) {
 
     // Get index and fractionals vector
     QVector<int> fractionals;
@@ -213,11 +224,11 @@ void FileHandler::remoteInsert(QJsonArray position, QChar newLetterValue, int ex
 
         QString letterID = QString::number(siteID).append("-").append(QString::number(siteCounter));
 
-        this->letters.insert(this->letters.begin()+externalIndex-1, new Letter(newLetterValue, fractionals, letterID, format));
+        this->letters.insert(this->letters.begin()+externalIndex-1, new Letter(newLetterValue, fractionals, letterID, format, alignment));
     }
 
     /*Aggiornare la GUI*/
-    emit readyRemoteInsert(newLetterValue, externalIndex-1, format);
+    emit readyRemoteInsert(newLetterValue, externalIndex-1, format, alignment);
 }
 
 void FileHandler::remoteDelete(QString deletedLetterID) {
@@ -253,6 +264,26 @@ void FileHandler::remoteStyleChange(QString firstLetterID, QString lastLetterID,
 
     /* Aggiornare la GUI */
     emit readyRemoteStyleChange(firstLetterID, lastLetterID);
+}
+
+void FileHandler::remoteAlignChange(Qt::AlignmentFlag alignment, int cursorPosition, QString startID, QString lastID) {
+    bool intervalStarted = false;
+    /* Store alignment information for each letter locally */
+    if(startID.compare("-1")!=0 && lastID.compare("-1")!=0) {
+        for(Letter *l : this->letters) {
+            if(!intervalStarted && l->getLetterID().compare(startID)==0) {
+                intervalStarted = true;
+                l->setAlignment(alignment);
+            } else if(intervalStarted) {
+                l->setAlignment(alignment);
+                if(l->getLetterID().compare(lastID)==0)
+                    break;
+            }
+        }
+    }
+
+    /* Update GUI */
+    emit readyRemoteAlignChange(alignment, cursorPosition);
 }
 
 void FileHandler::setValues(QVector<Letter *> letters){

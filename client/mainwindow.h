@@ -44,7 +44,7 @@ private slots:
     void on_textEdit_textChanged();
     void on_lineEdit_editingFinished();
     void fileIsHere(QMap<int,int>, QMap<int,QColor>);
-    void changeViewAfterInsert(QChar l, int pos, QTextCharFormat format);
+    void changeViewAfterInsert(QChar l, int pos, QTextCharFormat format, Qt::AlignmentFlag);
     void changeViewAfterDelete(int externalIndex);
     void changeViewAfterStyle(QString firstLetterID, QString lastLetterID);
     void addUserConnection(QString username, QColor colorUser);
@@ -52,6 +52,7 @@ private slots:
     void currentFontChanged(QFont font);
     void fontSizeChanged(int size);
     void uploadHistory(QMap<int, QString> mapUsers);
+    void changeAlignment(Qt::AlignmentFlag alignment, int cursorPosition);
 
 
     void on_textEdit_cursorPositionChanged();
@@ -101,13 +102,15 @@ private:
     QList<QPair<QPair<int,QColor>,int>> id_colore_cursore;
     QPalette pal = palette();
 
+    Qt::AlignmentFlag getFlag(Qt::Alignment align);
+
 
 signals:
-    void myInsert(int externalIndex, QChar newLetterValue, int clientID, QTextCharFormat format);
+    void myInsert(int externalIndex, QChar newLetterValue, int clientID, QTextCharFormat format, Qt::AlignmentFlag alignment);
     void myDelete(int firstExternalIndex, int lastExternalIndex);
     void sendNameFile(QString fileNameTmp);
     void newFile(QString filename);
-    void styleChange(QMap<QString, QTextCharFormat>, QString startID, QString lastID, bool boldTriggered, bool italicTriggered, bool underlinedTriggered, QString font);
+    void styleChange(QMap<QString, QTextCharFormat> mapFormat);
     void exportAsPDF();
     void logOut();
     void sendCursorChange(int position);
@@ -115,7 +118,7 @@ signals:
     void setCurrFont(QFont currFont);
     void setCurrFontSize(int sizeFont);
     void sendHist();
-    void sendAlignment(Qt::AlignmentFlag alignment, int cursorPosition);
+    void sendAlignment(Qt::AlignmentFlag alignment, int cursorPosition, QString startID, QString lastID);
 };
 
 #endif // MAINWINDOW_H

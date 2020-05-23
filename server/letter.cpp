@@ -1,11 +1,12 @@
 #include "letter.h"
 #include <qdebug.h>
 
-Letter::Letter(QChar letter, QVector<int> fractionals, QString letterID, QTextCharFormat format) :
+Letter::Letter(QChar letter, QVector<int> fractionals, QString letterID, QTextCharFormat format, Qt::AlignmentFlag alignment) :
     letter(letter),
     fractionalIndexes(fractionals),
     letterID(letterID),
-    format(format) {}
+    format(format),
+    alignment(alignment) {}
 
 /*Letter::Letter(const Letter& other) {
     this->letter = other.letter;
@@ -63,22 +64,11 @@ void Letter::setStyleFromString(QString format, QString font) { // TODO togliere
     QFont f;
     f.fromString(font);
     this->format.setFont(f, QTextCharFormat::FontPropertiesSpecifiedOnly);
-    /*if(format.compare("Bold") == 0)
-        this->format.setFontWeight(75);
-    else if(format.compare("NotBold") == 0)
-        this->format.setFontWeight(50);
-    else if(format.compare("Italic") == 0)
-        this->format.setFontItalic(true);
-    else if(format.compare("NotItalic") == 0)
-        this->format.setFontItalic(false);
-    else if(format.compare("Underlined") == 0)
-        this->format.setFontUnderline(true);
-    else if(format.compare("Underlined") == 0)
-        this->format.setFontUnderline(false);
-    else if(format.compare("font")==0) {
+    // qDebug() << "font cambiato" << this->format.font();
+}
 
-    }*/
-    qDebug() << "font cambiato" << this->format.font();
+void Letter::setAlignment(Qt::AlignmentFlag align) {
+    this->alignment = align;
 }
 
 void Letter::addFractionalDigit(int value) {
@@ -123,10 +113,8 @@ QJsonObject Letter::toJSon(){
     QJsonObject obj;
     obj.insert("letter", QJsonValue(letter));
     obj.insert("letterID", QJsonValue(letterID));
-    obj.insert("isBold", QJsonValue(format.fontWeight()==75));
-    obj.insert("isItalic", QJsonValue(format.fontItalic()));
-    obj.insert("isUnderlined", QJsonValue(format.fontUnderline()));
     obj.insert("font", QJsonValue(format.font().toString()));
+    obj.insert("align", alignment);
     obj.insert("position", positionJsonArray);
 
     return obj;

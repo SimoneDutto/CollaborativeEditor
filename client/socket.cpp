@@ -290,6 +290,7 @@ void Socket::notificationsHandler(QByteArray data){
      * CHECKNAME
      * SIGNUP_RESPONSE
      * STYLE
+     * ALIGNMENT
      * USER_CONNECT
      * USER_DISCONNECT
      * CURSOR
@@ -362,21 +363,24 @@ void Socket::notificationsHandler(QByteArray data){
                 f.fromString(font);
                 format.setFont(f);
 
-                letters.append(std::move(new Letter(letter, fractionals, ID, format)));
+                int align = v.toObject().value("align").toInt();
+                Qt::AlignmentFlag alignFlag = static_cast<Qt::AlignmentFlag>(align);
+
+                letters.append(std::move(new Letter(letter, fractionals, ID, format, alignFlag)));
                 //qDebug() << "Lettera:" << letter;
             }
             json_buffer.clear();
-          
+
             /*Creo il FileHandler*/
-            connect( this->fileh, SIGNAL(localInsertNotify(QChar, QJsonArray, int, int, int, QTextCharFormat)),
-                     this, SLOT(sendInsert(QChar, QJsonArray, int, int, int, QTextCharFormat)) );
+            connect( this->fileh, SIGNAL(localInsertNotify(QChar, QJsonArray, int, int, int, QTextCharFormat, Qt::AlignmentFlag)),
+                     this, SLOT(sendInsert(QChar, QJsonArray, int, int, int, QTextCharFormat, Qt::AlignmentFlag)));
             connect( this->fileh, SIGNAL(localDeleteNotify(QString, int, int)), this, SLOT(sendDelete(QString, int, int)) );
             connect( this->fileh, SIGNAL(localStyleChangeNotify(QString, QString, int, QString, QString)),
                      this, SLOT(sendChangeStyle(QString, QString, int, QString, QString)));
             connect( this->fileh, SIGNAL(localCursorChangeNotify(int)),
                      this, SLOT(sendCursor(int)));
-            /* connect( this->fileh, SIGNAL(localAlignChangeNotify(Qt::AlignmentFlag,int)),
-                     this, SLOT(sendAlignment(Qt::AlignmentFlag,int)));*/
+            connect( this->fileh, SIGNAL(localAlignChangeNotify(Qt::AlignmentFlag,int,QString,QString)),
+                     this, SLOT(sendAlignment(Qt::AlignmentFlag,int,QString,QString)));
 
             /*Salvo il file come vettore di Letters nel fileHandler*/
             this->fileh->setValues(std::move(letters));
@@ -418,11 +422,14 @@ void Socket::notificationsHandler(QByteArray data){
         QFont f;
         f.fromString(font);
         format.setFont(f);
-        /*Inserire nel modello questa lettera e aggiornare la UI*/
-        emit readyInsert(position, newLetterValue, externalIndex, siteID, siteCounter, format);
-        
-    }
 
+        int align = object.value("align").toInt();
+        Qt::AlignmentFlag alignFlag = static_cast<Qt::AlignmentFlag>(align);
+
+
+        /*Inserire nel modello questa lettera e aggiornare la UI*/
+        emit readyInsert(position, newLetterValue, externalIndex, siteID, siteCounter, format, alignFlag);
+    }
     else if (type.compare("DELETE")==0) {
         QString deletedLetterID = object.value("letterID").toString();
         int siteCounter = object.value("siteCounter").toInt();
@@ -439,15 +446,15 @@ void Socket::notificationsHandler(QByteArray data){
             this->fileh->getVectorFile().clear();
 
             /*Creo il FileHandler*/
-            connect( this->fileh, SIGNAL(localInsertNotify(QChar, QJsonArray, int, int, int, QTextCharFormat)),
-                     this, SLOT(sendInsert(QChar, QJsonArray, int, int, int, QTextCharFormat)) );
+            connect( this->fileh, SIGNAL(localInsertNotify(QChar, QJsonArray, int, int, int, QTextCharFormat, Qt::AlignmentFlag)),
+                     this, SLOT(sendInsert(QChar, QJsonArray, int, int, int, QTextCharFormat, Qt::AlignmentFlag)) );
             connect( this->fileh, SIGNAL(localDeleteNotify(QString, int, int)), this, SLOT(sendDelete(QString, int, int)) );
             connect( this->fileh, SIGNAL(localStyleChangeNotify(QString, QString, int, QString, QString)),
                      this, SLOT(sendChangeStyle(QString, QString, int, QString, QString)));
             connect( this->fileh, SIGNAL(localCursorChangeNotify(int)),
                      this, SLOT(sendCursor(int)));
-            /* connect( this->fileh, SIGNAL(localAlignChangeNotify(Qt::AlignmentFlag,int)),
-                                 this, SLOT(sendAlignment(Qt::AlignmentFlag,int))); */
+            connect( this->fileh, SIGNAL(localAlignChangeNotify(Qt::AlignmentFlag,int,QString,QString)),
+                     this, SLOT(sendAlignment(Qt::AlignmentFlag,int,QString,QString)));
             qDebug() << "Il file è stato creato correttamente!";
         }
         else{
@@ -462,6 +469,17 @@ void Socket::notificationsHandler(QByteArray data){
         QString changedStyle = object.value("changedStyle").toString();
         QString font = object.value("font").toString();
         emit readyStyleChange(initialIndex, lastIndex, changedStyle, font);
+    }
+    else if(type.compare("ALIGNMENT")==0) {
+        /*
+         * 1: left, 2: right, 132: center, 8: justify
+        */
+        int align = object.value("align").toInt();
+        int cursor = object.value("cursor").toInt();
+        Qt::AlignmentFlag alignFlag = static_cast<Qt::AlignmentFlag>(align);
+        QString startID = object.value("startID").toString();
+        QString lastID = object.value("lastID").toString();
+        emit readyAlignChange(alignFlag, cursor, startID, lastID);
     }
     else if(type.compare("USER_CONNECT")==0){
         QString username = object.value("username").toString();
@@ -480,7 +498,6 @@ void Socket::notificationsHandler(QByteArray data){
         userColor.remove(username);
         userIDColor.remove(userID);
         userCursors.remove(userID);
-        // TODO inserire cursor position -1 per mainwindow
         emit userCursor(qMakePair(userID,-1), nullptr);
         emit UserDisconnect(username, userID);
     }
@@ -536,7 +553,7 @@ void Socket::notificationsHandler(QByteArray data){
 }
 
 
-int Socket::sendInsert(QChar newLetterValue, QJsonArray position, int siteID, int siteCounter, int externalIndex, QTextCharFormat format)
+int Socket::sendInsert(QChar newLetterValue, QJsonArray position, int siteID, int siteCounter, int externalIndex, QTextCharFormat format, Qt::AlignmentFlag align)
 {
     /*RICHIESTA*/
     QJsonObject obj;
@@ -544,10 +561,8 @@ int Socket::sendInsert(QChar newLetterValue, QJsonArray position, int siteID, in
     obj.insert("fileid", this->fileh->getFileId());
     obj.insert("letter", QJsonValue(newLetterValue));
     obj.insert("position", position);
-    obj.insert("isBold", QJsonValue(format.fontWeight()==75));
-    obj.insert("isItalic", QJsonValue(format.fontItalic()));
-    obj.insert("isUnderlined", QJsonValue(format.fontUnderline()));
     obj.insert("font", QJsonValue(format.font().toString()));
+    obj.insert("align", align);
     obj.insert("siteID", siteID);
     obj.insert("siteCounter", siteCounter);
     obj.insert("externalIndex", externalIndex);
@@ -695,12 +710,14 @@ int Socket::sendCursor(int position) {
     return socket->waitForBytesWritten(1000);
 }
 
-int Socket::sendAlignment(Qt::AlignmentFlag alignment, int cursorPosition) {
+int Socket::sendAlignment(Qt::AlignmentFlag alignment, int cursorPosition, QString startID, QString lastID) {
     QJsonObject obj;
     obj.insert("type", "ALIGNMENT");
     obj.insert("userID", clientID);
     obj.insert("align", alignment);
     obj.insert("cursor", cursorPosition);
+    obj.insert("startID", startID);
+    obj.insert("lastID", lastID);
     obj.insert("fileid", fileh->getFileId());
 
     if(socket->state() == QAbstractSocket::ConnectedState){
