@@ -340,29 +340,15 @@ void FileSystem::sendFile(int fileid, QTcpSocket *socket){
             }
             // GET FORMAT LETTER
             QTextCharFormat format;
-            /*bool isBold = v.toObject().value("isBold").toBool();
-            bool isItalic = v.toObject().value("isItalic").toBool();
-            bool isUnderlined = v.toObject().value("isUnderlined").toBool();
-            QString font = v.toObject().value("font").toString();
-
-            if(isBold)
-                format.setFontWeight(75);
-            else format.setFontWeight(50);
-            if(isItalic)
-                format.setFontItalic(true);
-            else format.setFontItalic(false);
-            if(isUnderlined)
-                format.setFontUnderline(true);
-            else format.setFontUnderline(false);
-
-            if(font != nullptr && font.compare("none") != 0)
-                format.setFont(font);*/
             QString font = v.toObject().value("font").toString();
             QFont f;
             f.fromString(font);
             format.setFont(f);
 
-            Letter *letter_tmp = new Letter(letter, fractionals, ID, format);
+            int align = object.value("align").toInt();
+            Qt::AlignmentFlag alignFlag = static_cast<Qt::AlignmentFlag>(align);
+
+            Letter *letter_tmp = new Letter(letter, fractionals, ID, format, alignFlag);
             letters.append(std::move(letter_tmp));
         }
         FileHandler *fh = new FileHandler(std::move(letters), fileid);
@@ -582,10 +568,8 @@ void FileSystem::sendInsert(QVector<QTcpSocket*> users, QByteArray message, bool
         obj.insert("filename", rootObject.value("filename").toString());
         obj.insert("letter", rootObject.value("letter").toString());
         obj.insert("position", rootObject.value("position").toArray());
-        obj.insert("isBold", rootObject.value("isBold").toBool());
-        obj.insert("isItalic", rootObject.value("isItalic").toBool());
-        obj.insert("isUnderlined", rootObject.value("isUnderlined").toBool());
         obj.insert("font", rootObject.value("font").toString());
+        obj.insert("align", rootObject.value("align").toInt());
         obj.insert("siteID", rootObject.value("siteID").toString());
         obj.insert("siteCounter", rootObject.value("siteCounter").toInt());
         obj.insert("externalIndex", newIndex);

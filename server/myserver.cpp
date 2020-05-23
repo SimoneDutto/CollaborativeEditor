@@ -100,6 +100,7 @@ void MyServer::handleNotifications(QTcpSocket *socket, QByteArray data)
      * LOGIN
      * SIGNUP
      * STYLE
+     * ALIGNMENT
      * CURSOR
      * ICON
      * HISTORY
@@ -136,33 +137,17 @@ void MyServer::handleNotifications(QTcpSocket *socket, QByteArray data)
             int siteCounter = rootObject.value("siteCounter").toInt();
             // Get letter format
             QTextCharFormat format;
-            /*bool isBold = rootObject.value("isBold").toBool();
-            bool isItalic = rootObject.value("isItalic").toBool();
-            bool isUnderlined = rootObject.value("isUnderlined").toBool();
-            QString font = rootObject.value("font").toString();
-            qDebug() << isBold << isItalic << isUnderlined << format.font();
-            format.setFont(QFont(font));
-            if(isBold)
-                format.setFontWeight(QFont::Bold);
-            else format.setFontWeight(50);
-            qDebug() << format.font();
-            if(isItalic)
-                format.setFontItalic(true);
-            else format.setFontItalic(false);
-            qDebug() << format.font();
-            if(isUnderlined)
-                format.setFontUnderline(true);
-            else format.setFontUnderline(false);
-            qDebug() << format.font();*/
 
             QString font = rootObject.value("font").toString();
             QFont f;
             f.fromString(font);
             format.setFont(f);
             qDebug() << format.font();
-            qDebug() << "Format: " << format.font().toString() << " stile = " << format.font().italic() << format.font().weight() << format.fontUnderline();
+//            qDebug() << "Format: " << format.font().toString() << " stile = " << format.font().italic() << format.font().weight() << format.fontUnderline();
+            int align = rootObject.value("align").toInt();
+            Qt::AlignmentFlag alignFlag = static_cast<Qt::AlignmentFlag>(align);
 
-            fHandler->remoteInsert(position, newLetterValue, externalIndex, siteID, siteCounter, data, socket, format);
+            fHandler->remoteInsert(position, newLetterValue, externalIndex, siteID, siteCounter, data, socket, format, alignFlag);
         }
     }
     else if(type.compare("DELETE")==0){

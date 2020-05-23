@@ -80,7 +80,7 @@ private slots:
     //void setSignals();
 
     int sendOpenFile(QString name_file);
-    int sendInsert(QChar newLetterValue, QJsonArray position, int siteID, int siteCounter, int externalIndex, QTextCharFormat format);
+    int sendInsert(QChar newLetterValue, QJsonArray position, int siteID, int siteCounter, int externalIndex, QTextCharFormat format, Qt::AlignmentFlag alignment);
     int sendDelete(QString deletedLetterID, int fileID, int siteCounter);
     int sendCheckFileName(QString fileNameTmp);
     int sendNewFile(QString filename);
@@ -100,7 +100,7 @@ signals:
 
     /*Notifiche durante l'uso*/
     void readyFile(QMap<int,int>,QMap<int,QColor>);
-    void readyInsert(QJsonArray position, QChar newLetterValue, int externalIndex, int siteID, int siteCounter, QTextCharFormat format);
+    void readyInsert(QJsonArray position, QChar newLetterValue, int externalIndex, int siteID, int siteCounter, QTextCharFormat format, Qt::AlignmentFlag align);
     void readyDelete(QString deletedLetterID);
     void readyStyleChange(QString firstID, QString lastID, QString changedStyle, QString font);
     void readyAlignChange(Qt::AlignmentFlag alignment, int cursorPosition, QString startID, QString lastID);

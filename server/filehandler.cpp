@@ -93,7 +93,7 @@ void FileHandler::removeActiveUser(QTcpSocket *user, QString username, int userI
  * - inserimento equivalente da parte di utenti diversi.
  * */
 void FileHandler::remoteInsert(QJsonArray position, QChar newLetterValue, int externalIndex,
-                               int siteID, int siteCounter, QByteArray message, QTcpSocket *client, QTextCharFormat format) {
+                               int siteID, int siteCounter, QByteArray message, QTcpSocket *client, QTextCharFormat format, Qt::AlignmentFlag alignment) {
     // Get index and fractionals vector
     QVector<int> fractionals;
 
@@ -113,7 +113,7 @@ void FileHandler::remoteInsert(QJsonArray position, QChar newLetterValue, int ex
         }
 
         QString letterID = QString::number(siteID).append("-").append(QString::number(siteCounter));
-        Letter *newLetter = new Letter(newLetterValue, fractionals, letterID, format);
+        Letter *newLetter = new Letter(newLetterValue, fractionals, letterID, format, alignment);
         //newLetter->setStyle(style);
 
         if(externalIndex < this->letters.size()) {

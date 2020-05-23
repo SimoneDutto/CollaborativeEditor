@@ -17,7 +17,7 @@ private:
     QTextCharFormat format;
     Qt::AlignmentFlag alignment;
 public:
-    Letter(QChar letter, QVector<int> fractionals, QString letterID, QTextCharFormat format);   // AGGIUNGERE ALIGNMENT
+    Letter(QChar letter, QVector<int> fractionals, QString letterID, QTextCharFormat format, Qt::AlignmentFlag alignment);
     Letter(const Letter& l);
     Letter& operator=(const Letter && source);
     Letter& operator=(const Letter& source);
@@ -29,6 +29,7 @@ public:
     int getUserId();
     int getNumberOfFractionals();
     QTextCharFormat getFormat();
+    Qt::AlignmentFlag getAlignment();
     void setIndex(int index);
     void setStyle(QString style);
     void editIndex(int index, int value);

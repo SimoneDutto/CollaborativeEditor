@@ -363,14 +363,17 @@ void Socket::notificationsHandler(QByteArray data){
                 f.fromString(font);
                 format.setFont(f);
 
-                letters.append(std::move(new Letter(letter, fractionals, ID, format)));
+                int align = v.toObject().value("align").toInt();
+                Qt::AlignmentFlag alignFlag = static_cast<Qt::AlignmentFlag>(align);
+
+                letters.append(std::move(new Letter(letter, fractionals, ID, format, alignFlag)));
                 //qDebug() << "Lettera:" << letter;
             }
             json_buffer.clear();
-          
+
             /*Creo il FileHandler*/
-            connect( this->fileh, SIGNAL(localInsertNotify(QChar, QJsonArray, int, int, int, QTextCharFormat)),
-                     this, SLOT(sendInsert(QChar, QJsonArray, int, int, int, QTextCharFormat)) );
+            connect( this->fileh, SIGNAL(localInsertNotify(QChar, QJsonArray, int, int, int, QTextCharFormat, Qt::AlignmentFlag)),
+                     this, SLOT(sendInsert(QChar, QJsonArray, int, int, int, QTextCharFormat, Qt::AlignmentFlag)));
             connect( this->fileh, SIGNAL(localDeleteNotify(QString, int, int)), this, SLOT(sendDelete(QString, int, int)) );
             connect( this->fileh, SIGNAL(localStyleChangeNotify(QString, QString, int, QString, QString)),
                      this, SLOT(sendChangeStyle(QString, QString, int, QString, QString)));
@@ -419,11 +422,14 @@ void Socket::notificationsHandler(QByteArray data){
         QFont f;
         f.fromString(font);
         format.setFont(f);
-        /*Inserire nel modello questa lettera e aggiornare la UI*/
-        emit readyInsert(position, newLetterValue, externalIndex, siteID, siteCounter, format);
-        
-    }
 
+        int align = object.value("align").toInt();
+        Qt::AlignmentFlag alignFlag = static_cast<Qt::AlignmentFlag>(align);
+
+
+        /*Inserire nel modello questa lettera e aggiornare la UI*/
+        emit readyInsert(position, newLetterValue, externalIndex, siteID, siteCounter, format, alignFlag);
+    }
     else if (type.compare("DELETE")==0) {
         QString deletedLetterID = object.value("letterID").toString();
         int siteCounter = object.value("siteCounter").toInt();
@@ -440,8 +446,8 @@ void Socket::notificationsHandler(QByteArray data){
             this->fileh->getVectorFile().clear();
 
             /*Creo il FileHandler*/
-            connect( this->fileh, SIGNAL(localInsertNotify(QChar, QJsonArray, int, int, int, QTextCharFormat)),
-                     this, SLOT(sendInsert(QChar, QJsonArray, int, int, int, QTextCharFormat)) );
+            connect( this->fileh, SIGNAL(localInsertNotify(QChar, QJsonArray, int, int, int, QTextCharFormat, Qt::AlignmentFlag)),
+                     this, SLOT(sendInsert(QChar, QJsonArray, int, int, int, QTextCharFormat, Qt::AlignmentFlag)) );
             connect( this->fileh, SIGNAL(localDeleteNotify(QString, int, int)), this, SLOT(sendDelete(QString, int, int)) );
             connect( this->fileh, SIGNAL(localStyleChangeNotify(QString, QString, int, QString, QString)),
                      this, SLOT(sendChangeStyle(QString, QString, int, QString, QString)));
@@ -547,7 +553,7 @@ void Socket::notificationsHandler(QByteArray data){
 }
 
 
-int Socket::sendInsert(QChar newLetterValue, QJsonArray position, int siteID, int siteCounter, int externalIndex, QTextCharFormat format)
+int Socket::sendInsert(QChar newLetterValue, QJsonArray position, int siteID, int siteCounter, int externalIndex, QTextCharFormat format, Qt::AlignmentFlag align)
 {
     /*RICHIESTA*/
     QJsonObject obj;
@@ -555,10 +561,8 @@ int Socket::sendInsert(QChar newLetterValue, QJsonArray position, int siteID, in
     obj.insert("fileid", this->fileh->getFileId());
     obj.insert("letter", QJsonValue(newLetterValue));
     obj.insert("position", position);
-    obj.insert("isBold", QJsonValue(format.fontWeight()==75));
-    obj.insert("isItalic", QJsonValue(format.fontItalic()));
-    obj.insert("isUnderlined", QJsonValue(format.fontUnderline()));
     obj.insert("font", QJsonValue(format.font().toString()));
+    obj.insert("align", align);
     obj.insert("siteID", siteID);
     obj.insert("siteCounter", siteCounter);
     obj.insert("externalIndex", externalIndex);

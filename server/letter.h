@@ -23,7 +23,7 @@ private:
 
 public:
     //Letter() {}
-    Letter(QChar letter, QVector<int> fractionals, QString letterID, QTextCharFormat format);
+    Letter(QChar letter, QVector<int> fractionals, QString letterID, QTextCharFormat format, Qt::AlignmentFlag alignment);
     //Letter(const Letter& letter);
     QChar getLetterValue();
     QVector<int> getFractionalIndexes();

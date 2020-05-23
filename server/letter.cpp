@@ -1,11 +1,12 @@
 #include "letter.h"
 #include <qdebug.h>
 
-Letter::Letter(QChar letter, QVector<int> fractionals, QString letterID, QTextCharFormat format) :
+Letter::Letter(QChar letter, QVector<int> fractionals, QString letterID, QTextCharFormat format, Qt::AlignmentFlag alignment) :
     letter(letter),
     fractionalIndexes(fractionals),
     letterID(letterID),
-    format(format) {}
+    format(format),
+    alignment(alignment) {}
 
 /*Letter::Letter(const Letter& other) {
     this->letter = other.letter;
@@ -112,10 +113,8 @@ QJsonObject Letter::toJSon(){
     QJsonObject obj;
     obj.insert("letter", QJsonValue(letter));
     obj.insert("letterID", QJsonValue(letterID));
-    obj.insert("isBold", QJsonValue(format.fontWeight()==75));
-    obj.insert("isItalic", QJsonValue(format.fontItalic()));
-    obj.insert("isUnderlined", QJsonValue(format.fontUnderline()));
     obj.insert("font", QJsonValue(format.font().toString()));
+    obj.insert("align", alignment);
     obj.insert("position", positionJsonArray);
 
     return obj;
