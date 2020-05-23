@@ -46,6 +46,7 @@ public slots:
     void remoteDelete(QString deletedLetterID);
     void remoteStyleChange(QString firstLetterID, QString lastLetterID, QString changedStyle, QString font);
     void remoteAlignChange(Qt::AlignmentFlag alignment, int cursorPosition, QString startID, QString lastID);
+    void remoteColorChange(QString startID, QString lastID, QColor color);
 signals:
     void localInsertNotify(QChar newLetterValue, QJsonArray position, int siteID, int siteCounter, int externalIndex, QTextCharFormat format, Qt::AlignmentFlag align);
     void localDeleteNotify(QString deletedLetterID, int fileid, int siteCounter);
@@ -57,6 +58,7 @@ signals:
     void readyRemoteDelete(int externalIndex);
     void readyRemoteStyleChange(QString firstLetterID, QString lastLetterID);
     void readyRemoteAlignChange(Qt::AlignmentFlag align, int cursorPosition);
+    void readyRemoteColorChange(int start, int end, QColor color);
 };
 
 #endif // FILEHANDLER_H

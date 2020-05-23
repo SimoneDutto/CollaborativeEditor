@@ -37,6 +37,8 @@ public:
     //int getCounter();
     //void incrementCounter();
     void setIndex(int index);
+    void setColor(QColor c);
+    QBrush getColor();
     void addFractionalDigit(int value);
     bool hasSameFractionals(Letter other);
     bool comesFirst(Letter other);

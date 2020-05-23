@@ -33,6 +33,7 @@ public:
     void changeStyle(QString initialIndex, QString lastIndex, QString format, QString font, QTcpSocket* client, QByteArray message);
     void changeAlign(Qt::AlignmentFlag align, QString startID, QString lastID, QTcpSocket* client, QByteArray message);
     void changeCursor(QTcpSocket* client, QByteArray message, int position);
+    void changeColor(QString startID, QString lastID, QString color, QTcpSocket* client, QByteArray message);
 
     void insertActiveUser(QTcpSocket* user, int siteCounter, QString username, int userID, int cursorPosition);
     void removeActiveUser(QTcpSocket *user, QString username, int userID);
@@ -48,6 +49,7 @@ signals:
     void remoteStyleChangeNotify(QVector<QTcpSocket*> users, QByteArray message, QTcpSocket* client);
     void remoteAlignChangeNotify(QVector<QTcpSocket*> users, QByteArray message, QTcpSocket* client);
     void remoteCursorChangeNotify(QVector<QTcpSocket*> users, QByteArray message, QTcpSocket* client);
+    void remoteColorChangeNotify(QVector<QTcpSocket*> users, QByteArray message, QTcpSocket* client);
 
 };
 

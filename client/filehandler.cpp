@@ -286,6 +286,29 @@ void FileHandler::remoteAlignChange(Qt::AlignmentFlag alignment, int cursorPosit
     emit readyRemoteAlignChange(alignment, cursorPosition);
 }
 
+void FileHandler::remoteColorChange(QString startID, QString lastID, QColor color) {
+    bool intervalStarted = false;
+    int start = -1, end = -1;
+    for(Letter *l : this->letters) {
+        if(!intervalStarted && l->getLetterID().compare(startID)==0) {
+            intervalStarted = true;
+            l->setColor(color);
+            start = l->getIndex();
+        } else if(intervalStarted) {
+            l->setColor(color);
+            if(l->getLetterID().compare(lastID)==0) {
+                end = l->getIndex();
+                break;
+            }
+        }
+    }
+
+    qDebug() << "start - end" << start << end;
+
+    if(start!=-1 && end!=-1)
+        emit readyRemoteColorChange(start, end, color);
+}
+
 void FileHandler::setValues(QVector<Letter *> letters){
     if(!this->letters.empty()){
         this->letters.clear();

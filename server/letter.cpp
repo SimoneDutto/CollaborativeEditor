@@ -72,6 +72,15 @@ void Letter::setAlignment(Qt::AlignmentFlag align) {
     qDebug() << "alignment changed";
 }
 
+void Letter::setColor(QColor c) {
+    this->format.setForeground(c);
+}
+
+QBrush Letter::getColor() {
+    return this->format.foreground();
+}
+
+
 void Letter::addFractionalDigit(int value) {
     this->fractionalIndexes.append(value);
 }
@@ -117,7 +126,7 @@ QJsonObject Letter::toJSon(){
     obj.insert("font", QJsonValue(format.font().toString()));
     obj.insert("align", alignment);
     obj.insert("position", positionJsonArray);
-    qDebug() << "TO JSON" << alignment;
+    //qDebug() << "TO JSON" << alignment;
 
     return obj;
 }

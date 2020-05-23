@@ -218,6 +218,16 @@ void MyServer::handleNotifications(QTcpSocket *socket, QByteArray data)
             fHandler->changeAlign(alignFlag, startID, lastID, socket, data);
         }
     }
+    else if(type.compare("COLOR")==0) {
+        int fileID = rootObject.value(("fileid")).toInt();
+        if(fsys->getFiles().find(fileID) != fsys->getFiles().end()) {
+            QString startID = rootObject.value("startID").toString();
+            QString lastID = rootObject.value("lastID").toString();
+            QString colorName = rootObject.value("color").toString();
+            FileHandler* fHandler = fsys->getFiles().at(fileID);
+            fHandler->changeColor(startID, lastID, colorName, socket, data);
+        }
+    }
     else if(type.compare("CURSOR")==0) {
         int fileID = rootObject.value("fileid").toInt();
         if(fsys->getFiles().find(fileID) != fsys->getFiles().end()) {   // file exists
