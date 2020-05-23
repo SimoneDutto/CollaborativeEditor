@@ -114,11 +114,11 @@ signals:
     void exportAsPDF();
     void logOut();
     void sendCursorChange(int position);
-    //void localStyleChange(QString initialID, QString finalID, QTextCharFormat);
     void setCurrFont(QFont currFont);
     void setCurrFontSize(int sizeFont);
     void sendHist();
     void sendAlignment(Qt::AlignmentFlag alignment, int cursorPosition, QString startID, QString lastID);
+    void sendColorChange(QString startID, QString lastID, QColor color);
 };
 
 #endif // MAINWINDOW_H

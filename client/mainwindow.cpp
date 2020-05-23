@@ -520,8 +520,8 @@ void MainWindow::on_actionColor_triggered()
     auto cursor = ui->textEdit->textCursor();
     qDebug() << "Selection start: " << cursor.selectionStart() << " end: " << cursor.selectionEnd();
 
-        disconnect(this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
-                  fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
+        disconnect(this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat, Qt::AlignmentFlag)),
+                  fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat, Qt::AlignmentFlag)));
         disconnect(this, SIGNAL(myDelete(int,int)),
                   fHandler, SLOT(localDelete(int,int)));
 
@@ -543,11 +543,15 @@ void MainWindow::on_actionColor_triggered()
             cursor.setPosition(i+1);
             vettore.at(i)->setColor(color);
         }
+        //QColor prova(color.name());
+
+        //qDebug() << "color " << color.name() << prova.name();
+
 
         //emit colorChanged(startID, lastID, color);
 
-        connect( this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
-                  fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
+        connect( this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat, Qt::AlignmentFlag)),
+                  fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat, Qt::AlignmentFlag)));
         connect( this, SIGNAL(myDelete(int,int)),
                   fHandler, SLOT(localDelete(int,int)));
     }
@@ -558,8 +562,8 @@ void MainWindow::on_actionBackground_Color_triggered()
     auto cursor = ui->textEdit->textCursor();
     qDebug() << "Selection start: " << cursor.selectionStart() << " end: " << cursor.selectionEnd();
 
-        disconnect(this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
-                  fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
+        disconnect(this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat, Qt::AlignmentFlag)),
+                  fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat, Qt::AlignmentFlag)));
         disconnect(this, SIGNAL(myDelete(int,int)),
                   fHandler, SLOT(localDelete(int,int)));
 
@@ -584,8 +588,8 @@ void MainWindow::on_actionBackground_Color_triggered()
 
     //emit backgroundColorChanged(formatCharMap, startID, lastID, color);
 
-    connect( this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
-              fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
+    connect( this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat, Qt::AlignmentFlag)),
+              fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat, Qt::AlignmentFlag)));
     connect( this, SIGNAL(myDelete(int,int)),
               fHandler, SLOT(localDelete(int,int)));
 }
@@ -1423,10 +1427,10 @@ void MainWindow::changeViewAfterColor(int start, int end, QColor colore){
     fmt.setForeground(colore);
     int dif = end-start;
     cursor.setPosition(end);
-    for(int i = 0; i< dif; i++){
-    cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
-     qDebug() << "testo left: " << cursor.selectedText();
-    cursor.mergeCharFormat(fmt);
+    for(int i = 0; i<dif; i++){
+        cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
+         qDebug() << "testo left: " << cursor.selectedText();
+        cursor.mergeCharFormat(fmt);
     }
     connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
 }

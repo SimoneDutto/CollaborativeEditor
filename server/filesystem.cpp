@@ -345,8 +345,9 @@ void FileSystem::sendFile(int fileid, QTcpSocket *socket){
             f.fromString(font);
             format.setFont(f);
 
-            int align = object.value("align").toInt();
+            int align = v.toObject().value("align").toInt();
             Qt::AlignmentFlag alignFlag = static_cast<Qt::AlignmentFlag>(align);
+            //qDebug() << "valore letto" << alignFlag;
 
             Letter *letter_tmp = new Letter(letter, fractionals, ID, format, alignFlag);
             letters.append(std::move(letter_tmp));

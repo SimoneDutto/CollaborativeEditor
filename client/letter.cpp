@@ -178,6 +178,7 @@ QBrush Letter::getColor()
 
 QBrush Letter::getBack(){
     return this->format.background();
+}
 
 Qt::AlignmentFlag Letter::getAlignment() {
     return this->alignment;

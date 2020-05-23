@@ -69,6 +69,7 @@ void Letter::setStyleFromString(QString format, QString font) { // TODO togliere
 
 void Letter::setAlignment(Qt::AlignmentFlag align) {
     this->alignment = align;
+    qDebug() << "alignment changed";
 }
 
 void Letter::addFractionalDigit(int value) {
@@ -116,6 +117,7 @@ QJsonObject Letter::toJSon(){
     obj.insert("font", QJsonValue(format.font().toString()));
     obj.insert("align", alignment);
     obj.insert("position", positionJsonArray);
+    qDebug() << "TO JSON" << alignment;
 
     return obj;
 }

@@ -87,6 +87,7 @@ private slots:
     int sendChangeStyle(QString firstLetterID, QString lastLetterID, int fileID, QString changedStyle, QString font);
     int sendCursor(int position);
     int sendAlignment(Qt::AlignmentFlag alignment, int cursorPosition, QString startID, QString lastID);
+    //int sendColor(QString startID, QString lastID, QColor color);
 
 signals:
     /* Registrazione */
