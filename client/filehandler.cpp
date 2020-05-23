@@ -169,7 +169,7 @@ void FileHandler::localDelete(int firstExternalIndex, int lastExternalIndex) {
     }
 }
 
-void FileHandler::localStyleChange(QMap<QString, QTextCharFormat> letterFormatMap, QString startID, QString lastID, bool boldTriggered, bool italicTriggered, bool underlinedTriggered) {
+void FileHandler::localStyleChange(QMap<QString,QTextCharFormat> letterFormatMap) {
     QString changedStyle;
     QString fontString;
     /* Edit letters style locally */

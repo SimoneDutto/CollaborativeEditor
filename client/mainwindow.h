@@ -101,7 +101,7 @@ signals:
     void myDelete(int firstExternalIndex, int lastExternalIndex);
     void sendNameFile(QString fileNameTmp);
     void newFile(QString filename);
-    void styleChange(QMap<QString, QTextCharFormat>, QString startID, QString lastID, bool boldTriggered, bool italicTriggered, bool underlinedTriggered);
+    void styleChange(QMap<QString, QTextCharFormat> mapFormat);
     void exportAsPDF();
     void logOut();
     void sendCursorChange(int position);

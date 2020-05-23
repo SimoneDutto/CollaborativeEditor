@@ -166,8 +166,8 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
              this, SLOT(uploadHistory(QMap<int, QString>)));
 
     /* CONNECT per lo stile dei caratteri */
-    connect( this, SIGNAL(styleChange(QMap<QString, QTextCharFormat>, QString, QString, bool, bool, bool)),
-              fHandler, SLOT(localStyleChange(QMap<QString, QTextCharFormat>, QString, QString, bool, bool, bool)) );
+    connect( this, SIGNAL(styleChange(QMap<QString, QTextCharFormat>)),
+              fHandler, SLOT(localStyleChange(QMap<QString, QTextCharFormat>)) );
     connect( fHandler, SIGNAL(readyRemoteStyleChange(QString, QString)),
              this, SLOT(changeViewAfterStyle(QString, QString)));
     connect( socket, SIGNAL(readyStyleChange(QString, QString, QString, QString)),
@@ -360,7 +360,7 @@ void MainWindow::on_actionBold_triggered()
             formatCharMap.insert(vettore.at(i)->getLetterID(), letterFormat);
         }
 
-        emit styleChange(formatCharMap, startID, lastID, true, false, false);
+        emit styleChange(formatCharMap);
 
         connect( this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
                   fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
@@ -417,7 +417,7 @@ void MainWindow::on_actionItalic_triggered()
             formatCharMap.insert(vettore.at(i)->getLetterID(), letterFormat);
         }
 
-        emit styleChange(formatCharMap, startID, lastID, false, true, false);
+        emit styleChange(formatCharMap);
 
         connect( this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
                   fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
@@ -473,7 +473,7 @@ void MainWindow::on_actionUnderlined_triggered()
             formatCharMap.insert(vettore.at(i)->getLetterID(), letterFormat);
         }
 
-        emit styleChange(formatCharMap, startID, lastID, false, false, true);
+        emit styleChange(formatCharMap);
 
         connect( this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
                   fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
@@ -1250,7 +1250,7 @@ void MainWindow::currentFontChanged(QFont font){
             formatCharMap.insert(vettore.at(i)->getLetterID(), letterFormat);
         }
 
-        emit styleChange(formatCharMap, startID, lastID, false, false, false);
+        emit styleChange(formatCharMap);
 
         connect( this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
                   fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
@@ -1299,7 +1299,7 @@ void MainWindow::fontSizeChanged(int size){
             formatCharMap.insert(vettore.at(i)->getLetterID(), letterFormat);
         }
 
-        emit styleChange(formatCharMap, startID, lastID, false, false, false);
+        emit styleChange(formatCharMap);
 
         connect( this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
                   fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));

@@ -38,7 +38,7 @@ public:
 public slots:
     void localInsert(int externalIndex, QChar newLetterValue, int clientID, QTextCharFormat format);
     void localDelete(int firstExternalIndex, int lastExternalIndex);
-    void localStyleChange(QMap<QString, QTextCharFormat> letterFormatMap, QString startID, QString lastID, bool boldTriggered, bool italicTriggered, bool underlinedTriggered);
+    void localStyleChange(QMap<QString, QTextCharFormat> letterFormatMap);
     void localCursorChange(int position);
     void localAlignChange(Qt::AlignmentFlag alignment, int cursorPosition, QString startID, QString lastID); // paragrafo preso dal cursore
 
