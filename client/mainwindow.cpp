@@ -53,6 +53,7 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
 
     setWindowTitle(nome);
     ui->label_2->setStyleSheet("background-color:lightgray; color:black");
+    ui->username->setStyleSheet("color:white");
     ui->label_2->setTextInteractionFlags(Qt::TextSelectableByMouse);
     //ui->label->setStyleSheet("background-color:lightgray");
 
@@ -171,12 +172,13 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
              this, SLOT(changeViewAfterStyle(QString, QString)));
     connect( socket, SIGNAL(readyStyleChange(QString, QString, QString, QString)),
              fHandler, SLOT(remoteStyleChange(QString, QString, QString, QString)));
-    /* connect( this, SIGNAL(sendAlignment(Qt::AlignmentFlag,int,QString,QString)),
+
+    connect( this, SIGNAL(sendAlignment(Qt::AlignmentFlag,int,QString,QString)),
              fHandler, SLOT(localAlignChange(Qt::AlignmentFlag,int,QString,QString)));
     connect( socket, SIGNAL(readyAlignChange(Qt::AlignmentFlag,int,QString,QString)),
              fHandler, SLOT(remoteAlignChange(Qt::AlignmentFlag,int,QString,QString)));
     connect( fHandler, SIGNAL(readyRemoteAlignChange(Qt::AlignmentFlat,int)),
-             this, SLOT(changeAlignment(Qt::AlignmentFlag,int))); */
+             this, SLOT(changeAlignment(Qt::AlignmentFlag,int))); 
 
     /* CONNECT per cursore */
     connect( socket, SIGNAL(userCursor(QPair<int,int>,QColor)),
@@ -528,6 +530,7 @@ void MainWindow::on_actionBackgorund_Color_triggered()
         ui->textEdit->setTextBackgroundColor(color);
 }
 
+
 void MainWindow::on_textEdit_textChanged()
 {
     QTextCursor cursor(ui->textEdit->textCursor());
@@ -730,14 +733,8 @@ void MainWindow::removeUserDisconnect(QString, int userID){
         ui->counter->hide();
     }
 
-    for(int i = 0; i< id_colore_cursore.size(); i++){
-        //se c'è lo sostituisco
-        if (id_colore_cursore.at(i).first.first == userID ){
-            id_colore_cursore.removeAt(i);
-        }
-    }
-    /*La lista completa degli Online Users la inizializzo nel OnlineUser Constructor*/
 
+    /*La lista completa degli Online Users la inizializzo nel OnlineUser Constructor*/
 }
 
 //TODO: inserire gestione bottoni alignment
@@ -781,11 +778,6 @@ void MainWindow::on_textEdit_cursorPositionChanged() {
         auto currFont = ui->textEdit->currentCharFormat().font();
         emit setCurrFont(currFont);
         emit setCurrFontSize(currFont.pointSize()-1);
-
-        connect(ui->mainToolBar->widgetForAction(ui->mainToolBar->actions().at(9)), SIGNAL(currentFontChanged(QFont)),
-                this, SLOT(currentFontChanged(QFont)));
-        connect(ui->mainToolBar->widgetForAction(ui->mainToolBar->actions().at(10)), SIGNAL(currentIndexChanged(int)),
-                this, SLOT(fontSizeChanged(int)));
     }
 
 
@@ -818,6 +810,39 @@ void MainWindow::on_textEdit_cursorPositionChanged() {
         emit setCurrFont(currFont);
         emit setCurrFontSize(currFont.pointSize()-1);
     }
+
+    /* Controllo l'allineamento */
+    auto align = ui->textEdit->alignment();
+
+    if(align == Qt::AlignLeft){
+        ui->actionAlign_to_Left->setChecked(true);
+        ui->actionAlign_to_Right->setChecked(false);
+        ui->actionAlign_to_Center->setChecked(false);
+        ui->actionAlign_to_Justify->setChecked(false);
+    }
+    else if(align == Qt::AlignRight){
+        ui->actionAlign_to_Left->setChecked(false);
+        ui->actionAlign_to_Right->setChecked(true);
+        ui->actionAlign_to_Center->setChecked(false);
+        ui->actionAlign_to_Justify->setChecked(false);
+    }
+    else if(align == Qt::AlignCenter){
+        ui->actionAlign_to_Left->setChecked(false);
+        ui->actionAlign_to_Right->setChecked(false);
+        ui->actionAlign_to_Center->setChecked(true);
+        ui->actionAlign_to_Justify->setChecked(false);
+    }
+    else if(align == Qt::AlignJustify){
+        ui->actionAlign_to_Left->setChecked(false);
+        ui->actionAlign_to_Right->setChecked(false);
+        ui->actionAlign_to_Center->setChecked(false);
+        ui->actionAlign_to_Justify->setChecked(true);
+    }
+
+    connect(ui->mainToolBar->widgetForAction(ui->mainToolBar->actions().at(9)), SIGNAL(currentFontChanged(QFont)),
+            this, SLOT(currentFontChanged(QFont)));
+    connect(ui->mainToolBar->widgetForAction(ui->mainToolBar->actions().at(10)), SIGNAL(currentIndexChanged(int)),
+            this, SLOT(fontSizeChanged(int)));
 
 }
 
@@ -890,14 +915,27 @@ void MainWindow::on_write_uri(QString uri){
 
 void MainWindow::on_actionAlign_to_Left_triggered()
 {
+    if(ui->textEdit->toPlainText().length() < 1){
+        ui->actionAlign_to_Left->setChecked(true);
+        ui->actionAlign_to_Right->setChecked(false);
+        ui->actionAlign_to_Center->setChecked(false);
+        ui->actionAlign_to_Justify->setChecked(false);
+        return;
+    }
+
     disconnect(this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
               fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
     disconnect(this, SIGNAL(myDelete(int,int)),
               fHandler, SLOT(localDelete(int,int)));
 
     ui->textEdit->setAlignment(Qt::AlignLeft);
-    qDebug() << "alignment:" << ui->textEdit->alignment();
+    ui->actionAlign_to_Left->setChecked(true);
+    ui->actionAlign_to_Right->setChecked(false);
+    ui->actionAlign_to_Center->setChecked(false);
+    ui->actionAlign_to_Justify->setChecked(false);
+
     QTextCursor cursor = ui->textEdit->textCursor();
+
     /* Get startID and lastID of paragraph */
     QTextBlock paragraph = cursor.block();
     int startIndex = paragraph.position();
@@ -908,7 +946,8 @@ void MainWindow::on_actionAlign_to_Left_triggered()
     QString startID = file.at(startIndex)->getLetterID();
     QString lastID = file.at(lastIndex)->getLetterID();
     //qDebug() << paragraph.text();
-    // emit sendAlignment(Qt::AlignLeft, cursor.position(), startID, lastID);
+    emit sendAlignment(Qt::AlignLeft, cursor.position(), startID, lastID);
+
 
     connect(this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
               fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
@@ -918,13 +957,25 @@ void MainWindow::on_actionAlign_to_Left_triggered()
 
 void MainWindow::on_actionAlign_to_Right_triggered()
 {
+    if(ui->textEdit->toPlainText().length() < 1){
+        ui->actionAlign_to_Left->setChecked(true);
+        ui->actionAlign_to_Right->setChecked(false);
+        ui->actionAlign_to_Center->setChecked(false);
+        ui->actionAlign_to_Justify->setChecked(false);
+        return;
+    }
+
     disconnect(this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
               fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
     disconnect(this, SIGNAL(myDelete(int,int)),
               fHandler, SLOT(localDelete(int,int)));
 
     ui->textEdit->setAlignment(Qt::AlignRight);
-    qDebug() << "alignment:" << ui->textEdit->alignment();
+    ui->actionAlign_to_Left->setChecked(false);
+    ui->actionAlign_to_Right->setChecked(true);
+    ui->actionAlign_to_Center->setChecked(false);
+    ui->actionAlign_to_Justify->setChecked(false);
+
     QTextCursor cursor = ui->textEdit->textCursor();
 
     /* Get startID and lastID of paragraph */
@@ -937,7 +988,7 @@ void MainWindow::on_actionAlign_to_Right_triggered()
     QString startID = file.at(startIndex)->getLetterID();
     QString lastID = file.at(lastIndex)->getLetterID();
     //qDebug() << paragraph.text();
-    // emit sendAlignment(Qt::AlignLeft, cursor.position(), startID, lastID);
+    emit sendAlignment(Qt::AlignRight, cursor.position(), startID, lastID);
 
     connect(this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
               fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
@@ -947,13 +998,25 @@ void MainWindow::on_actionAlign_to_Right_triggered()
 
 void MainWindow::on_actionAlign_to_Center_triggered()
 {
+    if(ui->textEdit->toPlainText().length() < 1){
+        ui->actionAlign_to_Left->setChecked(true);
+        ui->actionAlign_to_Right->setChecked(false);
+        ui->actionAlign_to_Center->setChecked(false);
+        ui->actionAlign_to_Justify->setChecked(false);
+        return;
+    }
+
     disconnect(this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
               fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
     disconnect(this, SIGNAL(myDelete(int,int)),
               fHandler, SLOT(localDelete(int,int)));
 
     ui->textEdit->setAlignment(Qt::AlignCenter);
-    qDebug() << "alignment:" << ui->textEdit->alignment();
+    ui->actionAlign_to_Left->setChecked(false);
+    ui->actionAlign_to_Right->setChecked(false);
+    ui->actionAlign_to_Center->setChecked(true);
+    ui->actionAlign_to_Justify->setChecked(false);
+
     QTextCursor cursor = ui->textEdit->textCursor();
 
     /* Get startID and lastID of paragraph */
@@ -966,7 +1029,7 @@ void MainWindow::on_actionAlign_to_Center_triggered()
     QString startID = file.at(startIndex)->getLetterID();
     QString lastID = file.at(lastIndex)->getLetterID();
     //qDebug() << paragraph.text();
-    // emit sendAlignment(Qt::AlignLeft, cursor.position(), startID, lastID);
+    emit sendAlignment(Qt::AlignCenter, cursor.position(), startID, lastID);
 
     // Qt::AlignmentFlag alignFlag = static_cast<Qt::AlignmentFlag>(132);
     // qDebug() << alignFlag;
@@ -978,13 +1041,25 @@ void MainWindow::on_actionAlign_to_Center_triggered()
 
 void MainWindow::on_actionAlign_to_Justify_triggered()
 {
+    if(ui->textEdit->toPlainText().length() < 1){
+        ui->actionAlign_to_Left->setChecked(true);
+        ui->actionAlign_to_Right->setChecked(false);
+        ui->actionAlign_to_Center->setChecked(false);
+        ui->actionAlign_to_Justify->setChecked(false);
+        return;
+    }
+
     disconnect(this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
               fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
     disconnect(this, SIGNAL(myDelete(int,int)),
               fHandler, SLOT(localDelete(int,int)));
 
     ui->textEdit->setAlignment(Qt::AlignJustify);
-    qDebug() << "alignment:" << ui->textEdit->alignment();
+    ui->actionAlign_to_Left->setChecked(false);
+    ui->actionAlign_to_Right->setChecked(false);
+    ui->actionAlign_to_Center->setChecked(false);
+    ui->actionAlign_to_Justify->setChecked(true);
+
     QTextCursor cursor = ui->textEdit->textCursor();
 
     /* Get startID and lastID of paragraph */
@@ -997,7 +1072,7 @@ void MainWindow::on_actionAlign_to_Justify_triggered()
     QString startID = file.at(startIndex)->getLetterID();
     QString lastID = file.at(lastIndex)->getLetterID();
     //qDebug() << paragraph.text();
-    // emit sendAlignment(Qt::AlignLeft, cursor.position(), startID, lastID);
+    emit sendAlignment(Qt::AlignJustify, cursor.position(), startID, lastID);
 
     connect(this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
               fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
@@ -1016,6 +1091,9 @@ void MainWindow::on_cursor_triggered(QPair<int,int> idpos, QColor col)
     // controllo che nella mappa colorecursore non sia gia presente l'id
 
     disconnect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
+
+
+
     QTextCharFormat fmt;
     QTextCharFormat fmt2;
 
@@ -1026,11 +1104,19 @@ void MainWindow::on_cursor_triggered(QPair<int,int> idpos, QColor col)
     bool trovato = false;
     for(int i = 0; i< id_colore_cursore.size(); i++){
         //se c'è lo sostituisco
-        if (id_colore_cursore.at(i).first.first == idpos.first ){
-            id_colore_cursore.replace(i, qMakePair(qMakePair(idpos.first,col), idpos.second));
-            trovato = true;
-            break;
+        if (id_colore_cursore.at(i).first.first == idpos.first){
+            if(idpos.second >= 0){
+                id_colore_cursore.replace(i, qMakePair(qMakePair(idpos.first,col), idpos.second));
+                trovato = true;
+                break;
+            }
+            else{
+                id_colore_cursore.removeAt(i);
+                trovato = true;
+                break;
+            }
         }
+
     }
     //altrimenti lo aggiungo
     if (trovato == false)
@@ -1182,4 +1268,10 @@ void MainWindow::on_actionhistory_triggered()
 void MainWindow::uploadHistory(QMap<int, QString> mapIdUsername){
     usersLettersWindow* history = new usersLettersWindow(mapIdUsername, fHandler->getVectorFile(), this);
     history->show();
+}
+
+void MainWindow::changeAlignment(Qt::AlignmentFlag alignment, int cursorPosition){
+    auto cursor = ui->textEdit->textCursor();
+    cursor.setPosition(cursorPosition);
+    ui->textEdit->setAlignment(alignment);
 }
