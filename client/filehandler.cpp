@@ -172,7 +172,6 @@ void FileHandler::localDelete(int firstExternalIndex, int lastExternalIndex) {
 void FileHandler::localStyleChange(QMap<QString, QTextCharFormat> letterFormatMap, QString startID, QString lastID, bool boldTriggered, bool italicTriggered, bool underlinedTriggered) {
     QString changedStyle;
     QString fontString;
-    bool first = true;
     /* Edit letters style locally */
     for(Letter *l : this->letters) {
         if(letterFormatMap.contains(l->getLetterID())) {
@@ -191,9 +190,21 @@ void FileHandler::localCursorChange(int position) {
     emit localCursorChangeNotify(position);
 }
 
-void FileHandler::localAlignChange(Qt::AlignmentFlag alignment, int cursorPosition) {   // aggiungere start e end
-    // TODO: memorizzare allineamento del paragrafo (dove prendo queste info?)
-    // emit localAlignChangeNotify(alignment, cursorPosition);
+void FileHandler::localAlignChange(Qt::AlignmentFlag alignment, int cursorPosition, QString startID, QString lastID) {
+    bool intervalStarted = false;
+    /* Store alignment information for each letter locally */
+    for(Letter *l : this->letters) {
+        if(!intervalStarted && l->getLetterID().compare(startID)==0) {
+            intervalStarted = true;
+            l->setAlignment(alignment);
+        } else if(intervalStarted) {
+            l->setAlignment(alignment);
+            if(l->getLetterID().compare(lastID)==0)
+                break;
+        }
+    }
+    /* Send change to server */
+    emit localAlignChangeNotify(alignment, cursorPosition, startID, lastID);
 }
 
 void FileHandler::remoteInsert(QJsonArray position, QChar newLetterValue, int externalIndex, int siteID, int siteCounter, QTextCharFormat format) {
@@ -251,6 +262,24 @@ void FileHandler::remoteStyleChange(QString firstLetterID, QString lastLetterID,
 
     /* Aggiornare la GUI */
     emit readyRemoteStyleChange(firstLetterID, lastLetterID);
+}
+
+void FileHandler::remoteAlignChange(Qt::AlignmentFlag alignment, int cursorPosition, QString startID, QString lastID) {
+    bool intervalStarted = false;
+    /* Store alignment information for each letter locally */
+    for(Letter *l : this->letters) {
+        if(!intervalStarted && l->getLetterID().compare(startID)==0) {
+            intervalStarted = true;
+            l->setAlignment(alignment);
+        } else if(intervalStarted) {
+            l->setAlignment(alignment);
+            if(l->getLetterID().compare(lastID)==0)
+                break;
+        }
+    }
+
+    /* Update GUI */
+    emit readyRemoteAlignChange(alignment, cursorPosition);
 }
 
 void FileHandler::setValues(QVector<Letter *> letters){

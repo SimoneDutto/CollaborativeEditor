@@ -63,22 +63,11 @@ void Letter::setStyleFromString(QString format, QString font) { // TODO togliere
     QFont f;
     f.fromString(font);
     this->format.setFont(f, QTextCharFormat::FontPropertiesSpecifiedOnly);
-    /*if(format.compare("Bold") == 0)
-        this->format.setFontWeight(75);
-    else if(format.compare("NotBold") == 0)
-        this->format.setFontWeight(50);
-    else if(format.compare("Italic") == 0)
-        this->format.setFontItalic(true);
-    else if(format.compare("NotItalic") == 0)
-        this->format.setFontItalic(false);
-    else if(format.compare("Underlined") == 0)
-        this->format.setFontUnderline(true);
-    else if(format.compare("Underlined") == 0)
-        this->format.setFontUnderline(false);
-    else if(format.compare("font")==0) {
+    // qDebug() << "font cambiato" << this->format.font();
+}
 
-    }*/
-    qDebug() << "font cambiato" << this->format.font();
+void Letter::setAlignment(Qt::AlignmentFlag align) {
+    this->alignment = align;
 }
 
 void Letter::addFractionalDigit(int value) {

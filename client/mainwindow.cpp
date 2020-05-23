@@ -20,6 +20,7 @@
 #include <QFontComboBox>
 #include <algorithm>
 #include <QFontDatabase>
+#include <QTextBlock>
 
 
 MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QString nome) :
@@ -170,8 +171,12 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
              this, SLOT(changeViewAfterStyle(QString, QString)));
     connect( socket, SIGNAL(readyStyleChange(QString, QString, QString, QString)),
              fHandler, SLOT(remoteStyleChange(QString, QString, QString, QString)));
-    /* connect( this, SIGNAL(sendAlignment(Qt::AlignmentFlag,int)),
-             fHandler, SLOT(localAlignChange(Qt::AlignmentFlag,int))); */
+    /* connect( this, SIGNAL(sendAlignment(Qt::AlignmentFlag,int,QString,QString)),
+             fHandler, SLOT(localAlignChange(Qt::AlignmentFlag,int,QString,QString)));
+    connect( socket, SIGNAL(readyAlignChange(Qt::AlignmentFlag,int,QString,QString)),
+             fHandler, SLOT(remoteAlignChange(Qt::AlignmentFlag,int,QString,QString)));
+    connect( fHandler, SIGNAL(readyRemoteAlignChange(Qt::AlignmentFlat,int)),
+             this, SLOT(changeAlignment(Qt::AlignmentFlag,int))); */
 
     /* CONNECT per cursore */
     connect( socket, SIGNAL(userCursor(QPair<int,int>,QColor)),
@@ -893,7 +898,17 @@ void MainWindow::on_actionAlign_to_Left_triggered()
     ui->textEdit->setAlignment(Qt::AlignLeft);
     qDebug() << "alignment:" << ui->textEdit->alignment();
     QTextCursor cursor = ui->textEdit->textCursor();
-    // emit sendAlignment(Qt::AlignLeft, cursor.position());
+    /* Get startID and lastID of paragraph */
+    QTextBlock paragraph = cursor.block();
+    int startIndex = paragraph.position();
+    int length = paragraph.length();
+    int lastIndex = startIndex + length - 1;
+    //qDebug() << startIndex << length;
+    QVector<Letter*> file = this->fHandler->getVectorFile();
+    QString startID = file.at(startIndex)->getLetterID();
+    QString lastID = file.at(lastIndex)->getLetterID();
+    //qDebug() << paragraph.text();
+    // emit sendAlignment(Qt::AlignLeft, cursor.position(), startID, lastID);
 
     connect(this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
               fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
@@ -911,7 +926,18 @@ void MainWindow::on_actionAlign_to_Right_triggered()
     ui->textEdit->setAlignment(Qt::AlignRight);
     qDebug() << "alignment:" << ui->textEdit->alignment();
     QTextCursor cursor = ui->textEdit->textCursor();
-    // emit sendAlignment(Qt::AlignRight, cursor.position());
+
+    /* Get startID and lastID of paragraph */
+    QTextBlock paragraph = cursor.block();
+    int startIndex = paragraph.position();
+    int length = paragraph.length();
+    int lastIndex = startIndex + length - 1;
+    //qDebug() << startIndex << length;
+    QVector<Letter*> file = this->fHandler->getVectorFile();
+    QString startID = file.at(startIndex)->getLetterID();
+    QString lastID = file.at(lastIndex)->getLetterID();
+    //qDebug() << paragraph.text();
+    // emit sendAlignment(Qt::AlignLeft, cursor.position(), startID, lastID);
 
     connect(this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
               fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
@@ -929,8 +955,21 @@ void MainWindow::on_actionAlign_to_Center_triggered()
     ui->textEdit->setAlignment(Qt::AlignCenter);
     qDebug() << "alignment:" << ui->textEdit->alignment();
     QTextCursor cursor = ui->textEdit->textCursor();
-    // emit sendAlignment(Qt::AlignCenter, cursor.position());
 
+    /* Get startID and lastID of paragraph */
+    QTextBlock paragraph = cursor.block();
+    int startIndex = paragraph.position();
+    int length = paragraph.length();
+    int lastIndex = startIndex + length - 1;
+    //qDebug() << startIndex << length;
+    QVector<Letter*> file = this->fHandler->getVectorFile();
+    QString startID = file.at(startIndex)->getLetterID();
+    QString lastID = file.at(lastIndex)->getLetterID();
+    //qDebug() << paragraph.text();
+    // emit sendAlignment(Qt::AlignLeft, cursor.position(), startID, lastID);
+
+    // Qt::AlignmentFlag alignFlag = static_cast<Qt::AlignmentFlag>(132);
+    // qDebug() << alignFlag;
     connect(this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
               fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
     connect(this, SIGNAL(myDelete(int,int)),
@@ -947,7 +986,18 @@ void MainWindow::on_actionAlign_to_Justify_triggered()
     ui->textEdit->setAlignment(Qt::AlignJustify);
     qDebug() << "alignment:" << ui->textEdit->alignment();
     QTextCursor cursor = ui->textEdit->textCursor();
-    // emit sendAlignment(Qt::AlignJustify, cursor.position());
+
+    /* Get startID and lastID of paragraph */
+    QTextBlock paragraph = cursor.block();
+    int startIndex = paragraph.position();
+    int length = paragraph.length();
+    int lastIndex = startIndex + length - 1;
+    //qDebug() << startIndex << length;
+    QVector<Letter*> file = this->fHandler->getVectorFile();
+    QString startID = file.at(startIndex)->getLetterID();
+    QString lastID = file.at(lastIndex)->getLetterID();
+    //qDebug() << paragraph.text();
+    // emit sendAlignment(Qt::AlignLeft, cursor.position(), startID, lastID);
 
     connect(this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
               fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));

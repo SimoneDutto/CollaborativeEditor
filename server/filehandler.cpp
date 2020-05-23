@@ -204,6 +204,24 @@ void FileHandler::changeStyle(QString initialIndex, QString lastIndex, QString f
     emit remoteStyleChangeNotify(this->users, message, client);
 }
 
+void FileHandler::changeAlign(Qt::AlignmentFlag align, QString startID, QString lastID, QTcpSocket *client, QByteArray message) {
+    bool intervalStarted = false;
+    /* Store alignment information for each letter locally */
+    for(Letter *l : this->letters) {
+        if(!intervalStarted && l->getLetterID().compare(startID)==0) {
+            intervalStarted = true;
+            l->setAlignment(align);
+        } else if(intervalStarted) {
+            l->setAlignment(align);
+            if(l->getLetterID().compare(lastID)==0)
+                break;
+        }
+    }
+
+    /* Propagate change to other clients working on the same file */
+    emit remoteAlignChangeNotify(this->users, message, client);
+}
+
 void FileHandler::changeCursor(QTcpSocket *client, QByteArray message, int position) {
     usersCursorPosition[client] = position;
     emit remoteCursorChangeNotify(this->users, message, client);

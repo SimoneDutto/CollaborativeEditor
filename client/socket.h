@@ -86,7 +86,7 @@ private slots:
     int sendNewFile(QString filename);
     int sendChangeStyle(QString firstLetterID, QString lastLetterID, int fileID, QString changedStyle, QString font);
     int sendCursor(int position);
-    int sendAlignment(Qt::AlignmentFlag alignment, int cursorPosition); // riga?
+    int sendAlignment(Qt::AlignmentFlag alignment, int cursorPosition, QString startID, QString lastID);
 
 signals:
     /* Registrazione */
@@ -103,6 +103,7 @@ signals:
     void readyInsert(QJsonArray position, QChar newLetterValue, int externalIndex, int siteID, int siteCounter, QTextCharFormat format);
     void readyDelete(QString deletedLetterID);
     void readyStyleChange(QString firstID, QString lastID, QString changedStyle, QString font);
+    void readyAlignChange(Qt::AlignmentFlag alignment, int cursorPosition, QString startID, QString lastID);
     void UserConnect(QString username, QColor colorUser);
     void userCursor(QPair<int,int> userID_pos, QColor color);
     void UserDisconnect(QString username, int userID);
