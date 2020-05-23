@@ -348,6 +348,10 @@ void FileSystem::sendFile(int fileid, QTcpSocket *socket){
             f.fromString(font);
             format.setFont(f);
 
+            QString colorName = v.toObject().value("color").toString();
+            QColor color(colorName);
+            format.setForeground(color);
+
             int align = v.toObject().value("align").toInt();
             Qt::AlignmentFlag alignFlag = static_cast<Qt::AlignmentFlag>(align);
             //qDebug() << "valore letto" << alignFlag;
@@ -577,6 +581,7 @@ void FileSystem::sendInsert(QVector<QTcpSocket*> users, QByteArray message, bool
         obj.insert("position", rootObject.value("position").toArray());
         obj.insert("font", rootObject.value("font").toString());
         obj.insert("align", rootObject.value("align").toInt());
+        obj.insert("color", rootObject.value("color").toString());
         obj.insert("siteID", rootObject.value("siteID").toString());
         obj.insert("siteCounter", rootObject.value("siteCounter").toInt());
         obj.insert("externalIndex", newIndex);

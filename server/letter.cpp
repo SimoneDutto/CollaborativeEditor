@@ -124,7 +124,8 @@ QJsonObject Letter::toJSon(){
     obj.insert("letter", QJsonValue(letter));
     obj.insert("letterID", QJsonValue(letterID));
     obj.insert("font", QJsonValue(format.font().toString()));
-    obj.insert("align", alignment);
+    obj.insert("align", QJsonValue(alignment));
+    obj.insert("color", QJsonValue(format.foreground().color().name()));
     obj.insert("position", positionJsonArray);
     //qDebug() << "TO JSON" << alignment;
 

@@ -364,6 +364,10 @@ void Socket::notificationsHandler(QByteArray data){
                 f.fromString(font);
                 format.setFont(f);
 
+                QString colorName = v.toObject().value("color").toString();
+                QColor color(colorName);
+                format.setForeground(color);
+
                 int align = v.toObject().value("align").toInt();
                 Qt::AlignmentFlag alignFlag = static_cast<Qt::AlignmentFlag>(align);
 
@@ -423,6 +427,10 @@ void Socket::notificationsHandler(QByteArray data){
         QFont f;
         f.fromString(font);
         format.setFont(f);
+
+        QString colorName = object.value("color").toString();
+        QColor color(colorName);
+        format.setForeground(color);
 
         int align = object.value("align").toInt();
         Qt::AlignmentFlag alignFlag = static_cast<Qt::AlignmentFlag>(align);
@@ -567,9 +575,10 @@ int Socket::sendInsert(QChar newLetterValue, QJsonArray position, int siteID, in
     obj.insert("type", "INSERT");
     obj.insert("fileid", this->fileh->getFileId());
     obj.insert("letter", QJsonValue(newLetterValue));
-    obj.insert("position", position);
+    obj.insert("position", QJsonValue(position));
     obj.insert("font", QJsonValue(format.font().toString()));
-    obj.insert("align", align);
+    obj.insert("align", QJsonValue(align));
+    obj.insert("color", QJsonValue(format.foreground().color().name()));
     obj.insert("siteID", siteID);
     obj.insert("siteCounter", siteCounter);
     obj.insert("externalIndex", externalIndex);

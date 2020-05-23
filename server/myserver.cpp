@@ -144,6 +144,10 @@ void MyServer::handleNotifications(QTcpSocket *socket, QByteArray data)
             format.setFont(f);
             qDebug() << format.font();
 //            qDebug() << "Format: " << format.font().toString() << " stile = " << format.font().italic() << format.font().weight() << format.fontUnderline();
+            QString colorName = rootObject.value("color").toString();
+            QColor color(colorName);
+            format.setForeground(color);
+
             int align = rootObject.value("align").toInt();
             Qt::AlignmentFlag alignFlag = static_cast<Qt::AlignmentFlag>(align);
 
