@@ -376,8 +376,8 @@ void Socket::notificationsHandler(QByteArray data){
                      this, SLOT(sendChangeStyle(QString, QString, int, QString, QString)));
             connect( this->fileh, SIGNAL(localCursorChangeNotify(int)),
                      this, SLOT(sendCursor(int)));
-            /* connect( this->fileh, SIGNAL(localAlignChangeNotify(Qt::AlignmentFlag,int,QString,QString)),
-                     this, SLOT(sendAlignment(Qt::AlignmentFlag,int,QString,QString)));*/
+            connect( this->fileh, SIGNAL(localAlignChangeNotify(Qt::AlignmentFlag,int,QString,QString)),
+                     this, SLOT(sendAlignment(Qt::AlignmentFlag,int,QString,QString)));
 
             /*Salvo il file come vettore di Letters nel fileHandler*/
             this->fileh->setValues(std::move(letters));
@@ -447,8 +447,8 @@ void Socket::notificationsHandler(QByteArray data){
                      this, SLOT(sendChangeStyle(QString, QString, int, QString, QString)));
             connect( this->fileh, SIGNAL(localCursorChangeNotify(int)),
                      this, SLOT(sendCursor(int)));
-            /* connect( this->fileh, SIGNAL(localAlignChangeNotify(Qt::AlignmentFlag,int,QString,QString)),
-                                 this, SLOT(sendAlignment(Qt::AlignmentFlag,int,QString,QString))); */
+            connect( this->fileh, SIGNAL(localAlignChangeNotify(Qt::AlignmentFlag,int,QString,QString)),
+                     this, SLOT(sendAlignment(Qt::AlignmentFlag,int,QString,QString)));
             qDebug() << "Il file è stato creato correttamente!";
         }
         else{
