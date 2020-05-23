@@ -19,6 +19,7 @@ private:
     QVector<int> fractionalIndexes;
     QString letterID;
     QTextCharFormat format;
+    Qt::AlignmentFlag alignment;
 
 public:
     //Letter() {}
@@ -32,6 +33,7 @@ public:
     int getNumberOfFractionals();
     QTextCharFormat getFormat();
     void setStyleFromString(QString format, QString font);
+    void setAlignment(Qt::AlignmentFlag align);
     //int getCounter();
     //void incrementCounter();
     void setIndex(int index);

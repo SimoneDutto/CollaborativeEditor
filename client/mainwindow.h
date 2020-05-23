@@ -101,7 +101,7 @@ signals:
     void myDelete(int firstExternalIndex, int lastExternalIndex);
     void sendNameFile(QString fileNameTmp);
     void newFile(QString filename);
-    void styleChange(QMap<QString, QTextCharFormat>, QString startID, QString lastID, bool boldTriggered, bool italicTriggered, bool underlinedTriggered, QString font);
+    void styleChange(QMap<QString, QTextCharFormat>, QString startID, QString lastID, bool boldTriggered, bool italicTriggered, bool underlinedTriggered);
     void exportAsPDF();
     void logOut();
     void sendCursorChange(int position);
@@ -109,7 +109,7 @@ signals:
     void setCurrFont(QFont currFont);
     void setCurrFontSize(int sizeFont);
     void sendHist();
-    void sendAlignment(Qt::AlignmentFlag alignment, int cursorPosition);
+    void sendAlignment(Qt::AlignmentFlag alignment, int cursorPosition, QString startID, QString lastID);
 };
 
 #endif // MAINWINDOW_H

@@ -101,6 +101,9 @@ void FileSystem::createFile(QString filename, QTcpSocket *socket){
         connect( fh, SIGNAL(remoteCursorChangeNotify(QVector<QTcpSocket*>, QByteArray, QTcpSocket*)),
                  this, SLOT(sendCursorChange(QVector<QTcpSocket*>, QByteArray, QTcpSocket*)));
 
+        connect( fh, SIGNAL(remoteAlignChangeNotify(QVector<QTcpSocket*>, QByteArray, QTcpSocket*)),
+                 this, SLOT(sendAlignChange(QVector<QTcpSocket*>, QByteArray, QTcpSocket*)));
+
         QByteArray ba;
         ba.append(QString::number(fileid));
         QString URI = ba.toBase64();
@@ -375,6 +378,9 @@ void FileSystem::sendFile(int fileid, QTcpSocket *socket){
         connect( fh, SIGNAL(remoteCursorChangeNotify(QVector<QTcpSocket*>, QByteArray, QTcpSocket*)),
                  this, SLOT(sendCursorChange(QVector<QTcpSocket*>, QByteArray, QTcpSocket*)));
 
+        connect( fh, SIGNAL(remoteAlignChangeNotify(QVector<QTcpSocket*>, QByteArray, QTcpSocket*)),
+                 this, SLOT(sendAlignChange(QVector<QTcpSocket*>, QByteArray, QTcpSocket*)));
+
         qDebug() << "cursore = " << letterArray.size();
 
         fh->insertActiveUser(socket, siteCounter, sock_username.at(socket), sock_id.at(socket), letterArray.size());
@@ -625,6 +631,22 @@ void FileSystem::sendDelete(QVector<QTcpSocket*> users, QByteArray message, QTcp
 }
 
 void FileSystem::sendStyleChange(QVector<QTcpSocket*> users, QByteArray message, QTcpSocket* client) {
+    QVectorIterator<QTcpSocket*> i(users);
+    QByteArray sendSize;
+
+    while (i.hasNext()){
+        QTcpSocket* socket = i.next();
+        if(socket == client) continue;
+        if(socket->state() == QAbstractSocket::ConnectedState) {
+            socket->write(sendSize.number(message.size()), sizeof (long int));
+            socket->waitForBytesWritten();
+            socket->write(message);
+            socket->waitForBytesWritten(1000);
+        }
+    }
+}
+
+void FileSystem::sendAlignChange(QVector<QTcpSocket*> users, QByteArray message, QTcpSocket* client) {
     QVectorIterator<QTcpSocket*> i(users);
     QByteArray sendSize;
 

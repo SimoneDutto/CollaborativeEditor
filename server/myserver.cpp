@@ -219,6 +219,20 @@ void MyServer::handleNotifications(QTcpSocket *socket, QByteArray data)
             fHandler->changeStyle(initialIndex, lastIndex, changedStyle, font, socket, data);
         }
     }
+    else if(type.compare("ALIGNMENT")==0) {
+        /*
+         * 1: left, 2: right, 132: center, 8: justify
+        */
+        int fileID = rootObject.value(("fileid")).toInt();
+        if(fsys->getFiles().find(fileID) != fsys->getFiles().end()) {
+            FileHandler* fHandler = fsys->getFiles().at(fileID);
+            int align = rootObject.value("align").toInt();
+            Qt::AlignmentFlag alignFlag = static_cast<Qt::AlignmentFlag>(align);
+            QString startID = rootObject.value("startID").toString();
+            QString lastID = rootObject.value("lastID").toString();
+            fHandler->changeAlign(alignFlag, startID, lastID, socket, data);
+        }
+    }
     else if(type.compare("CURSOR")==0) {
         int fileID = rootObject.value("fileid").toInt();
         if(fsys->getFiles().find(fileID) != fsys->getFiles().end()) {   // file exists
