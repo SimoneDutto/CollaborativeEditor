@@ -39,6 +39,10 @@ public:
     void setFormat(QTextCharFormat format);
     void setStyleFromString(QString format, QString font);
     void setAlignment(Qt::AlignmentFlag alignment);
+    void setColor(QColor c);
+    void setBack(QColor c);
+    QBrush getColor();
+    QBrush getBack();
     ~Letter(){}
 };
 

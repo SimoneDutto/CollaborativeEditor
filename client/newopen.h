@@ -27,6 +27,8 @@ private slots:
     void uriIsOk(QString uri);
     void uriIsNotOk();
 
+    void on_pushButton_4_clicked();
+
 private:
     Ui::NewOpen *ui;
     Socket *socket;
@@ -34,6 +36,7 @@ private:
     FileHandler *fileHandler;
     Form *form;
     Uri *uri;
+    Account *account;
 
 
 signals:

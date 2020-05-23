@@ -162,6 +162,23 @@ QTextCharFormat Letter::getFormat(){
     return this->format;
 }
 
+void Letter::setColor(QColor c)
+{
+    this->format.setForeground(c);
+}
+
+void Letter::setBack(QColor c){
+    this->format.setBackground(c);
+}
+
+QBrush Letter::getColor()
+{
+    return this->format.foreground();
+}
+
+QBrush Letter::getBack(){
+    return this->format.background();
+
 Qt::AlignmentFlag Letter::getAlignment() {
     return this->alignment;
 }
