@@ -177,7 +177,7 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
              fHandler, SLOT(localAlignChange(Qt::AlignmentFlag,int,QString,QString)));
     connect( socket, SIGNAL(readyAlignChange(Qt::AlignmentFlag,int,QString,QString)),
              fHandler, SLOT(remoteAlignChange(Qt::AlignmentFlag,int,QString,QString)));
-    connect( fHandler, SIGNAL(readyRemoteAlignChange(Qt::AlignmentFlat,int)),
+    connect( fHandler, SIGNAL(readyRemoteAlignChange(Qt::AlignmentFlag,int)),
              this, SLOT(changeAlignment(Qt::AlignmentFlag,int))); 
 
     /* CONNECT per cursore */
@@ -935,19 +935,31 @@ void MainWindow::on_actionAlign_to_Left_triggered()
     ui->actionAlign_to_Justify->setChecked(false);
 
     QTextCursor cursor = ui->textEdit->textCursor();
+    int endSelection = cursor.selectionEnd();
 
-    /* Get startID and lastID of paragraph */
-    QTextBlock paragraph = cursor.block();
-    int startIndex = paragraph.position();
-    int length = paragraph.length();
-    int lastIndex = startIndex + length - 1;
-    //qDebug() << startIndex << length;
     QVector<Letter*> file = this->fHandler->getVectorFile();
-    QString startID = file.at(startIndex)->getLetterID();
-    QString lastID = file.at(lastIndex)->getLetterID();
-    //qDebug() << paragraph.text();
-    emit sendAlignment(Qt::AlignLeft, cursor.position(), startID, lastID);
+    QTextBlock paragraph = cursor.block();
+    int startIndex, length, lastIndex;
+    QString startID, lastID;
+    bool continueLoop = true;
 
+    while(continueLoop) {
+        /* Get startID and lastID of current paragraph */
+        startIndex = paragraph.position();
+        length = paragraph.length();
+        lastIndex = startIndex + length - 1;
+        startID = file.at(startIndex)->getLetterID();
+        if(file.size() > lastIndex) // file vector includes \n of that paragraph
+            lastID = file.at(lastIndex)->getLetterID();
+        else if(file.size() == lastIndex)
+            lastID = file.at(lastIndex-1)->getLetterID();
+        emit sendAlignment(Qt::AlignLeft, startIndex, startID, lastID);
+
+        if(paragraph.contains(endSelection))
+            continueLoop = false;
+        else paragraph = paragraph.next();
+        qDebug() << continueLoop;
+    }
 
     connect(this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
               fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
@@ -977,18 +989,31 @@ void MainWindow::on_actionAlign_to_Right_triggered()
     ui->actionAlign_to_Justify->setChecked(false);
 
     QTextCursor cursor = ui->textEdit->textCursor();
+    int endSelection = cursor.selectionEnd();
 
-    /* Get startID and lastID of paragraph */
-    QTextBlock paragraph = cursor.block();
-    int startIndex = paragraph.position();
-    int length = paragraph.length();
-    int lastIndex = startIndex + length - 1;
-    //qDebug() << startIndex << length;
     QVector<Letter*> file = this->fHandler->getVectorFile();
-    QString startID = file.at(startIndex)->getLetterID();
-    QString lastID = file.at(lastIndex)->getLetterID();
-    //qDebug() << paragraph.text();
-    emit sendAlignment(Qt::AlignRight, cursor.position(), startID, lastID);
+    QTextBlock paragraph = cursor.block();
+    int startIndex, length, lastIndex;
+    QString startID, lastID;
+    bool continueLoop = true;
+
+    while(continueLoop) {
+        /* Get startID and lastID of current paragraph */
+        startIndex = paragraph.position();
+        length = paragraph.length();
+        lastIndex = startIndex + length - 1;
+        startID = file.at(startIndex)->getLetterID();
+        if(file.size() > lastIndex) // file vector includes \n of that paragraph
+            lastID = file.at(lastIndex)->getLetterID();
+        else if(file.size() == lastIndex)
+            lastID = file.at(lastIndex-1)->getLetterID();
+        emit sendAlignment(Qt::AlignRight, startIndex, startID, lastID);
+
+        if(paragraph.contains(endSelection))
+            continueLoop = false;
+        else paragraph = paragraph.next();
+        qDebug() << continueLoop;
+    }
 
     connect(this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
               fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
@@ -1018,21 +1043,32 @@ void MainWindow::on_actionAlign_to_Center_triggered()
     ui->actionAlign_to_Justify->setChecked(false);
 
     QTextCursor cursor = ui->textEdit->textCursor();
+    int endSelection = cursor.selectionEnd();
 
-    /* Get startID and lastID of paragraph */
-    QTextBlock paragraph = cursor.block();
-    int startIndex = paragraph.position();
-    int length = paragraph.length();
-    int lastIndex = startIndex + length - 1;
-    //qDebug() << startIndex << length;
     QVector<Letter*> file = this->fHandler->getVectorFile();
-    QString startID = file.at(startIndex)->getLetterID();
-    QString lastID = file.at(lastIndex)->getLetterID();
-    //qDebug() << paragraph.text();
-    emit sendAlignment(Qt::AlignCenter, cursor.position(), startID, lastID);
+    QTextBlock paragraph = cursor.block();
+    int startIndex, length, lastIndex;
+    QString startID, lastID;
+    bool continueLoop = true;
 
-    // Qt::AlignmentFlag alignFlag = static_cast<Qt::AlignmentFlag>(132);
-    // qDebug() << alignFlag;
+    while(continueLoop) {
+        /* Get startID and lastID of current paragraph */
+        startIndex = paragraph.position();
+        length = paragraph.length();
+        lastIndex = startIndex + length - 1;
+        startID = file.at(startIndex)->getLetterID();
+        if(file.size() > lastIndex) // file vector includes \n of that paragraph
+            lastID = file.at(lastIndex)->getLetterID();
+        else if(file.size() == lastIndex)
+            lastID = file.at(lastIndex-1)->getLetterID();
+        emit sendAlignment(Qt::AlignCenter, startIndex, startID, lastID);
+
+        if(paragraph.contains(endSelection))
+            continueLoop = false;
+        else paragraph = paragraph.next();
+        qDebug() << continueLoop;
+    }
+
     connect(this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
               fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
     connect(this, SIGNAL(myDelete(int,int)),
@@ -1061,18 +1097,31 @@ void MainWindow::on_actionAlign_to_Justify_triggered()
     ui->actionAlign_to_Justify->setChecked(true);
 
     QTextCursor cursor = ui->textEdit->textCursor();
+    int endSelection = cursor.selectionEnd();
 
-    /* Get startID and lastID of paragraph */
-    QTextBlock paragraph = cursor.block();
-    int startIndex = paragraph.position();
-    int length = paragraph.length();
-    int lastIndex = startIndex + length - 1;
-    //qDebug() << startIndex << length;
     QVector<Letter*> file = this->fHandler->getVectorFile();
-    QString startID = file.at(startIndex)->getLetterID();
-    QString lastID = file.at(lastIndex)->getLetterID();
-    //qDebug() << paragraph.text();
-    emit sendAlignment(Qt::AlignJustify, cursor.position(), startID, lastID);
+    QTextBlock paragraph = cursor.block();
+    int startIndex, length, lastIndex;
+    QString startID, lastID;
+    bool continueLoop = true;
+
+    while(continueLoop) {
+        /* Get startID and lastID of current paragraph */
+        startIndex = paragraph.position();
+        length = paragraph.length();
+        lastIndex = startIndex + length - 1;
+        startID = file.at(startIndex)->getLetterID();
+        if(file.size() > lastIndex) // file vector includes \n of that paragraph
+            lastID = file.at(lastIndex)->getLetterID();
+        else if(file.size() == lastIndex)
+            lastID = file.at(lastIndex-1)->getLetterID();
+        emit sendAlignment(Qt::AlignJustify, startIndex, startID, lastID);
+
+        if(paragraph.contains(endSelection))
+            continueLoop = false;
+        else paragraph = paragraph.next();
+        qDebug() << continueLoop;
+    }
 
     connect(this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
               fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
@@ -1271,7 +1320,22 @@ void MainWindow::uploadHistory(QMap<int, QString> mapIdUsername){
 }
 
 void MainWindow::changeAlignment(Qt::AlignmentFlag alignment, int cursorPosition){
-    auto cursor = ui->textEdit->textCursor();
+    disconnect(this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
+              fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
+    disconnect(this, SIGNAL(myDelete(int,int)),
+              fHandler, SLOT(localDelete(int,int)));
+
+    QTextCursor cursor = ui->textEdit->textCursor();
+    int prevPos = cursor.position();
     cursor.setPosition(cursorPosition);
-    ui->textEdit->setAlignment(alignment);
+    QTextBlockFormat blockFormat = cursor.blockFormat();
+    blockFormat.setAlignment(alignment);
+    cursor.mergeBlockFormat(blockFormat);
+    cursor.setPosition(prevPos);
+    ui->textEdit->setTextCursor(cursor);
+
+    connect(this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
+              fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
+    connect(this, SIGNAL(myDelete(int,int)),
+              fHandler, SLOT(localDelete(int,int)));
 }
