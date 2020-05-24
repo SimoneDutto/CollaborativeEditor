@@ -294,6 +294,10 @@ void FileHandler::remoteColorChange(QString startID, QString lastID, QColor colo
             intervalStarted = true;
             l->setColor(color);
             start = l->getIndex();
+            if(startID.compare(lastID)==0) {
+                end = start;
+                break;
+            }
         } else if(intervalStarted) {
             l->setColor(color);
             if(l->getLetterID().compare(lastID)==0) {
