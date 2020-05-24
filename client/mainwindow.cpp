@@ -163,6 +163,9 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
              this, SLOT(on_write_uri(QString)));
     connect( socket, SIGNAL(HistorySuccess(QMap<int, QString>)),
              this, SLOT(uploadHistory(QMap<int, QString>)));
+    connect( ui->textEdit, SIGNAL(pastedText(QString)),
+             this, SLOT(insertPastedText(QString)));
+
 
     /* CONNECT per lo stile dei caratteri */
     connect( this, SIGNAL(styleChange(QMap<QString, QTextCharFormat>)),
@@ -171,7 +174,6 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
              this, SLOT(changeViewAfterStyle(QString, QString)));
     connect( socket, SIGNAL(readyStyleChange(QString, QString, QString, QString)),
              fHandler, SLOT(remoteStyleChange(QString, QString, QString, QString)));
-
     connect( this, SIGNAL(sendAlignment(Qt::AlignmentFlag,int,QString,QString)),
              fHandler, SLOT(localAlignChange(Qt::AlignmentFlag,int,QString,QString)));
     connect( socket, SIGNAL(readyAlignChange(Qt::AlignmentFlag,int,QString,QString)),
@@ -1479,4 +1481,33 @@ void MainWindow::changeAlignment(Qt::AlignmentFlag alignment, int cursorPosition
     connect(this, SIGNAL(myDelete(int,int)),
               fHandler, SLOT(localDelete(int,int)));
 
+
+void MainWindow::insertPastedText(QString text){
+    disconnect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
+
+    QTextCursor cursor(ui->textEdit->textCursor());
+    int externalIndex = cursor.position();
+
+    if(cursor.hasSelection()){
+        int deletedLetters = cursor.selectionEnd()-cursor.selectionStart();
+        if (receivers(SIGNAL(myDelete(int,int))) > 0) {
+            letterCounter -= deletedLetters;
+            emit myDelete(cursor.selectionStart()+1, cursor.selectionEnd());
+        }
+    }
+
+    cursor.setPosition(cursor.selectionStart());
+    if (receivers(SIGNAL(myInsert(int,QChar,int,QTextCharFormat))) > 0) {
+        for(QChar newLetterValue : text){
+            letterCounter++;
+            externalIndex++;
+            emit myInsert(externalIndex, newLetterValue, socket->getClientID(), cursor.charFormat());
+
+        }
+        emit sendCursorChange(externalIndex);
+    }
+
+    ui->textEdit->insertPlainText(text);
+
+    connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
 }
