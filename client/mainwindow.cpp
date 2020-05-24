@@ -1229,8 +1229,6 @@ void MainWindow::on_cursor_triggered(QPair<int,int> idpos, QColor col)
 
     disconnect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
 
-
-
     QTextCharFormat fmt;
     QTextCharFormat fmt2;
 
@@ -1294,7 +1292,6 @@ void MainWindow::on_cursor_triggered(QPair<int,int> idpos, QColor col)
         cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
         cursor.mergeCharFormat(fmt);
     }
-
     connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
 
 }
@@ -1470,4 +1467,32 @@ void MainWindow::changeAlignment(Qt::AlignmentFlag alignment, int cursorPosition
     connect(this, SIGNAL(myDelete(int,int)),
               fHandler, SLOT(localDelete(int,int)));
 
+}
+
+void MainWindow::on_textEdit_selectionChanged()
+{
+    QTextCursor cursor = ui->textEdit->textCursor();
+    int start = cursor.selectionStart();
+    int end = cursor.selectionEnd();
+    qDebug() << "testo selezionato: " << cursor.selectedText();
+   // emit sendSelection(start, end);
+}
+
+
+
+void MainWindow::changeViewAfterSelection(int start, int end, QColor colore)
+{
+    disconnect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
+
+    QTextCharFormat fmt;
+    QTextCursor cursor = ui->textEdit->textCursor();
+    fmt.setBackground(colore);
+    int dif = end-start+1;
+    cursor.setPosition(end+1);
+    for(int i = 0; i<=dif; i++){
+        cursor.mergeCharFormat(fmt);
+        cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
+         qDebug() << "testo left: " << cursor.selectedText();
+    }
+    connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
 }

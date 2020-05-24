@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>345</width>
-    <height>185</height>
+    <height>205</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,7 +17,7 @@
    <property name="geometry">
     <rect>
      <x>30</x>
-     <y>80</y>
+     <y>90</y>
      <width>281</width>
      <height>20</height>
     </rect>
@@ -40,7 +40,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>110</y>
+     <y>120</y>
      <width>321</width>
      <height>20</height>
     </rect>
@@ -55,24 +55,24 @@
   <widget class="QLabel" name="label_3">
    <property name="geometry">
     <rect>
-     <x>130</x>
+     <x>120</x>
      <y>10</y>
-     <width>71</width>
-     <height>61</height>
+     <width>91</width>
+     <height>81</height>
     </rect>
    </property>
    <property name="text">
     <string/>
    </property>
    <property name="pixmap">
-    <pixmap resource="resource.qrc">:/rec/icone/error.png</pixmap>
+    <pixmap resource="resource.qrc">:/rec/icone/icons8-errore-96.png</pixmap>
    </property>
   </widget>
   <widget class="QPushButton" name="pushButton">
    <property name="geometry">
     <rect>
      <x>120</x>
-     <y>140</y>
+     <y>150</y>
      <width>91</width>
      <height>32</height>
     </rect>

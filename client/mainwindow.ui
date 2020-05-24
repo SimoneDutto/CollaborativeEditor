@@ -425,6 +425,7 @@ p, li { white-space: pre-wrap; }
     </property>
     <addaction name="actionLight"/>
     <addaction name="actionDark"/>
+    <addaction name="actionprova"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -462,7 +463,7 @@ p, li { white-space: pre-wrap; }
   <action name="actionNew">
    <property name="icon">
     <iconset resource="resource.qrc">
-     <normaloff>:/rec/icone/nuovo2.png</normaloff>:/rec/icone/nuovo2.png</iconset>
+     <normaloff>:/rec/icone/icons8-aggiungi-file-96.png</normaloff>:/rec/icone/icons8-aggiungi-file-96.png</iconset>
    </property>
    <property name="text">
     <string>New</string>
@@ -471,7 +472,7 @@ p, li { white-space: pre-wrap; }
   <action name="actionOpen">
    <property name="icon">
     <iconset resource="resource.qrc">
-     <normaloff>:/rec/icone/open.png</normaloff>:/rec/icone/open.png</iconset>
+     <normaloff>:/rec/icone/icons8-apri-cartella-96.png</normaloff>:/rec/icone/icons8-apri-cartella-96.png</iconset>
    </property>
    <property name="text">
     <string>Open</string>
@@ -483,7 +484,7 @@ p, li { white-space: pre-wrap; }
   <action name="actionCut">
    <property name="icon">
     <iconset resource="resource.qrc">
-     <normaloff>:/rec/icone/scissors.png</normaloff>:/rec/icone/scissors.png</iconset>
+     <normaloff>:/rec/icone/icons8-taglia-96.png</normaloff>:/rec/icone/icons8-taglia-96.png</iconset>
    </property>
    <property name="text">
     <string>Cut</string>
@@ -495,7 +496,7 @@ p, li { white-space: pre-wrap; }
   <action name="actionCopy">
    <property name="icon">
     <iconset resource="resource.qrc">
-     <normaloff>:/rec/icone/copy-document.png</normaloff>:/rec/icone/copy-document.png</iconset>
+     <normaloff>:/rec/icone/icons8-copia-96.png</normaloff>:/rec/icone/icons8-copia-96.png</iconset>
    </property>
    <property name="text">
     <string>Copy</string>
@@ -507,7 +508,7 @@ p, li { white-space: pre-wrap; }
   <action name="actionPaste">
    <property name="icon">
     <iconset resource="resource.qrc">
-     <normaloff>:/rec/icone/paste-from-clipboard.png</normaloff>:/rec/icone/paste-from-clipboard.png</iconset>
+     <normaloff>:/rec/icone/icons8-incolla-96.png</normaloff>:/rec/icone/icons8-incolla-96.png</iconset>
    </property>
    <property name="text">
     <string>Paste</string>
@@ -519,7 +520,7 @@ p, li { white-space: pre-wrap; }
   <action name="actionAbout_us">
    <property name="icon">
     <iconset resource="resource.qrc">
-     <normaloff>:/rec/icone/info.png</normaloff>:/rec/icone/info.png</iconset>
+     <normaloff>:/rec/icone/icons8-informazioni-480.png</normaloff>:/rec/icone/icons8-informazioni-480.png</iconset>
    </property>
    <property name="text">
     <string>About us</string>
@@ -531,7 +532,7 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="icon">
     <iconset resource="resource.qrc">
-     <normaloff>:/rec/icone/bold2.png</normaloff>:/rec/icone/bold2.png</iconset>
+     <normaloff>:/rec/icone/icons8-grassetto-96.png</normaloff>:/rec/icone/icons8-grassetto-96.png</iconset>
    </property>
    <property name="text">
     <string>Bold</string>
@@ -546,7 +547,7 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="icon">
     <iconset resource="resource.qrc">
-     <normaloff>:/rec/icone/italic2.png</normaloff>:/rec/icone/italic2.png</iconset>
+     <normaloff>:/rec/icone/icons8-corsivo-96.png</normaloff>:/rec/icone/icons8-corsivo-96.png</iconset>
    </property>
    <property name="text">
     <string>Italic</string>
@@ -561,7 +562,7 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="icon">
     <iconset resource="resource.qrc">
-     <normaloff>:/rec/icone/underline2.png</normaloff>:/rec/icone/underline2.png</iconset>
+     <normaloff>:/rec/icone/icons8-sottolineato-96.png</normaloff>:/rec/icone/icons8-sottolineato-96.png</iconset>
    </property>
    <property name="text">
     <string>Underline</string>
@@ -570,19 +571,10 @@ p, li { white-space: pre-wrap; }
     <string>Ctrl+U</string>
    </property>
   </action>
-  <action name="actionFont">
-   <property name="icon">
-    <iconset resource="resource.qrc">
-     <normaloff>:/rec/icone/font.png</normaloff>:/rec/icone/font.png</iconset>
-   </property>
-   <property name="text">
-    <string>Font</string>
-   </property>
-  </action>
   <action name="actionColor">
    <property name="icon">
     <iconset resource="resource.qrc">
-     <normaloff>:/rec/icone/colore.png</normaloff>:/rec/icone/colore.png</iconset>
+     <normaloff>:/rec/icone/icons8-colore-del-testo-96.png</normaloff>:/rec/icone/icons8-colore-del-testo-96.png</iconset>
    </property>
    <property name="text">
     <string>Color</string>
@@ -591,7 +583,7 @@ p, li { white-space: pre-wrap; }
   <action name="actionEdit_Profile">
    <property name="icon">
     <iconset resource="resource.qrc">
-     <normaloff>:/rec/icone/profile.png</normaloff>:/rec/icone/profile.png</iconset>
+     <normaloff>:/rec/icone/icons8-modifica-utente-uomo-96.png</normaloff>:/rec/icone/icons8-modifica-utente-uomo-96.png</iconset>
    </property>
    <property name="text">
     <string>Edit Profile</string>
@@ -600,25 +592,16 @@ p, li { white-space: pre-wrap; }
   <action name="actionLog_Out">
    <property name="icon">
     <iconset resource="resource.qrc">
-     <normaloff>:/rec/icone/log2.png</normaloff>:/rec/icone/log2.png</iconset>
+     <normaloff>:/rec/icone/icons8-logout-arrotondato-96.png</normaloff>:/rec/icone/icons8-logout-arrotondato-96.png</iconset>
    </property>
    <property name="text">
     <string>Log Out</string>
    </property>
   </action>
-  <action name="actionGet_URI">
-   <property name="icon">
-    <iconset resource="resource.qrc">
-     <normaloff>:/rec/icone/link.png</normaloff>:/rec/icone/link.png</iconset>
-   </property>
-   <property name="text">
-    <string>Get URI</string>
-   </property>
-  </action>
   <action name="actionExport_as_PDF">
    <property name="icon">
     <iconset resource="resource.qrc">
-     <normaloff>:/rec/icone/pdf.png</normaloff>:/rec/icone/pdf.png</iconset>
+     <normaloff>:/rec/icone/icons8-esporta-in-formato-pdf-96.png</normaloff>:/rec/icone/icons8-esporta-in-formato-pdf-96.png</iconset>
    </property>
    <property name="text">
     <string>Export as PDF</string>
@@ -630,7 +613,7 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="icon">
     <iconset resource="resource.qrc">
-     <normaloff>:/rec/icone/sinistra2.png</normaloff>:/rec/icone/sinistra2.png</iconset>
+     <normaloff>:/rec/icone/icons8-allinea-a-sinistra-96.png</normaloff>:/rec/icone/icons8-allinea-a-sinistra-96.png</iconset>
    </property>
    <property name="text">
     <string>Align to Left</string>
@@ -642,7 +625,7 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="icon">
     <iconset resource="resource.qrc">
-     <normaloff>:/rec/icone/destra2.png</normaloff>:/rec/icone/destra2.png</iconset>
+     <normaloff>:/rec/icone/icons8-allinea-a-destra-96.png</normaloff>:/rec/icone/icons8-allinea-a-destra-96.png</iconset>
    </property>
    <property name="text">
     <string>Align to Right</string>
@@ -654,7 +637,7 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="icon">
     <iconset resource="resource.qrc">
-     <normaloff>:/rec/icone/centro2.png</normaloff>:/rec/icone/centro2.png</iconset>
+     <normaloff>:/rec/icone/icons8-allinea-al-centro-96.png</normaloff>:/rec/icone/icons8-allinea-al-centro-96.png</iconset>
    </property>
    <property name="text">
     <string>Align to Center</string>
@@ -666,7 +649,7 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="icon">
     <iconset resource="resource.qrc">
-     <normaloff>:/rec/icone/giust2.png</normaloff>:/rec/icone/giust2.png</iconset>
+     <normaloff>:/rec/icone/icons8-giustificato-96.png</normaloff>:/rec/icone/icons8-giustificato-96.png</iconset>
    </property>
    <property name="text">
     <string>Align to Justify</string>
@@ -675,7 +658,7 @@ p, li { white-space: pre-wrap; }
   <action name="actionhistory">
    <property name="icon">
     <iconset resource="resource.qrc">
-     <normaloff>:/rec/icone/history.png</normaloff>:/rec/icone/history.png</iconset>
+     <normaloff>:/rec/icone/icons8-passato-96.png</normaloff>:/rec/icone/icons8-passato-96.png</iconset>
    </property>
    <property name="text">
     <string>history</string>
@@ -684,7 +667,7 @@ p, li { white-space: pre-wrap; }
   <action name="actionBackground_Color">
    <property name="icon">
     <iconset resource="resource.qrc">
-     <normaloff>:/rec/icone/sfondo.png</normaloff>:/rec/icone/sfondo.png</iconset>
+     <normaloff>:/rec/icone/icons8-colore-di-riempimento-96.png</normaloff>:/rec/icone/icons8-colore-di-riempimento-96.png</iconset>
    </property>
    <property name="text">
     <string>Background Color</string>
@@ -706,6 +689,11 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="text">
     <string>Dark</string>
+   </property>
+  </action>
+  <action name="actionprova">
+   <property name="text">
+    <string>prova</string>
    </property>
   </action>
  </widget>
