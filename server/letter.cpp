@@ -69,7 +69,17 @@ void Letter::setStyleFromString(QString format, QString font) { // TODO togliere
 
 void Letter::setAlignment(Qt::AlignmentFlag align) {
     this->alignment = align;
+    qDebug() << "alignment changed";
 }
+
+void Letter::setColor(QColor c) {
+    this->format.setForeground(c);
+}
+
+QBrush Letter::getColor() {
+    return this->format.foreground();
+}
+
 
 void Letter::addFractionalDigit(int value) {
     this->fractionalIndexes.append(value);
@@ -114,8 +124,10 @@ QJsonObject Letter::toJSon(){
     obj.insert("letter", QJsonValue(letter));
     obj.insert("letterID", QJsonValue(letterID));
     obj.insert("font", QJsonValue(format.font().toString()));
-    obj.insert("align", alignment);
+    obj.insert("align", QJsonValue(alignment));
+    obj.insert("color", QJsonValue(format.foreground().color().name()));
     obj.insert("position", positionJsonArray);
+    //qDebug() << "TO JSON" << alignment;
 
     return obj;
 }

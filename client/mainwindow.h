@@ -53,40 +53,23 @@ private slots:
     void fontSizeChanged(int size);
     void uploadHistory(QMap<int, QString> mapUsers);
     void changeAlignment(Qt::AlignmentFlag alignment, int cursorPosition);
-
-
     void on_textEdit_cursorPositionChanged();
-
     void on_actionLog_Out_triggered();
-
     void on_actionEdit_Profile_triggered();
-
     //void on_actionGet_URI_triggered();
-
     void on_actionExport_as_PDF_triggered();
-    //void changeViewAfterCursor(int pos, QColor color);
-
+       //void changeViewAfterCursor(int pos, QColor color);
     void on_counter_clicked();
     void on_write_uri(QString uri);
-
     void on_actionAlign_to_Left_triggered();
-
     void on_actionAlign_to_Right_triggered();
-
     void on_actionAlign_to_Center_triggered();
-
     void on_actionAlign_to_Justify_triggered();
     void notConnected();
-
     void on_cursor_triggered(QPair<int,int> idpos, QColor col);
-
     void changeClientImage(QString path);
-
-
     void on_actionhistory_triggered();
-
     void on_actionLight_triggered();
-
     void on_actionDark_triggered();
     void changeViewAfterColor(int start, int end, QColor c);
 
@@ -114,11 +97,11 @@ signals:
     void exportAsPDF();
     void logOut();
     void sendCursorChange(int position);
-    //void localStyleChange(QString initialID, QString finalID, QTextCharFormat);
     void setCurrFont(QFont currFont);
     void setCurrFontSize(int sizeFont);
     void sendHist();
     void sendAlignment(Qt::AlignmentFlag alignment, int cursorPosition, QString startID, QString lastID);
+    void sendColorChange(QString startID, QString lastID, QString color);
 };
 
 #endif // MAINWINDOW_H

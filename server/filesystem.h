@@ -65,6 +65,7 @@ private slots:
     void sendStyleChange(QVector<QTcpSocket*> users, QByteArray message, QTcpSocket* client);
     void sendAlignChange(QVector<QTcpSocket*> users, QByteArray message, QTcpSocket* client);
     void sendCursorChange(QVector<QTcpSocket*> users, QByteArray message, QTcpSocket* client);
+    void sendColorChange(QVector<QTcpSocket*> users, QByteArray message, QTcpSocket* client);
 };
 
 #endif // FILESYSTEM_H

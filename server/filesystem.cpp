@@ -104,6 +104,9 @@ void FileSystem::createFile(QString filename, QTcpSocket *socket){
         connect( fh, SIGNAL(remoteAlignChangeNotify(QVector<QTcpSocket*>, QByteArray, QTcpSocket*)),
                  this, SLOT(sendAlignChange(QVector<QTcpSocket*>, QByteArray, QTcpSocket*)));
 
+        connect( fh, SIGNAL(remoteColorChangeNotify(QVector<QTcpSocket*>, QByteArray, QTcpSocket*)),
+                 this, SLOT(sendColorChange(QVector<QTcpSocket*>, QByteArray, QTcpSocket*)));
+
         QByteArray ba;
         ba.append(QString::number(fileid));
         QString URI = ba.toBase64();
@@ -345,8 +348,13 @@ void FileSystem::sendFile(int fileid, QTcpSocket *socket){
             f.fromString(font);
             format.setFont(f);
 
-            int align = object.value("align").toInt();
+            QString colorName = v.toObject().value("color").toString();
+            QColor color(colorName);
+            format.setForeground(color);
+
+            int align = v.toObject().value("align").toInt();
             Qt::AlignmentFlag alignFlag = static_cast<Qt::AlignmentFlag>(align);
+            //qDebug() << "valore letto" << alignFlag;
 
             Letter *letter_tmp = new Letter(letter, fractionals, ID, format, alignFlag);
             letters.append(std::move(letter_tmp));
@@ -366,6 +374,9 @@ void FileSystem::sendFile(int fileid, QTcpSocket *socket){
 
         connect( fh, SIGNAL(remoteAlignChangeNotify(QVector<QTcpSocket*>, QByteArray, QTcpSocket*)),
                  this, SLOT(sendAlignChange(QVector<QTcpSocket*>, QByteArray, QTcpSocket*)));
+
+        connect( fh, SIGNAL(remoteColorChangeNotify(QVector<QTcpSocket*>, QByteArray, QTcpSocket*)),
+                 this, SLOT(sendColorChange(QVector<QTcpSocket*>, QByteArray, QTcpSocket*)));
 
         qDebug() << "cursore = " << letterArray.size();
 
@@ -570,6 +581,7 @@ void FileSystem::sendInsert(QVector<QTcpSocket*> users, QByteArray message, bool
         obj.insert("position", rootObject.value("position").toArray());
         obj.insert("font", rootObject.value("font").toString());
         obj.insert("align", rootObject.value("align").toInt());
+        obj.insert("color", rootObject.value("color").toString());
         obj.insert("siteID", rootObject.value("siteID").toString());
         obj.insert("siteCounter", rootObject.value("siteCounter").toInt());
         obj.insert("externalIndex", newIndex);
@@ -647,6 +659,22 @@ void FileSystem::sendAlignChange(QVector<QTcpSocket*> users, QByteArray message,
 }
 
 void FileSystem::sendCursorChange(QVector<QTcpSocket*> users, QByteArray message, QTcpSocket* client) {
+    QVectorIterator<QTcpSocket*> i(users);
+    QByteArray sendSize;
+
+    while (i.hasNext()){
+        QTcpSocket* socket = i.next();
+        if(socket == client) continue;
+        if(socket->state() == QAbstractSocket::ConnectedState) {
+            socket->write(sendSize.number(message.size()), sizeof (long int));
+            socket->waitForBytesWritten();
+            socket->write(message);
+            socket->waitForBytesWritten(1000);
+        }
+    }
+}
+
+void FileSystem::sendColorChange(QVector<QTcpSocket*> users, QByteArray message, QTcpSocket* client) {
     QVectorIterator<QTcpSocket*> i(users);
     QByteArray sendSize;
 

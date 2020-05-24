@@ -291,6 +291,7 @@ void Socket::notificationsHandler(QByteArray data){
      * SIGNUP_RESPONSE
      * STYLE
      * ALIGNMENT
+     * COLOR
      * USER_CONNECT
      * USER_DISCONNECT
      * CURSOR
@@ -363,6 +364,10 @@ void Socket::notificationsHandler(QByteArray data){
                 f.fromString(font);
                 format.setFont(f);
 
+                QString colorName = v.toObject().value("color").toString();
+                QColor color(colorName);
+                format.setForeground(color);
+
                 int align = v.toObject().value("align").toInt();
                 Qt::AlignmentFlag alignFlag = static_cast<Qt::AlignmentFlag>(align);
 
@@ -423,6 +428,10 @@ void Socket::notificationsHandler(QByteArray data){
         f.fromString(font);
         format.setFont(f);
 
+        QString colorName = object.value("color").toString();
+        QColor color(colorName);
+        format.setForeground(color);
+
         int align = object.value("align").toInt();
         Qt::AlignmentFlag alignFlag = static_cast<Qt::AlignmentFlag>(align);
 
@@ -463,7 +472,6 @@ void Socket::notificationsHandler(QByteArray data){
     }
 
     else if(type.compare("STYLE")==0) {
-        int fileID = object.value(("fileid")).toInt();
         QString initialIndex = object.value("startIndex").toString();
         QString lastIndex = object.value("lastIndex").toString();
         QString changedStyle = object.value("changedStyle").toString();
@@ -480,6 +488,13 @@ void Socket::notificationsHandler(QByteArray data){
         QString startID = object.value("startID").toString();
         QString lastID = object.value("lastID").toString();
         emit readyAlignChange(alignFlag, cursor, startID, lastID);
+    }
+    else if(type.compare("COLOR")==0) {
+        QString startID = object.value("startID").toString();
+        QString lastID = object.value("lastID").toString();
+        QString colorName = object.value("color").toString();
+        QColor color(colorName);
+        emit colorChange(startID, lastID, color);
     }
     else if(type.compare("USER_CONNECT")==0){
         QString username = object.value("username").toString();
@@ -560,9 +575,10 @@ int Socket::sendInsert(QChar newLetterValue, QJsonArray position, int siteID, in
     obj.insert("type", "INSERT");
     obj.insert("fileid", this->fileh->getFileId());
     obj.insert("letter", QJsonValue(newLetterValue));
-    obj.insert("position", position);
+    obj.insert("position", QJsonValue(position));
     obj.insert("font", QJsonValue(format.font().toString()));
-    obj.insert("align", align);
+    obj.insert("align", QJsonValue(align));
+    obj.insert("color", QJsonValue(format.foreground().color().name()));
     obj.insert("siteID", siteID);
     obj.insert("siteCounter", siteCounter);
     obj.insert("externalIndex", externalIndex);
@@ -716,6 +732,29 @@ int Socket::sendAlignment(Qt::AlignmentFlag alignment, int cursorPosition, QStri
     obj.insert("userID", clientID);
     obj.insert("align", alignment);
     obj.insert("cursor", cursorPosition);
+    obj.insert("startID", startID);
+    obj.insert("lastID", lastID);
+    obj.insert("fileid", fileh->getFileId());
+
+    if(socket->state() == QAbstractSocket::ConnectedState){
+        QByteArray qarray = QJsonDocument(obj).toJson();
+        qint32 msg_size = qarray.size();
+        QByteArray toSend;
+        socket->write(toSend.number(msg_size), sizeof (long int));
+        socket->waitForBytesWritten();
+        socket->write(QJsonDocument(obj).toJson());
+        socket->waitForBytesWritten();
+        qDebug() << "Richiesta:\n" << QJsonDocument(obj).toJson().data();
+    }
+
+    return socket->waitForBytesWritten(1000);
+}
+
+int Socket::sendColor(QString startID, QString lastID, QString color) {
+    QJsonObject obj;
+    obj.insert("type", "COLOR");
+    obj.insert("userID", clientID);
+    obj.insert("color", color);
     obj.insert("startID", startID);
     obj.insert("lastID", lastID);
     obj.insert("fileid", fileh->getFileId());

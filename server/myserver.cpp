@@ -144,6 +144,10 @@ void MyServer::handleNotifications(QTcpSocket *socket, QByteArray data)
             format.setFont(f);
             qDebug() << format.font();
 //            qDebug() << "Format: " << format.font().toString() << " stile = " << format.font().italic() << format.font().weight() << format.fontUnderline();
+            QString colorName = rootObject.value("color").toString();
+            QColor color(colorName);
+            format.setForeground(color);
+
             int align = rootObject.value("align").toInt();
             Qt::AlignmentFlag alignFlag = static_cast<Qt::AlignmentFlag>(align);
 
@@ -216,6 +220,16 @@ void MyServer::handleNotifications(QTcpSocket *socket, QByteArray data)
             QString startID = rootObject.value("startID").toString();
             QString lastID = rootObject.value("lastID").toString();
             fHandler->changeAlign(alignFlag, startID, lastID, socket, data);
+        }
+    }
+    else if(type.compare("COLOR")==0) {
+        int fileID = rootObject.value(("fileid")).toInt();
+        if(fsys->getFiles().find(fileID) != fsys->getFiles().end()) {
+            QString startID = rootObject.value("startID").toString();
+            QString lastID = rootObject.value("lastID").toString();
+            QString colorName = rootObject.value("color").toString();
+            FileHandler* fHandler = fsys->getFiles().at(fileID);
+            fHandler->changeColor(startID, lastID, colorName, socket, data);
         }
     }
     else if(type.compare("CURSOR")==0) {

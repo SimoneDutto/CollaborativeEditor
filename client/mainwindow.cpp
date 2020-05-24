@@ -179,6 +179,13 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
     connect( fHandler, SIGNAL(readyRemoteAlignChange(Qt::AlignmentFlag,int)),
              this, SLOT(changeAlignment(Qt::AlignmentFlag,int))); 
 
+    connect( this, SIGNAL(sendColorChange(QString,QString,QString)),
+             socket, SLOT(sendColor(QString,QString,QString)));
+    connect( socket, SIGNAL(colorChange(QString,QString,QColor)),
+             fHandler, SLOT(remoteColorChange(QString,QString,QColor)));
+    connect( fHandler, SIGNAL(readyRemoteColorChange(int,int,QColor)),
+             this, SLOT(changeViewAfterColor(int,int,QColor)));
+
     /* CONNECT per cursore */
     connect( socket, SIGNAL(userCursor(QPair<int,int>,QColor)),
              this, SLOT(on_cursor_triggered(QPair<int,int>,QColor)));
@@ -520,8 +527,8 @@ void MainWindow::on_actionColor_triggered()
     auto cursor = ui->textEdit->textCursor();
     qDebug() << "Selection start: " << cursor.selectionStart() << " end: " << cursor.selectionEnd();
 
-        disconnect(this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
-                  fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
+        disconnect(this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat, Qt::AlignmentFlag)),
+                  fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat, Qt::AlignmentFlag)));
         disconnect(this, SIGNAL(myDelete(int,int)),
                   fHandler, SLOT(localDelete(int,int)));
 
@@ -544,10 +551,10 @@ void MainWindow::on_actionColor_triggered()
             vettore.at(i)->setColor(color);
         }
 
-        //emit colorChanged(startID, lastID, color);
+        emit sendColorChange(startID, lastID, color.name());
 
-        connect( this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
-                  fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
+        connect( this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat, Qt::AlignmentFlag)),
+                  fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat, Qt::AlignmentFlag)));
         connect( this, SIGNAL(myDelete(int,int)),
                   fHandler, SLOT(localDelete(int,int)));
     }
@@ -558,8 +565,8 @@ void MainWindow::on_actionBackground_Color_triggered()
     auto cursor = ui->textEdit->textCursor();
     qDebug() << "Selection start: " << cursor.selectionStart() << " end: " << cursor.selectionEnd();
 
-        disconnect(this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
-                  fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
+        disconnect(this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat, Qt::AlignmentFlag)),
+                  fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat, Qt::AlignmentFlag)));
         disconnect(this, SIGNAL(myDelete(int,int)),
                   fHandler, SLOT(localDelete(int,int)));
 
@@ -584,8 +591,8 @@ void MainWindow::on_actionBackground_Color_triggered()
 
     //emit backgroundColorChanged(formatCharMap, startID, lastID, color);
 
-    connect( this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat)),
-              fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat)));
+    connect( this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat, Qt::AlignmentFlag)),
+              fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat, Qt::AlignmentFlag)));
     connect( this, SIGNAL(myDelete(int,int)),
               fHandler, SLOT(localDelete(int,int)));
 }
@@ -1262,15 +1269,15 @@ void MainWindow::on_cursor_triggered(QPair<int,int> idpos, QColor col)
 
     cursor.setPosition(pos);
     cursor.movePosition(QTextCursor::Start, QTextCursor::KeepAnchor);
-    qDebug() << "testo from Start: " << cursor.selectedText();
+    //qDebug() << "testo from Start: " << cursor.selectedText();
     cursor.mergeCharFormat(fmt2);
     cursor.setPosition(pos);
     cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
-     qDebug() << "testo to End: " << cursor.selectedText();
+    //qDebug() << "testo to End: " << cursor.selectedText();
     cursor.mergeCharFormat(fmt2);
     cursor.setPosition(pos);
     cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
-     qDebug() << "testo left: " << cursor.selectedText();
+    //qDebug() << "testo left: " << cursor.selectedText();
     cursor.mergeCharFormat(fmt);
 
 
@@ -1421,12 +1428,12 @@ void MainWindow::changeViewAfterColor(int start, int end, QColor colore){
     QTextCursor cursor = ui->textEdit->textCursor();
 
     fmt.setForeground(colore);
-    int dif = end-start;
-    cursor.setPosition(end);
-    for(int i = 0; i< dif; i++){
-    cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
-     qDebug() << "testo left: " << cursor.selectedText();
-    cursor.mergeCharFormat(fmt);
+    int dif = end-start+1;
+    cursor.setPosition(end+1);
+    for(int i = 0; i<=dif; i++){
+        cursor.mergeCharFormat(fmt);
+        cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
+         qDebug() << "testo left: " << cursor.selectedText();
     }
     connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
 }

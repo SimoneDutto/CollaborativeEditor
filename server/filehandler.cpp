@@ -227,6 +227,24 @@ void FileHandler::changeCursor(QTcpSocket *client, QByteArray message, int posit
     emit remoteCursorChangeNotify(this->users, message, client);
 }
 
+void FileHandler::changeColor(QString startID, QString lastID, QString colorName, QTcpSocket *client, QByteArray message) {
+    bool intervalStarted = false;
+    QColor color(colorName);
+    /* Store alignment information for each letter locally */
+    for(Letter *l : this->letters) {
+        if(!intervalStarted && l->getLetterID().compare(startID)==0) {
+            intervalStarted = true;
+            l->setColor(color);
+        } else if(intervalStarted) {
+            l->setColor(color);
+            if(l->getLetterID().compare(lastID)==0)
+                break;
+        }
+    }
+
+    emit remoteColorChangeNotify(this->users, message, client);
+}
+
 QVector<QTcpSocket*> FileHandler::getUsers(){
     return this->users;
 }
