@@ -988,6 +988,7 @@ void MainWindow::on_write_uri(QString uri){
 void MainWindow::on_actionAlign_to_Left_triggered()
 {
     if(ui->textEdit->toPlainText().length() < 1){
+        ui->textEdit->setAlignment(Qt::AlignLeft);
         ui->actionAlign_to_Left->setChecked(true);
         ui->actionAlign_to_Right->setChecked(false);
         ui->actionAlign_to_Center->setChecked(false);
@@ -1047,8 +1048,9 @@ void MainWindow::on_actionAlign_to_Left_triggered()
 void MainWindow::on_actionAlign_to_Right_triggered()
 {
     if(ui->textEdit->toPlainText().length() < 1){
-        ui->actionAlign_to_Left->setChecked(true);
-        ui->actionAlign_to_Right->setChecked(false);
+        ui->textEdit->setAlignment(Qt::AlignRight);
+        ui->actionAlign_to_Left->setChecked(false);
+        ui->actionAlign_to_Right->setChecked(true);
         ui->actionAlign_to_Center->setChecked(false);
         ui->actionAlign_to_Justify->setChecked(false);
         return;
@@ -1106,9 +1108,10 @@ void MainWindow::on_actionAlign_to_Right_triggered()
 void MainWindow::on_actionAlign_to_Center_triggered()
 {
     if(ui->textEdit->toPlainText().length() < 1){
-        ui->actionAlign_to_Left->setChecked(true);
+        ui->textEdit->setAlignment(Qt::AlignCenter);
+        ui->actionAlign_to_Left->setChecked(false);
         ui->actionAlign_to_Right->setChecked(false);
-        ui->actionAlign_to_Center->setChecked(false);
+        ui->actionAlign_to_Center->setChecked(true);
         ui->actionAlign_to_Justify->setChecked(false);
         return;
     }
@@ -1165,10 +1168,11 @@ void MainWindow::on_actionAlign_to_Center_triggered()
 void MainWindow::on_actionAlign_to_Justify_triggered()
 {
     if(ui->textEdit->toPlainText().length() < 1){
-        ui->actionAlign_to_Left->setChecked(true);
+        ui->textEdit->setAlignment(Qt::AlignJustify);
+        ui->actionAlign_to_Left->setChecked(false);
         ui->actionAlign_to_Right->setChecked(false);
         ui->actionAlign_to_Center->setChecked(false);
-        ui->actionAlign_to_Justify->setChecked(false);
+        ui->actionAlign_to_Justify->setChecked(true);
         return;
     }
 
