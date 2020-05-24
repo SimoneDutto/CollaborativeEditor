@@ -543,8 +543,12 @@ void MainWindow::on_actionColor_triggered()
     int start = cursor.selectionStart();
     int end = cursor.selectionEnd()-1;
 
-    QString startID = vettore.at(start)->getLetterID();
     QString lastID = vettore.at(end)->getLetterID();
+    QString startID;
+
+    if(vettore.size() < start)
+        startID = vettore.at(start)->getLetterID();
+    else startID = lastID;
 
     for(i=start; i<=end; i++){
         cursor.setPosition(i+1);
@@ -955,12 +959,9 @@ void MainWindow::on_actionEdit_Profile_triggered()
     uri->show();
 }*/
 
-
-
 void MainWindow::on_actionExport_as_PDF_triggered()
 {
     QTextDocument document;
-    //document.setPlainText(ui->textEdit->toPlainText());
     document.setHtml(ui->textEdit->toHtml());
 
     QString fn = QFileDialog::getSaveFileName(this, tr("Select output file"), QString(), tr("PDF Files(*.pdf)"));
