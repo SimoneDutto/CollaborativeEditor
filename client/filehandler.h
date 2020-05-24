@@ -36,27 +36,29 @@ public:
     void setCursor(int newPosition);
 
 public slots:
-    void localInsert(int externalIndex, QChar newLetterValue, int clientID, QTextCharFormat format);
+    void localInsert(int externalIndex, QChar newLetterValue, int clientID, QTextCharFormat format, Qt::AlignmentFlag alignment);
     void localDelete(int firstExternalIndex, int lastExternalIndex);
-    void localStyleChange(QMap<QString, QTextCharFormat> letterFormatMap, QString startID, QString lastID, bool boldTriggered, bool italicTriggered, bool underlinedTriggered);
+    void localStyleChange(QMap<QString, QTextCharFormat> letterFormatMap);
     void localCursorChange(int position);
     void localAlignChange(Qt::AlignmentFlag alignment, int cursorPosition, QString startID, QString lastID); // paragrafo preso dal cursore
 
-    void remoteInsert(QJsonArray position, QChar newLetterValue, int externalIndex, int siteID, int siteCounter, QTextCharFormat format);
+    void remoteInsert(QJsonArray position, QChar newLetterValue, int externalIndex, int siteID, int siteCounter, QTextCharFormat format, Qt::AlignmentFlag alignment);
     void remoteDelete(QString deletedLetterID);
     void remoteStyleChange(QString firstLetterID, QString lastLetterID, QString changedStyle, QString font);
     void remoteAlignChange(Qt::AlignmentFlag alignment, int cursorPosition, QString startID, QString lastID);
+    void remoteColorChange(QString startID, QString lastID, QColor color);
 signals:
-    void localInsertNotify(QChar newLetterValue, QJsonArray position, int siteID, int siteCounter, int externalIndex, QTextCharFormat format);
+    void localInsertNotify(QChar newLetterValue, QJsonArray position, int siteID, int siteCounter, int externalIndex, QTextCharFormat format, Qt::AlignmentFlag align);
     void localDeleteNotify(QString deletedLetterID, int fileid, int siteCounter);
     void localStyleChangeNotify(QString firstLetterID, QString lastLetterID, int fileID, QString changedStyle, QString font);
     void localCursorChangeNotify(int position);
     void localAlignChangeNotify(Qt::AlignmentFlag align, int cursorPosition, QString startID, QString lastID);
 
-    void readyRemoteInsert(QChar newLetter, int externalIndex, QTextCharFormat format);
+    void readyRemoteInsert(QChar newLetter, int externalIndex, QTextCharFormat format, Qt::AlignmentFlag alignment);
     void readyRemoteDelete(int externalIndex);
     void readyRemoteStyleChange(QString firstLetterID, QString lastLetterID);
     void readyRemoteAlignChange(Qt::AlignmentFlag align, int cursorPosition);
+    void readyRemoteColorChange(int start, int end, QColor color);
 };
 
 #endif // FILEHANDLER_H

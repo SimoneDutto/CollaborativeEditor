@@ -35,6 +35,11 @@
         <file>icone/giust2.png</file>
         <file>icone/sinistra2.png</file>
         <file>icone/log2.png</file>
+        <file>icone/history.png</file>
+        <file>icone/sfondo.png</file>
+        <file>icone/colore.png</file>
+        <file>icone/luna.png</file>
+        <file>icone/sole.png</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>
