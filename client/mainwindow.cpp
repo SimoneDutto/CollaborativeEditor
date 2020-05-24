@@ -960,7 +960,8 @@ void MainWindow::on_actionEdit_Profile_triggered()
 void MainWindow::on_actionExport_as_PDF_triggered()
 {
     QTextDocument document;
-    document.setPlainText(ui->textEdit->toPlainText());
+    //document.setPlainText(ui->textEdit->toPlainText());
+    document.setHtml(ui->textEdit->toHtml());
 
     QString fn = QFileDialog::getSaveFileName(this, tr("Select output file"), QString(), tr("PDF Files(*.pdf)"));
       if (fn.isEmpty())
@@ -971,7 +972,6 @@ void MainWindow::on_actionExport_as_PDF_triggered()
     printer.setColorMode(QPrinter::Color);
     printer.setOutputFileName(fn);
     document.print(&printer);
-    //emit exportAsPDF();
 }
 
 void MainWindow::on_counter_clicked()
