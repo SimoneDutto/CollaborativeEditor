@@ -11,6 +11,7 @@ int main(int argc, char *argv[])
     Socket sock("localhost", 4001);
     Login w(&sock);
     w.show();
+    a.setWindowIcon(QIcon(":rec/icone/logo_transparent copy.png"));
 
     //MainWindow m(&sock);
     //m.show();
