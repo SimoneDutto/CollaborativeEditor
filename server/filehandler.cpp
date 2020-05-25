@@ -93,7 +93,7 @@ void FileHandler::removeActiveUser(QTcpSocket *user, QString username, int userI
  * - inserimento equivalente da parte di utenti diversi.
  * */
 void FileHandler::remoteInsert(QJsonArray position, QChar newLetterValue, int externalIndex,
-                               int siteID, int siteCounter, QByteArray message, QTcpSocket *client, QTextCharFormat format) {
+                               int siteID, int siteCounter, QByteArray message, QTcpSocket *client, QTextCharFormat format, Qt::AlignmentFlag alignment) {
     // Get index and fractionals vector
     QVector<int> fractionals;
 
@@ -113,7 +113,7 @@ void FileHandler::remoteInsert(QJsonArray position, QChar newLetterValue, int ex
         }
 
         QString letterID = QString::number(siteID).append("-").append(QString::number(siteCounter));
-        Letter *newLetter = new Letter(newLetterValue, fractionals, letterID, format);
+        Letter *newLetter = new Letter(newLetterValue, fractionals, letterID, format, alignment);
         //newLetter->setStyle(style);
 
         if(externalIndex < this->letters.size()) {
@@ -204,9 +204,45 @@ void FileHandler::changeStyle(QString initialIndex, QString lastIndex, QString f
     emit remoteStyleChangeNotify(this->users, message, client);
 }
 
+void FileHandler::changeAlign(Qt::AlignmentFlag align, QString startID, QString lastID, QTcpSocket *client, QByteArray message) {
+    bool intervalStarted = false;
+    /* Store alignment information for each letter locally */
+    for(Letter *l : this->letters) {
+        if(!intervalStarted && l->getLetterID().compare(startID)==0) {
+            intervalStarted = true;
+            l->setAlignment(align);
+        } else if(intervalStarted) {
+            l->setAlignment(align);
+            if(l->getLetterID().compare(lastID)==0)
+                break;
+        }
+    }
+
+    /* Propagate change to other clients working on the same file */
+    emit remoteAlignChangeNotify(this->users, message, client);
+}
+
 void FileHandler::changeCursor(QTcpSocket *client, QByteArray message, int position) {
     usersCursorPosition[client] = position;
     emit remoteCursorChangeNotify(this->users, message, client);
+}
+
+void FileHandler::changeColor(QString startID, QString lastID, QString colorName, QTcpSocket *client, QByteArray message) {
+    bool intervalStarted = false;
+    QColor color(colorName);
+    /* Store alignment information for each letter locally */
+    for(Letter *l : this->letters) {
+        if(!intervalStarted && l->getLetterID().compare(startID)==0) {
+            intervalStarted = true;
+            l->setColor(color);
+        } else if(intervalStarted) {
+            l->setColor(color);
+            if(l->getLetterID().compare(lastID)==0)
+                break;
+        }
+    }
+
+    emit remoteColorChangeNotify(this->users, message, client);
 }
 
 QVector<QTcpSocket*> FileHandler::getUsers(){
