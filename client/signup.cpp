@@ -5,6 +5,8 @@
 #include <QFileDialog>
 #include <QBitmap>
 #include <QPainter>
+#include <QTimer>
+#include <QShortcut>
 
 SignUp::SignUp(Socket* sock, QWidget* parent)
     : QDialog(parent),
@@ -16,6 +18,8 @@ SignUp::SignUp(Socket* sock, QWidget* parent)
     QPalette pal = palette();
     QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
     this->setWindowFlags(Qt::Window);
+    QShortcut *sc = new QShortcut(QKeySequence("Return"),ui->groupBox_2);
+    connect(sc, SIGNAL(activated()), ui->pushButton, SLOT(click()));
 
     // set black background
     pal.setColor(QPalette::Background, QColor(58,58,60));
@@ -28,6 +32,15 @@ SignUp::SignUp(Socket* sock, QWidget* parent)
     ui->lineEdit->setPalette(p);
     ui->lineEdit_2->setPalette(p);
     ui->lineEdit_3->setPalette(p);
+
+    ui->lineEdit->setStyleSheet(":focus {border: 2px solid #ace4c6};");
+    ui->lineEdit->setAttribute(Qt::WA_MacShowFocusRect,0);
+    ui->lineEdit_2->setStyleSheet(":focus {border: 2px solid #ace4c6};");
+    ui->lineEdit_2->setAttribute(Qt::WA_MacShowFocusRect,0);
+    ui->lineEdit_3->setStyleSheet(":focus {border: 2px solid #ace4c6};");
+    ui->lineEdit_3->setAttribute(Qt::WA_MacShowFocusRect,0);
+
+    QTimer::singleShot(0, ui->lineEdit, SLOT(setFocus()));
 
     /* User's Image */
     QString styleSheet = "QLabel { background-color: rgb(255, 254, 239); color: black; border-style: solid; border-width: 1.2px; border-color: black;}";
@@ -53,9 +66,12 @@ SignUp::SignUp(Socket* sock, QWidget* parent)
     ui->discardImage->setStyleSheet(styleSheet);
     ui->discardImage->hide();
 
+    ui->pushButton->setStyleSheet("color: white; background-color: #706d82;  border-radius:5px");
+    ui->pushButton_2->setStyleSheet("color: white; background-color: #706d82;  border-radius:5px");
+
 
     this->show();
-    setWindowTitle("Sign Up");
+    setWindowTitle("");
     socket->isSigningUp(true);
     connect(socket, SIGNAL(signUpSuccess()), this, SLOT(sendToLogin()));
     connect(socket, SIGNAL(signUpError()), this, SLOT(repeatSignUp()));

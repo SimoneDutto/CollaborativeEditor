@@ -49,6 +49,12 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
     /*QPixmap pix("path -- TO DO");
     ui->user1->setPixmap(pix);*/
 
+    QIcon *discard_icon= new QIcon(":/rec/icone/icons8-punta-della-matita-96.png");
+    ui->discardImage->setIcon(*discard_icon);
+    ui->discardImage->setIconSize(QSize(18, 18));
+
+    QString styleSheet = "QPushButton {background-color: white; border-style: solid; border-width: 1px; border-radius: 15px; border-color: rgb(0, 0, 0);} QPushButton:hover {background-color: rgb(233, 233, 233)} QPushButton:pressed {background-color: rgb(181, 181, 181)}";
+    ui->discardImage->setStyleSheet(styleSheet);
 
     setWindowTitle(nome);
     ui->label_2->setStyleSheet("background-color:lightgray; color:black");
@@ -74,7 +80,7 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
     //ui->lineEdit->setText(nome);
 
     /* Personalizzo e aggiungo le label degli utenti connessi */
-    QString styleSheet = QString("QGroupBox {border: 0px;}");
+    styleSheet = QString("QGroupBox {border: 0px;}");
     ui->groupBox->setStyleSheet(styleSheet);
 
     ui->user1->hide();
@@ -105,7 +111,7 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
     }
 
     /* Aggiungo ComboBox e SizeBox */
-    QAction *rightAll = ui->mainToolBar->actions().at(9);
+    QAction *rightAll = ui->mainToolBar->actions().at(8);
 
     QComboBox* sizeComboBox = new QComboBox;
     QStringList* numList = new QStringList;
@@ -199,7 +205,7 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
              this, SLOT(on_counter_clicked()));
     connect( ui->user3, SIGNAL(clicked()),
              this, SLOT(on_counter_clicked()));
-    connect( ui->myicon, SIGNAL(clicked()),
+    connect( ui->discardImage, SIGNAL(clicked()),
              this, SLOT(on_actionEdit_Profile_triggered()));
 }
 
@@ -1224,6 +1230,7 @@ void MainWindow::on_actionAlign_to_Justify_triggered()
 void MainWindow::notConnected(){
     serverDisc *s = new serverDisc(this);
     s->show();
+    this->setWindowState(Qt::WindowState::WindowActive);
 }
 
 

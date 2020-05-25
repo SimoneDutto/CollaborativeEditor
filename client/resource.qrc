@@ -26,6 +26,10 @@
         <file>icone/icons8-taglia-96.png</file>
         <file>icone/back.png</file>
         <file>icone/icons8-colore-di-riempimento-96.png</file>
+        <file>icone/logo_transparent.png</file>
+        <file>icone/Testo.png</file>
+        <file>icone/icons8-aggiungi-collegamento-96.png</file>
+        <file>icone/icons8-punta-della-matita-96.png</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>
