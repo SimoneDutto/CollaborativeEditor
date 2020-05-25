@@ -744,6 +744,11 @@ void MainWindow::changeViewAfterStyle(QString firstID, QString lastID) {
             cursor.setPosition(count);
             cursor.deletePreviousChar();
             cursor.insertText(l->getValue(), l->getFormat());
+            QTextBlockFormat blockFormat = cursor.blockFormat();
+            blockFormat.setAlignment(l->getAlignment());
+            cursor.mergeBlockFormat(blockFormat);
+            ui->textEdit->setTextCursor(cursor);
+
 
             //CONTROLLO SE ARRIVA IL FORMATO GIUSTO
             /*qDebug() << "Lettera cambio stile: " << l->getValue();
