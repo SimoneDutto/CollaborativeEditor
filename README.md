@@ -46,7 +46,7 @@ Verrete poi reindirizzati alla pagina di Login:
 
 Cliccando sul bottone "Login" arrivete a questa schermata:
 
-<img src="client/immagini/open2.png" width="60%" height="60%" align="center">
+<img src="client/immagini/open3.png" width="60%" height="60%" align="center">
 
 Sulla sinistra troverete una lista di file presenti nel filesystem a cui è possibile accedere. E' anche possibile inserire l'URI di un documento a cui siete stati invitati a collaborare: se il link è corretto il file apparirà tra quelli selezionabili nella lista a sinistra e potrà essere aperto. Infine potete anche decidere di creare un nuovo file.
 
@@ -54,4 +54,4 @@ Dopo aver scelto quale file aprire, arriverete qui:
 
 <img src="client/immagini/main2.png" width="80%" height="80%" align="center">
 
-Il vero e proprio editor di testo. Nel menu in evidenza ci sono le operazioni principali: creazione di un nuovo file, apertura file, le varie funzioni di arricchimento del testo (grassetto, corsivo, sottolineato, allineamento, ...) e infine il logout. Ben visibile è anche l'URI del documento corrente, per un eventuale invito a collaborare. In alto a destra c'è l'icona dell'utente connesso e, man mano che altri utenti aprono lo stesso documento, compaiono anche le loro icone (fino a un massimo di tre utenti, dopo di che i restanti vengono aggiunti ad un contatore che, se cliccato, mostra i dettagli degli altri utenti).
+Il vero e proprio editor di testo. Nel menu in evidenza ci sono le operazioni principali: creazione di un nuovo file, apertura file, le varie funzioni di arricchimento del testo (grassetto, corsivo, sottolineato, allineamento, ...), cronologia delle modifiche e infine il logout. Ben visibile è anche l'URI del documento corrente, per un eventuale invito a collaborare. In alto a destra c'è l'icona dell'utente connesso e, man mano che altri utenti aprono lo stesso documento, compaiono anche le loro icone (fino a un massimo di tre utenti, dopo di che i restanti vengono aggiunti ad un contatore che, se cliccato, mostra i dettagli degli altri utenti).
