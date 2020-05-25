@@ -24,7 +24,7 @@ Terminata l'installazione (ci vuole un pò di pazienza), vi troverete nel percor
 
 A questo punto non resta che clonare il progetto in questione attraverso il comando:
 
-`git clone https://github.com/SimoneDutto/ProgettoMalnati.git`
+`git clone https://github.com/SimoneDutto/CollaborativeEditor.git`
 
 Quindi lanciamo dal menu di avvio QtCreator e apriamo il nostro progetto.
 
