@@ -512,7 +512,7 @@ void MainWindow::on_actionFont_triggered()
     int end = cursor.selectionEnd()-1;
 
     for(int i=start; i<=end; i++){
-        /* Se testo selezionato misto, allora settare, altrimenti se tutto settato, togliere
+        // Se testo selezionato misto, allora settare, altrimenti se tutto settato, togliere
         cursor.setPosition(i+1);
         auto letterFormat = cursor.charFormat();
         formatCharMap.insert(vettore.at(i)->getLetterID(), letterFormat);
@@ -1480,7 +1480,7 @@ void MainWindow::changeAlignment(Qt::AlignmentFlag alignment, int cursorPosition
               fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat, Qt::AlignmentFlag)));
     connect(this, SIGNAL(myDelete(int,int)),
               fHandler, SLOT(localDelete(int,int)));
-
+}
 
 void MainWindow::insertPastedText(QString text){
     disconnect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
@@ -1492,17 +1492,17 @@ void MainWindow::insertPastedText(QString text){
         int deletedLetters = cursor.selectionEnd()-cursor.selectionStart();
         if (receivers(SIGNAL(myDelete(int,int))) > 0) {
             letterCounter -= deletedLetters;
-            emit myDelete(cursor.selectionStart()+1, cursor.selectionEnd());
+            externalIndex = cursor.selectionStart();
+            emit myDelete(externalIndex+1, cursor.selectionEnd());
+            cursor.setPosition(cursor.selectionStart());
         }
     }
 
-    cursor.setPosition(cursor.selectionStart());
-    if (receivers(SIGNAL(myInsert(int,QChar,int,QTextCharFormat))) > 0) {
+    if (receivers(SIGNAL(myInsert(int,QChar,int,QTextCharFormat,Qt::AlignmentFlag))) > 0) {
         for(QChar newLetterValue : text){
             letterCounter++;
             externalIndex++;
-            emit myInsert(externalIndex, newLetterValue, socket->getClientID(), cursor.charFormat());
-
+            myInsert(externalIndex, newLetterValue, socket->getClientID(), cursor.charFormat(), this->getFlag(ui->textEdit->alignment()));
         }
         emit sendCursorChange(externalIndex);
     }
