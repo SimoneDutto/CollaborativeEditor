@@ -1,11 +1,11 @@
 # ProgettoMalnati
-Progetto per il corso di programmazione di sistema
+Progetto per il corso di Programmazione di Sistema del Politecnico di Torino.
 
 # Editor di testo collaborativo
 
 La disponibilità di connessioni a larga banda e l’esigenza di lavorare in gruppo senza richiedere necessariamente la compresenza degli attori nello stesso spazio fisico, spinge verso la realizzazione di sistemi di supporto al lavoro cooperativo sempre più efficaci. Ad esempio, Google mette a disposizione la suite Docs, mediante la quale è possibile editare, in modo cooperativo e distribuito, documenti di varia natura (testi, fogli di calcolo, presentazioni) ed in grado di scalare su numeri anche grandi di utenti contemporanei: tale soluzione è basata su un insieme di server centralizzati che gestiscono il traffico da e verso i singoli client e mettono in atto la logica necessaria a garantire la correttezza delle operazioni concorrenti.
 
-Quello che abbiamo realizzato, utilizzando il linguaggio C++, è un sistema di editing testuale cooperativo che consenta a uno o più utenti di modificare il contenuto di un documento in contemporanea, garantendo che operazioni di inserimento o modifica diverse, svolte dagli utenti allo stesso tempo, producano gli stessi effetti, indipendentemente dall’ordine con cui sono eseguite sui diversi sistemi in uso (commutatività) e che cancellazioni ripetute portino allo stesso risultato (idempotenza).
+Quello che abbiamo realizzato, utilizzando il linguaggio C++, è un <b>sistema di editing testuale cooperativo</b> che consenta a uno o più utenti di modificare il contenuto di un documento in contemporanea, garantendo che operazioni di inserimento o modifica diverse, svolte dagli utenti allo stesso tempo, producano gli stessi effetti, indipendentemente dall’ordine con cui sono eseguite sui diversi sistemi in uso (commutatività) e che cancellazioni ripetute portino allo stesso risultato (idempotenza).
 
 ## Installazione
 Per l'installazione, portatevi nella sezione download del sito ufficiale della libreria  [http://qt-project.org/downloads](http://qt-project.org/downloads) e scegliete il pacchetto di installazione (SDK) per il vostro sistema operativo. Dovete scegliere inoltre anche tra l'installazione online e offline (è consigliata la soluzione offline per motivi di tempo, a meno che non possediate una connessione molto veloce). Una volta scaricato il pacchetto di installazione sequite questi semplici passi:
