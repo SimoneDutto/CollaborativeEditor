@@ -1,3 +1,4 @@
+<img src="client/icone/logo_transparent copy.png" width="25%" height="25%" align="center"><img src="client/icone/Testo.png" width="70%" height="70%" align="center">
 # C++ollaborative Editor
 Progetto per il corso di Programmazione di Sistema del Politecnico di Torino.
 
