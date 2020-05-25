@@ -40,24 +40,23 @@ void FileHandler::removeActiveUser(QTcpSocket *user, QString username, int userI
     usersSiteCounters.remove(user);
     usersCursorPosition.remove(user);
     counter_user--;
-    if(counter_user == 0){
-        // Salvarlo in memoria secondaria, io lo farei con un segnale
-        QJsonObject object;
-        QJsonArray array;
-        for(Letter* lett: letters){
-           array.append(lett->toJSon());
-        }
-        object.insert("letterArray",array);
 
-        QFile file(QString::number(id));
-
-        if ( file.open(QFile::WriteOnly|QFile::Truncate) )
-        {
-            QTextStream stream( &file );
-            stream << QJsonDocument(object).toJson() << endl;
-        }
-        file.close();
+    // Salvarlo in memoria secondaria, io lo farei con un segnale
+    QJsonObject object;
+    QJsonArray array;
+    for(Letter* lett: letters){
+       array.append(lett->toJSon());
     }
+    object.insert("letterArray",array);
+
+    QFile file(QString::number(id));
+
+    if ( file.open(QFile::WriteOnly|QFile::Truncate) )
+    {
+        QTextStream stream( &file );
+        stream << QJsonDocument(object).toJson() << endl;
+    }
+    file.close();
 
     QJsonObject json;
     QByteArray sendSize;
