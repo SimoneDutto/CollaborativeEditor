@@ -546,7 +546,7 @@ void MainWindow::on_actionColor_triggered()
     QString lastID = vettore.at(end)->getLetterID();
     QString startID;
 
-    if(vettore.size() < start)
+    if(vettore.size() > start)
         startID = vettore.at(start)->getLetterID();
     else startID = lastID;
 
