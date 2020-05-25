@@ -2,7 +2,7 @@ QT       += core gui
 QT += network widgets
 QT += quickcontrols2
 QT += printsupport
-TARGET = GoogleFakeDocs
+TARGET = C++ollaborativeEditor
 
 requires(qtConfig(combobox))
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
@@ -84,3 +84,5 @@ RESOURCES += \
     resource.qrc
 
 DISTFILES +=
+
+ICON = icone/logo_transparent copy.png
