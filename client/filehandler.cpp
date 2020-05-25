@@ -288,12 +288,12 @@ void FileHandler::remoteAlignChange(Qt::AlignmentFlag alignment, int cursorPosit
 
 void FileHandler::remoteColorChange(QString startID, QString lastID, QColor color) {
     bool intervalStarted = false;
-    int start = -1, end = -1;
+    int start = -1, end = -1, i = 0;
     for(Letter *l : this->letters) {
         if(!intervalStarted && l->getLetterID().compare(startID)==0) {
             intervalStarted = true;
             l->setColor(color);
-            start = l->getIndex();
+            start = i;
             if(startID.compare(lastID)==0) {
                 end = start;
                 break;
@@ -301,10 +301,11 @@ void FileHandler::remoteColorChange(QString startID, QString lastID, QColor colo
         } else if(intervalStarted) {
             l->setColor(color);
             if(l->getLetterID().compare(lastID)==0) {
-                end = l->getIndex();
+                end = i;
                 break;
             }
         }
+        i++;
     }
 
     qDebug() << "start - end" << start << end;
