@@ -29,32 +29,28 @@ A questo punto non resta che clonare il progetto in questione attraverso il coma
 Quindi lanciamo dal menu di avvio QtCreator e apriamo il nostro progetto.
 
 ## Utilizzo
-Una volta avviata l'applicazione, vi ritroverete davanti a questa schermata di benvenuto:
+Una volta avviata l'applicazione, vi ritroverete davanti alla schermata di "Login":
 
-<img src="client/immagini/welcome.png" width="50%" height="50%" align="center">
+<img src="client/immagini/login2.png" width="40%" height="40%" align="center">
 
-Da qui potrete scegliere se registrarvi o, se già si possiede un account, fare il login.
+Qui vi viene chiesto di inserire le vostre credenziali.
 
 Se si accede per la prima volta sarà necessario creare un profilo utente, quindi cliccare su "Sign Up":
 
-<img src="client/immagini/signup.png" width="40%" height="40%" align="center">
+<img src="client/immagini/signup2.png" width="40%" height="40%" align="center">
 
 In questa pagina vi viene chiesto di registrarvi inserendo username, password e conferma della password. E' anche possibile scegliere un'icona, nel caso in cui non venga fatto ve ne verrà assegnata una in automatico con la vostra iniziale.
 
 Verrete poi reindirizzati alla pagina di Login:
 
-<img src="client/immagini/login.png" width="30%" height="30%" align="center">
-
-Qui vi viene chiesto di inserire le vostre credenziali.
-
 Cliccando sul bottone "Login" arrivete a questa schermata:
 
-<img src="client/immagini/open.png" width="60%" height="60%" align="center">
+<img src="client/immagini/open2.png" width="60%" height="60%" align="center">
 
 Sulla sinistra troverete una lista di file presenti nel filesystem a cui è possibile accedere. E' anche possibile inserire l'URI di un documento a cui siete stati invitati a collaborare: se il link è corretto il file apparirà tra quelli selezionabili nella lista a sinistra e potrà essere aperto. Infine potete anche decidere di creare un nuovo file.
 
 Dopo aver scelto quale file aprire, arriverete qui:
 
-<img src="client/immagini/main.png" width="80%" height="80%" align="center">
+<img src="client/immagini/main2.png" width="80%" height="80%" align="center">
 
 Il vero e proprio editor di testo. Nel menu in evidenza ci sono le operazioni principali: creazione di un nuovo file, apertura file, le varie funzioni di arricchimento del testo (grassetto, corsivo, sottolineato, allineamento, ...) e infine il logout. Ben visibile è anche l'URI del documento corrente, per un eventuale invito a collaborare. In alto a destra c'è l'icona dell'utente connesso e, man mano che altri utenti aprono lo stesso documento, compaiono anche le loro icone (fino a un massimo di tre utenti, dopo di che i restanti vengono aggiunti ad un contatore che, se cliccato, mostra i dettagli degli altri utenti).
