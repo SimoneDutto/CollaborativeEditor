@@ -26,8 +26,9 @@ private slots:
 
     void uriIsOk(QString uri);
     void uriIsNotOk();
+    void changeClientImage(QString path);
 
-    void on_pushButton_4_clicked();
+    void on_discardImage_clicked();
 
 private:
     Ui::NewOpen *ui;

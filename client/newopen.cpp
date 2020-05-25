@@ -31,6 +31,60 @@ NewOpen::NewOpen(Socket *sock, FileHandler *fHandler, QWidget *parent) :
     this->show();
     setWindowTitle("");
 
+    ui->lineEdit->setStyleSheet(":focus {border: 2px solid #ace4c6};");
+    ui->lineEdit->setAttribute(Qt::WA_MacShowFocusRect,0);
+    ui->lineEdit_2->setStyleSheet(":focus {border: 2px solid #ace4c6};");
+    ui->lineEdit_2->setAttribute(Qt::WA_MacShowFocusRect,0);
+
+    QIcon *user_icon= new QIcon(":/rec/icone/icons8-apri-cartella-96.png");
+    ui->pushButton_5->setIcon(*user_icon);
+    ui->pushButton_5->setIconSize(QSize(40, 40));
+
+    user_icon= new QIcon(":/rec/icone/icons8-aggiungi-file-96.png");
+    ui->pushButton_6->setIcon(*user_icon);
+    ui->pushButton_6->setIconSize(QSize(40, 40));
+
+    user_icon= new QIcon(":/rec/icone/icons8-aggiungi-collegamento-96.png");
+    ui->pushButton_7->setIcon(*user_icon);
+    ui->pushButton_7->setIconSize(QSize(40, 40));
+
+    QString styleSheet = "QPushButton {background-color: transparent; border-style: none; color: white}";
+    ui->pushButton_5->setStyleSheet(styleSheet);
+    ui->pushButton_6->setStyleSheet(styleSheet);
+    ui->pushButton_7->setStyleSheet(styleSheet);
+
+    ui->pushButton->setStyleSheet("color: white; background-color: #706d82;  border-radius:5px");
+    ui->pushButton_2->setStyleSheet("color: white; background-color: #706d82;  border-radius:5px");
+    ui->pushButton_3->setStyleSheet("color: white; background-color: #706d82;  border-radius:5px");
+
+    QString username = socket->getClientUsername();
+    ui->username->setText(username);
+
+    styleSheet = "QLabel { background-color: rgb(255, 252, 247); color: black; border-style: solid; border-width: 2px; border-radius: 6px; border-color: orange; font: ; }";
+    ui->myicon->setStyleSheet(styleSheet);
+    QFont font("Arial", 30);
+    ui->myicon->setFont(font);
+
+    QString imageName = QString::number(socket->getClientID())+".png";
+    QPixmap userPixmap = QPixmap(imageName);
+
+    QIcon *discard_icon= new QIcon(":/rec/icone/icons8-punta-della-matita-96.png");
+    ui->discardImage->setIcon(*discard_icon);
+    ui->discardImage->setIconSize(QSize(18, 18));
+
+    styleSheet = "QPushButton {background-color: white; border-style: solid; border-width: 1px; border-radius: 15px; border-color: rgb(0, 0, 0);} QPushButton:hover {background-color: rgb(233, 233, 233)} QPushButton:pressed {background-color: rgb(181, 181, 181)}";
+    ui->discardImage->setStyleSheet(styleSheet);
+
+    if(userPixmap != QPixmap()){
+        QPixmap scaled = userPixmap.scaled(ui->myicon->width(), ui->myicon->height(), Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
+        ui->myicon->setPixmap(scaled);
+    }
+
+    else {
+        ui->myicon->setText(username.at(0).toUpper());
+    }
+
+
     for (QString s : this->socket->getMapFiles().keys()){
         ui->listWidget->addItem(s);
     }
@@ -107,7 +161,24 @@ void NewOpen::uriIsNotOk(){
     uri->show();
 }
 
-void NewOpen::on_pushButton_4_clicked()
+void NewOpen::changeClientImage(QString imageName){
+
+    if(imageName != "") {
+        QPixmap userPixmap = QPixmap(imageName);
+
+        if(userPixmap != QPixmap()){
+            QPixmap scaled = userPixmap.scaled(ui->myicon->width(), ui->myicon->height(), Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
+            ui->myicon->setPixmap(scaled);
+        }
+
+        else ui->myicon->setText(socket->getClientUsername().at(0).toUpper());
+    }
+
+    else ui->myicon->setText(socket->getClientUsername().at(0).toUpper());
+
+}
+
+void NewOpen::on_discardImage_clicked()
 {
     account = new Account(this->socket, this, this->windowTitle());
     account->show();
