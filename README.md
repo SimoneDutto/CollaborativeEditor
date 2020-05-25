@@ -1,5 +1,5 @@
 <div>
-	<img src="client/icone/logo_transparent copy.png" width="25%" height="25%" align="center">
+	<img src="client/icone/logo_transparent copy.png" width="25%" height="25%" align="right">
 	<img src="client/icone/Testo_cropped.png" width="70%" height="70%" align="center">
 </div>
 
