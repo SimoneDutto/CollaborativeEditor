@@ -111,7 +111,7 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
     }
 
     /* Aggiungo ComboBox e SizeBox */
-    QAction *rightAll = ui->mainToolBar->actions().at(8);
+    QAction *rightAll = ui->mainToolBar->actions().at(7);
 
     QComboBox* sizeComboBox = new QComboBox;
     QStringList* numList = new QStringList;
@@ -169,6 +169,8 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
              this, SLOT(on_write_uri(QString)));
     connect( socket, SIGNAL(HistorySuccess(QMap<int, QString>)),
              this, SLOT(uploadHistory(QMap<int, QString>)));
+    connect( ui->textEdit, SIGNAL(pastedText(QString)),
+                 this, SLOT(insertPastedText(QString)));
 
     /* CONNECT per lo stile dei caratteri */
     connect( this, SIGNAL(styleChange(QMap<QString, QTextCharFormat>)),
@@ -326,6 +328,7 @@ void MainWindow::on_actionBold_triggered()
     //Se seleziono ciao0
     //selectionStart = 0
     //selectionEnd = 5
+
 
     auto cursor = ui->textEdit->textCursor();
     qDebug() << "Selection start: " << cursor.selectionStart() << " end: " << cursor.selectionEnd();
@@ -748,6 +751,11 @@ void MainWindow::changeViewAfterStyle(QString firstID, QString lastID) {
             cursor.setPosition(count);
             cursor.deletePreviousChar();
             cursor.insertText(l->getValue(), l->getFormat());
+            QTextBlockFormat blockFormat = cursor.blockFormat();
+            blockFormat.setAlignment(l->getAlignment());
+            cursor.mergeBlockFormat(blockFormat);
+            ui->textEdit->setTextCursor(cursor);
+
 
             //CONTROLLO SE ARRIVA IL FORMATO GIUSTO
             /*qDebug() << "Lettera cambio stile: " << l->getValue();
@@ -759,7 +767,6 @@ void MainWindow::changeViewAfterStyle(QString firstID, QString lastID) {
         if(l->getLetterID() == lastID) break;
     }
     connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
-
 }
 
 void MainWindow::addUserConnection(QString username, QColor color){
@@ -820,9 +827,9 @@ void MainWindow::removeUserDisconnect(QString, int userID){
 }
 
 void MainWindow::on_textEdit_cursorPositionChanged() {
-    disconnect(ui->mainToolBar->widgetForAction(ui->mainToolBar->actions().at(9)), SIGNAL(currentFontChanged(QFont)),
+    disconnect(ui->mainToolBar->widgetForAction(ui->mainToolBar->actions().at(7)), SIGNAL(currentFontChanged(QFont)),
                this, SLOT(currentFontChanged(QFont)));
-    disconnect(ui->mainToolBar->widgetForAction(ui->mainToolBar->actions().at(10)), SIGNAL(currentIndexChanged(int)),
+    disconnect(ui->mainToolBar->widgetForAction(ui->mainToolBar->actions().at(8)), SIGNAL(currentIndexChanged(int)),
                this, SLOT(fontSizeChanged(int)));
 
     /*Questa funzione gestirà la vista dei bottoni dello stile, ovvero se si vedrenno accessi o spenti. */
@@ -920,9 +927,9 @@ void MainWindow::on_textEdit_cursorPositionChanged() {
         ui->actionAlign_to_Justify->setChecked(true);
     }
 
-    connect(ui->mainToolBar->widgetForAction(ui->mainToolBar->actions().at(9)), SIGNAL(currentFontChanged(QFont)),
+    connect(ui->mainToolBar->widgetForAction(ui->mainToolBar->actions().at(7)), SIGNAL(currentFontChanged(QFont)),
             this, SLOT(currentFontChanged(QFont)));
-    connect(ui->mainToolBar->widgetForAction(ui->mainToolBar->actions().at(10)), SIGNAL(currentIndexChanged(int)),
+    connect(ui->mainToolBar->widgetForAction(ui->mainToolBar->actions().at(8)), SIGNAL(currentIndexChanged(int)),
             this, SLOT(fontSizeChanged(int)));
 
 }
@@ -994,6 +1001,7 @@ void MainWindow::on_write_uri(QString uri){
 void MainWindow::on_actionAlign_to_Left_triggered()
 {
     if(ui->textEdit->toPlainText().length() < 1){
+        ui->textEdit->setAlignment(Qt::AlignLeft);
         ui->actionAlign_to_Left->setChecked(true);
         ui->actionAlign_to_Right->setChecked(false);
         ui->actionAlign_to_Center->setChecked(false);
@@ -1053,8 +1061,9 @@ void MainWindow::on_actionAlign_to_Left_triggered()
 void MainWindow::on_actionAlign_to_Right_triggered()
 {
     if(ui->textEdit->toPlainText().length() < 1){
-        ui->actionAlign_to_Left->setChecked(true);
-        ui->actionAlign_to_Right->setChecked(false);
+        ui->textEdit->setAlignment(Qt::AlignRight);
+        ui->actionAlign_to_Left->setChecked(false);
+        ui->actionAlign_to_Right->setChecked(true);
         ui->actionAlign_to_Center->setChecked(false);
         ui->actionAlign_to_Justify->setChecked(false);
         return;
@@ -1112,9 +1121,10 @@ void MainWindow::on_actionAlign_to_Right_triggered()
 void MainWindow::on_actionAlign_to_Center_triggered()
 {
     if(ui->textEdit->toPlainText().length() < 1){
-        ui->actionAlign_to_Left->setChecked(true);
+        ui->textEdit->setAlignment(Qt::AlignCenter);
+        ui->actionAlign_to_Left->setChecked(false);
         ui->actionAlign_to_Right->setChecked(false);
-        ui->actionAlign_to_Center->setChecked(false);
+        ui->actionAlign_to_Center->setChecked(true);
         ui->actionAlign_to_Justify->setChecked(false);
         return;
     }
@@ -1171,10 +1181,11 @@ void MainWindow::on_actionAlign_to_Center_triggered()
 void MainWindow::on_actionAlign_to_Justify_triggered()
 {
     if(ui->textEdit->toPlainText().length() < 1){
-        ui->actionAlign_to_Left->setChecked(true);
+        ui->textEdit->setAlignment(Qt::AlignJustify);
+        ui->actionAlign_to_Left->setChecked(false);
         ui->actionAlign_to_Right->setChecked(false);
         ui->actionAlign_to_Center->setChecked(false);
-        ui->actionAlign_to_Justify->setChecked(false);
+        ui->actionAlign_to_Justify->setChecked(true);
         return;
     }
 
@@ -1485,14 +1496,12 @@ void MainWindow::changeAlignment(Qt::AlignmentFlag alignment, int cursorPosition
 
 void MainWindow::on_textEdit_selectionChanged()
 {
-    QTextCursor cursor = ui->textEdit->textCursor();
+    /*QTextCursor cursor = ui->textEdit->textCursor();
     int start = cursor.selectionStart();
     int end = cursor.selectionEnd();
-    qDebug() << "testo selezionato: " << cursor.selectedText();
+    qDebug() << "testo selezionato: " << cursor.selectedText();*/
    // emit sendSelection(start, end);
 }
-
-
 
 void MainWindow::changeViewAfterSelection(int start, int end, QColor colore)
 {
@@ -1508,5 +1517,35 @@ void MainWindow::changeViewAfterSelection(int start, int end, QColor colore)
         cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
          qDebug() << "testo left: " << cursor.selectedText();
     }
+    connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
+}
+
+void MainWindow::insertPastedText(QString text){
+    disconnect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
+
+    QTextCursor cursor(ui->textEdit->textCursor());
+    int externalIndex = cursor.position();
+
+    if(cursor.hasSelection()){
+        int deletedLetters = cursor.selectionEnd()-cursor.selectionStart();
+        if (receivers(SIGNAL(myDelete(int,int))) > 0) {
+            letterCounter -= deletedLetters;
+            externalIndex = cursor.selectionStart();
+            emit myDelete(externalIndex+1, cursor.selectionEnd());
+            cursor.setPosition(cursor.selectionStart());
+        }
+    }
+
+    if (receivers(SIGNAL(myInsert(int,QChar,int,QTextCharFormat,Qt::AlignmentFlag))) > 0) {
+        for(QChar newLetterValue : text){
+            letterCounter++;
+            externalIndex++;
+            myInsert(externalIndex, newLetterValue, socket->getClientID(), cursor.charFormat(), this->getFlag(ui->textEdit->alignment()));
+        }
+        emit sendCursorChange(externalIndex);
+    }
+
+    ui->textEdit->insertPlainText(text);
+
     connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
 }
