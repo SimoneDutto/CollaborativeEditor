@@ -33,7 +33,6 @@ SOURCES += \
     login.cpp \
     mainwindow.cpp \
     onlineuser.cpp \
-    pastedtextedit.cpp \
     serverdisc.cpp \
     signup.cpp \
     socket.cpp \
@@ -53,7 +52,6 @@ HEADERS += \
     login.h \
     mainwindow.h \
     onlineuser.h \
-    pastedtextedit.h \
     serverdisc.h \
     signup.h \
     socket.h \

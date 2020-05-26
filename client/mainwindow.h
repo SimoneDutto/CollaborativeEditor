@@ -53,8 +53,6 @@ private slots:
     void fontSizeChanged(int size);
     void uploadHistory(QMap<int, QString> mapUsers);
     void changeAlignment(Qt::AlignmentFlag alignment, int cursorPosition);
-    void insertPastedText(QString pastedText);
-    
     void on_textEdit_cursorPositionChanged();
     void on_actionLog_Out_triggered();
     void on_actionEdit_Profile_triggered();

@@ -169,9 +169,6 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
              this, SLOT(on_write_uri(QString)));
     connect( socket, SIGNAL(HistorySuccess(QMap<int, QString>)),
              this, SLOT(uploadHistory(QMap<int, QString>)));
-    connect( ui->textEdit, SIGNAL(pastedText(QString)),
-             this, SLOT(insertPastedText(QString)));
-
 
     /* CONNECT per lo stile dei caratteri */
     connect( this, SIGNAL(styleChange(QMap<QString, QTextCharFormat>)),
@@ -180,6 +177,7 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
              this, SLOT(changeViewAfterStyle(QString, QString)));
     connect( socket, SIGNAL(readyStyleChange(QString, QString, QString, QString)),
              fHandler, SLOT(remoteStyleChange(QString, QString, QString, QString)));
+
     connect( this, SIGNAL(sendAlignment(Qt::AlignmentFlag,int,QString,QString)),
              fHandler, SLOT(localAlignChange(Qt::AlignmentFlag,int,QString,QString)));
     connect( socket, SIGNAL(readyAlignChange(Qt::AlignmentFlag,int,QString,QString)),
@@ -518,7 +516,7 @@ void MainWindow::on_actionFont_triggered()
     int end = cursor.selectionEnd()-1;
 
     for(int i=start; i<=end; i++){
-        // Se testo selezionato misto, allora settare, altrimenti se tutto settato, togliere
+        /* Se testo selezionato misto, allora settare, altrimenti se tutto settato, togliere
         cursor.setPosition(i+1);
         auto letterFormat = cursor.charFormat();
         formatCharMap.insert(vettore.at(i)->getLetterID(), letterFormat);
@@ -750,11 +748,6 @@ void MainWindow::changeViewAfterStyle(QString firstID, QString lastID) {
             cursor.setPosition(count);
             cursor.deletePreviousChar();
             cursor.insertText(l->getValue(), l->getFormat());
-            QTextBlockFormat blockFormat = cursor.blockFormat();
-            blockFormat.setAlignment(l->getAlignment());
-            cursor.mergeBlockFormat(blockFormat);
-            ui->textEdit->setTextCursor(cursor);
-
 
             //CONTROLLO SE ARRIVA IL FORMATO GIUSTO
             /*qDebug() << "Lettera cambio stile: " << l->getValue();
@@ -1001,7 +994,6 @@ void MainWindow::on_write_uri(QString uri){
 void MainWindow::on_actionAlign_to_Left_triggered()
 {
     if(ui->textEdit->toPlainText().length() < 1){
-        ui->textEdit->setAlignment(Qt::AlignLeft);
         ui->actionAlign_to_Left->setChecked(true);
         ui->actionAlign_to_Right->setChecked(false);
         ui->actionAlign_to_Center->setChecked(false);
@@ -1061,9 +1053,8 @@ void MainWindow::on_actionAlign_to_Left_triggered()
 void MainWindow::on_actionAlign_to_Right_triggered()
 {
     if(ui->textEdit->toPlainText().length() < 1){
-        ui->textEdit->setAlignment(Qt::AlignRight);
-        ui->actionAlign_to_Left->setChecked(false);
-        ui->actionAlign_to_Right->setChecked(true);
+        ui->actionAlign_to_Left->setChecked(true);
+        ui->actionAlign_to_Right->setChecked(false);
         ui->actionAlign_to_Center->setChecked(false);
         ui->actionAlign_to_Justify->setChecked(false);
         return;
@@ -1121,10 +1112,9 @@ void MainWindow::on_actionAlign_to_Right_triggered()
 void MainWindow::on_actionAlign_to_Center_triggered()
 {
     if(ui->textEdit->toPlainText().length() < 1){
-        ui->textEdit->setAlignment(Qt::AlignCenter);
-        ui->actionAlign_to_Left->setChecked(false);
+        ui->actionAlign_to_Left->setChecked(true);
         ui->actionAlign_to_Right->setChecked(false);
-        ui->actionAlign_to_Center->setChecked(true);
+        ui->actionAlign_to_Center->setChecked(false);
         ui->actionAlign_to_Justify->setChecked(false);
         return;
     }
@@ -1181,11 +1171,10 @@ void MainWindow::on_actionAlign_to_Center_triggered()
 void MainWindow::on_actionAlign_to_Justify_triggered()
 {
     if(ui->textEdit->toPlainText().length() < 1){
-        ui->textEdit->setAlignment(Qt::AlignJustify);
-        ui->actionAlign_to_Left->setChecked(false);
+        ui->actionAlign_to_Left->setChecked(true);
         ui->actionAlign_to_Right->setChecked(false);
         ui->actionAlign_to_Center->setChecked(false);
-        ui->actionAlign_to_Justify->setChecked(true);
+        ui->actionAlign_to_Justify->setChecked(false);
         return;
     }
 
@@ -1491,36 +1480,7 @@ void MainWindow::changeAlignment(Qt::AlignmentFlag alignment, int cursorPosition
               fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat, Qt::AlignmentFlag)));
     connect(this, SIGNAL(myDelete(int,int)),
               fHandler, SLOT(localDelete(int,int)));
-}
 
-void MainWindow::insertPastedText(QString text){
-    disconnect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
-
-    QTextCursor cursor(ui->textEdit->textCursor());
-    int externalIndex = cursor.position();
-
-    if(cursor.hasSelection()){
-        int deletedLetters = cursor.selectionEnd()-cursor.selectionStart();
-        if (receivers(SIGNAL(myDelete(int,int))) > 0) {
-            letterCounter -= deletedLetters;
-            externalIndex = cursor.selectionStart();
-            emit myDelete(externalIndex+1, cursor.selectionEnd());
-            cursor.setPosition(cursor.selectionStart());
-        }
-    }
-
-    if (receivers(SIGNAL(myInsert(int,QChar,int,QTextCharFormat,Qt::AlignmentFlag))) > 0) {
-        for(QChar newLetterValue : text){
-            letterCounter++;
-            externalIndex++;
-            myInsert(externalIndex, newLetterValue, socket->getClientID(), cursor.charFormat(), this->getFlag(ui->textEdit->alignment()));
-        }
-        emit sendCursorChange(externalIndex);
-    }
-
-    ui->textEdit->insertPlainText(text);
-
-    connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
 }
 
 void MainWindow::on_textEdit_selectionChanged()
