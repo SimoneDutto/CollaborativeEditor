@@ -2,7 +2,7 @@ QT       += core gui
 QT += network widgets
 QT += quickcontrols2
 QT += printsupport
-TARGET = GoogleFakeDocs
+TARGET = C++ollaborativeEditor
 
 requires(qtConfig(combobox))
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
@@ -33,6 +33,7 @@ SOURCES += \
     login.cpp \
     mainwindow.cpp \
     onlineuser.cpp \
+    pastedtextedit.cpp \
     serverdisc.cpp \
     signup.cpp \
     socket.cpp \
@@ -52,6 +53,7 @@ HEADERS += \
     login.h \
     mainwindow.h \
     onlineuser.h \
+    pastedtextedit.h \
     serverdisc.h \
     signup.h \
     socket.h \
@@ -84,3 +86,5 @@ RESOURCES += \
     resource.qrc
 
 DISTFILES +=
+
+ICON = icone/logo_transparent copy.png

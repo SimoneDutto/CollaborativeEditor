@@ -40,11 +40,11 @@ private slots:
     void on_actionUnderlined_triggered();
     void on_actionFont_triggered();
     void on_actionColor_triggered();
-    void on_actionBackgorund_Color_triggered();
+    void on_actionBackground_Color_triggered();
     void on_textEdit_textChanged();
     void on_lineEdit_editingFinished();
     void fileIsHere(QMap<int,int>, QMap<int,QColor>);
-    void changeViewAfterInsert(QChar l, int pos, QTextCharFormat format);
+    void changeViewAfterInsert(QChar l, int pos, QTextCharFormat format, Qt::AlignmentFlag);
     void changeViewAfterDelete(int externalIndex);
     void changeViewAfterStyle(QString firstLetterID, QString lastLetterID);
     void addUserConnection(QString username, QColor colorUser);
@@ -52,37 +52,31 @@ private slots:
     void currentFontChanged(QFont font);
     void fontSizeChanged(int size);
     void uploadHistory(QMap<int, QString> mapUsers);
-
-
+    void changeAlignment(Qt::AlignmentFlag alignment, int cursorPosition);
     void on_textEdit_cursorPositionChanged();
-
     void on_actionLog_Out_triggered();
-
     void on_actionEdit_Profile_triggered();
-
     //void on_actionGet_URI_triggered();
-
     void on_actionExport_as_PDF_triggered();
-    //void changeViewAfterCursor(int pos, QColor color);
-
+       //void changeViewAfterCursor(int pos, QColor color);
     void on_counter_clicked();
     void on_write_uri(QString uri);
-
     void on_actionAlign_to_Left_triggered();
-
     void on_actionAlign_to_Right_triggered();
-
     void on_actionAlign_to_Center_triggered();
-
     void on_actionAlign_to_Justify_triggered();
     void notConnected();
-
     void on_cursor_triggered(QPair<int,int> idpos, QColor col);
-
     void changeClientImage(QString path);
-
-
     void on_actionhistory_triggered();
+    void on_actionLight_triggered();
+    void on_actionDark_triggered();
+    void changeViewAfterColor(int start, int end, QColor c);
+    void insertPastedText(QString pastedText);
+
+    void on_textEdit_selectionChanged();
+
+    void changeViewAfterSelection(int start, int end, QColor colore);
 
 private:
     Ui::MainWindow *ui;
@@ -93,22 +87,25 @@ private:
     Account *account;
     int letterCounter = 0;
     QList<QPair<QPair<int,QColor>,int>> id_colore_cursore;
+    QPalette pal = palette();
+
+    Qt::AlignmentFlag getFlag(Qt::Alignment align);
 
 
 signals:
-    void myInsert(int externalIndex, QChar newLetterValue, int clientID, QTextCharFormat format);
+    void myInsert(int externalIndex, QChar newLetterValue, int clientID, QTextCharFormat format, Qt::AlignmentFlag alignment);
     void myDelete(int firstExternalIndex, int lastExternalIndex);
     void sendNameFile(QString fileNameTmp);
     void newFile(QString filename);
-    void styleChange(QMap<QString, QTextCharFormat>, QString startID, QString lastID, bool boldTriggered, bool italicTriggered, bool underlinedTriggered, QString font);
+    void styleChange(QMap<QString, QTextCharFormat> mapFormat);
     void exportAsPDF();
     void logOut();
     void sendCursorChange(int position);
-    //void localStyleChange(QString initialID, QString finalID, QTextCharFormat);
     void setCurrFont(QFont currFont);
     void setCurrFontSize(int sizeFont);
     void sendHist();
-    void sendAlignment(Qt::AlignmentFlag alignment, int cursorPosition);
+    void sendAlignment(Qt::AlignmentFlag alignment, int cursorPosition, QString startID, QString lastID);
+    void sendColorChange(QString startID, QString lastID, QString color);
 };
 
 #endif // MAINWINDOW_H

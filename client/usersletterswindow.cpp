@@ -11,6 +11,14 @@ usersLettersWindow::usersLettersWindow(QMap<int, QString> mapIdUsername, QVector
     ui->setupUi(this);
     this->setFixedHeight(620);
     this->setFixedWidth(900);
+    this->setWindowTitle("");
+    QPalette pal = palette();
+    pal.setColor(QPalette::Background, QColor(58,58,60));
+    pal.setColor(QPalette::WindowText, Qt::white);
+    pal.setColor(QPalette::ButtonText, Qt::white);
+    this->setAutoFillBackground(true);
+    this->setPalette(pal);
+    this->show();
 
 
     /*Aggiornare la GUI con il testo*/

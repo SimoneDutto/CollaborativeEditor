@@ -1,20 +1,20 @@
 #include "letter.h"
 #include <QDebug>
 
-Letter::Letter(QChar letter, QVector<int> fractionals, QString letterID, QTextCharFormat format)
+Letter::Letter(QChar letter, QVector<int> fractionals, QString letterID, QTextCharFormat format, Qt::AlignmentFlag alignment)
     : letter(letter),
       fractionalIndexes(fractionals),
       letterID(letterID),
-      format(format){
-    //this->fractionalIndexes.insert(0, index);
-    // index già presente nella posizione 0 di fractionals
-}
+      format(format),
+      alignment(alignment) {}
 
 // Costruttore di copia
 Letter::Letter(const Letter& l) {
     this->letter = std::move(l.letter);
     this->letterID = std::move(l.letterID);
     this->fractionalIndexes.append(std::move(l.fractionalIndexes));
+    this->alignment = std::move(l.alignment);
+    this->format = std::move(l.format);
 }
 
 // Overload operatore di assegnazione
@@ -23,6 +23,7 @@ Letter& Letter::operator=(const Letter& source) {
         this->letter = std::move(source.letter);
         this->letterID = std::move(source.letterID);
         this->format = std::move(source.format);
+        this->alignment = std::move(source.alignment);
         this->fractionalIndexes.erase(this->fractionalIndexes.begin(), this->fractionalIndexes.end());
         this->fractionalIndexes.append(std::move(source.fractionalIndexes));
     }
@@ -35,6 +36,7 @@ Letter& Letter::operator=(const Letter && source) {
         this->letter = std::move(source.letter);
         this->letterID = std::move(source.letterID);
         this->format = std::move(source.format);
+        this->alignment = std::move(source.alignment);
         this->fractionalIndexes.erase(this->fractionalIndexes.begin(), this->fractionalIndexes.end());
         this->fractionalIndexes.append(std::move(source.fractionalIndexes));
     }
@@ -142,29 +144,9 @@ void Letter::setFormat(QTextCharFormat format){
 }
 
 void Letter::setStyleFromString(QString format, QString font) {
-    /*if(format.compare("Bold") == 0)
-        this->format.setFontWeight(75);
-    else if(format.compare("NotBold") == 0)
-        this->format.setFontWeight(50);
-    else if(format.compare("Italic") == 0)
-        this->format.setFontItalic(true);
-    else if(format.compare("NotItalic") == 0)
-        this->format.setFontItalic(false);
-    else if(format.compare("Underlined") == 0)
-        this->format.setFontUnderline(true);
-    else if(format.compare("Underlined") == 0)
-        this->format.setFontUnderline(false);
-    else if(format.compare("font")==0) {
-        QFont f = this->format.font();
-        f.fromString(font);
-        qDebug() << "CHANGE FONT" << f;
-        this->format.setFont(f);
-        qDebug() << this->format.font();
-    }*/
     QFont f;
     f.fromString(font);
     this->format.setFont(f, QTextCharFormat::FontPropertiesSpecifiedOnly);
-
 }
 
 void Letter::setAlignment(Qt::AlignmentFlag alignment) {
@@ -178,4 +160,26 @@ int Letter::getUserId(){
 QTextCharFormat Letter::getFormat(){
     qDebug() <<"Letter format:"  << this->format.font().toString() << " " << this->format.fontItalic();
     return this->format;
+}
+
+void Letter::setColor(QColor c)
+{
+    this->format.setForeground(c);
+}
+
+void Letter::setBack(QColor c){
+    this->format.setBackground(c);
+}
+
+QBrush Letter::getColor()
+{
+    return this->format.foreground();
+}
+
+QBrush Letter::getBack(){
+    return this->format.background();
+}
+
+Qt::AlignmentFlag Letter::getAlignment() {
+    return this->alignment;
 }

@@ -26,6 +26,9 @@ private slots:
 
     void uriIsOk(QString uri);
     void uriIsNotOk();
+    void changeClientImage(QString path);
+
+    void on_discardImage_clicked();
 
 private:
     Ui::NewOpen *ui;
@@ -34,6 +37,7 @@ private:
     FileHandler *fileHandler;
     Form *form;
     Uri *uri;
+    Account *account;
 
 
 signals:

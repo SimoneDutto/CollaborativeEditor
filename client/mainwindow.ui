@@ -28,52 +28,32 @@
     <height>0</height>
    </size>
   </property>
+  <property name="font">
+   <font>
+    <family>Microsoft Sans Serif</family>
+    <pointsize>15</pointsize>
+   </font>
+  </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="gridLayout">
-    <item row="0" column="1" colspan="5">
-     <widget class="QLabel" name="label_2">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-        <horstretch>1</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="minimumSize">
-       <size>
-        <width>255</width>
-        <height>0</height>
-       </size>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>16777215</width>
-        <height>40</height>
-       </size>
-      </property>
-      <property name="sizeIncrement">
-       <size>
-        <width>0</width>
-        <height>0</height>
-       </size>
-      </property>
-      <property name="autoFillBackground">
-       <bool>false</bool>
-      </property>
-      <property name="frameShape">
-       <enum>QFrame::StyledPanel</enum>
-      </property>
-      <property name="text">
-       <string/>
-      </property>
-     </widget>
-    </item>
     <item row="0" column="0">
      <widget class="QLabel" name="label">
       <property name="text">
        <string> URI:</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="0" colspan="14">
+     <widget class="pastedTextEdit" name="textEdit">
+      <property name="html">
+       <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Microsoft Sans Serif'; font-size:15pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'.AppleSystemUIFont'; font-size:13pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
      </widget>
     </item>
@@ -87,17 +67,6 @@
       </property>
       <property name="text">
        <string/>
-      </property>
-     </widget>
-    </item>
-    <item row="2" column="0" colspan="16">
-     <widget class="QTextEdit" name="textEdit">
-      <property name="html">
-       <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'.AppleSystemUIFont'; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'.AppleSystemUIFont';&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
      </widget>
     </item>
@@ -165,6 +134,7 @@ p, li { white-space: pre-wrap; }
        </property>
        <property name="font">
         <font>
+         <family>Microsoft Sans Serif</family>
          <pointsize>22</pointsize>
          <weight>75</weight>
          <bold>true</bold>
@@ -200,6 +170,7 @@ p, li { white-space: pre-wrap; }
        </property>
        <property name="font">
         <font>
+         <family>Microsoft Sans Serif</family>
          <pointsize>22</pointsize>
          <weight>75</weight>
          <bold>true</bold>
@@ -235,6 +206,7 @@ p, li { white-space: pre-wrap; }
        </property>
        <property name="font">
         <font>
+         <family>Microsoft Sans Serif</family>
          <pointsize>22</pointsize>
          <weight>75</weight>
          <bold>true</bold>
@@ -270,6 +242,7 @@ p, li { white-space: pre-wrap; }
        </property>
        <property name="font">
         <font>
+         <family>Microsoft Sans Serif</family>
          <pointsize>22</pointsize>
         </font>
        </property>
@@ -298,10 +271,10 @@ p, li { white-space: pre-wrap; }
        </property>
        <property name="geometry">
         <rect>
-         <x>291</x>
-         <y>9</y>
-         <width>61</width>
-         <height>61</height>
+         <x>290</x>
+         <y>19</y>
+         <width>51</width>
+         <height>51</height>
         </rect>
        </property>
        <property name="sizePolicy">
@@ -312,6 +285,7 @@ p, li { white-space: pre-wrap; }
        </property>
        <property name="font">
         <font>
+         <family>Microsoft Sans Serif</family>
          <pointsize>19</pointsize>
          <weight>75</weight>
          <bold>true</bold>
@@ -330,14 +304,15 @@ p, li { white-space: pre-wrap; }
       <widget class="QLabel" name="username">
        <property name="geometry">
         <rect>
-         <x>290</x>
-         <y>75</y>
-         <width>58</width>
-         <height>16</height>
+         <x>287</x>
+         <y>70</y>
+         <width>61</width>
+         <height>21</height>
         </rect>
        </property>
        <property name="font">
         <font>
+         <family>Microsoft Sans Serif</family>
          <pointsize>15</pointsize>
          <weight>75</weight>
          <bold>true</bold>
@@ -350,6 +325,65 @@ p, li { white-space: pre-wrap; }
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
+      <widget class="QPushButton" name="discardImage">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>330</x>
+         <y>50</y>
+         <width>30</width>
+         <height>30</height>
+        </rect>
+       </property>
+       <property name="mouseTracking">
+        <bool>true</bool>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="flat">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </widget>
+    </item>
+    <item row="0" column="1" colspan="5">
+     <widget class="QLabel" name="label_2">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+        <horstretch>1</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>255</width>
+        <height>0</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>40</height>
+       </size>
+      </property>
+      <property name="sizeIncrement">
+       <size>
+        <width>0</width>
+        <height>0</height>
+       </size>
+      </property>
+      <property name="autoFillBackground">
+       <bool>false</bool>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
      </widget>
     </item>
    </layout>
@@ -383,8 +417,6 @@ p, li { white-space: pre-wrap; }
     <addaction name="actionCopy"/>
     <addaction name="actionPaste"/>
     <addaction name="separator"/>
-    <addaction name="actionUndo"/>
-    <addaction name="actionRedo"/>
    </widget>
    <widget class="QMenu" name="menuAbout">
     <property name="title">
@@ -410,7 +442,6 @@ p, li { white-space: pre-wrap; }
     <addaction name="actionUnderlined"/>
     <addaction name="separator"/>
     <addaction name="actionColor"/>
-    <addaction name="actionBackgorund_Color"/>
     <addaction name="separator"/>
     <addaction name="menuAlignment"/>
    </widget>
@@ -421,10 +452,18 @@ p, li { white-space: pre-wrap; }
     <addaction name="actionEdit_Profile"/>
     <addaction name="actionLog_Out"/>
    </widget>
+   <widget class="QMenu" name="menuTheme">
+    <property name="title">
+     <string>Theme</string>
+    </property>
+    <addaction name="actionLight"/>
+    <addaction name="actionDark"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
    <addaction name="menuFormat"/>
    <addaction name="menuAccount"/>
+   <addaction name="menuTheme"/>
    <addaction name="menuAbout"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
@@ -437,12 +476,10 @@ p, li { white-space: pre-wrap; }
    <addaction name="actionNew"/>
    <addaction name="actionOpen"/>
    <addaction name="separator"/>
-   <addaction name="actionUndo"/>
-   <addaction name="actionRedo"/>
-   <addaction name="separator"/>
    <addaction name="actionItalic"/>
    <addaction name="actionUnderlined"/>
    <addaction name="actionBold"/>
+   <addaction name="actionColor"/>
    <addaction name="separator"/>
    <addaction name="actionAlign_to_Left"/>
    <addaction name="actionAlign_to_Right"/>
@@ -456,7 +493,7 @@ p, li { white-space: pre-wrap; }
   <action name="actionNew">
    <property name="icon">
     <iconset resource="resource.qrc">
-     <normaloff>:/rec/icone/nuovo2.png</normaloff>:/rec/icone/nuovo2.png</iconset>
+     <normaloff>:/rec/icone/icons8-aggiungi-file-96.png</normaloff>:/rec/icone/icons8-aggiungi-file-96.png</iconset>
    </property>
    <property name="text">
     <string>New</string>
@@ -465,7 +502,7 @@ p, li { white-space: pre-wrap; }
   <action name="actionOpen">
    <property name="icon">
     <iconset resource="resource.qrc">
-     <normaloff>:/rec/icone/open.png</normaloff>:/rec/icone/open.png</iconset>
+     <normaloff>:/rec/icone/icons8-apri-cartella-96.png</normaloff>:/rec/icone/icons8-apri-cartella-96.png</iconset>
    </property>
    <property name="text">
     <string>Open</string>
@@ -477,7 +514,7 @@ p, li { white-space: pre-wrap; }
   <action name="actionCut">
    <property name="icon">
     <iconset resource="resource.qrc">
-     <normaloff>:/rec/icone/scissors.png</normaloff>:/rec/icone/scissors.png</iconset>
+     <normaloff>:/rec/icone/icons8-taglia-96.png</normaloff>:/rec/icone/icons8-taglia-96.png</iconset>
    </property>
    <property name="text">
     <string>Cut</string>
@@ -489,7 +526,7 @@ p, li { white-space: pre-wrap; }
   <action name="actionCopy">
    <property name="icon">
     <iconset resource="resource.qrc">
-     <normaloff>:/rec/icone/copy-document.png</normaloff>:/rec/icone/copy-document.png</iconset>
+     <normaloff>:/rec/icone/icons8-copia-96.png</normaloff>:/rec/icone/icons8-copia-96.png</iconset>
    </property>
    <property name="text">
     <string>Copy</string>
@@ -501,7 +538,7 @@ p, li { white-space: pre-wrap; }
   <action name="actionPaste">
    <property name="icon">
     <iconset resource="resource.qrc">
-     <normaloff>:/rec/icone/paste-from-clipboard.png</normaloff>:/rec/icone/paste-from-clipboard.png</iconset>
+     <normaloff>:/rec/icone/icons8-incolla-96.png</normaloff>:/rec/icone/icons8-incolla-96.png</iconset>
    </property>
    <property name="text">
     <string>Paste</string>
@@ -510,37 +547,13 @@ p, li { white-space: pre-wrap; }
     <string>Ctrl+V</string>
    </property>
   </action>
-  <action name="actionUndo">
-   <property name="icon">
-    <iconset resource="resource.qrc">
-     <normaloff>:/rec/icone/undo.png</normaloff>:/rec/icone/undo.png</iconset>
-   </property>
-   <property name="text">
-    <string>Undo</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+Z</string>
-   </property>
-  </action>
   <action name="actionAbout_us">
    <property name="icon">
     <iconset resource="resource.qrc">
-     <normaloff>:/rec/icone/info.png</normaloff>:/rec/icone/info.png</iconset>
+     <normaloff>:/rec/icone/icons8-informazioni-480.png</normaloff>:/rec/icone/icons8-informazioni-480.png</iconset>
    </property>
    <property name="text">
     <string>About us</string>
-   </property>
-  </action>
-  <action name="actionRedo">
-   <property name="icon">
-    <iconset resource="resource.qrc">
-     <normaloff>:/rec/icone/redo.png</normaloff>:/rec/icone/redo.png</iconset>
-   </property>
-   <property name="text">
-    <string>Redo</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+Y</string>
    </property>
   </action>
   <action name="actionBold">
@@ -549,7 +562,7 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="icon">
     <iconset resource="resource.qrc">
-     <normaloff>:/rec/icone/bold2.png</normaloff>:/rec/icone/bold2.png</iconset>
+     <normaloff>:/rec/icone/icons8-grassetto-96.png</normaloff>:/rec/icone/icons8-grassetto-96.png</iconset>
    </property>
    <property name="text">
     <string>Bold</string>
@@ -564,7 +577,7 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="icon">
     <iconset resource="resource.qrc">
-     <normaloff>:/rec/icone/italic2.png</normaloff>:/rec/icone/italic2.png</iconset>
+     <normaloff>:/rec/icone/icons8-corsivo-96.png</normaloff>:/rec/icone/icons8-corsivo-96.png</iconset>
    </property>
    <property name="text">
     <string>Italic</string>
@@ -579,7 +592,7 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="icon">
     <iconset resource="resource.qrc">
-     <normaloff>:/rec/icone/underline2.png</normaloff>:/rec/icone/underline2.png</iconset>
+     <normaloff>:/rec/icone/icons8-sottolineato-96.png</normaloff>:/rec/icone/icons8-sottolineato-96.png</iconset>
    </property>
    <property name="text">
     <string>Underline</string>
@@ -588,37 +601,19 @@ p, li { white-space: pre-wrap; }
     <string>Ctrl+U</string>
    </property>
   </action>
-  <action name="actionFont">
-   <property name="icon">
-    <iconset resource="resource.qrc">
-     <normaloff>:/rec/icone/font.png</normaloff>:/rec/icone/font.png</iconset>
-   </property>
-   <property name="text">
-    <string>Font</string>
-   </property>
-  </action>
   <action name="actionColor">
    <property name="icon">
     <iconset resource="resource.qrc">
-     <normaloff>:/rec/icone/color.png</normaloff>:/rec/icone/color.png</iconset>
+     <normaloff>:/rec/icone/icons8-colore-del-testo-96.png</normaloff>:/rec/icone/icons8-colore-del-testo-96.png</iconset>
    </property>
    <property name="text">
     <string>Color</string>
    </property>
   </action>
-  <action name="actionBackgorund_Color">
-   <property name="icon">
-    <iconset resource="resource.qrc">
-     <normaloff>:/rec/icone/backcolor.png</normaloff>:/rec/icone/backcolor.png</iconset>
-   </property>
-   <property name="text">
-    <string>Background Color</string>
-   </property>
-  </action>
   <action name="actionEdit_Profile">
    <property name="icon">
     <iconset resource="resource.qrc">
-     <normaloff>:/rec/icone/profile.png</normaloff>:/rec/icone/profile.png</iconset>
+     <normaloff>:/rec/icone/icons8-modifica-utente-uomo-96.png</normaloff>:/rec/icone/icons8-modifica-utente-uomo-96.png</iconset>
    </property>
    <property name="text">
     <string>Edit Profile</string>
@@ -627,25 +622,16 @@ p, li { white-space: pre-wrap; }
   <action name="actionLog_Out">
    <property name="icon">
     <iconset resource="resource.qrc">
-     <normaloff>:/rec/icone/log2.png</normaloff>:/rec/icone/log2.png</iconset>
+     <normaloff>:/rec/icone/icons8-logout-arrotondato-96.png</normaloff>:/rec/icone/icons8-logout-arrotondato-96.png</iconset>
    </property>
    <property name="text">
     <string>Log Out</string>
    </property>
   </action>
-  <action name="actionGet_URI">
-   <property name="icon">
-    <iconset resource="resource.qrc">
-     <normaloff>:/rec/icone/link.png</normaloff>:/rec/icone/link.png</iconset>
-   </property>
-   <property name="text">
-    <string>Get URI</string>
-   </property>
-  </action>
   <action name="actionExport_as_PDF">
    <property name="icon">
     <iconset resource="resource.qrc">
-     <normaloff>:/rec/icone/pdf.png</normaloff>:/rec/icone/pdf.png</iconset>
+     <normaloff>:/rec/icone/icons8-esporta-in-formato-pdf-96.png</normaloff>:/rec/icone/icons8-esporta-in-formato-pdf-96.png</iconset>
    </property>
    <property name="text">
     <string>Export as PDF</string>
@@ -657,7 +643,7 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="icon">
     <iconset resource="resource.qrc">
-     <normaloff>:/rec/icone/sinistra2.png</normaloff>:/rec/icone/sinistra2.png</iconset>
+     <normaloff>:/rec/icone/icons8-allinea-a-sinistra-96.png</normaloff>:/rec/icone/icons8-allinea-a-sinistra-96.png</iconset>
    </property>
    <property name="text">
     <string>Align to Left</string>
@@ -669,7 +655,7 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="icon">
     <iconset resource="resource.qrc">
-     <normaloff>:/rec/icone/destra2.png</normaloff>:/rec/icone/destra2.png</iconset>
+     <normaloff>:/rec/icone/icons8-allinea-a-destra-96.png</normaloff>:/rec/icone/icons8-allinea-a-destra-96.png</iconset>
    </property>
    <property name="text">
     <string>Align to Right</string>
@@ -681,7 +667,7 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="icon">
     <iconset resource="resource.qrc">
-     <normaloff>:/rec/icone/centro2.png</normaloff>:/rec/icone/centro2.png</iconset>
+     <normaloff>:/rec/icone/icons8-allinea-al-centro-96.png</normaloff>:/rec/icone/icons8-allinea-al-centro-96.png</iconset>
    </property>
    <property name="text">
     <string>Align to Center</string>
@@ -693,7 +679,7 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="icon">
     <iconset resource="resource.qrc">
-     <normaloff>:/rec/icone/giust2.png</normaloff>:/rec/icone/giust2.png</iconset>
+     <normaloff>:/rec/icone/icons8-giustificato-96.png</normaloff>:/rec/icone/icons8-giustificato-96.png</iconset>
    </property>
    <property name="text">
     <string>Align to Justify</string>
@@ -702,10 +688,28 @@ p, li { white-space: pre-wrap; }
   <action name="actionhistory">
    <property name="icon">
     <iconset resource="resource.qrc">
-     <normaloff>:/rec/icone/history.png</normaloff>:/rec/icone/history.png</iconset>
+     <normaloff>:/rec/icone/icons8-passato-96.png</normaloff>:/rec/icone/icons8-passato-96.png</iconset>
    </property>
    <property name="text">
     <string>history</string>
+   </property>
+  </action>
+  <action name="actionLight">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/rec/icone/sole.png</normaloff>:/rec/icone/sole.png</iconset>
+   </property>
+   <property name="text">
+    <string>Light</string>
+   </property>
+  </action>
+  <action name="actionDark">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/rec/icone/luna.png</normaloff>:/rec/icone/luna.png</iconset>
+   </property>
+   <property name="text">
+    <string>Dark</string>
    </property>
   </action>
  </widget>
@@ -715,6 +719,11 @@ p, li { white-space: pre-wrap; }
    <class>ClickableLabel</class>
    <extends>QLabel</extends>
    <header>clickablelabel.h</header>
+  </customwidget>
+  <customwidget>
+   <class>pastedTextEdit</class>
+   <extends>QTextEdit</extends>
+   <header>pastedtextedit.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>

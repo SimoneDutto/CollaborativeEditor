@@ -1,40 +1,36 @@
 <RCC>
     <qresource prefix="/rec">
-        <file>icone/copy-document.png</file>
-        <file>icone/new-file.png</file>
-        <file>icone/open-folder-outline.png</file>
-        <file>icone/paste-from-clipboard.png</file>
-        <file>icone/redo-arrow.png</file>
-        <file>icone/scissors.png</file>
-        <file>icone/undo-arrow.png</file>
-        <file>icone/info.png</file>
-        <file>icone/font.png</file>
-        <file>icone/color.png</file>
-        <file>icone/backcolor.png</file>
-        <file>icone/link.png</file>
-        <file>icone/profile.png</file>
-        <file>icone/logout.png</file>
-        <file>icone/pdf.png</file>
-        <file>icone/redo.png</file>
-        <file>icone/undo.png</file>
-        <file>icone/bold2.png</file>
-        <file>icone/italic2.png</file>
-        <file>icone/underline2.png</file>
-        <file>icone/nuovo2.png</file>
-        <file>icone/open.png</file>
-        <file>icone/error.png</file>
-        <file>icone/centro.png</file>
-        <file>icone/destra.png</file>
-        <file>icone/giust.png</file>
-        <file>icone/sinistra.png</file>
         <file>icone/camera_icon.png</file>
         <file>icone/discard_icon.png</file>
         <file>icone/error2.png</file>
-        <file>icone/centro2.png</file>
-        <file>icone/destra2.png</file>
-        <file>icone/giust2.png</file>
-        <file>icone/sinistra2.png</file>
-        <file>icone/log2.png</file>
+        <file>icone/luna.png</file>
+        <file>icone/sole.png</file>
+        <file>icone/icons8-aggiungi-file-96.png</file>
+        <file>icone/icons8-allinea-a-destra-96.png</file>
+        <file>icone/icons8-allinea-a-sinistra-96.png</file>
+        <file>icone/icons8-allinea-al-centro-96.png</file>
+        <file>icone/icons8-apri-cartella-96.png</file>
+        <file>icone/icons8-colore-del-testo-96.png</file>
+        <file>icone/icons8-copia-96.png</file>
+        <file>icone/icons8-corsivo-96.png</file>
+        <file>icone/icons8-errore-96.png</file>
+        <file>icone/icons8-esporta-in-formato-pdf-96.png</file>
+        <file>icone/icons8-giustificato-96.png</file>
+        <file>icone/icons8-grassetto-96.png</file>
+        <file>icone/icons8-incolla-96.png</file>
+        <file>icone/icons8-informazioni-480.png</file>
+        <file>icone/icons8-logout-arrotondato-96.png</file>
+        <file>icone/icons8-modifica-utente-uomo-96.png</file>
+        <file>icone/icons8-passato-96.png</file>
+        <file>icone/icons8-sottolineato-96.png</file>
+        <file>icone/icons8-taglia-96.png</file>
+        <file>icone/back.png</file>
+        <file>icone/icons8-colore-di-riempimento-96.png</file>
+        <file>icone/logo_transparent.png</file>
+        <file>icone/Testo.png</file>
+        <file>icone/icons8-aggiungi-collegamento-96.png</file>
+        <file>icone/icons8-punta-della-matita-96.png</file>
+        <file>icone/logo_transparent copy.png</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>
