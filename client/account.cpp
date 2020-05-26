@@ -103,27 +103,23 @@ void Account::on_pushButton_clicked()
     QString confirm_password = ui->lineEdit_1->text();
 
     if(QString::compare(new_password, confirm_password) == 0){
-
+        qDebug() <<  this->imageChanged;
         if(this->imageChanged){
             /* Se l'immagine è stata cambiata invio il nuovo path che può essere:
                - "" se l'utente ha deciso di eliminare l'immagine;
                - "pathImage" se l'utente ha selezionato una nuova immagine;  */
-
             QString nameNewImage = QString::number(socket->getClientID())+".png";
             if(QString::compare(this->pathUserImage, "") == 0 && QFile::exists(nameNewImage)){
                 /* C'era un'immagine ed è stata tolta */
-                QFile::remove(nameNewImage);
+                //QFile::remove(nameNewImage);
             }
-
             else if(QFile::exists(nameNewImage)) {
                 /* C'era un'immagine ed è stata aggiornata */
                 QFile::remove(nameNewImage);
                 QFile::copy(this->pathUserImage, nameNewImage);
             }
-                /* Non c'era un'immagine ed è stata aggiunta */
+            /* Non c'era un'immagine ed è stata aggiunta */
             else QFile::copy(this->pathUserImage, nameNewImage);
-
-
             emit updateInfoClient(new_password, this->pathUserImage);
         }
 
@@ -140,7 +136,7 @@ void Account::on_pushButton_clicked()
 void Account::on_setImage_clicked()
 {
     QString iconName = QFileDialog::getOpenFileName(this, tr("Choose"), "", tr("Images (*.png *.jpg *.jpeg *.bmp)"));
-    if(QString::compare(iconName, QString()) != 0)
+    if(QString::compare(iconName, QString("")) != 0)
     {
         QPixmap userPixmap = QPixmap(iconName);
         QPixmap scaled = userPixmap.scaled(ui->userImage->width(), ui->userImage->height(), Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
@@ -150,7 +146,6 @@ void Account::on_setImage_clicked()
         this->pathUserImage = iconName;
         this->imageChanged = true;
     }
-
     emit updateClientImageOnMainWindow(iconName);
 }
 
@@ -160,6 +155,6 @@ void Account::on_discardImage_clicked(){
     ui->discardImage->hide();
     this->pathUserImage="";
     this->imageChanged = true;
-
+    qDebug() << "bro";
     emit updateClientImageOnMainWindow("");
 }

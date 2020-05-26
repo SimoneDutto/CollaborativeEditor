@@ -29,18 +29,20 @@ Socket::Socket(const QString &host, quint16 port)
     //connect( socket, SIGNAL(readyRead()),  SLOT(checkLoginAndGetListFileName()) , Qt::UniqueConnection);
     connect(socket, SIGNAL(readyRead()), SLOT(readBuffer()));
     connect(this, SIGNAL(bufferReady(QByteArray)), SLOT(notificationsHandler(QByteArray)));
+    connect(this, SIGNAL(noConnection()), this, SLOT(notConnected()));
+
     socket->connectToHost(host, port);
 
     if(socket->waitForConnected(3000))
     {
         qDebug() << "Connesso";
-        connected = true;
+        connected=true;
     }
     else {
         //NON CONNESSO
         qDebug() << "Non connesso";
-
-        connected = false;
+        connected=false;
+        emit notConnected();
     }
 }
 
@@ -812,6 +814,12 @@ void Socket::closeConnection()
         // The socket is closed.
         socketClosed();
     }
+}
+
+void Socket::notConnected(){
+    serverDisc *s = new serverDisc(this);
+    hide();
+    s->show();
 }
 
 inline qint32 ArrayToInt(QByteArray source)
