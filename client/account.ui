@@ -6,9 +6,14 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>310</width>
-    <height>400</height>
+    <width>330</width>
+    <height>420</height>
    </rect>
+  </property>
+  <property name="font">
+   <font>
+    <family>Microsoft Sans Serif</family>
+   </font>
   </property>
   <property name="windowTitle">
    <string>Form</string>
@@ -16,9 +21,9 @@
   <widget class="QPushButton" name="pushButton">
    <property name="geometry">
     <rect>
-     <x>180</x>
-     <y>360</y>
-     <width>121</width>
+     <x>100</x>
+     <y>370</y>
+     <width>131</width>
      <height>32</height>
     </rect>
    </property>
@@ -29,82 +34,13 @@
   <widget class="QWidget" name="verticalLayoutWidget_2">
    <property name="geometry">
     <rect>
-     <x>90</x>
-     <y>160</y>
+     <x>80</x>
+     <y>180</y>
      <width>131</width>
      <height>171</height>
     </rect>
    </property>
-   <layout class="QVBoxLayout" name="verticalLayout_6">
-    <item>
-     <layout class="QVBoxLayout" name="verticalLayout_5">
-      <item>
-       <widget class="QLabel" name="username">
-        <property name="font">
-         <font>
-          <pointsize>16</pointsize>
-          <weight>75</weight>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="text">
-         <string>Username</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <spacer name="horizontalSpacer_2">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item>
-       <widget class="QLabel" name="label_5">
-        <property name="text">
-         <string>New password</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLineEdit" name="lineEdit">
-        <property name="echoMode">
-         <enum>QLineEdit::Password</enum>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLabel" name="label_6">
-        <property name="text">
-         <string>Confirm password</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLineEdit" name="lineEdit_1">
-        <property name="echoMode">
-         <enum>QLineEdit::Password</enum>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </item>
-   </layout>
+   <layout class="QVBoxLayout" name="verticalLayout_6"/>
   </widget>
   <widget class="QLabel" name="userImage">
    <property name="geometry">
@@ -117,6 +53,7 @@
    </property>
    <property name="font">
     <font>
+     <family>Microsoft Sans Serif</family>
      <pointsize>30</pointsize>
      <weight>75</weight>
      <bold>true</bold>
@@ -126,7 +63,7 @@
     <string/>
    </property>
    <property name="pixmap">
-    <pixmap resource="resource.qrc">:/rec/icone/profile.png</pixmap>
+    <pixmap>:/rec/icone/profile.png</pixmap>
    </property>
    <property name="alignment">
     <set>Qt::AlignCenter</set>
@@ -138,17 +75,23 @@
    </property>
    <property name="geometry">
     <rect>
-     <x>203</x>
+     <x>102</x>
      <y>134</y>
-     <width>30</width>
+     <width>131</width>
      <height>30</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Microsoft Sans Serif</family>
+     <pointsize>11</pointsize>
+    </font>
    </property>
    <property name="mouseTracking">
     <bool>true</bool>
    </property>
    <property name="text">
-    <string/>
+    <string>Upload picture</string>
    </property>
   </widget>
   <widget class="QPushButton" name="discardImage">
@@ -170,9 +113,94 @@
     <string/>
    </property>
   </widget>
+  <widget class="QWidget" name="">
+   <property name="geometry">
+    <rect>
+     <x>100</x>
+     <y>180</y>
+     <width>129</width>
+     <height>169</height>
+    </rect>
+   </property>
+   <layout class="QVBoxLayout" name="verticalLayout_5">
+    <item>
+     <widget class="QLabel" name="username">
+      <property name="font">
+       <font>
+        <family>Microsoft Sans Serif</family>
+        <pointsize>16</pointsize>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>Username</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <spacer name="horizontalSpacer_2">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>40</width>
+        <height>20</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+    <item>
+     <widget class="QLabel" name="label_5">
+      <property name="font">
+       <font>
+        <family>Microsoft Sans Serif</family>
+       </font>
+      </property>
+      <property name="text">
+       <string>New password</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLineEdit" name="lineEdit">
+      <property name="echoMode">
+       <enum>QLineEdit::Password</enum>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLabel" name="label_6">
+      <property name="font">
+       <font>
+        <family>Microsoft Sans Serif</family>
+       </font>
+      </property>
+      <property name="text">
+       <string>Confirm password</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLineEdit" name="lineEdit_1">
+      <property name="echoMode">
+       <enum>QLineEdit::Password</enum>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
  </widget>
- <resources>
-  <include location="resource.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

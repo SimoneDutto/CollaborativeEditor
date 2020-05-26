@@ -28,6 +28,8 @@ public slots:
     void resumeLogin();
     void redoLogin();
 
+    void notConnected();
+
 private:
     Ui::Login *ui;
     MainWindow *mainWindow;

@@ -1,6 +1,7 @@
 #include "account.h"
 #include "ui_account.h"
 #include "mainwindow.h"
+#include <QTimer>
 
 Account::Account(Socket *sock, QWidget *parent, QString name) :
     QDialog(parent),
@@ -25,6 +26,11 @@ Account::Account(Socket *sock, QWidget *parent, QString name) :
     ui->lineEdit->setPalette(p);
     ui->lineEdit_1->setPalette(p);
 
+    ui->lineEdit->setStyleSheet(":focus {border: 2px solid #ace4c6};");
+    ui->lineEdit->setAttribute(Qt::WA_MacShowFocusRect,0);
+    ui->lineEdit_1->setStyleSheet(":focus {border: 2px solid #ace4c6};");
+    ui->lineEdit_1->setAttribute(Qt::WA_MacShowFocusRect,0);
+    ui->pushButton->setStyleSheet("color: white; background-color: #706d82;  border-radius:5px");
 
     /* Camera Button */
     QIcon *user_icon= new QIcon(":/rec/icone/camera_icon.png");
@@ -72,6 +78,7 @@ Account::Account(Socket *sock, QWidget *parent, QString name) :
              sock, SLOT(sendChange(QString, QString)));
 
     this->show();
+    QTimer::singleShot(0, ui->lineEdit, SLOT(setFocus()));
 }
 
 Account::~Account()

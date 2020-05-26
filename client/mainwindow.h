@@ -76,6 +76,10 @@ private slots:
     void changeViewAfterColor(int start, int end, QColor c);
 
 
+    void on_textEdit_selectionChanged();
+
+    void changeViewAfterSelection(int start, int end, QColor colore);
+
 private:
     Ui::MainWindow *ui;
     Socket *socket;

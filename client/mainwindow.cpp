@@ -49,6 +49,12 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
     /*QPixmap pix("path -- TO DO");
     ui->user1->setPixmap(pix);*/
 
+    QIcon *discard_icon= new QIcon(":/rec/icone/icons8-punta-della-matita-96.png");
+    ui->discardImage->setIcon(*discard_icon);
+    ui->discardImage->setIconSize(QSize(18, 18));
+
+    QString styleSheet = "QPushButton {background-color: white; border-style: solid; border-width: 1px; border-radius: 15px; border-color: rgb(0, 0, 0);} QPushButton:hover {background-color: rgb(233, 233, 233)} QPushButton:pressed {background-color: rgb(181, 181, 181)}";
+    ui->discardImage->setStyleSheet(styleSheet);
 
     setWindowTitle(nome);
     ui->label_2->setStyleSheet("background-color:lightgray; color:black");
@@ -74,7 +80,7 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
     //ui->lineEdit->setText(nome);
 
     /* Personalizzo e aggiungo le label degli utenti connessi */
-    QString styleSheet = QString("QGroupBox {border: 0px;}");
+    styleSheet = QString("QGroupBox {border: 0px;}");
     ui->groupBox->setStyleSheet(styleSheet);
 
     ui->user1->hide();
@@ -105,7 +111,7 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
     }
 
     /* Aggiungo ComboBox e SizeBox */
-    QAction *rightAll = ui->mainToolBar->actions().at(9);
+    QAction *rightAll = ui->mainToolBar->actions().at(8);
 
     QComboBox* sizeComboBox = new QComboBox;
     QStringList* numList = new QStringList;
@@ -201,7 +207,7 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
              this, SLOT(on_counter_clicked()));
     connect( ui->user3, SIGNAL(clicked()),
              this, SLOT(on_counter_clicked()));
-    connect( ui->myicon, SIGNAL(clicked()),
+    connect( ui->discardImage, SIGNAL(clicked()),
              this, SLOT(on_actionEdit_Profile_triggered()));
 }
 
@@ -548,7 +554,7 @@ void MainWindow::on_actionColor_triggered()
     QString lastID = vettore.at(end)->getLetterID();
     QString startID;
 
-    if(vettore.size() < start)
+    if(vettore.size() > start)
         startID = vettore.at(start)->getLetterID();
     else startID = lastID;
 
@@ -1235,6 +1241,7 @@ void MainWindow::on_actionAlign_to_Justify_triggered()
 void MainWindow::notConnected(){
     serverDisc *s = new serverDisc(this);
     s->show();
+    this->setWindowState(Qt::WindowState::WindowActive);
 }
 
 
@@ -1295,7 +1302,6 @@ void MainWindow::on_cursor_triggered(QPair<int,int> idpos, QColor col)
         cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
         //qDebug() << "testo left: " << cursor.selectedText();
         cursor.mergeCharFormat(fmt);
-
 
         for(int i = 1; i < id_colore_cursore.size(); i++){
             QColor colore = id_colore_cursore.value(i).first.second;
@@ -1514,5 +1520,33 @@ void MainWindow::insertPastedText(QString text){
 
     ui->textEdit->insertPlainText(text);
 
+    connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
+}
+
+void MainWindow::on_textEdit_selectionChanged()
+{
+    QTextCursor cursor = ui->textEdit->textCursor();
+    int start = cursor.selectionStart();
+    int end = cursor.selectionEnd();
+    qDebug() << "testo selezionato: " << cursor.selectedText();
+   // emit sendSelection(start, end);
+}
+
+
+
+void MainWindow::changeViewAfterSelection(int start, int end, QColor colore)
+{
+    disconnect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
+
+    QTextCharFormat fmt;
+    QTextCursor cursor = ui->textEdit->textCursor();
+    fmt.setBackground(colore);
+    int dif = end-start+1;
+    cursor.setPosition(end+1);
+    for(int i = 0; i<=dif; i++){
+        cursor.mergeCharFormat(fmt);
+        cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
+         qDebug() << "testo left: " << cursor.selectedText();
+    }
     connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
 }
