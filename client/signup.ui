@@ -6,9 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>644</width>
-    <height>495</height>
+    <width>760</width>
+    <height>550</height>
    </rect>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>760</width>
+    <height>550</height>
+   </size>
   </property>
   <property name="windowTitle">
    <string>Dialog</string>
@@ -16,8 +22,8 @@
   <widget class="QLabel" name="userImage">
    <property name="geometry">
     <rect>
-     <x>391</x>
-     <y>250</y>
+     <x>441</x>
+     <y>290</y>
      <width>81</width>
      <height>81</height>
     </rect>
@@ -35,8 +41,8 @@
    </property>
    <property name="geometry">
     <rect>
-     <x>374</x>
-     <y>310</y>
+     <x>424</x>
+     <y>350</y>
      <width>111</width>
      <height>30</height>
     </rect>
@@ -60,8 +66,8 @@
    </property>
    <property name="geometry">
     <rect>
-     <x>480</x>
-     <y>310</y>
+     <x>530</x>
+     <y>350</y>
      <width>30</width>
      <height>30</height>
     </rect>
@@ -76,8 +82,8 @@
   <widget class="QGroupBox" name="groupBox">
    <property name="geometry">
     <rect>
-     <x>345</x>
-     <y>350</y>
+     <x>395</x>
+     <y>390</y>
      <width>181</width>
      <height>81</height>
     </rect>
@@ -120,7 +126,7 @@
   <widget class="QLabel" name="label_4">
    <property name="geometry">
     <rect>
-     <x>90</x>
+     <x>140</x>
      <y>10</y>
      <width>471</width>
      <height>361</height>
@@ -139,7 +145,7 @@
   <widget class="QLabel" name="label_6">
    <property name="geometry">
     <rect>
-     <x>140</x>
+     <x>190</x>
      <y>-40</y>
      <width>381</width>
      <height>271</height>
@@ -158,8 +164,8 @@
   <widget class="QGroupBox" name="groupBox_2">
    <property name="geometry">
     <rect>
-     <x>120</x>
-     <y>230</y>
+     <x>170</x>
+     <y>270</y>
      <width>201</width>
      <height>221</height>
     </rect>

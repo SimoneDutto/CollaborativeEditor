@@ -1,4 +1,5 @@
 #include "signup.h"
+#include "login.h"
 #include "ui_signup.h"
 #include <QDir>
 #include <QMessageBox>
@@ -98,7 +99,7 @@ void SignUp::on_pushButton_clicked() {
 void SignUp::sendToLogin() {
     // Reindirizzare alla pagina di login
     QMessageBox::information(this, "OK!", "Sign up successful", "Log in");
-    loginWindow = new Login(socket, this);
+    Login *loginWindow = new Login(socket, this);
     hide();
     loginWindow->show();
 }
@@ -154,7 +155,8 @@ void SignUp::on_discardImage_clicked(){
 
 void SignUp::on_pushButton_2_clicked()
 {
-    loginWindow = new Login(socket, this);
-    hide();
+    this->close();
+    Login *loginWindow = new Login(socket);
+    loginWindow->setAttribute(Qt::WA_DeleteOnClose, true);
     loginWindow->show();
 }

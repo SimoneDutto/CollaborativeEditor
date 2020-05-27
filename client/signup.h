@@ -5,7 +5,6 @@
 #include "mainwindow.h"
 #include "socket.h"
 #include "ui_mainwindow.h"
-#include "login.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class SignUp; }
@@ -19,7 +18,6 @@ private:
     Ui::SignUp *ui;
     Socket *socket;
     MainWindow *mainWindow;
-    Login *loginWindow;
     QString pathUserImage;
 
 public:

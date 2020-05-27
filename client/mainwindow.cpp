@@ -40,7 +40,7 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
     this->show();
 
     QPalette p = ui->textEdit->palette(); // define pallete for textEdit..
-    p.setColor(QPalette::Base, QColor(245,245,245)); // set color "Red" for textedit base
+    p.setColor(QPalette::Base, Qt::white); // set color "Red" for textedit base
     p.setColor(QPalette::Text, Qt::black); // set text color which is selected from color pallete
     ui->textEdit->setPalette(p);
     ui->textEdit->setStyleSheet("QTextEdit { padding:20}");
@@ -185,7 +185,7 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
     connect( socket, SIGNAL(readyAlignChange(Qt::AlignmentFlag,int,QString,QString)),
              fHandler, SLOT(remoteAlignChange(Qt::AlignmentFlag,int,QString,QString)));
     connect( fHandler, SIGNAL(readyRemoteAlignChange(Qt::AlignmentFlag,int)),
-             this, SLOT(changeAlignment(Qt::AlignmentFlag,int))); 
+             this, SLOT(changeAlignment(Qt::AlignmentFlag,int)));
 
     connect( this, SIGNAL(sendColorChange(QString,QString,QString)),
              socket, SLOT(sendColor(QString,QString,QString)));
@@ -975,8 +975,14 @@ void MainWindow::on_actionEdit_Profile_triggered()
 void MainWindow::on_actionExport_as_PDF_triggered()
 {
     QTextDocument document;
+    QTextCharFormat fmt;
+    fmt.setBackground(Qt::white);
+    QTextEdit *t = ui->textEdit;
+    QTextCursor cursor = t->textCursor();
+    cursor.setPosition(0);
+    cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+    cursor.mergeCharFormat(fmt);
     document.setHtml(ui->textEdit->toHtml());
-
     QString fn = QFileDialog::getSaveFileName(this, tr("Select output file"), QString(), tr("PDF Files(*.pdf)"));
       if (fn.isEmpty())
         return;
@@ -986,6 +992,43 @@ void MainWindow::on_actionExport_as_PDF_triggered()
     printer.setColorMode(QPrinter::Color);
     printer.setOutputFileName(fn);
     document.print(&printer);
+
+    //ripristino cursore
+    QTextCharFormat fmt2;
+    fmt2.setBackground(Qt::white);
+    QColor colore = id_colore_cursore.value(0).first.second;
+    int pos = id_colore_cursore.value(0).second;
+    qDebug() << pos << id_colore_cursore.size() << id_colore_cursore.value(0);
+
+    fmt.setBackground(colore);
+
+    cursor.setPosition(pos);
+    cursor.movePosition(QTextCursor::Start, QTextCursor::KeepAnchor);
+    //qDebug() << "testo from Start: " << cursor.selectedText();
+    cursor.mergeCharFormat(fmt2);
+    cursor.setPosition(pos);
+    cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+    //qDebug() << "testo to End: " << cursor.selectedText();
+    cursor.mergeCharFormat(fmt2);
+    cursor.setPosition(pos);
+    cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
+    //qDebug() << "testo left: " << cursor.selectedText();
+    cursor.mergeCharFormat(fmt);
+
+    for(int i = 1; i < id_colore_cursore.size(); i++){
+        QColor colore = id_colore_cursore.value(i).first.second;
+        int pos = id_colore_cursore.value(i).second;
+
+        fmt.setBackground(colore);
+
+        cursor.setPosition(pos);
+        cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+        cursor.mergeCharFormat(fmt2);
+        cursor.setPosition(pos);
+        cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
+        cursor.mergeCharFormat(fmt);
+    }
+
 }
 
 void MainWindow::on_counter_clicked()
@@ -1254,7 +1297,7 @@ void MainWindow::on_cursor_triggered(QPair<int,int> idpos, QColor col)
     QTextCharFormat fmt;
     QTextCharFormat fmt2;
 
-    fmt2.setBackground(QColor(245,245,245));
+    fmt2.setBackground(Qt::white);
 
     QTextCursor cursor = ui->textEdit->textCursor();
 
@@ -1277,7 +1320,7 @@ void MainWindow::on_cursor_triggered(QPair<int,int> idpos, QColor col)
 
     }
 
-    if(idpos.second >= 0) {
+    //if(idpos.second >= 0) {
         //altrimenti lo aggiungo
         if (trovato == false)
             id_colore_cursore.append(qMakePair(qMakePair(idpos.first,col), idpos.second));
@@ -1316,7 +1359,7 @@ void MainWindow::on_cursor_triggered(QPair<int,int> idpos, QColor col)
             cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
             cursor.mergeCharFormat(fmt);
         }
-    }
+    //}
     connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
 }
 
