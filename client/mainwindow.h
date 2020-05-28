@@ -88,7 +88,7 @@ private:
     int letterCounter = 0;
     QList<QPair<QPair<int,QColor>,int>> id_colore_cursore;
     QPalette pal = palette();
-
+    QTextCharFormat firstLetter;
     Qt::AlignmentFlag getFlag(Qt::Alignment align);
 
 
