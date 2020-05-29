@@ -115,6 +115,7 @@ void FileSystem::createFile(QString filename, QTcpSocket *socket){
         file_info.insert("type", "NEW");
         file_info.insert("fileid", fileid);
         file_info.insert("URI", URI);
+        file_info.insert("filename", filename);
         // Send size of message "NEW"
         sendJson(file_info, socket);
 
@@ -124,6 +125,10 @@ void FileSystem::createFile(QString filename, QTcpSocket *socket){
     else{
         qDebug() << "Insert not executed";
     }
+    QJsonObject file_info;
+    file_info.insert("type", "NEW");
+    file_info.insert("fileid", -1);
+    sendJson(file_info, socket);
 
     return;
 
