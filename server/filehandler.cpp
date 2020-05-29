@@ -234,6 +234,8 @@ void FileHandler::changeColor(QString startID, QString lastID, QString colorName
         if(!intervalStarted && l->getLetterID().compare(startID)==0) {
             intervalStarted = true;
             l->setColor(color);
+            if(startID.compare(lastID)==0)
+                break;
         } else if(intervalStarted) {
             l->setColor(color);
             if(l->getLetterID().compare(lastID)==0)

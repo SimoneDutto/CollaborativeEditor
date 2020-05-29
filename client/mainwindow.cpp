@@ -552,12 +552,15 @@ void MainWindow::on_actionColor_triggered()
     int start = cursor.selectionStart();
     int end = cursor.selectionEnd()-1;
 
-    QString lastID = vettore.at(end)->getLetterID();
-    QString startID;
+    QString startID, lastID;
 
-    if(vettore.size() > start)
+    lastID = vettore.at(end)->getLetterID();
+
+    if(vettore.size() > start) {
         startID = vettore.at(start)->getLetterID();
-    else startID = lastID;
+        if(start == end+1)
+            lastID = startID;
+    } else startID = lastID;
 
     for(i=start; i<=end; i++){
         cursor.setPosition(i+1);
