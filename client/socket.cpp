@@ -322,7 +322,7 @@ void Socket::notificationsHandler(QByteArray data){
 
             for(auto user : array_tmp) {
                 QString username = user.toString();
-                QColor random = QColor(rand()%255, rand()%255, rand()%255, rand()%255);
+                QColor random = QColor(rand()%255, rand()%255, 0);
                 int userID = userIDs[i].toInt();
                 int userPos = userCursors[i].toInt();
                 userColor.insert(username, random);

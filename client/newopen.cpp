@@ -38,15 +38,15 @@ NewOpen::NewOpen(Socket *sock, FileHandler *fHandler, QWidget *parent) :
 
     QIcon *user_icon= new QIcon(":/rec/icone/icons8-apri-cartella-96.png");
     ui->pushButton_5->setIcon(*user_icon);
-    ui->pushButton_5->setIconSize(QSize(40, 40));
+    ui->pushButton_5->setIconSize(QSize(30, 30));
 
     user_icon= new QIcon(":/rec/icone/icons8-aggiungi-file-96.png");
     ui->pushButton_6->setIcon(*user_icon);
-    ui->pushButton_6->setIconSize(QSize(40, 40));
+    ui->pushButton_6->setIconSize(QSize(30, 30));
 
     user_icon= new QIcon(":/rec/icone/icons8-aggiungi-collegamento-96.png");
     ui->pushButton_7->setIcon(*user_icon);
-    ui->pushButton_7->setIconSize(QSize(40, 40));
+    ui->pushButton_7->setIconSize(QSize(30, 30));
 
     QString styleSheet = "QPushButton {background-color: transparent; border-style: none; color: white}";
     ui->pushButton_5->setStyleSheet(styleSheet);
