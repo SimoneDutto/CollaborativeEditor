@@ -688,6 +688,7 @@ void MainWindow::on_textEdit_textChanged()
 
         if(ui->textEdit->toPlainText().size()==0){
             ui->textEdit->setCurrentCharFormat(this->firstLetter);
+
             Qt::Alignment currAlign = ui->textEdit->alignment();
 
             if(currAlign.testFlag(Qt::AlignLeft)){
@@ -723,7 +724,6 @@ void MainWindow::on_textEdit_textChanged()
         }
     }
 }
-
 
 Qt::AlignmentFlag MainWindow::getFlag(Qt::Alignment a) {
     if(a.testFlag(Qt::AlignLeft))
@@ -922,27 +922,30 @@ void MainWindow::on_textEdit_cursorPositionChanged() {
     if(pos <= ui->textEdit->toPlainText().size())
         emit sendCursorChange(pos);
 
+    int start = cursor.selectionStart();
+    int end = cursor.selectionEnd()-1;
+
     /*Se il testo selezionato ha stile misto, i bottoni accendono lo stile*/
     if(cursor.hasSelection()==true){
-        if(ui->textEdit->fontWeight()!=75){
-            ui->actionBold->setChecked(false);
-        }
-        else {
+        if(isSelectionBold(start, end+1)){
             ui->actionBold->setChecked(true);
         }
-
-        if(ui->textEdit->fontItalic()!=true){
-            ui->actionItalic->setChecked(false);
-        }
         else {
+            ui->actionBold->setChecked(false);
+        }
+
+        if(isSelectionItalic(start, end+1)){
             ui->actionItalic->setChecked(true);
         }
+        else {
+            ui->actionItalic->setChecked(false);
+        }
 
-        if(ui->textEdit->fontUnderline()!=true){
-            ui->actionUnderlined->setChecked(false);
+        if(isSelectionUnderlined(start, end+1)){
+            ui->actionUnderlined->setChecked(true);
         }
         else {
-            ui->actionUnderlined->setChecked(true);
+            ui->actionUnderlined->setChecked(false);
         }
 
         if(cursor.selectionStart()==0){

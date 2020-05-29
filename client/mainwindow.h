@@ -78,7 +78,6 @@ private slots:
     void on_actionDark_triggered();
     void changeViewAfterColor(int start, int end, QColor c);
     void insertPastedText(QString html, QString text);
-
     void on_textEdit_selectionChanged();
 
     void changeViewAfterSelection(int start, int end, QColor colore);
