@@ -23,7 +23,7 @@
    <property name="geometry">
     <rect>
      <x>50</x>
-     <y>80</y>
+     <y>100</y>
      <width>351</width>
      <height>391</height>
     </rect>
@@ -33,7 +33,7 @@
    <property name="geometry">
     <rect>
      <x>50</x>
-     <y>480</y>
+     <y>500</y>
      <width>351</width>
      <height>25</height>
     </rect>
@@ -92,7 +92,7 @@
    <property name="geometry">
     <rect>
      <x>51</x>
-     <y>40</y>
+     <y>60</y>
      <width>351</width>
      <height>32</height>
     </rect>
@@ -165,10 +165,10 @@
   <widget class="QLabel" name="username">
    <property name="geometry">
     <rect>
-     <x>540</x>
+     <x>530</x>
      <y>180</y>
-     <width>71</width>
-     <height>20</height>
+     <width>91</width>
+     <height>31</height>
     </rect>
    </property>
    <property name="font">
@@ -179,7 +179,7 @@
     </font>
    </property>
    <property name="text">
-    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:11pt; color:#ffffff;&quot;&gt;Username&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt; color:#ffffff;&quot;&gt;Username&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
    <property name="alignment">
     <set>Qt::AlignCenter</set>
@@ -191,10 +191,10 @@
    </property>
    <property name="geometry">
     <rect>
-     <x>540</x>
-     <y>120</y>
-     <width>71</width>
-     <height>61</height>
+     <x>530</x>
+     <y>100</y>
+     <width>91</width>
+     <height>81</height>
     </rect>
    </property>
    <property name="sizePolicy">
@@ -223,10 +223,10 @@
   <widget class="QLabel" name="label_3">
    <property name="geometry">
     <rect>
-     <x>490</x>
+     <x>-10</x>
      <y>-50</y>
-     <width>321</width>
-     <height>231</height>
+     <width>241</width>
+     <height>171</height>
     </rect>
    </property>
    <property name="text">
@@ -242,10 +242,10 @@
   <widget class="QLabel" name="label_2">
    <property name="geometry">
     <rect>
-     <x>440</x>
+     <x>-20</x>
      <y>0</y>
-     <width>171</width>
-     <height>121</height>
+     <width>101</width>
+     <height>71</height>
     </rect>
    </property>
    <property name="text">
@@ -264,7 +264,7 @@
    </property>
    <property name="geometry">
     <rect>
-     <x>590</x>
+     <x>600</x>
      <y>160</y>
      <width>30</width>
      <height>30</height>
@@ -278,6 +278,46 @@
    </property>
    <property name="flat">
     <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="ClickableLabel" name="label">
+   <property name="geometry">
+    <rect>
+     <x>680</x>
+     <y>20</y>
+     <width>41</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+   <property name="pixmap">
+    <pixmap resource="resource.qrc">:/rec/icone/icons8-logout-arrotondato-96.png</pixmap>
+   </property>
+   <property name="scaledContents">
+    <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_4">
+   <property name="geometry">
+    <rect>
+     <x>630</x>
+     <y>30</y>
+     <width>58</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Microsoft Sans Serif</family>
+     <pointsize>15</pointsize>
+     <weight>50</weight>
+     <bold>false</bold>
+    </font>
+   </property>
+   <property name="text">
+    <string>Logout</string>
    </property>
   </widget>
   <zorder>label_3</zorder>
@@ -294,6 +334,8 @@
   <zorder>label_2</zorder>
   <zorder>myicon</zorder>
   <zorder>discardImage</zorder>
+  <zorder>label</zorder>
+  <zorder>label_4</zorder>
  </widget>
  <customwidgets>
   <customwidget>

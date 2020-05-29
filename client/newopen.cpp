@@ -1,6 +1,7 @@
 #include "newopen.h"
 #include "ui_newopen.h"
 #include <QShortcut>
+#include <QProcess>
 #include "error.h"
 
 NewOpen::NewOpen(Socket *sock, FileHandler *fHandler, QWidget *parent) :
@@ -100,6 +101,7 @@ NewOpen::NewOpen(Socket *sock, FileHandler *fHandler, QWidget *parent) :
              this, SLOT(uriIsOk(QString)));
     connect(socket, SIGNAL(uriIsNotOk()),
              this, SLOT(uriIsNotOk()));
+    connect(ui->label, SIGNAL(clicked()), this, SLOT(on_actionLog_Out_triggered()));
 
     QShortcut *sc = new QShortcut(QKeySequence("Return"),this);
     connect(sc, SIGNAL(activated()), ui->pushButton, SLOT(click()));
@@ -107,6 +109,7 @@ NewOpen::NewOpen(Socket *sock, FileHandler *fHandler, QWidget *parent) :
 
 NewOpen::~NewOpen()
 {
+    delete account;
     delete ui;
 }
 
@@ -183,3 +186,11 @@ void NewOpen::on_discardImage_clicked()
     account = new Account(this->socket, this, this->windowTitle());
     account->show();
 }
+
+void NewOpen::on_actionLog_Out_triggered()
+{
+    emit logOut();
+    qApp->quit();
+    QProcess::startDetached(qApp->arguments()[0], qApp->arguments());
+}
+
