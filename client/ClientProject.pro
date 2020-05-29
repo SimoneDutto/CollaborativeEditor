@@ -34,6 +34,7 @@ SOURCES += \
     mainwindow.cpp \
     onlineuser.cpp \
     pastedtextedit.cpp \
+    retrylogin.cpp \
     serverdisc.cpp \
     signup.cpp \
     socket.cpp \
@@ -54,6 +55,7 @@ HEADERS += \
     mainwindow.h \
     onlineuser.h \
     pastedtextedit.h \
+    retrylogin.h \
     serverdisc.h \
     signup.h \
     socket.h \
@@ -70,6 +72,7 @@ FORMS += \
     login.ui \
     mainwindow.ui \
     onlineuser.ui \
+    retrylogin.ui \
     serverdisc.ui \
     signup.ui \
     socket.ui \

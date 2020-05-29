@@ -5,6 +5,7 @@
 #include <QTimer>
 #include "signup.h"
 #include "serverdisc.h"
+#include "retrylogin.h"
 
 Login::Login(Socket *sock, QWidget *parent)
     : QMainWindow(parent)
@@ -76,7 +77,8 @@ void Login::resumeLogin()
 
 void Login::redoLogin()
 {
-    QMessageBox::warning(this, "Login Failed", "Retry");
+    retryLogin *r = new retryLogin(this);
+    r->show();
 }
 
 void Login::on_pushButton_2_clicked()

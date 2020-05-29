@@ -7,7 +7,7 @@ serverDisc::serverDisc(QWidget *parent) :
     ui(new Ui::serverDisc)
 {
     ui->setupUi(this);
-    setWindowTitle("Server Error");
+    setWindowTitle("");
     this->setWindowFlags(Qt::Window);
 }
 
