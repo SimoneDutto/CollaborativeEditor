@@ -121,12 +121,21 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
     }
     sizeComboBox->addItems(*numList);
     sizeComboBox->setStyleSheet("combobox-popup: 0;");
+    sizeComboBox->setCurrentIndex(12);
 
 
     QFontComboBox* fontComboBox = new QFontComboBox;
+    QFont init_font;
+    init_font.setFamily("Arial");
+    fontComboBox->setCurrentFont(init_font);
 
     ui->mainToolBar->insertWidget(rightAll, fontComboBox);
     ui->mainToolBar->insertWidget(rightAll, sizeComboBox);
+
+    QFont currFont = ui->textEdit->currentFont();
+    currFont.setFamily("Arial");
+    currFont.setPointSize(13);
+    ui->textEdit->setFont(currFont);
 
 
     /* CONNECT per collegare Font e Size */
@@ -169,8 +178,8 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
              this, SLOT(on_write_uri(QString)));
     connect( socket, SIGNAL(HistorySuccess(QMap<int, QString>)),
              this, SLOT(uploadHistory(QMap<int, QString>)));
-    connect( ui->textEdit, SIGNAL(pastedText(QString)),
-                 this, SLOT(insertPastedText(QString)));
+    connect( ui->textEdit, SIGNAL(pastedText(QString, QString)),
+                 this, SLOT(insertPastedText(QString, QString)));
 
     /* CONNECT per lo stile dei caratteri */
     connect( this, SIGNAL(styleChange(QMap<QString, QTextCharFormat>)),
@@ -639,6 +648,42 @@ void MainWindow::on_textEdit_textChanged()
             letterCounter -= deletedLetters;
             emit myDelete(externalIndex+1, externalIndex+deletedLetters);
         }
+
+        if(ui->textEdit->toPlainText().size()==0){
+            ui->textEdit->setCurrentCharFormat(this->firstLetter);
+            Qt::Alignment currAlign = ui->textEdit->alignment();
+
+            if(currAlign.testFlag(Qt::AlignLeft)){
+                ui->actionAlign_to_Left->setChecked(true);
+                ui->actionAlign_to_Right->setChecked(false);
+                ui->actionAlign_to_Center->setChecked(false);
+                ui->actionAlign_to_Justify->setChecked(false);
+            }
+
+            else if(currAlign.testFlag(Qt::AlignRight)){
+                ui->actionAlign_to_Left->setChecked(false);
+                ui->actionAlign_to_Right->setChecked(true);
+                ui->actionAlign_to_Center->setChecked(false);
+                ui->actionAlign_to_Justify->setChecked(false);
+            }
+
+            else if(currAlign.testFlag(Qt::AlignCenter)){
+                ui->actionAlign_to_Left->setChecked(false);
+                ui->actionAlign_to_Right->setChecked(false);
+                ui->actionAlign_to_Center->setChecked(true);
+                ui->actionAlign_to_Justify->setChecked(false);
+            }
+
+            else if(currAlign.testFlag(Qt::AlignJustify)){
+                ui->actionAlign_to_Left->setChecked(false);
+                ui->actionAlign_to_Right->setChecked(false);
+                ui->actionAlign_to_Center->setChecked(false);
+                ui->actionAlign_to_Justify->setChecked(true);
+            }
+
+            emit setCurrFont(this->firstLetter.font());
+            emit setCurrFontSize(this->firstLetter.font().pointSize()-1);
+        }
     }
 }
 
@@ -651,7 +696,7 @@ Qt::AlignmentFlag MainWindow::getFlag(Qt::Alignment a) {
     else if(a.testFlag(Qt::AlignCenter))
         return Qt::AlignCenter;
     else return Qt::AlignJustify;
-}
+ }
 
 void MainWindow::on_lineEdit_editingFinished()
 {
@@ -863,6 +908,10 @@ void MainWindow::on_textEdit_cursorPositionChanged() {
             ui->actionUnderlined->setChecked(true);
         }
 
+        if(cursor.selectionStart()==0){
+            this->firstLetter=ui->textEdit->currentCharFormat();
+        }
+
         auto currFont = ui->textEdit->currentCharFormat().font();
         emit setCurrFont(currFont);
         emit setCurrFontSize(currFont.pointSize()-1);
@@ -892,6 +941,10 @@ void MainWindow::on_textEdit_cursorPositionChanged() {
         }
         else {
             ui->actionUnderlined->setChecked(true);
+        }
+
+        if(cursor.position()==1){
+            this->firstLetter=ui->textEdit->currentCharFormat();
         }
 
         auto currFont = ui->textEdit->currentCharFormat().font();
@@ -1563,7 +1616,7 @@ void MainWindow::changeViewAfterSelection(int start, int end, QColor colore)
     connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
 }
 
-void MainWindow::insertPastedText(QString text){
+void MainWindow::insertPastedText(QString html, QString text){
     disconnect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
 
     QTextCursor cursor(ui->textEdit->textCursor());
@@ -1579,16 +1632,17 @@ void MainWindow::insertPastedText(QString text){
         }
     }
 
+    ui->textEdit->insertHtml(html);
+
     if (receivers(SIGNAL(myInsert(int,QChar,int,QTextCharFormat,Qt::AlignmentFlag))) > 0) {
-        for(QChar newLetterValue : text){
+        for(int i = 0; i < text.size(); i++){
             letterCounter++;
             externalIndex++;
-            myInsert(externalIndex, newLetterValue, socket->getClientID(), cursor.charFormat(), this->getFlag(ui->textEdit->alignment()));
+            cursor.setPosition(externalIndex);
+            myInsert(externalIndex, text.at(i), socket->getClientID(), cursor.charFormat(), this->getFlag(ui->textEdit->alignment()));
         }
         emit sendCursorChange(externalIndex);
     }
-
-    ui->textEdit->insertPlainText(text);
 
     connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
 }

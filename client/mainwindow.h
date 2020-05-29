@@ -72,7 +72,7 @@ private slots:
     void on_actionLight_triggered();
     void on_actionDark_triggered();
     void changeViewAfterColor(int start, int end, QColor c);
-    void insertPastedText(QString pastedText);
+    void insertPastedText(QString html, QString text);
 
     void on_textEdit_selectionChanged();
 
@@ -88,7 +88,7 @@ private:
     int letterCounter = 0;
     QList<QPair<QPair<int,QColor>,int>> id_colore_cursore;
     QPalette pal = palette();
-
+    QTextCharFormat firstLetter;
     Qt::AlignmentFlag getFlag(Qt::Alignment align);
 
 
