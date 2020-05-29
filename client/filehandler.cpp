@@ -177,7 +177,8 @@ void FileHandler::localStyleChange(QMap<QString,QTextCharFormat> letterFormatMap
         if(letterFormatMap.contains(l->getLetterID())) {
             // Look for the change
             fontString = letterFormatMap.take(l->getLetterID()).font().toString();
-            l->setStyleFromString("", letterFormatMap.take(l->getLetterID()).font().toString());
+            //qDebug()<<"FONT STRING" << fontString;
+            l->setStyleFromString("", fontString);
             /* Send change to server */
             emit localStyleChangeNotify(l->getLetterID(), l->getLetterID(), this->fileid, changedStyle, fontString);
         }

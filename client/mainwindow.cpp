@@ -21,6 +21,7 @@
 #include <algorithm>
 #include <QFontDatabase>
 #include <QTextBlock>
+#include <QTextDocumentFragment>
 
 
 MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QString nome) :
@@ -359,10 +360,12 @@ void MainWindow::on_actionBold_triggered()
 
         qDebug() << "Seleziono un testo per grassetto";
 
-        if(ui->textEdit->fontWeight()==50)
+        //qDebug() << cursor.selection().toHtml();
+
+        /*if(ui->textEdit->fontWeight()==50)
             ui->textEdit->setFontWeight(75);
         else
-            ui->textEdit->setFontWeight(50);
+            ui->textEdit->setFontWeight(50);*/
 
         /* Aggiorno il modello */
         QMap<QString, QTextCharFormat> formatCharMap;
@@ -371,6 +374,11 @@ void MainWindow::on_actionBold_triggered()
 
         int start = cursor.selectionStart();
         int end = cursor.selectionEnd()-1;
+
+        if(isSelectionBold(start, end+1))
+            ui->textEdit->setFontWeight(50);
+        else
+            ui->textEdit->setFontWeight(75);
 
         QString startID = vettore.at(start)->getLetterID();
         QString lastID = vettore.at(end)->getLetterID();
@@ -391,6 +399,33 @@ void MainWindow::on_actionBold_triggered()
         connect( this, SIGNAL(myDelete(int,int)),
                   fHandler, SLOT(localDelete(int,int)));
     }
+}
+
+bool MainWindow::isSelectionBold(int start, int end) {
+    QVector<Letter*> text = this->fHandler->getVectorFile();
+    for(int i=start; i<end; i++) {
+        if(text[i]->getFormat().fontWeight()==50)
+            return false;
+    }
+    return true;
+}
+
+bool MainWindow::isSelectionItalic(int start, int end) {
+    QVector<Letter*> text = this->fHandler->getVectorFile();
+    for(int i=start; i<end; i++) {
+        if(!text[i]->getFormat().fontItalic())
+            return false;
+    }
+    return true;
+}
+
+bool MainWindow::isSelectionUnderlined(int start, int end) {
+    QVector<Letter*> text = this->fHandler->getVectorFile();
+    for(int i=start; i<end; i++) {
+        if(!text[i]->getFormat().fontUnderline())
+            return false;
+    }
+    return true;
 }
 
 void MainWindow::on_actionItalic_triggered()
@@ -416,11 +451,6 @@ void MainWindow::on_actionItalic_triggered()
         qDebug() << "Seleziono un testo per corsivo";
         qDebug() << ui->textEdit->fontItalic();
 
-        if(ui->textEdit->fontItalic()==false)
-            ui->textEdit->setFontItalic(true);
-        else
-            ui->textEdit->setFontItalic(false);
-
         /* Aggiorno il modello */
         QMap<QString, QTextCharFormat> formatCharMap;
         auto vettore = this->fHandler->getVectorFile();
@@ -428,6 +458,11 @@ void MainWindow::on_actionItalic_triggered()
 
         int start = cursor.selectionStart();
         int end = cursor.selectionEnd()-1;
+
+        if(!isSelectionItalic(start, end+1))
+            ui->textEdit->setFontItalic(true);
+        else
+            ui->textEdit->setFontItalic(false);
 
         QString startID = vettore.at(start)->getLetterID();
         QString lastID = vettore.at(end)->getLetterID();
@@ -472,11 +507,6 @@ void MainWindow::on_actionUnderlined_triggered()
 
         qDebug() << "Seleziono un testo per sottolineato";
 
-        if(ui->textEdit->fontUnderline()!=true)
-            ui->textEdit->setFontUnderline(true);
-        else
-            ui->textEdit->setFontUnderline(false);
-
         /* Aggiorno il modello */
         QMap<QString, QTextCharFormat> formatCharMap;
         auto vettore = this->fHandler->getVectorFile();
@@ -484,7 +514,11 @@ void MainWindow::on_actionUnderlined_triggered()
 
         int start = cursor.selectionStart();
         int end = cursor.selectionEnd()-1;
-        qDebug() << end;
+
+        if(!isSelectionUnderlined(start, end+1))
+            ui->textEdit->setFontUnderline(true);
+        else
+            ui->textEdit->setFontUnderline(false);
 
         QString startID = vettore.at(start)->getLetterID();
         QString lastID = vettore.at(end)->getLetterID();
