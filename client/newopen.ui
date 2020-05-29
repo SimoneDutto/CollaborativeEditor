@@ -6,9 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>724</width>
-    <height>507</height>
+    <width>760</width>
+    <height>550</height>
    </rect>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>760</width>
+    <height>550</height>
+   </size>
   </property>
   <property name="windowTitle">
    <string>Dialog</string>
@@ -16,8 +22,8 @@
   <widget class="QListWidget" name="listWidget">
    <property name="geometry">
     <rect>
-     <x>20</x>
-     <y>50</y>
+     <x>50</x>
+     <y>100</y>
      <width>351</width>
      <height>391</height>
     </rect>
@@ -26,8 +32,8 @@
   <widget class="QPushButton" name="pushButton">
    <property name="geometry">
     <rect>
-     <x>20</x>
-     <y>450</y>
+     <x>50</x>
+     <y>500</y>
      <width>351</width>
      <height>25</height>
     </rect>
@@ -39,8 +45,8 @@
   <widget class="QPushButton" name="pushButton_2">
    <property name="geometry">
     <rect>
-     <x>440</x>
-     <y>290</y>
+     <x>470</x>
+     <y>320</y>
      <width>211</width>
      <height>25</height>
     </rect>
@@ -52,8 +58,8 @@
   <widget class="QLineEdit" name="lineEdit">
    <property name="geometry">
     <rect>
-     <x>440</x>
-     <y>400</y>
+     <x>470</x>
+     <y>430</y>
      <width>211</width>
      <height>21</height>
     </rect>
@@ -62,8 +68,8 @@
   <widget class="QPushButton" name="pushButton_3">
    <property name="geometry">
     <rect>
-     <x>440</x>
-     <y>430</y>
+     <x>470</x>
+     <y>460</y>
      <width>211</width>
      <height>32</height>
     </rect>
@@ -75,8 +81,8 @@
   <widget class="QLineEdit" name="lineEdit_2">
    <property name="geometry">
     <rect>
-     <x>440</x>
-     <y>260</y>
+     <x>470</x>
+     <y>290</y>
      <width>211</width>
      <height>21</height>
     </rect>
@@ -85,8 +91,8 @@
   <widget class="QPushButton" name="pushButton_5">
    <property name="geometry">
     <rect>
-     <x>21</x>
-     <y>10</y>
+     <x>51</x>
+     <y>60</y>
      <width>351</width>
      <height>32</height>
     </rect>
@@ -110,8 +116,8 @@
   <widget class="QPushButton" name="pushButton_6">
    <property name="geometry">
     <rect>
-     <x>440</x>
-     <y>210</y>
+     <x>470</x>
+     <y>240</y>
      <width>211</width>
      <height>32</height>
     </rect>
@@ -135,8 +141,8 @@
   <widget class="QPushButton" name="pushButton_7">
    <property name="geometry">
     <rect>
-     <x>440</x>
-     <y>360</y>
+     <x>470</x>
+     <y>390</y>
      <width>211</width>
      <height>32</height>
     </rect>
@@ -159,10 +165,10 @@
   <widget class="QLabel" name="username">
    <property name="geometry">
     <rect>
-     <x>510</x>
-     <y>170</y>
-     <width>71</width>
-     <height>20</height>
+     <x>530</x>
+     <y>180</y>
+     <width>91</width>
+     <height>31</height>
     </rect>
    </property>
    <property name="font">
@@ -173,7 +179,7 @@
     </font>
    </property>
    <property name="text">
-    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:11pt; color:#ffffff;&quot;&gt;Username&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt; color:#ffffff;&quot;&gt;Username&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
    <property name="alignment">
     <set>Qt::AlignCenter</set>
@@ -185,10 +191,10 @@
    </property>
    <property name="geometry">
     <rect>
-     <x>510</x>
-     <y>110</y>
-     <width>71</width>
-     <height>61</height>
+     <x>530</x>
+     <y>100</y>
+     <width>91</width>
+     <height>81</height>
     </rect>
    </property>
    <property name="sizePolicy">
@@ -217,10 +223,10 @@
   <widget class="QLabel" name="label_3">
    <property name="geometry">
     <rect>
-     <x>430</x>
-     <y>-40</y>
-     <width>321</width>
-     <height>231</height>
+     <x>-10</x>
+     <y>-50</y>
+     <width>241</width>
+     <height>171</height>
     </rect>
    </property>
    <property name="text">
@@ -236,10 +242,10 @@
   <widget class="QLabel" name="label_2">
    <property name="geometry">
     <rect>
-     <x>380</x>
-     <y>10</y>
-     <width>171</width>
-     <height>121</height>
+     <x>-20</x>
+     <y>0</y>
+     <width>101</width>
+     <height>71</height>
     </rect>
    </property>
    <property name="text">
@@ -258,8 +264,8 @@
    </property>
    <property name="geometry">
     <rect>
-     <x>560</x>
-     <y>150</y>
+     <x>600</x>
+     <y>160</y>
      <width>30</width>
      <height>30</height>
     </rect>
@@ -272,6 +278,46 @@
    </property>
    <property name="flat">
     <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="ClickableLabel" name="label">
+   <property name="geometry">
+    <rect>
+     <x>680</x>
+     <y>20</y>
+     <width>41</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+   <property name="pixmap">
+    <pixmap resource="resource.qrc">:/rec/icone/icons8-logout-arrotondato-96.png</pixmap>
+   </property>
+   <property name="scaledContents">
+    <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_4">
+   <property name="geometry">
+    <rect>
+     <x>630</x>
+     <y>30</y>
+     <width>58</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Microsoft Sans Serif</family>
+     <pointsize>15</pointsize>
+     <weight>50</weight>
+     <bold>false</bold>
+    </font>
+   </property>
+   <property name="text">
+    <string>Logout</string>
    </property>
   </widget>
   <zorder>label_3</zorder>
@@ -288,6 +334,8 @@
   <zorder>label_2</zorder>
   <zorder>myicon</zorder>
   <zorder>discardImage</zorder>
+  <zorder>label</zorder>
+  <zorder>label_4</zorder>
  </widget>
  <customwidgets>
   <customwidget>

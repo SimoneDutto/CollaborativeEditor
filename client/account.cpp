@@ -57,7 +57,9 @@ Account::Account(Socket *sock, QWidget *parent, QString name) :
     QFont font("Arial", 50);
     ui->userImage->setFont(font);
     QString imageName = QString::number(socket->getClientID())+".png";
+    qDebug() << socket->getClientID();
     QPixmap userPixmap = QPixmap(imageName);
+
 
     if(userPixmap != QPixmap()){
         oldImage = imageName;

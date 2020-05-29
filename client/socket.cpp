@@ -322,7 +322,7 @@ void Socket::notificationsHandler(QByteArray data){
 
             for(auto user : array_tmp) {
                 QString username = user.toString();
-                QColor random = QColor(rand()%255, rand()%255, rand()%255, rand()%255);
+                QColor random = QColor(rand()%255, rand()%255, 0);
                 int userID = userIDs[i].toInt();
                 int userPos = userCursors[i].toInt();
                 userColor.insert(username, random);
@@ -414,6 +414,7 @@ void Socket::notificationsHandler(QByteArray data){
             writer.write(img);
             qDebug() << writer.error();
             icon_buffer.clear();
+            emit iconThere();
         }
     }
     else if (type.compare("INSERT")==0) {
@@ -451,11 +452,12 @@ void Socket::notificationsHandler(QByteArray data){
 
     else if (type.compare("NEW")==0) {
         int id = object.value("fileid").toInt();
+        QString filename = object.value("filename").toString();
         if(id != -1){
             this->fileh->setFileId(id);
             this->fileh->setSize(0);
             this->fileh->getVectorFile().clear();
-
+            emit writeURI(object.value("URI").toString());
             /*Creo il FileHandler*/
             connect( this->fileh, SIGNAL(localInsertNotify(QChar, QJsonArray, int, int, int, QTextCharFormat, Qt::AlignmentFlag)),
                      this, SLOT(sendInsert(QChar, QJsonArray, int, int, int, QTextCharFormat, Qt::AlignmentFlag)) );
@@ -467,9 +469,11 @@ void Socket::notificationsHandler(QByteArray data){
             connect( this->fileh, SIGNAL(localAlignChangeNotify(Qt::AlignmentFlag,int,QString,QString)),
                      this, SLOT(sendAlignment(Qt::AlignmentFlag,int,QString,QString)));
             qDebug() << "Il file è stato creato correttamente!";
+            emit fileCreated(filename);
         }
         else{
             qDebug() << "Il File non è stato creato";
+            emit fileCreated("null");
         }
     }
 

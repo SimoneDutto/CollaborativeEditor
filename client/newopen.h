@@ -29,6 +29,9 @@ private slots:
     void changeClientImage(QString path);
 
     void on_discardImage_clicked();
+    void on_actionLog_Out_triggered();
+    void setImage();
+    void createNewFile(QString filename);
 
 private:
     Ui::NewOpen *ui;
@@ -44,6 +47,7 @@ signals:
     void openThisFile(QString fileName);
     void newFile(QString name);
     void checkUri(QString uri);
+    void logOut();
 };
 
 #endif // NEWOPEN_H

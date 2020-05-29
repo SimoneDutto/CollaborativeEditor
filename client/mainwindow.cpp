@@ -40,7 +40,7 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
     this->show();
 
     QPalette p = ui->textEdit->palette(); // define pallete for textEdit..
-    p.setColor(QPalette::Base, QColor(245,245,245)); // set color "Red" for textedit base
+    p.setColor(QPalette::Base, Qt::white); // set color "Red" for textedit base
     p.setColor(QPalette::Text, Qt::black); // set text color which is selected from color pallete
     ui->textEdit->setPalette(p);
     ui->textEdit->setStyleSheet("QTextEdit { padding:20}");
@@ -121,12 +121,21 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
     }
     sizeComboBox->addItems(*numList);
     sizeComboBox->setStyleSheet("combobox-popup: 0;");
+    sizeComboBox->setCurrentIndex(12);
 
 
     QFontComboBox* fontComboBox = new QFontComboBox;
+    QFont init_font;
+    init_font.setFamily("Arial");
+    fontComboBox->setCurrentFont(init_font);
 
     ui->mainToolBar->insertWidget(rightAll, fontComboBox);
     ui->mainToolBar->insertWidget(rightAll, sizeComboBox);
+
+    QFont currFont = ui->textEdit->currentFont();
+    currFont.setFamily("Arial");
+    currFont.setPointSize(13);
+    ui->textEdit->setFont(currFont);
 
 
     /* CONNECT per collegare Font e Size */
@@ -169,8 +178,8 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
              this, SLOT(on_write_uri(QString)));
     connect( socket, SIGNAL(HistorySuccess(QMap<int, QString>)),
              this, SLOT(uploadHistory(QMap<int, QString>)));
-    connect( ui->textEdit, SIGNAL(pastedText(QString)),
-                 this, SLOT(insertPastedText(QString)));
+    connect( ui->textEdit, SIGNAL(pastedText(QString, QString)),
+                 this, SLOT(insertPastedText(QString, QString)));
 
     /* CONNECT per lo stile dei caratteri */
     connect( this, SIGNAL(styleChange(QMap<QString, QTextCharFormat>)),
@@ -185,7 +194,7 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
     connect( socket, SIGNAL(readyAlignChange(Qt::AlignmentFlag,int,QString,QString)),
              fHandler, SLOT(remoteAlignChange(Qt::AlignmentFlag,int,QString,QString)));
     connect( fHandler, SIGNAL(readyRemoteAlignChange(Qt::AlignmentFlag,int)),
-             this, SLOT(changeAlignment(Qt::AlignmentFlag,int))); 
+             this, SLOT(changeAlignment(Qt::AlignmentFlag,int)));
 
     connect( this, SIGNAL(sendColorChange(QString,QString,QString)),
              socket, SLOT(sendColor(QString,QString,QString)));
@@ -552,12 +561,15 @@ void MainWindow::on_actionColor_triggered()
     int start = cursor.selectionStart();
     int end = cursor.selectionEnd()-1;
 
-    QString lastID = vettore.at(end)->getLetterID();
-    QString startID;
+    QString startID, lastID;
 
-    if(vettore.size() > start)
+    lastID = vettore.at(end)->getLetterID();
+
+    if(vettore.size() > start) {
         startID = vettore.at(start)->getLetterID();
-    else startID = lastID;
+        if(start == end+1)
+            lastID = startID;
+    } else startID = lastID;
 
     for(i=start; i<=end; i++){
         cursor.setPosition(i+1);
@@ -639,6 +651,42 @@ void MainWindow::on_textEdit_textChanged()
             letterCounter -= deletedLetters;
             emit myDelete(externalIndex+1, externalIndex+deletedLetters);
         }
+
+        if(ui->textEdit->toPlainText().size()==0){
+            ui->textEdit->setCurrentCharFormat(this->firstLetter);
+            Qt::Alignment currAlign = ui->textEdit->alignment();
+
+            if(currAlign.testFlag(Qt::AlignLeft)){
+                ui->actionAlign_to_Left->setChecked(true);
+                ui->actionAlign_to_Right->setChecked(false);
+                ui->actionAlign_to_Center->setChecked(false);
+                ui->actionAlign_to_Justify->setChecked(false);
+            }
+
+            else if(currAlign.testFlag(Qt::AlignRight)){
+                ui->actionAlign_to_Left->setChecked(false);
+                ui->actionAlign_to_Right->setChecked(true);
+                ui->actionAlign_to_Center->setChecked(false);
+                ui->actionAlign_to_Justify->setChecked(false);
+            }
+
+            else if(currAlign.testFlag(Qt::AlignCenter)){
+                ui->actionAlign_to_Left->setChecked(false);
+                ui->actionAlign_to_Right->setChecked(false);
+                ui->actionAlign_to_Center->setChecked(true);
+                ui->actionAlign_to_Justify->setChecked(false);
+            }
+
+            else if(currAlign.testFlag(Qt::AlignJustify)){
+                ui->actionAlign_to_Left->setChecked(false);
+                ui->actionAlign_to_Right->setChecked(false);
+                ui->actionAlign_to_Center->setChecked(false);
+                ui->actionAlign_to_Justify->setChecked(true);
+            }
+
+            emit setCurrFont(this->firstLetter.font());
+            emit setCurrFontSize(this->firstLetter.font().pointSize()-1);
+        }
     }
 }
 
@@ -651,7 +699,7 @@ Qt::AlignmentFlag MainWindow::getFlag(Qt::Alignment a) {
     else if(a.testFlag(Qt::AlignCenter))
         return Qt::AlignCenter;
     else return Qt::AlignJustify;
-}
+ }
 
 void MainWindow::on_lineEdit_editingFinished()
 {
@@ -863,6 +911,10 @@ void MainWindow::on_textEdit_cursorPositionChanged() {
             ui->actionUnderlined->setChecked(true);
         }
 
+        if(cursor.selectionStart()==0){
+            this->firstLetter=ui->textEdit->currentCharFormat();
+        }
+
         auto currFont = ui->textEdit->currentCharFormat().font();
         emit setCurrFont(currFont);
         emit setCurrFontSize(currFont.pointSize()-1);
@@ -892,6 +944,10 @@ void MainWindow::on_textEdit_cursorPositionChanged() {
         }
         else {
             ui->actionUnderlined->setChecked(true);
+        }
+
+        if(cursor.position()==1){
+            this->firstLetter=ui->textEdit->currentCharFormat();
         }
 
         auto currFont = ui->textEdit->currentCharFormat().font();
@@ -975,8 +1031,14 @@ void MainWindow::on_actionEdit_Profile_triggered()
 void MainWindow::on_actionExport_as_PDF_triggered()
 {
     QTextDocument document;
+    QTextCharFormat fmt;
+    fmt.setBackground(Qt::white);
+    QTextEdit *t = ui->textEdit;
+    QTextCursor cursor = t->textCursor();
+    cursor.setPosition(0);
+    cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+    cursor.mergeCharFormat(fmt);
     document.setHtml(ui->textEdit->toHtml());
-
     QString fn = QFileDialog::getSaveFileName(this, tr("Select output file"), QString(), tr("PDF Files(*.pdf)"));
       if (fn.isEmpty())
         return;
@@ -986,6 +1048,43 @@ void MainWindow::on_actionExport_as_PDF_triggered()
     printer.setColorMode(QPrinter::Color);
     printer.setOutputFileName(fn);
     document.print(&printer);
+
+    //ripristino cursore
+    QTextCharFormat fmt2;
+    fmt2.setBackground(Qt::white);
+    QColor colore = id_colore_cursore.value(0).first.second;
+    int pos = id_colore_cursore.value(0).second;
+    qDebug() << pos << id_colore_cursore.size() << id_colore_cursore.value(0);
+
+    fmt.setBackground(colore);
+
+    cursor.setPosition(pos);
+    cursor.movePosition(QTextCursor::Start, QTextCursor::KeepAnchor);
+    //qDebug() << "testo from Start: " << cursor.selectedText();
+    cursor.mergeCharFormat(fmt2);
+    cursor.setPosition(pos);
+    cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+    //qDebug() << "testo to End: " << cursor.selectedText();
+    cursor.mergeCharFormat(fmt2);
+    cursor.setPosition(pos);
+    cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
+    //qDebug() << "testo left: " << cursor.selectedText();
+    cursor.mergeCharFormat(fmt);
+
+    for(int i = 1; i < id_colore_cursore.size(); i++){
+        QColor colore = id_colore_cursore.value(i).first.second;
+        int pos = id_colore_cursore.value(i).second;
+
+        fmt.setBackground(colore);
+
+        cursor.setPosition(pos);
+        cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+        cursor.mergeCharFormat(fmt2);
+        cursor.setPosition(pos);
+        cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
+        cursor.mergeCharFormat(fmt);
+    }
+
 }
 
 void MainWindow::on_counter_clicked()
@@ -1254,7 +1353,7 @@ void MainWindow::on_cursor_triggered(QPair<int,int> idpos, QColor col)
     QTextCharFormat fmt;
     QTextCharFormat fmt2;
 
-    fmt2.setBackground(QColor(245,245,245));
+    fmt2.setBackground(Qt::white);
 
     QTextCursor cursor = ui->textEdit->textCursor();
 
@@ -1277,7 +1376,7 @@ void MainWindow::on_cursor_triggered(QPair<int,int> idpos, QColor col)
 
     }
 
-    if(idpos.second >= 0) {
+    //if(idpos.second >= 0) {
         //altrimenti lo aggiungo
         if (trovato == false)
             id_colore_cursore.append(qMakePair(qMakePair(idpos.first,col), idpos.second));
@@ -1316,7 +1415,7 @@ void MainWindow::on_cursor_triggered(QPair<int,int> idpos, QColor col)
             cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
             cursor.mergeCharFormat(fmt);
         }
-    }
+    //}
     connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
 }
 
@@ -1520,7 +1619,7 @@ void MainWindow::changeViewAfterSelection(int start, int end, QColor colore)
     connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
 }
 
-void MainWindow::insertPastedText(QString text){
+void MainWindow::insertPastedText(QString html, QString text){
     disconnect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
 
     QTextCursor cursor(ui->textEdit->textCursor());
@@ -1536,16 +1635,17 @@ void MainWindow::insertPastedText(QString text){
         }
     }
 
+    ui->textEdit->insertHtml(html);
+
     if (receivers(SIGNAL(myInsert(int,QChar,int,QTextCharFormat,Qt::AlignmentFlag))) > 0) {
-        for(QChar newLetterValue : text){
+        for(int i = 0; i < text.size(); i++){
             letterCounter++;
             externalIndex++;
-            myInsert(externalIndex, newLetterValue, socket->getClientID(), cursor.charFormat(), this->getFlag(ui->textEdit->alignment()));
+            cursor.setPosition(externalIndex);
+            myInsert(externalIndex, text.at(i), socket->getClientID(), cursor.charFormat(), this->getFlag(ui->textEdit->alignment()));
         }
         emit sendCursorChange(externalIndex);
     }
-
-    ui->textEdit->insertPlainText(text);
 
     connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
 }

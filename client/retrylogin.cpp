@@ -1,9 +1,9 @@
-#include "error.h"
-#include "ui_error.h"
+#include "retrylogin.h"
+#include "ui_retrylogin.h"
 
-Error::Error(QWidget *parent) :
+retryLogin::retryLogin(QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::Error)
+    ui(new Ui::retryLogin)
 {
     ui->setupUi(this);
     setWindowTitle("");
@@ -11,12 +11,12 @@ Error::Error(QWidget *parent) :
     ui->pushButton->setStyleSheet("color: white; background-color: #706d82;  border-radius:5px");
 }
 
-Error::~Error()
+retryLogin::~retryLogin()
 {
     delete ui;
 }
 
-void Error::on_pushButton_clicked()
+void retryLogin::on_pushButton_clicked()
 {
     this->close();
 }

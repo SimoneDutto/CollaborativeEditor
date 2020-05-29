@@ -101,6 +101,8 @@ signals:
     /* Login */
     void loginSuccess();
     void loginError();
+    void iconThere();
+    void fileCreated(QString);
 
     /*Notifiche durante l'uso*/
     void readyFile(QMap<int,int>,QMap<int,QColor>);

@@ -1,6 +1,7 @@
 #include "newopen.h"
 #include "ui_newopen.h"
 #include <QShortcut>
+#include <QProcess>
 #include "error.h"
 
 NewOpen::NewOpen(Socket *sock, FileHandler *fHandler, QWidget *parent) :
@@ -38,15 +39,15 @@ NewOpen::NewOpen(Socket *sock, FileHandler *fHandler, QWidget *parent) :
 
     QIcon *user_icon= new QIcon(":/rec/icone/icons8-apri-cartella-96.png");
     ui->pushButton_5->setIcon(*user_icon);
-    ui->pushButton_5->setIconSize(QSize(40, 40));
+    ui->pushButton_5->setIconSize(QSize(30, 30));
 
     user_icon= new QIcon(":/rec/icone/icons8-aggiungi-file-96.png");
     ui->pushButton_6->setIcon(*user_icon);
-    ui->pushButton_6->setIconSize(QSize(40, 40));
+    ui->pushButton_6->setIconSize(QSize(30, 30));
 
     user_icon= new QIcon(":/rec/icone/icons8-aggiungi-collegamento-96.png");
     ui->pushButton_7->setIcon(*user_icon);
-    ui->pushButton_7->setIconSize(QSize(40, 40));
+    ui->pushButton_7->setIconSize(QSize(30, 30));
 
     QString styleSheet = "QPushButton {background-color: transparent; border-style: none; color: white}";
     ui->pushButton_5->setStyleSheet(styleSheet);
@@ -59,31 +60,6 @@ NewOpen::NewOpen(Socket *sock, FileHandler *fHandler, QWidget *parent) :
 
     QString username = socket->getClientUsername();
     ui->username->setText(username);
-
-    styleSheet = "QLabel { background-color: rgb(255, 252, 247); color: black; border-style: solid; border-width: 2px; border-radius: 6px; border-color: orange; font: ; }";
-    ui->myicon->setStyleSheet(styleSheet);
-    QFont font("Arial", 30);
-    ui->myicon->setFont(font);
-
-    QString imageName = QString::number(socket->getClientID())+".png";
-    QPixmap userPixmap = QPixmap(imageName);
-
-    QIcon *discard_icon= new QIcon(":/rec/icone/icons8-punta-della-matita-96.png");
-    ui->discardImage->setIcon(*discard_icon);
-    ui->discardImage->setIconSize(QSize(18, 18));
-
-    styleSheet = "QPushButton {background-color: white; border-style: solid; border-width: 1px; border-radius: 15px; border-color: rgb(0, 0, 0);} QPushButton:hover {background-color: rgb(233, 233, 233)} QPushButton:pressed {background-color: rgb(181, 181, 181)}";
-    ui->discardImage->setStyleSheet(styleSheet);
-
-    if(userPixmap != QPixmap()){
-        QPixmap scaled = userPixmap.scaled(ui->myicon->width(), ui->myicon->height(), Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
-        ui->myicon->setPixmap(scaled);
-    }
-
-    else {
-        ui->myicon->setText(username.at(0).toUpper());
-    }
-
 
     for (QString s : this->socket->getMapFiles().keys()){
         ui->listWidget->addItem(s);
@@ -100,6 +76,9 @@ NewOpen::NewOpen(Socket *sock, FileHandler *fHandler, QWidget *parent) :
              this, SLOT(uriIsOk(QString)));
     connect(socket, SIGNAL(uriIsNotOk()),
              this, SLOT(uriIsNotOk()));
+    connect(ui->label, SIGNAL(clicked()), this, SLOT(on_actionLog_Out_triggered()));
+    connect(socket, SIGNAL(iconThere()), this, SLOT(setImage()));
+    connect(socket, SIGNAL(fileCreated(QString)), this, SLOT(createNewFile(QString)));
 
     QShortcut *sc = new QShortcut(QKeySequence("Return"),this);
     connect(sc, SIGNAL(activated()), ui->pushButton, SLOT(click()));
@@ -107,7 +86,37 @@ NewOpen::NewOpen(Socket *sock, FileHandler *fHandler, QWidget *parent) :
 
 NewOpen::~NewOpen()
 {
+    delete account;
     delete ui;
+}
+
+void NewOpen::setImage(){
+    QString username = socket->getClientUsername();
+    QString imageName = QString::number(socket->getClientID())+".png";
+    QPixmap userPixmap = QPixmap(imageName);
+
+    QString styleSheet = "QLabel { background-color: rgb(255, 252, 247); color: black; border-style: solid; border-width: 2px; border-radius: 6px; border-color: orange; font: ; }";
+    ui->myicon->setStyleSheet(styleSheet);
+    QFont font("Arial", 30);
+    ui->myicon->setFont(font);
+
+
+    QIcon *discard_icon= new QIcon(":/rec/icone/icons8-punta-della-matita-96.png");
+    ui->discardImage->setIcon(*discard_icon);
+    ui->discardImage->setIconSize(QSize(18, 18));
+
+    styleSheet = "QPushButton {background-color: white; border-style: solid; border-width: 1px; border-radius: 15px; border-color: rgb(0, 0, 0);} QPushButton:hover {background-color: rgb(233, 233, 233)} QPushButton:pressed {background-color: rgb(181, 181, 181)}";
+    ui->discardImage->setStyleSheet(styleSheet);
+
+
+    if(userPixmap != QPixmap()){
+        QPixmap scaled = userPixmap.scaled(ui->myicon->width(), ui->myicon->height(), Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
+        ui->myicon->setPixmap(scaled);
+    }
+
+    else {
+        ui->myicon->setText(username.at(0).toUpper());
+    }
 }
 
 void NewOpen::on_pushButton_2_clicked() //Bottone: new Document
@@ -123,13 +132,20 @@ void NewOpen::on_pushButton_2_clicked() //Bottone: new Document
     }
     else{
         emit newFile(newfile);
-        mainwindow = new MainWindow(this->socket, this->socket->getFHandler(), this, newfile);
-        hide();
-        mainwindow->show();
+
     }
 
 }
 
+void NewOpen::createNewFile(QString newfile){
+    if(newfile.compare("null")==0){
+        QMessageBox::warning(this, "Ops...", "Name already inserted");
+        return;
+    }
+    mainwindow = new MainWindow(this->socket, this->socket->getFHandler(), this, newfile);
+    hide();
+    mainwindow->show();
+}
 void NewOpen::on_pushButton_clicked() //Bottone: open Document
 {
     disconnect(socket, SIGNAL(uriIsOk(QString)),
@@ -183,3 +199,11 @@ void NewOpen::on_discardImage_clicked()
     account = new Account(this->socket, this, this->windowTitle());
     account->show();
 }
+
+void NewOpen::on_actionLog_Out_triggered()
+{
+    emit logOut();
+    qApp->quit();
+    QProcess::startDetached(qApp->arguments()[0], qApp->arguments());
+}
+

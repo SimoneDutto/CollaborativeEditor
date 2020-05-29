@@ -5,6 +5,7 @@
 #include <QTimer>
 #include "signup.h"
 #include "serverdisc.h"
+#include "retrylogin.h"
 
 Login::Login(Socket *sock, QWidget *parent)
     : QMainWindow(parent)
@@ -30,6 +31,7 @@ Login::Login(Socket *sock, QWidget *parent)
     QTimer::singleShot(0, ui->lineEdit_username, SLOT(setFocus()));
     QShortcut *sc = new QShortcut(QKeySequence("Return"),ui->LoginBox);
     connect(sc, SIGNAL(activated()), ui->pushButton, SLOT(click()));
+    connect(sock, SIGNAL(noConnection()), this, SLOT(notConnected()));
     connect(socket, SIGNAL(loginSuccess()), this, SLOT(resumeLogin()));
     connect(socket, SIGNAL(loginError()), this, SLOT(redoLogin()));
     if(!sock->getConnection()) emit sock->noConnection();
@@ -66,28 +68,29 @@ void Login::on_pushButton_clicked()
 
 void Login::resumeLogin()
 {
+    this->close();
     newopen = new NewOpen(this->socket, this->socket->getFHandler(), this);
     //mainWindow = new MainWindow(this->socket, this->socket->getFHandler(), this);
-    hide();
     //mainWindow->show();
     newopen ->show();
 }
 
 void Login::redoLogin()
 {
-    QMessageBox::warning(this, "Login Failed", "Retry");
+    retryLogin *r = new retryLogin(this);
+    r->show();
 }
 
 void Login::on_pushButton_2_clicked()
 {
-    SignUp *signup = new SignUp(socket, this);
-    hide();
+    this->close();
+    signup = new SignUp(socket);
+    signup->setAttribute(Qt::WA_DeleteOnClose, true);
     signup->show();
 }
 
 void Login::notConnected(){
     serverDisc *s = new serverDisc(this);
-    hide();
     s->show();
 }
 

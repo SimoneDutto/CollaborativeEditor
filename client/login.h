@@ -6,6 +6,7 @@
 #include "mainwindow.h"
 #include "newopen.h"
 #include "socket.h"
+#include "signup.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class Login; }
@@ -35,5 +36,6 @@ private:
     MainWindow *mainWindow;
     Socket *socket;
     NewOpen *newopen;
+    SignUp *signup;
 };
 #endif // LOGIN_H

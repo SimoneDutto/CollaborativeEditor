@@ -7,8 +7,9 @@ pastedTextEdit::pastedTextEdit(QWidget *parent) : QTextEdit (parent)
 
 void pastedTextEdit::insertFromMimeData(const QMimeData *source){
 
-    if(source->hasText()){
+    if(source->hasHtml() && source->hasText()){
+        QString html = source->html();
         QString text = source->text();
-        emit pastedText(text);
+        emit pastedText(html, text);
     }
 }
