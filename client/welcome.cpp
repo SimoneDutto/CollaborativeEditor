@@ -10,7 +10,7 @@ Welcome::Welcome(Socket *sock, QWidget *parent) :
     ui->setupUi(this);
     QPalette pal = palette();
     this->setWindowFlags(Qt::Window);
-    connect(sock, SIGNAL(noConnection()), this, SLOT(notConnected()));
+
     // set black background
     pal.setColor(QPalette::Background, QColor(58,58,60));
     pal.setColor(QPalette::WindowText, Qt::white);
@@ -18,12 +18,7 @@ Welcome::Welcome(Socket *sock, QWidget *parent) :
     this->setAutoFillBackground(true);
     this->setPalette(pal);
     this->show();
-    if(!sock->getConnection()) emit sock->noConnection();
     setWindowTitle("");
-    if(!sock->isConnected())
-    {
-        emit sock->noConnection();
-    }
 }
 
 Welcome::~Welcome()
@@ -45,8 +40,4 @@ void Welcome::on_pushButton_2_clicked()
     signup->show();
 }
 
-void Welcome::notConnected(){
-    serverDisc *s = new serverDisc(this);
-    hide();
-    s->show();
-}
+

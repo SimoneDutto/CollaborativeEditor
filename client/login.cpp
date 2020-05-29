@@ -57,8 +57,11 @@ void Login::on_pushButton_clicked()
     QString username = ui->lineEdit_username->text();
     QByteArray password = ui->lineEdit_password->text().toLatin1();
     //QString hash_me = QString(QCryptographicHash::hash((password),QCryptographicHash::Md5).toHex());
+    if(QString::compare(ui->lineEdit_username->text(),"")==0 ||
+            QString::compare(ui->lineEdit_password->text().toLatin1(),"")==0)
+        QMessageBox::warning(this, "Ops...", "Insert username/password");
 
-    socket->sendLogin(username, password);
+    else socket->sendLogin(username, password);
 }
 
 void Login::resumeLogin()

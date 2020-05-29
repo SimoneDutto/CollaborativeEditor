@@ -83,8 +83,13 @@ SignUp::~SignUp() {
 }
 
 void SignUp::on_pushButton_clicked() {
+    if(QString::compare(ui->lineEdit->text(),"")==0)
+        QMessageBox::warning(this, "Ops...", "Insert username");
 
-    if(QString::compare(ui->lineEdit_2->text(), ui->lineEdit_3->text()) == 0){
+    else if(QString::compare(ui->lineEdit_2->text(),"")==0&&QString::compare(ui->lineEdit_3->text(),"")==0)
+        QMessageBox::warning(this, "Ops...", "Insert password");
+
+    else if(QString::compare(ui->lineEdit_2->text(), ui->lineEdit_3->text()) == 0){
         QString username = ui->lineEdit->text();
         QByteArray password = ui->lineEdit_2->text().toLatin1();
         QString pathImage = this->pathUserImage;

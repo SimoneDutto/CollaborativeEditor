@@ -14,6 +14,7 @@
 #include "letter.h"
 #include "iostream"
 #include "filehandler.h"
+#include "serverdisc.h"
 
 namespace Ui {
 class Socket;
@@ -88,6 +89,8 @@ private slots:
     int sendCursor(int position);
     int sendAlignment(Qt::AlignmentFlag alignment, int cursorPosition, QString startID, QString lastID);
     int sendColor(QString startID, QString lastID, QString color);
+
+    void notConnected();
 
 signals:
     /* Registrazione */
