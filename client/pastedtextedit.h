@@ -15,7 +15,7 @@ public:
     void insertFromMimeData(const QMimeData *source);
 
 signals:
-    void pastedText(QString pastedText);
+    void pastedText(QString html, QString text);
 };
 
 #endif // PASTEDTEXTEDIT_H

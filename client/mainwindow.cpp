@@ -178,8 +178,8 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
              this, SLOT(on_write_uri(QString)));
     connect( socket, SIGNAL(HistorySuccess(QMap<int, QString>)),
              this, SLOT(uploadHistory(QMap<int, QString>)));
-    connect( ui->textEdit, SIGNAL(pastedText(QString)),
-                 this, SLOT(insertPastedText(QString)));
+    connect( ui->textEdit, SIGNAL(pastedText(QString, QString)),
+                 this, SLOT(insertPastedText(QString, QString)));
 
     /* CONNECT per lo stile dei caratteri */
     connect( this, SIGNAL(styleChange(QMap<QString, QTextCharFormat>)),
@@ -1573,7 +1573,7 @@ void MainWindow::changeViewAfterSelection(int start, int end, QColor colore)
     connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
 }
 
-void MainWindow::insertPastedText(QString text){
+void MainWindow::insertPastedText(QString html, QString text){
     disconnect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
 
     QTextCursor cursor(ui->textEdit->textCursor());
@@ -1589,16 +1589,17 @@ void MainWindow::insertPastedText(QString text){
         }
     }
 
+    ui->textEdit->insertHtml(html);
+
     if (receivers(SIGNAL(myInsert(int,QChar,int,QTextCharFormat,Qt::AlignmentFlag))) > 0) {
-        for(QChar newLetterValue : text){
+        for(int i = 0; i < text.size(); i++){
             letterCounter++;
             externalIndex++;
-            myInsert(externalIndex, newLetterValue, socket->getClientID(), cursor.charFormat(), this->getFlag(ui->textEdit->alignment()));
+            cursor.setPosition(externalIndex);
+            myInsert(externalIndex, text.at(i), socket->getClientID(), cursor.charFormat(), this->getFlag(ui->textEdit->alignment()));
         }
         emit sendCursorChange(externalIndex);
     }
-
-    ui->textEdit->insertPlainText(text);
 
     connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
 }
