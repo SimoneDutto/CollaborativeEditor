@@ -186,9 +186,11 @@ void FileHandler::localStyleChange(QMap<QString,QTextCharFormat> letterFormatMap
 }
 
 void FileHandler::localCursorChange(int position) {
-    this->cursor = position;
-    /* Notify server */
-    emit localCursorChangeNotify(position);
+    if(this->cursor != position) {
+        this->cursor = position;
+        /* Notify server */
+        emit localCursorChangeNotify(position);
+    }
 }
 
 void FileHandler::localAlignChange(Qt::AlignmentFlag alignment, int cursorPosition, QString startID, QString lastID) {
@@ -275,6 +277,8 @@ void FileHandler::remoteAlignChange(Qt::AlignmentFlag alignment, int cursorPosit
             if(!intervalStarted && l->getLetterID().compare(startID)==0) {
                 intervalStarted = true;
                 l->setAlignment(alignment);
+                if(startID.compare(lastID)==0)
+                    break;
             } else if(intervalStarted) {
                 l->setAlignment(alignment);
                 if(l->getLetterID().compare(lastID)==0)

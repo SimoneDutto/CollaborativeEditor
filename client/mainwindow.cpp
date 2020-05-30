@@ -209,6 +209,10 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
              this, SLOT(on_cursor_triggered(QPair<int,int>,QColor)));
     connect( this, SIGNAL(sendCursorChange(int)),
              fHandler, SLOT(localCursorChange(int)));
+    connect( this, SIGNAL(sendCursorSelection(int,int)),
+             socket, SLOT(sendCursorSelectionToServer(int,int)));
+    connect( socket, SIGNAL(cursorSelection(int,int,QColor)),
+             this, SLOT(changeViewAfterSelection(int,int,QColor)));
 
     /* CONNECT per collegare le ClickableLabel */
     connect( ui->user1, SIGNAL(clicked()),
@@ -919,7 +923,7 @@ void MainWindow::on_textEdit_cursorPositionChanged() {
     QTextCursor cursor(ui->textEdit->textCursor());
     int pos = cursor.position();
     // emit segnale per notificare altri utenti del cambiamento
-    if(pos <= ui->textEdit->toPlainText().size())
+    if(!cursor.hasSelection() && pos <= ui->textEdit->toPlainText().size())
         emit sendCursorChange(pos);
 
     int start = cursor.selectionStart();
@@ -1393,6 +1397,10 @@ void MainWindow::on_cursor_triggered(QPair<int,int> idpos, QColor col)
     fmt2.setBackground(Qt::white);
 
     QTextCursor cursor = ui->textEdit->textCursor();
+    /*if(cursor.hasSelection()) {
+        connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
+        return;
+    }*/
 
     // controllo che nella mappa colore-cursore non sia gia presente il colore
     bool trovato = false;
@@ -1632,23 +1640,35 @@ void MainWindow::changeAlignment(Qt::AlignmentFlag alignment, int cursorPosition
 
 void MainWindow::on_textEdit_selectionChanged()
 {
-    /*QTextCursor cursor = ui->textEdit->textCursor();
+    QTextCursor cursor = ui->textEdit->textCursor();
     int start = cursor.selectionStart();
     int end = cursor.selectionEnd();
-    qDebug() << "testo selezionato: " << cursor.selectedText();*/
-   // emit sendSelection(start, end);
+    if(start == end) {
+        emit sendCursorChange(start);
+        return;
+    }
+    qDebug() << "testo selezionato: " << cursor.selectedText();
+    emit sendCursorSelection(start, end);
 }
 
 void MainWindow::changeViewAfterSelection(int start, int end, QColor colore)
 {
     disconnect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
 
-    QTextCharFormat fmt;
+    QTextCharFormat fmt, fmt2;
     QTextCursor cursor = ui->textEdit->textCursor();
     fmt.setBackground(colore);
-    int dif = end-start+1;
-    cursor.setPosition(end+1);
-    for(int i = 0; i<=dif; i++){
+    if(start > 0) {
+        fmt2.setBackground(Qt::white);
+        cursor.setPosition(start-1);
+        cursor.movePosition(QTextCursor::Start, QTextCursor::KeepAnchor);
+        cursor.mergeCharFormat(fmt2);
+        cursor.setPosition(start-1);
+        cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+        cursor.mergeCharFormat(fmt2);
+    }
+    cursor.setPosition(end);
+    for(int i = start; i<=end; i++){
         cursor.mergeCharFormat(fmt);
         cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
          qDebug() << "testo left: " << cursor.selectedText();

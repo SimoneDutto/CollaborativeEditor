@@ -236,8 +236,13 @@ void MyServer::handleNotifications(QTcpSocket *socket, QByteArray data)
         int fileID = rootObject.value("fileid").toInt();
         if(fsys->getFiles().find(fileID) != fsys->getFiles().end()) {   // file exists
             FileHandler* fHandler = fsys->getFiles().at(fileID);
-            int pos = rootObject.value("position").toInt();
-            fHandler->changeCursor(socket, data, pos);
+            if(rootObject.contains("position")) {
+                int pos = rootObject.value("position").toInt();
+                fHandler->changeCursor(socket, data, pos);
+            } else if(rootObject.contains("start") && rootObject.contains("end")) {
+                // selection multiple letters
+                fsys->sendCursorSelection(fHandler->getUsers(), data, socket);
+            }
         }
     }
     else if (type.compare("CHANGE")==0){

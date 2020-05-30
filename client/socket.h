@@ -61,6 +61,7 @@ private:
     void sendIcon(QString path);
     void sendFileChunk(QByteArray chunk, QTcpSocket* socket, int remainingSize);
     void getUsernames(QJsonObject);
+    int sendNotification(QJsonObject obj);
 
 public slots:
     void sendSignUpRequest(QString username, QString password, QString pathImage);
@@ -87,6 +88,7 @@ private slots:
     int sendNewFile(QString filename);
     int sendChangeStyle(QString firstLetterID, QString lastLetterID, int fileID, QString changedStyle, QString font);
     int sendCursor(int position);
+    int sendCursorSelectionToServer(int start, int end);
     int sendAlignment(Qt::AlignmentFlag alignment, int cursorPosition, QString startID, QString lastID);
     int sendColor(QString startID, QString lastID, QString color);
 
@@ -113,6 +115,7 @@ signals:
     void colorChange(QString startID, QString lastID, QColor color);
     void UserConnect(QString username, QColor colorUser);
     void userCursor(QPair<int,int> userID_pos, QColor color);
+    void cursorSelection(int start, int end, QColor color);
     void UserDisconnect(QString username, int userID);
     void HistorySuccess(QMap<int, QString> mapUsername);
 

@@ -210,6 +210,8 @@ void FileHandler::changeAlign(Qt::AlignmentFlag align, QString startID, QString 
         if(!intervalStarted && l->getLetterID().compare(startID)==0) {
             intervalStarted = true;
             l->setAlignment(align);
+            if(startID.compare(lastID)==0)
+                break;
         } else if(intervalStarted) {
             l->setAlignment(align);
             if(l->getLetterID().compare(lastID)==0)
@@ -222,8 +224,10 @@ void FileHandler::changeAlign(Qt::AlignmentFlag align, QString startID, QString 
 }
 
 void FileHandler::changeCursor(QTcpSocket *client, QByteArray message, int position) {
-    usersCursorPosition[client] = position;
-    emit remoteCursorChangeNotify(this->users, message, client);
+    if(usersCursorPosition[client] != position) {
+        usersCursorPosition[client] = position;
+        emit remoteCursorChangeNotify(this->users, message, client);
+    }
 }
 
 void FileHandler::changeColor(QString startID, QString lastID, QString colorName, QTcpSocket *client, QByteArray message) {

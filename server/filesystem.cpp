@@ -619,70 +619,30 @@ void FileSystem::sendInsert(QVector<QTcpSocket*> users, QByteArray message, bool
 }
 
 void FileSystem::sendDelete(QVector<QTcpSocket*> users, QByteArray message, QTcpSocket* client){
-    QVectorIterator<QTcpSocket*> i(users);
-    QByteArray sendSize;
-
-    while (i.hasNext()){
-        QTcpSocket* socket = i.next();
-        if(socket == client) continue;
-        if(socket->state() == QAbstractSocket::ConnectedState) {
-            socket->write(sendSize.number(message.size()), sizeof (long int));
-            socket->waitForBytesWritten();
-            socket->write(message);
-            socket->waitForBytesWritten(1000);
-        }
-    }
+    this->forwardNotificationToClients(users, message, client);
 }
 
 void FileSystem::sendStyleChange(QVector<QTcpSocket*> users, QByteArray message, QTcpSocket* client) {
-    QVectorIterator<QTcpSocket*> i(users);
-    QByteArray sendSize;
-
-    while (i.hasNext()){
-        QTcpSocket* socket = i.next();
-        if(socket == client) continue;
-        if(socket->state() == QAbstractSocket::ConnectedState) {
-            socket->write(sendSize.number(message.size()), sizeof (long int));
-            socket->waitForBytesWritten();
-            socket->write(message);
-            socket->waitForBytesWritten(1000);
-        }
-    }
+    this->forwardNotificationToClients(users, message, client);
 }
 
 void FileSystem::sendAlignChange(QVector<QTcpSocket*> users, QByteArray message, QTcpSocket* client) {
-    QVectorIterator<QTcpSocket*> i(users);
-    QByteArray sendSize;
-
-    while (i.hasNext()){
-        QTcpSocket* socket = i.next();
-        if(socket == client) continue;
-        if(socket->state() == QAbstractSocket::ConnectedState) {
-            socket->write(sendSize.number(message.size()), sizeof (long int));
-            socket->waitForBytesWritten();
-            socket->write(message);
-            socket->waitForBytesWritten(1000);
-        }
-    }
+    this->forwardNotificationToClients(users, message, client);
 }
 
 void FileSystem::sendCursorChange(QVector<QTcpSocket*> users, QByteArray message, QTcpSocket* client) {
-    QVectorIterator<QTcpSocket*> i(users);
-    QByteArray sendSize;
+    this->forwardNotificationToClients(users, message, client);
+}
 
-    while (i.hasNext()){
-        QTcpSocket* socket = i.next();
-        if(socket == client) continue;
-        if(socket->state() == QAbstractSocket::ConnectedState) {
-            socket->write(sendSize.number(message.size()), sizeof (long int));
-            socket->waitForBytesWritten();
-            socket->write(message);
-            socket->waitForBytesWritten(1000);
-        }
-    }
+void FileSystem::sendCursorSelection(QVector<QTcpSocket *> users, QByteArray message, QTcpSocket *client) {
+    this->forwardNotificationToClients(users, message, client);
 }
 
 void FileSystem::sendColorChange(QVector<QTcpSocket*> users, QByteArray message, QTcpSocket* client) {
+    this->forwardNotificationToClients(users, message, client);
+}
+
+void FileSystem::forwardNotificationToClients(QVector<QTcpSocket *> users, QByteArray message, QTcpSocket *client) {
     QVectorIterator<QTcpSocket*> i(users);
     QByteArray sendSize;
 

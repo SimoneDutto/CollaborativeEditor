@@ -110,6 +110,7 @@ signals:
     void sendHist();
     void sendAlignment(Qt::AlignmentFlag alignment, int cursorPosition, QString startID, QString lastID);
     void sendColorChange(QString startID, QString lastID, QString color);
+    void sendCursorSelection(int start, int end);
 };
 
 #endif // MAINWINDOW_H
