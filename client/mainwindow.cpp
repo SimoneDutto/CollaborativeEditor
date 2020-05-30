@@ -580,24 +580,27 @@ void MainWindow::on_actionColor_triggered()
     int i=0;
 
     int start = cursor.selectionStart();
-    int end = cursor.selectionEnd()-1;
+    int end = cursor.selectionEnd();
 
-    QString startID, lastID;
+    if(start != end) {
+        end--;
+        QString startID, lastID;
 
-    lastID = vettore.at(end)->getLetterID();
+        lastID = vettore.at(end)->getLetterID();
 
-    if(vettore.size() > start) {
-        startID = vettore.at(start)->getLetterID();
-        if(start == end+1)
-            lastID = startID;
-    } else startID = lastID;
+        if(vettore.size() > start) {
+            startID = vettore.at(start)->getLetterID();
+            if(start == end+1)
+                lastID = startID;
+        } else startID = lastID;
 
-    for(i=start; i<=end; i++){
-        cursor.setPosition(i+1);
-        vettore.at(i)->setColor(color);
+        for(i=start; i<=end; i++){
+            cursor.setPosition(i+1);
+            vettore.at(i)->setColor(color);
+        }
+
+        emit sendColorChange(startID, lastID, color.name());
     }
-
-    emit sendColorChange(startID, lastID, color.name());
 
     connect( this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat, Qt::AlignmentFlag)),
               fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat, Qt::AlignmentFlag)));
