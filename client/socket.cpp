@@ -537,10 +537,19 @@ void Socket::notificationsHandler(QByteArray data){
         int userID = object.value("userID").toInt();
         if(userCursors.contains(userID) && userIDColor.contains(userID)) {
             // utente attivo sul file
-            int position = object.value("position").toInt();
-            userCursors[userID] = position;
             QColor color = userIDColor.value(userID);
-            emit userCursor(qMakePair(userID, position), color);
+            if(object.contains("position")) {
+                int position = object.value("position").toInt();
+                if(userCursors[userID] != position) {
+                    userCursors[userID] = position;
+                    emit userCursor(qMakePair(userID, position), color);
+                }
+            } else if(object.contains("start") && object.contains("end")) {
+                // selection
+                int start = object.value("start").toInt();
+                int end = object.value("end").toInt();
+                emit cursorSelection(start, end, color);
+            }
         }
     }
 
@@ -589,22 +598,7 @@ int Socket::sendInsert(QChar newLetterValue, QJsonArray position, int siteID, in
     obj.insert("siteCounter", siteCounter);
     obj.insert("externalIndex", externalIndex);
 
-    // Aggiungere il formato
-    //obj.insert("style", style);
-
-
-    if(socket->state() == QAbstractSocket::ConnectedState){
-        QByteArray qarray = QJsonDocument(obj).toJson();
-        qint32 msg_size = qarray.size();
-        QByteArray toSend;
-        socket->write(toSend.number(msg_size), sizeof (long int));
-        socket->waitForBytesWritten();
-        socket->write(QJsonDocument(obj).toJson());
-        socket->waitForBytesWritten();
-        qDebug() << "Richiesta:\n" << QJsonDocument(obj).toJson().data();
-    }
-
-    return socket->waitForBytesWritten(1000);
+    return this->sendNotification(obj);
 }
 
 int Socket::sendDelete(QString deletedLetterID, int fileID, int siteCounter){
@@ -616,18 +610,7 @@ int Socket::sendDelete(QString deletedLetterID, int fileID, int siteCounter){
     obj.insert("siteCounter", siteCounter);
     //obj.insert("externalIndex", externalIndex);
 
-    if(socket->state() == QAbstractSocket::ConnectedState){
-        QByteArray qarray = QJsonDocument(obj).toJson();
-        qint32 msg_size = qarray.size();
-        QByteArray toSend;
-        socket->write(toSend.number(msg_size), sizeof (long int));
-        socket->waitForBytesWritten();
-        socket->write(qarray);
-        socket->waitForBytesWritten();
-        qDebug() << "Richiesta:\n" << qarray.data();
-    }
-
-    return socket->waitForBytesWritten(1000);
+    return this->sendNotification(obj);
 }
 
 int Socket::sendCheckFileName(QString fileNameTmp){
@@ -650,18 +633,7 @@ int Socket::sendOpenFile(QString filename)
     obj.insert("type", "OPEN");
     obj.insert("fileid", this->mapFiles.value(filename));
 
-    if(socket->state() == QAbstractSocket::ConnectedState){
-        QByteArray qarray = QJsonDocument(obj).toJson();
-        qint32 msg_size = qarray.size();
-        QByteArray toSend;
-        socket->write(toSend.number(msg_size), sizeof (long int));
-        socket->waitForBytesWritten();
-        socket->write(QJsonDocument(obj).toJson());
-        socket->waitForBytesWritten();
-        qDebug() << "Richiesta:\n" << QJsonDocument(obj).toJson().data();
-    }
-
-    return socket->waitForBytesWritten(1000);
+    return this->sendNotification(obj);
 }
 
 int Socket::sendNewFile(QString filename){
@@ -670,18 +642,7 @@ int Socket::sendNewFile(QString filename){
     obj.insert("type", "NEW");
     obj.insert("filename", filename);
 
-    if(socket->state() == QAbstractSocket::ConnectedState){
-        QByteArray qarray = QJsonDocument(obj).toJson();
-        qint32 msg_size = qarray.size();
-        QByteArray toSend;
-        socket->write(toSend.number(msg_size), sizeof (long int));
-        socket->waitForBytesWritten();
-        socket->write(QJsonDocument(obj).toJson());
-        socket->waitForBytesWritten();
-        qDebug() << "Richiesta:\n" << QJsonDocument(obj).toJson().data();
-    }
-
-    return socket->waitForBytesWritten(1000);
+    return this->sendNotification(obj);
 }
 
 int Socket::sendChangeStyle(QString firstLetterID, QString lastLetterID, int fileID, QString changedStyle, QString font){
@@ -697,18 +658,7 @@ int Socket::sendChangeStyle(QString firstLetterID, QString lastLetterID, int fil
     //obj.insert("changedStyle", changedStyle);
     obj.insert("font", font);
 
-    if(socket->state() == QAbstractSocket::ConnectedState){
-        QByteArray qarray = QJsonDocument(obj).toJson();
-        qint32 msg_size = qarray.size();
-        QByteArray toSend;
-        socket->write(toSend.number(msg_size), sizeof (long int));
-        socket->waitForBytesWritten();
-        socket->write(QJsonDocument(obj).toJson());
-        socket->waitForBytesWritten();
-        qDebug() << "Richiesta:\n" << QJsonDocument(obj).toJson().data();
-    }
-
-    return socket->waitForBytesWritten(1000);
+    return this->sendNotification(obj);
 }
 
 int Socket::sendCursor(int position) {
@@ -718,18 +668,18 @@ int Socket::sendCursor(int position) {
     obj.insert("position", position);
     obj.insert("fileid", fileh->getFileId());
 
-    if(socket->state() == QAbstractSocket::ConnectedState){
-        QByteArray qarray = QJsonDocument(obj).toJson();
-        qint32 msg_size = qarray.size();
-        QByteArray toSend;
-        socket->write(toSend.number(msg_size), sizeof (long int));
-        socket->waitForBytesWritten();
-        socket->write(QJsonDocument(obj).toJson());
-        socket->waitForBytesWritten();
-        qDebug() << "Richiesta:\n" << QJsonDocument(obj).toJson().data();
-    }
+    return this->sendNotification(obj);
+}
 
-    return socket->waitForBytesWritten(1000);
+int Socket::sendCursorSelectionToServer(int start, int end) {
+    QJsonObject obj;
+    obj.insert("type", "CURSOR");
+    obj.insert("userID", clientID);
+    obj.insert("start", start);
+    obj.insert("end", end);
+    obj.insert("fileid", fileh->getFileId());
+
+    return this->sendNotification(obj);
 }
 
 int Socket::sendAlignment(Qt::AlignmentFlag alignment, int cursorPosition, QString startID, QString lastID) {
@@ -742,18 +692,7 @@ int Socket::sendAlignment(Qt::AlignmentFlag alignment, int cursorPosition, QStri
     obj.insert("lastID", lastID);
     obj.insert("fileid", fileh->getFileId());
 
-    if(socket->state() == QAbstractSocket::ConnectedState){
-        QByteArray qarray = QJsonDocument(obj).toJson();
-        qint32 msg_size = qarray.size();
-        QByteArray toSend;
-        socket->write(toSend.number(msg_size), sizeof (long int));
-        socket->waitForBytesWritten();
-        socket->write(QJsonDocument(obj).toJson());
-        socket->waitForBytesWritten();
-        qDebug() << "Richiesta:\n" << QJsonDocument(obj).toJson().data();
-    }
-
-    return socket->waitForBytesWritten(1000);
+    return this->sendNotification(obj);
 }
 
 int Socket::sendColor(QString startID, QString lastID, QString color) {
@@ -765,6 +704,10 @@ int Socket::sendColor(QString startID, QString lastID, QString color) {
     obj.insert("lastID", lastID);
     obj.insert("fileid", fileh->getFileId());
 
+    return this->sendNotification(obj);
+}
+
+int Socket::sendNotification(QJsonObject obj) {
     if(socket->state() == QAbstractSocket::ConnectedState){
         QByteArray qarray = QJsonDocument(obj).toJson();
         qint32 msg_size = qarray.size();
@@ -775,7 +718,6 @@ int Socket::sendColor(QString startID, QString lastID, QString color) {
         socket->waitForBytesWritten();
         qDebug() << "Richiesta:\n" << QJsonDocument(obj).toJson().data();
     }
-
     return socket->waitForBytesWritten(1000);
 }
 
