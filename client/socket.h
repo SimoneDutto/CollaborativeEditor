@@ -36,6 +36,7 @@ public:
     bool isConnected();
     void isSigningUp(bool flag);
     bool getConnection();
+    void createFileHandler();
 
 private:
     Ui::Socket *ui;

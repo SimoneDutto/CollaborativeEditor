@@ -35,6 +35,7 @@ Form::Form(Socket *sock, QWidget *parent) :
     QShortcut *sc = new QShortcut(QKeySequence("Return"),this);
     connect(sc, SIGNAL(activated()), ui->pushButton, SLOT(click()));
     connect(this, SIGNAL(newFile(QString)), socket, SLOT(sendNewFile(QString)));
+    connect(this, SIGNAL(destroyMa(QString)), parent, SLOT(destroyMainC(QString)));
 }
 
 Form::~Form()
@@ -50,8 +51,11 @@ void Form::on_pushButton_clicked()
         e->show();
     }
     else{
-        emit newFile(filename);
-        qDebug() << "Inviata la richiesta a socket.cpp di creazione nuovo file: " << filename;
+
+        emit destroyMa(filename);
+    //    mainwindow = new MainWindow(this->socket, this->socket->getFHandler(), this, filenamec);
+    //    hide();
+    //    mainwindow->show();
         hide();
     }
 

@@ -5,7 +5,6 @@
 #include "socket.h"
 #include "uri.h"
 
-
 namespace Ui {
 class Dialog;
 }
@@ -28,10 +27,12 @@ private slots:
 private:
     Ui::Dialog *ui;
     Socket *socket;
+   // MainWindow *mainwindow;
 
 signals:
     void openThisFile(QString fileName);
     void checkUri(QString uri);
+    void destroyM(QString);
 };
 
 #endif // DIALOG_H

@@ -19,7 +19,7 @@ Socket::Socket(QWidget *parent) :
 Socket::Socket(const QString &host, quint16 port)
 {
     socket = new QTcpSocket(this);
-    fileh = new FileHandler();
+    //fileh = new FileHandler();
 
     /* Setto le connect del socket */
     connect( socket, SIGNAL(connected()), SLOT(socketConnected()) );
@@ -29,7 +29,7 @@ Socket::Socket(const QString &host, quint16 port)
     //connect( socket, SIGNAL(readyRead()),  SLOT(checkLoginAndGetListFileName()) , Qt::UniqueConnection);
     connect(socket, SIGNAL(readyRead()), SLOT(readBuffer()));
     connect(this, SIGNAL(bufferReady(QByteArray)), SLOT(notificationsHandler(QByteArray)));
-    connect(this, SIGNAL(noConnection()), this, SLOT(notConnected()));
+    //connect(this, SIGNAL(noConnection()), this, SLOT(notConnected()));
 
     socket->connectToHost(host, port);
 
@@ -42,7 +42,7 @@ Socket::Socket(const QString &host, quint16 port)
         //NON CONNESSO
         qDebug() << "Non connesso";
         connected=false;
-        emit notConnected();
+        emit noConnection();
     }
 }
 
@@ -473,7 +473,7 @@ void Socket::notificationsHandler(QByteArray data){
         }
         else{
             qDebug() << "Il File non è stato creato";
-            emit fileCreated("null");
+            //emit fileCreated("null");
         }
     }
 
@@ -746,7 +746,8 @@ void Socket::socketError(int e)
 
 Socket::~Socket()
 {
-    delete ui;
+    qApp->quit();
+
 }
 
 void Socket::closeConnection()
@@ -806,4 +807,8 @@ QMap<QString, int> Socket::getMapFiles(){
 
 QMap<QString, QColor> Socket::getUserColor(){
     return this->userColor;
+}
+
+void Socket::createFileHandler(){
+    fileh = new FileHandler();
 }

@@ -32,9 +32,9 @@ NewOpen::NewOpen(Socket *sock, FileHandler *fHandler, QWidget *parent) :
     this->show();
     setWindowTitle("");
 
-    ui->lineEdit->setStyleSheet(":focus {border: 2px solid #ace4c6};");
+    ui->lineEdit->setStyleSheet(":focus {border: 2px solid #ace4c6}");
     ui->lineEdit->setAttribute(Qt::WA_MacShowFocusRect,0);
-    ui->lineEdit_2->setStyleSheet(":focus {border: 2px solid #ace4c6};");
+    ui->lineEdit_2->setStyleSheet(":focus {border: 2px solid #ace4c6}");
     ui->lineEdit_2->setAttribute(Qt::WA_MacShowFocusRect,0);
 
     QIcon *user_icon= new QIcon(":/rec/icone/icons8-apri-cartella-96.png");
@@ -78,7 +78,7 @@ NewOpen::NewOpen(Socket *sock, FileHandler *fHandler, QWidget *parent) :
              this, SLOT(uriIsNotOk()));
     connect(ui->label, SIGNAL(clicked()), this, SLOT(on_actionLog_Out_triggered()));
     connect(socket, SIGNAL(iconThere()), this, SLOT(setImage()));
-    connect(socket, SIGNAL(fileCreated(QString)), this, SLOT(createNewFile(QString)));
+    //connect(socket, SIGNAL(fileCreated(QString)), this, SLOT(createNewFile(QString)));
 
     QShortcut *sc = new QShortcut(QKeySequence("Return"),this);
     connect(sc, SIGNAL(activated()), ui->pushButton, SLOT(click()));
@@ -87,6 +87,7 @@ NewOpen::NewOpen(Socket *sock, FileHandler *fHandler, QWidget *parent) :
 NewOpen::~NewOpen()
 {
     delete account;
+    qApp->quit();
     delete ui;
 }
 
@@ -132,20 +133,22 @@ void NewOpen::on_pushButton_2_clicked() //Bottone: new Document
     }
     else{
         emit newFile(newfile);
-
+        mainwindow = new MainWindow(this->socket, this, newfile);
+        hide();
     }
 
 }
 
-void NewOpen::createNewFile(QString newfile){
-    if(newfile.compare("null")==0){
-        QMessageBox::warning(this, "Ops...", "Name already inserted");
-        return;
-    }
-    mainwindow = new MainWindow(this->socket, this->socket->getFHandler(), this, newfile);
-    hide();
-    mainwindow->show();
-}
+//void NewOpen::createNewFile(QString newfile){
+//    if(newfile.compare("null")==0){
+//        mainwindow->hide();
+//        QMessageBox::warning(this, "Ops...", "Name already inserted");
+//        mainwindow->deleteLater();
+//        return;
+//    }
+
+//    hide();
+//}
 void NewOpen::on_pushButton_clicked() //Bottone: open Document
 {
     disconnect(socket, SIGNAL(uriIsOk(QString)),
@@ -154,7 +157,8 @@ void NewOpen::on_pushButton_clicked() //Bottone: open Document
              this, SLOT(uriIsNotOk()));
     QString n = ui->listWidget->currentItem()->text();
     emit openThisFile(n);
-    mainwindow = new MainWindow(this->socket, this->socket->getFHandler(), this, n);
+
+    mainwindow = new MainWindow(this->socket, this, n);
     hide();
     mainwindow->show();
     hide();
