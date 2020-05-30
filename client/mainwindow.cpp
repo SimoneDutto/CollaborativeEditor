@@ -21,6 +21,7 @@
 #include <algorithm>
 #include <QFontDatabase>
 #include <QTextBlock>
+#include <QTextDocumentFragment>
 
 
 MainWindow::MainWindow(Socket *sock, QWidget *parent, QString nome) :
@@ -31,7 +32,6 @@ MainWindow::MainWindow(Socket *sock, QWidget *parent, QString nome) :
     socket->createFileHandler();
     fHandler = socket->getFHandler();
     ui->setupUi(this);
-
     // set black background
     pal.setColor(QPalette::Background, QColor(58,58,60));
     pal.setColor(QPalette::WindowText, Qt::white);
@@ -300,39 +300,17 @@ void MainWindow::on_actionOpen_triggered()
 //    file.close();
 //}
 
-void MainWindow::on_actionCut_triggered()
-{
-    ui->textEdit->cut();
-}
 
-void MainWindow::on_actionCopy_triggered()
-{
-    ui->textEdit->copy();
-}
 
-void MainWindow::on_actionRedo_triggered()
-{
-    ui->textEdit->redo();
-}
-
-void MainWindow::on_actionPaste_triggered()
-{
-    ui->textEdit->paste();
-}
-
-void MainWindow::on_actionUndo_triggered()
-{
-    ui->textEdit->undo();
-}
 
 void MainWindow::on_actionAbout_us_triggered()
 {
     QString about_text;
       about_text  = "Authors: Debora Caldarola, Simone Dutto, Isabella Romita, Vito Tassielli\n";
       about_text += "Date: 11/09/2019\n";
-      about_text += "(C) Notepad  (R)\n";
+      about_text += "(C) C++ollaborative Editor  (R)\n";
 
-      QMessageBox::about(this,"About Notepad",about_text);
+      QMessageBox::about(this,"About C++ollaborative Editor",about_text);
 }
 
 void MainWindow::on_actionBold_triggered()
@@ -365,10 +343,12 @@ void MainWindow::on_actionBold_triggered()
 
         qDebug() << "Seleziono un testo per grassetto";
 
-        if(ui->textEdit->fontWeight()==50)
+        //qDebug() << cursor.selection().toHtml();
+
+        /*if(ui->textEdit->fontWeight()==50)
             ui->textEdit->setFontWeight(75);
         else
-            ui->textEdit->setFontWeight(50);
+            ui->textEdit->setFontWeight(50);*/
 
         /* Aggiorno il modello */
         QMap<QString, QTextCharFormat> formatCharMap;
@@ -377,6 +357,11 @@ void MainWindow::on_actionBold_triggered()
 
         int start = cursor.selectionStart();
         int end = cursor.selectionEnd()-1;
+
+        if(isSelectionBold(start, end+1))
+            ui->textEdit->setFontWeight(50);
+        else
+            ui->textEdit->setFontWeight(75);
 
         QString startID = vettore.at(start)->getLetterID();
         QString lastID = vettore.at(end)->getLetterID();
@@ -397,6 +382,33 @@ void MainWindow::on_actionBold_triggered()
         connect( this, SIGNAL(myDelete(int,int)),
                   fHandler, SLOT(localDelete(int,int)));
     }
+}
+
+bool MainWindow::isSelectionBold(int start, int end) {
+    QVector<Letter*> text = this->fHandler->getVectorFile();
+    for(int i=start; i<end; i++) {
+        if(text[i]->getFormat().fontWeight()==50)
+            return false;
+    }
+    return true;
+}
+
+bool MainWindow::isSelectionItalic(int start, int end) {
+    QVector<Letter*> text = this->fHandler->getVectorFile();
+    for(int i=start; i<end; i++) {
+        if(!text[i]->getFormat().fontItalic())
+            return false;
+    }
+    return true;
+}
+
+bool MainWindow::isSelectionUnderlined(int start, int end) {
+    QVector<Letter*> text = this->fHandler->getVectorFile();
+    for(int i=start; i<end; i++) {
+        if(!text[i]->getFormat().fontUnderline())
+            return false;
+    }
+    return true;
 }
 
 void MainWindow::on_actionItalic_triggered()
@@ -422,11 +434,6 @@ void MainWindow::on_actionItalic_triggered()
         qDebug() << "Seleziono un testo per corsivo";
         qDebug() << ui->textEdit->fontItalic();
 
-        if(ui->textEdit->fontItalic()==false)
-            ui->textEdit->setFontItalic(true);
-        else
-            ui->textEdit->setFontItalic(false);
-
         /* Aggiorno il modello */
         QMap<QString, QTextCharFormat> formatCharMap;
         auto vettore = this->fHandler->getVectorFile();
@@ -434,6 +441,11 @@ void MainWindow::on_actionItalic_triggered()
 
         int start = cursor.selectionStart();
         int end = cursor.selectionEnd()-1;
+
+        if(!isSelectionItalic(start, end+1))
+            ui->textEdit->setFontItalic(true);
+        else
+            ui->textEdit->setFontItalic(false);
 
         QString startID = vettore.at(start)->getLetterID();
         QString lastID = vettore.at(end)->getLetterID();
@@ -478,11 +490,6 @@ void MainWindow::on_actionUnderlined_triggered()
 
         qDebug() << "Seleziono un testo per sottolineato";
 
-        if(ui->textEdit->fontUnderline()!=true)
-            ui->textEdit->setFontUnderline(true);
-        else
-            ui->textEdit->setFontUnderline(false);
-
         /* Aggiorno il modello */
         QMap<QString, QTextCharFormat> formatCharMap;
         auto vettore = this->fHandler->getVectorFile();
@@ -490,7 +497,11 @@ void MainWindow::on_actionUnderlined_triggered()
 
         int start = cursor.selectionStart();
         int end = cursor.selectionEnd()-1;
-        qDebug() << end;
+
+        if(!isSelectionUnderlined(start, end+1))
+            ui->textEdit->setFontUnderline(true);
+        else
+            ui->textEdit->setFontUnderline(false);
 
         QString startID = vettore.at(start)->getLetterID();
         QString lastID = vettore.at(end)->getLetterID();
@@ -660,6 +671,7 @@ void MainWindow::on_textEdit_textChanged()
 
         if(ui->textEdit->toPlainText().size()==0){
             ui->textEdit->setCurrentCharFormat(this->firstLetter);
+
             Qt::Alignment currAlign = ui->textEdit->alignment();
 
             if(currAlign.testFlag(Qt::AlignLeft)){
@@ -696,13 +708,12 @@ void MainWindow::on_textEdit_textChanged()
     }
 }
 
-
 Qt::AlignmentFlag MainWindow::getFlag(Qt::Alignment a) {
     if(a.testFlag(Qt::AlignLeft))
         return Qt::AlignLeft;
     else if(a.testFlag(Qt::AlignRight))
         return Qt::AlignRight;
-    else if(a.testFlag(Qt::AlignCenter))
+    else if(a.testFlag(Qt::AlignCenter) || a.testFlag(Qt::AlignHCenter))
         return Qt::AlignCenter;
     else return Qt::AlignJustify;
  }
@@ -910,27 +921,30 @@ void MainWindow::on_textEdit_cursorPositionChanged() {
     if(pos <= ui->textEdit->toPlainText().size())
         emit sendCursorChange(pos);
 
+    int start = cursor.selectionStart();
+    int end = cursor.selectionEnd()-1;
+
     /*Se il testo selezionato ha stile misto, i bottoni accendono lo stile*/
     if(cursor.hasSelection()==true){
-        if(ui->textEdit->fontWeight()!=75){
-            ui->actionBold->setChecked(false);
-        }
-        else {
+        if(isSelectionBold(start, end+1)){
             ui->actionBold->setChecked(true);
         }
-
-        if(ui->textEdit->fontItalic()!=true){
-            ui->actionItalic->setChecked(false);
-        }
         else {
+            ui->actionBold->setChecked(false);
+        }
+
+        if(isSelectionItalic(start, end+1)){
             ui->actionItalic->setChecked(true);
         }
+        else {
+            ui->actionItalic->setChecked(false);
+        }
 
-        if(ui->textEdit->fontUnderline()!=true){
-            ui->actionUnderlined->setChecked(false);
+        if(isSelectionUnderlined(start, end+1)){
+            ui->actionUnderlined->setChecked(true);
         }
         else {
-            ui->actionUnderlined->setChecked(true);
+            ui->actionUnderlined->setChecked(false);
         }
 
         if(cursor.selectionStart()==0){
@@ -1407,6 +1421,8 @@ void MainWindow::on_cursor_triggered(QPair<int,int> idpos, QColor col)
 
         QColor colore = id_colore_cursore.value(0).first.second;
         int pos = id_colore_cursore.value(0).second;
+
+        if (id_colore_cursore.isEmpty()) pos = 0;
         qDebug() << pos << id_colore_cursore.size() << id_colore_cursore.value(0);
 
         fmt.setBackground(colore);
@@ -1436,8 +1452,8 @@ void MainWindow::on_cursor_triggered(QPair<int,int> idpos, QColor col)
             cursor.setPosition(pos);
             cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
             cursor.mergeCharFormat(fmt);
-        }
-    //}
+        //}
+    }
     connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
 }
 
@@ -1656,7 +1672,7 @@ void MainWindow::insertPastedText(QString html, QString text){
             cursor.setPosition(cursor.selectionStart());
         }
     }
-
+    qDebug() << html;
     ui->textEdit->insertHtml(html);
 
     if (receivers(SIGNAL(myInsert(int,QChar,int,QTextCharFormat,Qt::AlignmentFlag))) > 0) {
@@ -1664,10 +1680,14 @@ void MainWindow::insertPastedText(QString html, QString text){
             letterCounter++;
             externalIndex++;
             cursor.setPosition(externalIndex);
-            myInsert(externalIndex, text.at(i), socket->getClientID(), cursor.charFormat(), this->getFlag(ui->textEdit->alignment()));
+            QTextBlockFormat block = cursor.blockFormat();
+            qDebug() << "CHAR FORMAT" << block.alignment();
+            myInsert(externalIndex, text.at(i), socket->getClientID(), cursor.charFormat(), this->getFlag(block.alignment()));
         }
         emit sendCursorChange(externalIndex);
     }
 
     connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
 }
+
+

@@ -31,7 +31,7 @@ Login::Login(Socket *sock, QWidget *parent)
     QTimer::singleShot(0, ui->lineEdit_username, SLOT(setFocus()));
     QShortcut *sc = new QShortcut(QKeySequence("Return"),ui->LoginBox);
     connect(sc, SIGNAL(activated()), ui->pushButton, SLOT(click()));
-    connect(sock, SIGNAL(noConnection()), this, SLOT(notConnected()));
+    connect(socket, SIGNAL(noConnection()), this, SLOT(notConnected()));
     connect(socket, SIGNAL(loginSuccess()), this, SLOT(resumeLogin()));
     connect(socket, SIGNAL(loginError()), this, SLOT(redoLogin()));
     if(!sock->getConnection()) emit sock->noConnection();
@@ -40,9 +40,9 @@ Login::Login(Socket *sock, QWidget *parent)
     {
         emit sock->noConnection();
     }
-    ui->lineEdit_username->setStyleSheet(":focus {border: 2px solid #ace4c6};");
+    ui->lineEdit_username->setStyleSheet(":focus {border: 2px solid #ace4c6}");
     ui->lineEdit_username->setAttribute(Qt::WA_MacShowFocusRect,0);
-    ui->lineEdit_password->setStyleSheet(":focus {border: 2px solid #ace4c6};");
+    ui->lineEdit_password->setStyleSheet(":focus {border: 2px solid #ace4c6}");
     ui->lineEdit_password->setAttribute(Qt::WA_MacShowFocusRect,0);
     ui->pushButton->setStyleSheet("color: white; background-color: #706d82;  border-radius:5px");
     ui->pushButton_2->setStyleSheet("color: white; background-color: #706d82;  border-radius:5px");
@@ -69,7 +69,8 @@ void Login::on_pushButton_clicked()
 void Login::resumeLogin()
 {
     this->close();
-    newopen = new NewOpen(this->socket, this->socket->getFHandler(), this);
+    newopen = new NewOpen(this->socket, this->socket->getFHandler());
+    newopen->setAttribute(Qt::WA_DeleteOnClose, true);
     //mainWindow = new MainWindow(this->socket, this->socket->getFHandler(), this);
     //mainWindow->show();
     newopen ->show();
@@ -84,6 +85,7 @@ void Login::redoLogin()
 void Login::on_pushButton_2_clicked()
 {
     this->close();
+    this->~Login();
     signup = new SignUp(socket);
     signup->setAttribute(Qt::WA_DeleteOnClose, true);
     signup->show();
@@ -91,6 +93,6 @@ void Login::on_pushButton_2_clicked()
 
 void Login::notConnected(){
     serverDisc *s = new serverDisc(this);
+    hide();
     s->show();
 }
-

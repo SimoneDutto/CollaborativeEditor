@@ -146,7 +146,9 @@ void Letter::setFormat(QTextCharFormat format){
 void Letter::setStyleFromString(QString format, QString font) {
     QFont f;
     f.fromString(font);
-    this->format.setFont(f, QTextCharFormat::FontPropertiesSpecifiedOnly);
+    qDebug() << "SET" << this->getFormat().font() << f.toString() << font;
+    this->format.setFont(f);
+    qDebug() << this->getFormat().font();
 }
 
 void Letter::setAlignment(Qt::AlignmentFlag alignment) {
