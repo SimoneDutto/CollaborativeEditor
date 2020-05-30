@@ -75,7 +75,6 @@ private slots:
     void insertPastedText(QString html, QString text);
 
     void on_textEdit_selectionChanged();
-
     void changeViewAfterSelection(int start, int end, QColor colore);
 
 private:

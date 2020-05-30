@@ -1649,3 +1649,4 @@ void MainWindow::insertPastedText(QString html, QString text){
 
     connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
 }
+

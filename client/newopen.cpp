@@ -32,9 +32,9 @@ NewOpen::NewOpen(Socket *sock, FileHandler *fHandler, QWidget *parent) :
     this->show();
     setWindowTitle("");
 
-    ui->lineEdit->setStyleSheet(":focus {border: 2px solid #ace4c6};");
+    ui->lineEdit->setStyleSheet(":focus {border: 2px solid #ace4c6}");
     ui->lineEdit->setAttribute(Qt::WA_MacShowFocusRect,0);
-    ui->lineEdit_2->setStyleSheet(":focus {border: 2px solid #ace4c6};");
+    ui->lineEdit_2->setStyleSheet(":focus {border: 2px solid #ace4c6}");
     ui->lineEdit_2->setAttribute(Qt::WA_MacShowFocusRect,0);
 
     QIcon *user_icon= new QIcon(":/rec/icone/icons8-apri-cartella-96.png");
