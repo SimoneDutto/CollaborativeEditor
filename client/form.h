@@ -26,6 +26,7 @@ private:
 
 signals:
     void newFile(QString filename);
+    void destroyMa(QString );
 
 };
 
