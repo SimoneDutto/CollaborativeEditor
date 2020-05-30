@@ -34,11 +34,11 @@ SignUp::SignUp(Socket* sock, QWidget* parent)
     ui->lineEdit_2->setPalette(p);
     ui->lineEdit_3->setPalette(p);
 
-    ui->lineEdit->setStyleSheet(":focus {border: 2px solid #ace4c6};");
+    ui->lineEdit->setStyleSheet(":focus {border: 2px solid #ace4c6}");
     ui->lineEdit->setAttribute(Qt::WA_MacShowFocusRect,0);
-    ui->lineEdit_2->setStyleSheet(":focus {border: 2px solid #ace4c6};");
+    ui->lineEdit_2->setStyleSheet(":focus {border: 2px solid #ace4c6}");
     ui->lineEdit_2->setAttribute(Qt::WA_MacShowFocusRect,0);
-    ui->lineEdit_3->setStyleSheet(":focus {border: 2px solid #ace4c6};");
+    ui->lineEdit_3->setStyleSheet(":focus {border: 2px solid #ace4c6}");
     ui->lineEdit_3->setAttribute(Qt::WA_MacShowFocusRect,0);
 
     QTimer::singleShot(0, ui->lineEdit, SLOT(setFocus()));
@@ -165,3 +165,4 @@ void SignUp::on_pushButton_2_clicked()
     loginWindow->setAttribute(Qt::WA_DeleteOnClose, true);
     loginWindow->show();
 }
+

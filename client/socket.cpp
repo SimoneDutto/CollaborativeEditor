@@ -29,7 +29,7 @@ Socket::Socket(const QString &host, quint16 port)
     //connect( socket, SIGNAL(readyRead()),  SLOT(checkLoginAndGetListFileName()) , Qt::UniqueConnection);
     connect(socket, SIGNAL(readyRead()), SLOT(readBuffer()));
     connect(this, SIGNAL(bufferReady(QByteArray)), SLOT(notificationsHandler(QByteArray)));
-    connect(this, SIGNAL(noConnection()), this, SLOT(notConnected()));
+    //connect(this, SIGNAL(noConnection()), this, SLOT(notConnected()));
 
     socket->connectToHost(host, port);
 
@@ -42,7 +42,7 @@ Socket::Socket(const QString &host, quint16 port)
         //NON CONNESSO
         qDebug() << "Non connesso";
         connected=false;
-        emit notConnected();
+        emit noConnection();
     }
 }
 
@@ -804,7 +804,8 @@ void Socket::socketError(int e)
 
 Socket::~Socket()
 {
-    delete ui;
+    qApp->quit();
+
 }
 
 void Socket::closeConnection()

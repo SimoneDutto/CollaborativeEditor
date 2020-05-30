@@ -34,11 +34,6 @@ private slots:
     void on_actionOpen_triggered();
 //    void on_actionSave_triggered();
 //    void on_actionSave_As_triggered();
-    void on_actionCut_triggered();
-    void on_actionCopy_triggered();
-    void on_actionRedo_triggered();
-    void on_actionPaste_triggered();
-    void on_actionUndo_triggered();
     void on_actionAbout_us_triggered();
     void on_actionBold_triggered();
     void on_actionItalic_triggered();
@@ -79,7 +74,6 @@ private slots:
     void changeViewAfterColor(int start, int end, QColor c);
     void insertPastedText(QString html, QString text);
     void on_textEdit_selectionChanged();
-
     void changeViewAfterSelection(int start, int end, QColor colore);
 
 private:
