@@ -24,12 +24,13 @@
 #include <QTextDocumentFragment>
 
 
-MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QString nome) :
+MainWindow::MainWindow(Socket *sock, QWidget *parent, QString nome) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
-    socket(sock),
-    fHandler(fileHand)
+    socket(sock)
 {
+    socket->createFileHandler();
+    fHandler = socket->getFHandler();
     ui->setupUi(this);
     // set black background
     pal.setColor(QPalette::Background, QColor(58,58,60));
@@ -218,11 +219,19 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
              this, SLOT(on_counter_clicked()));
     connect( ui->discardImage, SIGNAL(clicked()),
              this, SLOT(on_actionEdit_Profile_triggered()));
+    connect( this, SIGNAL(openThisFile(QString)),
+             this->socket, SLOT(sendOpenFile(QString)));
+    connect(socket, SIGNAL(fileCreated(QString)), this, SLOT(changeTitle(QString)));
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+    delete fHandler;
+}
+
+void MainWindow::changeTitle(QString name){
+    setWindowTitle(name);
 }
 
 bool MainWindow::sorting(QPair<QPair<int,QColor>,int> &e1, QPair<QPair<int,QColor>,int> &e2){
@@ -233,10 +242,6 @@ else return false;
 
 void MainWindow::on_actionNew_triggered()
 {
-    if(ui->textEdit->toPlainText().size() > 0){
-        ui->textEdit->clear();
-    }
-
     form = new Form(this->socket, this);
     form->show();
     //ui->lineEdit->setText(filename);
@@ -247,6 +252,7 @@ void MainWindow::on_actionOpen_triggered()
     //QString file_name = QFileDialog::getOpenFileName(this,"Open the file");
     dialog = new Dialog(this->socket, this);
     dialog->show();
+
 //    QFile file(file_name);
 //    file_path = file_name;
 //    if(!file.open(QFile::ReadOnly | QFile::Text)){
@@ -725,6 +731,7 @@ void MainWindow::fileIsHere(QMap<int,int> id_pos, QMap<int,QColor> id_colore){
     /*Aggiornare la GUI con il file appena arrivato*/
     QTextCursor cursor(ui->textEdit->textCursor());
     cursor.setPosition(0);
+    this->fHandler = this->socket->getFHandler();
     auto vettore = this->fHandler->getVectorFile();
 
     Qt::AlignmentFlag alignment;
@@ -751,6 +758,21 @@ void MainWindow::fileIsHere(QMap<int,int> id_pos, QMap<int,QColor> id_colore){
     std::sort(id_colore_cursore.begin(), id_colore_cursore.end(), sorting);
 
     connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
+}
+
+void MainWindow::destroyMain(QString filenam){
+    emit openThisFile(filenam);
+    MainWindow* mainwindow = new MainWindow(this->socket, nullptr, filenam);
+    hide();
+    mainwindow->show();
+    this->deleteLater();
+}
+
+void MainWindow::destroyMainC(QString filename){
+    emit newFile(filename);
+    MainWindow* mainwindow = new MainWindow(this->socket, nullptr, filename);
+    mainwindow->show();
+    this->deleteLater();
 }
 
 void MainWindow::changeViewAfterInsert(QChar l, int pos, QTextCharFormat format, Qt::AlignmentFlag alignment)

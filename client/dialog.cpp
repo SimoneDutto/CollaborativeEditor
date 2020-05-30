@@ -1,6 +1,7 @@
 #include "dialog.h"
 #include "ui_dialog.h"
 
+
 Dialog::Dialog(Socket *sock, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::Dialog),
@@ -58,6 +59,7 @@ Dialog::Dialog(Socket *sock, QWidget *parent) :
              this, SLOT(uriIsOk(QString)));
     connect(socket, SIGNAL(uriIsNotOk()),
              this, SLOT(uriIsNotOk()));
+    connect(this, SIGNAL(destroyM(QString)), parent, SLOT(destroyMain(QString)));
 }
 
 Dialog::~Dialog()
@@ -67,7 +69,11 @@ Dialog::~Dialog()
 
 void Dialog::on_pushButton_clicked()
 {
-    emit openThisFile(ui->listWidget->currentItem()->text());
+    QString filenamec= ui->listWidget->currentItem()->text();
+    emit destroyM(filenamec);
+//    mainwindow = new MainWindow(this->socket, this->socket->getFHandler(), this, filenamec);
+//    hide();
+//    mainwindow->show();
     hide();
 }
 

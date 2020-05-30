@@ -31,7 +31,7 @@ private slots:
     void on_discardImage_clicked();
     void on_actionLog_Out_triggered();
     void setImage();
-    void createNewFile(QString filename);
+    //void createNewFile(QString filename);
 
 private:
     Ui::NewOpen *ui;

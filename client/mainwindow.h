@@ -20,7 +20,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit MainWindow(Socket *sock = nullptr, FileHandler *fileHand = nullptr,QWidget *parent = nullptr, QString nome = nullptr);
+    explicit MainWindow(Socket *sock = nullptr,QWidget *parent = nullptr, QString nome = nullptr);
     static bool sorting(QPair<QPair<int,QColor>,int> &, QPair<QPair<int,QColor>,int> &);
     ~MainWindow();
 
@@ -74,6 +74,12 @@ private slots:
     void changeViewAfterColor(int start, int end, QColor c);
     void insertPastedText(QString html, QString text);
     void on_textEdit_selectionChanged();
+    void destroyMain(QString);
+    void destroyMainC(QString filename);
+
+    void changeTitle(QString name);
+
+
     void changeViewAfterSelection(int start, int end, QColor colore);
 
 private:
@@ -104,6 +110,7 @@ signals:
     void sendHist();
     void sendAlignment(Qt::AlignmentFlag alignment, int cursorPosition, QString startID, QString lastID);
     void sendColorChange(QString startID, QString lastID, QString color);
+    void openThisFile(QString fileName);
 };
 
 #endif // MAINWINDOW_H
