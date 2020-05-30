@@ -58,8 +58,13 @@ NewOpen::NewOpen(Socket *sock, FileHandler *fHandler, QWidget *parent) :
     ui->pushButton_2->setStyleSheet("color: white; background-color: #706d82;  border-radius:5px");
     ui->pushButton_3->setStyleSheet("color: white; background-color: #706d82;  border-radius:5px");
 
+    styleSheet = "QLabel { background-color: rgb(255, 252, 247); color: black; border-style: solid; border-width: 2px; border-radius: 6px; border-color: orange; font: ; }";
+    ui->myicon->setStyleSheet(styleSheet);
+    QFont font("Arial", 30);
+    ui->myicon->setFont(font);
     QString username = socket->getClientUsername();
     ui->username->setText(username);
+    ui->myicon->setText(username.at(0).toUpper());
 
     for (QString s : this->socket->getMapFiles().keys()){
         ui->listWidget->addItem(s);
@@ -96,17 +101,11 @@ void NewOpen::setImage(){
     QString imageName = QString::number(socket->getClientID())+".png";
     QPixmap userPixmap = QPixmap(imageName);
 
-    QString styleSheet = "QLabel { background-color: rgb(255, 252, 247); color: black; border-style: solid; border-width: 2px; border-radius: 6px; border-color: orange; font: ; }";
-    ui->myicon->setStyleSheet(styleSheet);
-    QFont font("Arial", 30);
-    ui->myicon->setFont(font);
-
-
     QIcon *discard_icon= new QIcon(":/rec/icone/icons8-punta-della-matita-96.png");
     ui->discardImage->setIcon(*discard_icon);
     ui->discardImage->setIconSize(QSize(18, 18));
 
-    styleSheet = "QPushButton {background-color: white; border-style: solid; border-width: 1px; border-radius: 15px; border-color: rgb(0, 0, 0);} QPushButton:hover {background-color: rgb(233, 233, 233)} QPushButton:pressed {background-color: rgb(181, 181, 181)}";
+    QString styleSheet = "QPushButton {background-color: white; border-style: solid; border-width: 1px; border-radius: 15px; border-color: rgb(0, 0, 0);} QPushButton:hover {background-color: rgb(233, 233, 233)} QPushButton:pressed {background-color: rgb(181, 181, 181)}";
     ui->discardImage->setStyleSheet(styleSheet);
 
 
