@@ -39,6 +39,10 @@ usersLettersWindow::usersLettersWindow(QMap<int, QString> mapIdUsername, QVector
             auto format = l->getFormat();
             format.setBackground(QBrush(ite.value(), Qt::SolidPattern));
             cursor.insertText(l->getValue(), format);
+            auto alignment = l->getAlignment();
+            QTextBlockFormat blockFormat = cursor.blockFormat();
+            blockFormat.setAlignment(alignment);
+            cursor.mergeBlockFormat(blockFormat);
         }
 
         else {
@@ -65,6 +69,10 @@ usersLettersWindow::usersLettersWindow(QMap<int, QString> mapIdUsername, QVector
             auto format = l->getFormat();
             format.setBackground(QBrush(newColor, Qt::SolidPattern));
             cursor.insertText(l->getValue(), format);
+            auto alignment = l->getAlignment();
+            QTextBlockFormat blockFormat = cursor.blockFormat();
+            blockFormat.setAlignment(alignment);
+            cursor.mergeBlockFormat(blockFormat);
         }
 
     }
