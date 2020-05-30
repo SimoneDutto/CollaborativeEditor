@@ -325,9 +325,9 @@ void MainWindow::on_actionAbout_us_triggered()
     QString about_text;
       about_text  = "Authors: Debora Caldarola, Simone Dutto, Isabella Romita, Vito Tassielli\n";
       about_text += "Date: 11/09/2019\n";
-      about_text += "(C) Notepad  (R)\n";
+      about_text += "(C) C++ollaborative Editor  (R)\n";
 
-      QMessageBox::about(this,"About Notepad",about_text);
+      QMessageBox::about(this,"About C++ollaborative Editor",about_text);
 }
 
 void MainWindow::on_actionBold_triggered()
@@ -730,7 +730,7 @@ Qt::AlignmentFlag MainWindow::getFlag(Qt::Alignment a) {
         return Qt::AlignLeft;
     else if(a.testFlag(Qt::AlignRight))
         return Qt::AlignRight;
-    else if(a.testFlag(Qt::AlignCenter))
+    else if(a.testFlag(Qt::AlignCenter) || a.testFlag(Qt::AlignHCenter))
         return Qt::AlignCenter;
     else return Qt::AlignJustify;
  }
@@ -1671,7 +1671,7 @@ void MainWindow::insertPastedText(QString html, QString text){
             cursor.setPosition(cursor.selectionStart());
         }
     }
-
+    qDebug() << html;
     ui->textEdit->insertHtml(html);
 
     if (receivers(SIGNAL(myInsert(int,QChar,int,QTextCharFormat,Qt::AlignmentFlag))) > 0) {
@@ -1679,7 +1679,9 @@ void MainWindow::insertPastedText(QString html, QString text){
             letterCounter++;
             externalIndex++;
             cursor.setPosition(externalIndex);
-            myInsert(externalIndex, text.at(i), socket->getClientID(), cursor.charFormat(), this->getFlag(ui->textEdit->alignment()));
+            QTextBlockFormat block = cursor.blockFormat();
+            qDebug() << "CHAR FORMAT" << block.alignment();
+            myInsert(externalIndex, text.at(i), socket->getClientID(), cursor.charFormat(), this->getFlag(block.alignment()));
         }
         emit sendCursorChange(externalIndex);
     }
