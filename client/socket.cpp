@@ -804,7 +804,8 @@ void Socket::socketError(int e)
 
 Socket::~Socket()
 {
-    delete ui;
+    qApp->quit();
+
 }
 
 void Socket::closeConnection()

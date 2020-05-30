@@ -30,7 +30,6 @@ MainWindow::MainWindow(Socket *sock, FileHandler *fileHand,QWidget *parent, QStr
     fHandler(fileHand)
 {
     ui->setupUi(this);
-
     // set black background
     pal.setColor(QPalette::Background, QColor(58,58,60));
     pal.setColor(QPalette::WindowText, Qt::white);
@@ -294,30 +293,8 @@ void MainWindow::on_actionOpen_triggered()
 //    file.close();
 //}
 
-void MainWindow::on_actionCut_triggered()
-{
-    ui->textEdit->cut();
-}
 
-void MainWindow::on_actionCopy_triggered()
-{
-    ui->textEdit->copy();
-}
 
-void MainWindow::on_actionRedo_triggered()
-{
-    ui->textEdit->redo();
-}
-
-void MainWindow::on_actionPaste_triggered()
-{
-    ui->textEdit->paste();
-}
-
-void MainWindow::on_actionUndo_triggered()
-{
-    ui->textEdit->undo();
-}
 
 void MainWindow::on_actionAbout_us_triggered()
 {
@@ -1385,6 +1362,8 @@ void MainWindow::on_cursor_triggered(QPair<int,int> idpos, QColor col)
 
         QColor colore = id_colore_cursore.value(0).first.second;
         int pos = id_colore_cursore.value(0).second;
+
+        if (id_colore_cursore.isEmpty()) pos = 0;
         qDebug() << pos << id_colore_cursore.size() << id_colore_cursore.value(0);
 
         fmt.setBackground(colore);
@@ -1414,8 +1393,8 @@ void MainWindow::on_cursor_triggered(QPair<int,int> idpos, QColor col)
             cursor.setPosition(pos);
             cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
             cursor.mergeCharFormat(fmt);
-        }
-    //}
+        //}
+    }
     connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
 }
 
@@ -1649,4 +1628,5 @@ void MainWindow::insertPastedText(QString html, QString text){
 
     connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
 }
+
 

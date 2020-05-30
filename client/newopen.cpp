@@ -87,6 +87,7 @@ NewOpen::NewOpen(Socket *sock, FileHandler *fHandler, QWidget *parent) :
 NewOpen::~NewOpen()
 {
     delete account;
+    qApp->quit();
     delete ui;
 }
 
