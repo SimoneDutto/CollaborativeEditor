@@ -24,6 +24,11 @@ public:
     static bool sorting(QPair<QPair<int,QColor>,int> &, QPair<QPair<int,QColor>,int> &);
     ~MainWindow();
 
+private:
+    bool isSelectionBold(int start, int end);
+    bool isSelectionItalic(int start, int end);
+    bool isSelectionUnderlined(int start, int end);
+
 private slots:
     void on_actionNew_triggered();
     void on_actionOpen_triggered();
@@ -73,7 +78,6 @@ private slots:
     void on_actionDark_triggered();
     void changeViewAfterColor(int start, int end, QColor c);
     void insertPastedText(QString html, QString text);
-
     void on_textEdit_selectionChanged();
 
     void changeViewAfterSelection(int start, int end, QColor colore);
