@@ -39,6 +39,8 @@ private:
     QSqlDatabase db;
     explicit FileSystem() {}
 
+    void forwardNotificationToClients(QVector<QTcpSocket*> users, QByteArray message, QTcpSocket* client);
+
 public:
     void sendFile(int fileid, QTcpSocket *socket);
     void createFile(QString filename, QTcpSocket *socket);
@@ -54,6 +56,7 @@ public:
     void saveFile(QByteArray q, QTcpSocket* socket);
     void changePassword(QString password, QTcpSocket* socket);
     void fileHistory(int fileid, QTcpSocket* socket);
+    void sendCursorSelection(QVector<QTcpSocket*> users, QByteArray message, QTcpSocket* client);
 
 signals:
     void signUpResponse(QString message, bool success, QTcpSocket* socket);

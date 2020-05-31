@@ -110,7 +110,9 @@ signals:
     void sendHist();
     void sendAlignment(Qt::AlignmentFlag alignment, int cursorPosition, QString startID, QString lastID);
     void sendColorChange(QString startID, QString lastID, QString color);
+    void sendCursorSelection(int start, int end);
     void openThisFile(QString fileName);
+
 };
 
 #endif // MAINWINDOW_H
