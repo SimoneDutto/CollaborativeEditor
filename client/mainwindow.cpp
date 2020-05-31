@@ -663,7 +663,16 @@ void MainWindow::on_textEdit_textChanged()
             QChar newLetterValue = ui->textEdit->toPlainText().at(externalIndex-1);
             letterCounter++;
             emit myInsert(externalIndex, newLetterValue, socket->getClientID(), cursor.charFormat(), this->getFlag(ui->textEdit->alignment()));
+
             emit sendCursorChange(externalIndex);
+            QTextCharFormat fmt2;
+            fmt2.setBackground(Qt::white);
+
+            cursor.setPosition(externalIndex);
+            cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
+            //qDebug() << "testo from Start: " << cursor.selectedText();
+            cursor.mergeCharFormat(fmt2);
+
         }
     }
     else if (numberOfLetters <= letterCounter){
@@ -785,7 +794,13 @@ void MainWindow::destroyMainC(QString filename){
 void MainWindow::changeViewAfterInsert(QChar l, int pos, QTextCharFormat format, Qt::AlignmentFlag alignment)
 {
     disconnect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
-
+    disconnect( socket, SIGNAL(userCursor(QPair<int,int>,QColor)),this, SLOT(on_cursor_triggered(QPair<int,int>,QColor)));
+    disconnect( socket, SIGNAL(userCursor(QPair<int,int>,QColor)),
+             this, SLOT(on_cursor_triggered(QPair<int,int>,QColor)));
+    disconnect( this, SIGNAL(sendCursorChange(int)),
+             fHandler, SLOT(localCursorChange(int)));
+    disconnect( this, SIGNAL(sendCursorSelection(int,int)),
+             socket, SLOT(sendCursorSelectionToServer(int,int)));
     QTextCursor cursor(ui->textEdit->textCursor());
     cursor.setPosition(pos);
     //ui->textEdit->setAlignment(alignment);
@@ -805,7 +820,16 @@ void MainWindow::changeViewAfterInsert(QChar l, int pos, QTextCharFormat format,
     qDebug() << "Sottolineato" << format.fontUnderline();
     qDebug() << "Corsivo" << format.fontItalic();*/
 
+
+
+    connect( socket, SIGNAL(userCursor(QPair<int,int>,QColor)),
+             this, SLOT(on_cursor_triggered(QPair<int,int>,QColor)));
+    connect( this, SIGNAL(sendCursorChange(int)),
+             fHandler, SLOT(localCursorChange(int)));
+    connect( this, SIGNAL(sendCursorSelection(int,int)),
+             socket, SLOT(sendCursorSelectionToServer(int,int)));
     connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
+    connect( socket, SIGNAL(userCursor(QPair<int,int>,QColor)), this, SLOT(on_cursor_triggered(QPair<int,int>,QColor)));
 }
 
 void MainWindow::changeViewAfterDelete(int pos)
@@ -1429,27 +1453,62 @@ void MainWindow::on_cursor_triggered(QPair<int,int> idpos, QColor col)
             id_colore_cursore.append(qMakePair(qMakePair(idpos.first,col), idpos.second));
 
         std::sort(id_colore_cursore.begin(), id_colore_cursore.end(), sorting);
-
+        auto vettore = this->fHandler->getVectorFile();
         QColor colore = id_colore_cursore.value(0).first.second;
         int pos = id_colore_cursore.value(0).second;
 
-        if (id_colore_cursore.isEmpty()) pos = 0;
+        if (idpos.second < 0) {
+            pos = 0;
+            colore = Qt::white;
+        }
         qDebug() << pos << id_colore_cursore.size() << id_colore_cursore.value(0);
 
         fmt.setBackground(colore);
 
-        cursor.setPosition(pos);
-        cursor.movePosition(QTextCursor::Start, QTextCursor::KeepAnchor);
-        //qDebug() << "testo from Start: " << cursor.selectedText();
-        cursor.mergeCharFormat(fmt2);
-        cursor.setPosition(pos);
-        cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
-        //qDebug() << "testo to End: " << cursor.selectedText();
-        cursor.mergeCharFormat(fmt2);
-        cursor.setPosition(pos);
-        cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
-        //qDebug() << "testo left: " << cursor.selectedText();
-        cursor.mergeCharFormat(fmt);
+        if((pos == 0 && pos <= ui->textEdit->toPlainText().size()))
+        {
+            cursor.setPosition(pos);
+            cursor.movePosition(QTextCursor::Start, QTextCursor::KeepAnchor);
+            //qDebug() << "testo from Start: " << cursor.selectedText();
+            cursor.mergeCharFormat(fmt2);
+            cursor.setPosition(pos);
+            cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+            //qDebug() << "testo to End: " << cursor.selectedText();
+            cursor.mergeCharFormat(fmt2);
+            cursor.setPosition(pos);
+            cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor);
+            //qDebug() << "testo left: " << cursor.selectedText();
+            cursor.mergeCharFormat(fmt);
+        }
+        else if(pos <= ui->textEdit->toPlainText().size() && (vettore.at(pos-1)->getValue() == "\n")){
+            cursor.setPosition(pos);
+            cursor.movePosition(QTextCursor::Start, QTextCursor::KeepAnchor);
+            //qDebug() << "testo from Start: " << cursor.selectedText();
+            cursor.mergeCharFormat(fmt2);
+            cursor.setPosition(pos);
+            cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+            //qDebug() << "testo to End: " << cursor.selectedText();
+            cursor.mergeCharFormat(fmt2);
+            cursor.setPosition(pos);
+            cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor);
+            //qDebug() << "testo left: " << cursor.selectedText();
+            cursor.mergeCharFormat(fmt);
+        }
+        else{
+            cursor.setPosition(pos);
+                    cursor.movePosition(QTextCursor::Start, QTextCursor::KeepAnchor);
+                    //qDebug() << "testo from Start: " << cursor.selectedText();
+                    cursor.mergeCharFormat(fmt2);
+                    cursor.setPosition(pos);
+                    cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+                    //qDebug() << "testo to End: " << cursor.selectedText();
+                    cursor.mergeCharFormat(fmt2);
+                    cursor.setPosition(pos);
+                    cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
+                    //qDebug() << "testo left: " << cursor.selectedText();
+                    cursor.mergeCharFormat(fmt);
+        }
+
 
         for(int i = 1; i < id_colore_cursore.size(); i++){
             QColor colore = id_colore_cursore.value(i).first.second;
@@ -1457,12 +1516,26 @@ void MainWindow::on_cursor_triggered(QPair<int,int> idpos, QColor col)
 
             fmt.setBackground(colore);
 
-            cursor.setPosition(pos);
-            cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
-            cursor.mergeCharFormat(fmt2);
-            cursor.setPosition(pos);
-            cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
-            cursor.mergeCharFormat(fmt);
+            if((pos == 0 || (vettore.at(pos-1)->getValue() == "\n")) && pos <= ui->textEdit->toPlainText().size())
+            {
+                cursor.setPosition(pos);
+                cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+                //qDebug() << "testo to End: " << cursor.selectedText();
+                cursor.mergeCharFormat(fmt2);
+                cursor.setPosition(pos);
+                cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor);
+                //qDebug() << "testo left: " << cursor.selectedText();
+                cursor.mergeCharFormat(fmt);
+            }
+            else{
+                cursor.setPosition(pos);
+                cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+                cursor.mergeCharFormat(fmt2);
+                cursor.setPosition(pos);
+                cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
+                cursor.mergeCharFormat(fmt);
+            }
+
         //}
     }
     connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
