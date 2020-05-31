@@ -106,7 +106,7 @@ void FileHandler::localInsert(int externalIndex, QChar newLetterValue, int clien
         position.insert(0, internalIndex);  //position = {internalIndex}
         qDebug() << "Lettera inserita alla fine del file in posizione " << internalIndex;
     } else {
-        if(externalIndex > 1)   // lettera NON inserita all'inizio del file
+        if(externalIndex > 1)   // lettera NON inserita all'inizio del file CIAO -> CIAGO
             previousLetterPos = this->letters[externalIndex-2]->getFractionalIndexes();
         nextLetterPos = this->letters[externalIndex-1]->getFractionalIndexes();
 

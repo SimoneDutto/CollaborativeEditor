@@ -115,13 +115,18 @@ void FileHandler::remoteInsert(QJsonArray position, QChar newLetterValue, int ex
         Letter *newLetter = new Letter(newLetterValue, fractionals, letterID, format, alignment);
         //newLetter->setStyle(style);
 
-        if(externalIndex < this->letters.size()) {
-            if(newLetter->hasSameFractionals(*(this->letters[externalIndex]))) {
-                if(newLetterValue == this->letters[externalIndex]->getLetterValue())
+        if(externalIndex <= this->letters.size()) {
+            qDebug() << "check...";
+            //qDebug() << this->letters[externalIndex]->getLetterValue();
+            qDebug() << this->letters[externalIndex-1]->getLetterValue();
+            if(newLetter->hasSameFractionals(*(this->letters[externalIndex-1]))) {
+                qDebug() << "SAME FRACTIONALS";
+                if(newLetterValue == this->letters[externalIndex-1]->getLetterValue())
                     // stessa lettera inserita nella stessa posizione da utenti diversi => ignora insert
                     return;
-                else if (siteID > this->letters[externalIndex]->getSiteID()) {  // lettera diversa inserita nella stessa posizione => inserimento in ordine di siteID
-                    this->letters.insert(this->letters.begin()+externalIndex+1, newLetter);
+                else if (siteID > this->letters[externalIndex-1]->getSiteID()) {  // lettera diversa inserita nella stessa posizione => inserimento in ordine di siteID
+                    this->letters.insert(this->letters.begin()+externalIndex, newLetter); // external index (senza +1)?
+                    qDebug() << "LETTERS" << this->letters.data();
                     // propaga informazione con indice modificato
                     emit remoteInsertNotify(this->users, message, true, externalIndex+1, client);
                     return;
@@ -130,6 +135,7 @@ void FileHandler::remoteInsert(QJsonArray position, QChar newLetterValue, int ex
         }
 
         this->letters.insert(this->letters.begin()+externalIndex-1, newLetter);
+        qDebug() << "LETTERS" << this->letters.data();
 
         /*
         Letter lastLetter = this->letters.at(letters.size()-1);

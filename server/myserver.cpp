@@ -62,6 +62,7 @@ void MyServer::readBuffer(){
     {
        qDebug() << "Leggo dal socket";
        buffer->data.append(socket->readAll());
+       qDebug() << buffer->data;
        while ((buffer->dim == 0 && buffer->data.size() >= 8) || (buffer->dim > 0 && buffer->data.size() >= buffer->dim)) //While can process data, process it
        {
            if (buffer->dim == 0 && buffer->data.size() >= 8) //if size of data has received completely, then store it on our global variable

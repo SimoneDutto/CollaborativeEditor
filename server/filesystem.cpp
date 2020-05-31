@@ -586,13 +586,13 @@ void FileSystem::sendInsert(QVector<QTcpSocket*> users, QByteArray message, bool
         QJsonDocument jsonResponse = QJsonDocument::fromJson(message);
         QJsonObject rootObject = jsonResponse.object();
         obj.insert("type", "INSERT");
-        obj.insert("filename", rootObject.value("filename").toString());
+        obj.insert("fileid", rootObject.value("fileid").toInt());
         obj.insert("letter", rootObject.value("letter").toString());
         obj.insert("position", rootObject.value("position").toArray());
         obj.insert("font", rootObject.value("font").toString());
         obj.insert("align", rootObject.value("align").toInt());
         obj.insert("color", rootObject.value("color").toString());
-        obj.insert("siteID", rootObject.value("siteID").toString());
+        obj.insert("siteID", rootObject.value("siteID").toInt());
         obj.insert("siteCounter", rootObject.value("siteCounter").toInt());
         obj.insert("externalIndex", newIndex);
     }
