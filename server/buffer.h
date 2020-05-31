@@ -8,7 +8,7 @@ class Buffer
 public:
     Buffer();
     QByteArray data;
-    long int dim = 0;
+    quint64 dim = 0;
 };
 
 #endif // BUFFER_H
