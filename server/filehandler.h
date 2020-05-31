@@ -24,6 +24,8 @@ private:
     QMap<QTcpSocket*,int> usersSiteCounters;
     QMap<QTcpSocket*,int> usersCursorPosition;
 
+    QVector<int> modifyPositionIndexes(QVector<int> currentIndexes, int externalIndex);
+
 public:
     explicit FileHandler(const QVector<Letter*>&& lett, int fileid, QObject *parent = nullptr);
 
@@ -44,13 +46,13 @@ public:
     bool thereAreUsers();
 
 signals:
-    void remoteInsertNotify(QVector<QTcpSocket*> users, QByteArray message, bool modifiedIndex, int newIndex, QTcpSocket *client);
+    void remoteInsertNotify(QVector<QTcpSocket*> users, QByteArray message, bool modifiedIndex, int newIndex, QVector<int> newPosition, QTcpSocket *client);
     void remoteDeleteNotify(QVector<QTcpSocket*> users, QByteArray message, QTcpSocket* client);
     void remoteStyleChangeNotify(QVector<QTcpSocket*> users, QByteArray message, QTcpSocket* client);
     void remoteAlignChangeNotify(QVector<QTcpSocket*> users, QByteArray message, QTcpSocket* client);
     void remoteCursorChangeNotify(QVector<QTcpSocket*> users, QByteArray message, QTcpSocket* client);
     void remoteColorChangeNotify(QVector<QTcpSocket*> users, QByteArray message, QTcpSocket* client);
-
+    void changedIndexes(QTcpSocket* client, QString letterID, QVector<int> position, int externalIndex);
 };
 
 #endif // FILEHANDLER_H

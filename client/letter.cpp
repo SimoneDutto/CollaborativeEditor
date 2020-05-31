@@ -139,6 +139,9 @@ bool Letter::comesFirst(Letter other) {
     return comesFirst;
 }
 
+void Letter::setNewPosition(QVector<int> position) {
+    this->fractionalIndexes = position;
+}
 void Letter::setFormat(QTextCharFormat format){
     this->format=format;
 }

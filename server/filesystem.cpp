@@ -91,8 +91,11 @@ void FileSystem::createFile(QString filename, QTcpSocket *socket){
 
         sock_file.insert(std::pair<QTcpSocket*, int> (socket, fileid));
         //sock_file.insert(socket, fileid); //associate file to socket
-        connect(fh, SIGNAL(remoteInsertNotify(QVector<QTcpSocket*>, QByteArray, bool, int, QTcpSocket*)),
-                this, SLOT(sendInsert(QVector<QTcpSocket*>, QByteArray, bool, int, QTcpSocket*)));
+        connect(fh, SIGNAL(remoteInsertNotify(QVector<QTcpSocket*>, QByteArray, bool, int, QVector<int>, QTcpSocket*)),
+                this, SLOT(sendInsert(QVector<QTcpSocket*>, QByteArray, bool, int, QVector<int>, QTcpSocket*)));
+
+        connect(fh, SIGNAL(changedIndexes(QTcpSocket*,QString,QVector<int>,int)),
+                this, SLOT(sendChangedIndexes(QTcpSocket*,QString,QVector<int>,int)));
 
         connect(fh, SIGNAL(remoteDeleteNotify(QVector<QTcpSocket*>, QByteArray, QTcpSocket*)),
                 this, SLOT(sendDelete(QVector<QTcpSocket*>, QByteArray, QTcpSocket*)));
@@ -367,8 +370,11 @@ void FileSystem::sendFile(int fileid, QTcpSocket *socket){
             letters.append(std::move(letter_tmp));
         }
         FileHandler *fh = new FileHandler(std::move(letters), fileid);
-        connect(fh, SIGNAL(remoteInsertNotify(QVector<QTcpSocket*>, QByteArray, bool, int, QTcpSocket*)),
-                this, SLOT(sendInsert(QVector<QTcpSocket*>, QByteArray, bool, int, QTcpSocket*)));
+        connect(fh, SIGNAL(remoteInsertNotify(QVector<QTcpSocket*>, QByteArray, bool, int, QVector<int>, QTcpSocket*)),
+                this, SLOT(sendInsert(QVector<QTcpSocket*>, QByteArray, bool, int, QVector<int>, QTcpSocket*)));
+
+        connect(fh, SIGNAL(changedIndexes(QTcpSocket*,QString,QVector<int>,int)),
+                this, SLOT(sendChangedIndexes(QTcpSocket*,QString,QVector<int>,int)));
 
         connect(fh, SIGNAL(remoteDeleteNotify(QVector<QTcpSocket*>, QByteArray, QTcpSocket*)),
                 this, SLOT(sendDelete(QVector<QTcpSocket*>, QByteArray, QTcpSocket*)));
@@ -579,16 +585,18 @@ void FileSystem::changePassword(QString password, QTcpSocket* socket){
     }
 }
 
-void FileSystem::sendInsert(QVector<QTcpSocket*> users, QByteArray message, bool modifiedIndex, int newIndex, QTcpSocket *client) {
+void FileSystem::sendInsert(QVector<QTcpSocket*> users, QByteArray message, bool modifiedIndex, int newIndex, QVector<int> newPosition, QTcpSocket *client) {
     QJsonObject obj;
     if(modifiedIndex) {
         // Edit json file
         QJsonDocument jsonResponse = QJsonDocument::fromJson(message);
         QJsonObject rootObject = jsonResponse.object();
+        QJsonArray positionJsonArray;
+        std::copy (newPosition.begin(), newPosition.end(), std::back_inserter(positionJsonArray));
         obj.insert("type", "INSERT");
         obj.insert("fileid", rootObject.value("fileid").toInt());
         obj.insert("letter", rootObject.value("letter").toString());
-        obj.insert("position", rootObject.value("position").toArray());
+        obj.insert("position", QJsonValue(positionJsonArray));
         obj.insert("font", rootObject.value("font").toString());
         obj.insert("align", rootObject.value("align").toInt());
         obj.insert("color", rootObject.value("color").toString());
@@ -617,6 +625,26 @@ void FileSystem::sendInsert(QVector<QTcpSocket*> users, QByteArray message, bool
             socket->waitForBytesWritten(1000);
             sendSize.clear();
         }
+    }
+}
+
+void FileSystem::sendChangedIndexes(QTcpSocket* client, QString letterID, QVector<int> position, int externalIndex) {
+    QJsonObject obj;
+    obj.insert("type", "COLLISION");
+    obj.insert("letterID", letterID);
+    QJsonArray positionJsonArray;
+    std::copy (position.begin(), position.end(), std::back_inserter(positionJsonArray));
+    obj.insert("position", QJsonValue(positionJsonArray));
+    obj.insert("externalIndex", externalIndex);
+    if(client->state() == QAbstractSocket::ConnectedState){
+        QByteArray qarray = QJsonDocument(obj).toJson();
+        qint32 msg_size = qarray.size();
+        QByteArray toSend;
+        client->write(toSend.number(msg_size), sizeof (quint64));
+        client->waitForBytesWritten();
+        client->write(QJsonDocument(obj).toJson());
+        client->waitForBytesWritten();
+        qDebug() << "Notifica collisione:\n" << QJsonDocument(obj).toJson().data();
     }
 }
 

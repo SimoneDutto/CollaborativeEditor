@@ -117,6 +117,10 @@ bool Letter::comesFirst(Letter other) {
     return comesFirst;
 }
 
+void Letter::setNewFractionals(QVector<int> newFractionals) {
+    this->fractionalIndexes = newFractionals;
+}
+
 QJsonObject Letter::toJSon(){
     QJsonArray positionJsonArray;
     std::copy (fractionalIndexes.begin(), fractionalIndexes.end(), std::back_inserter(positionJsonArray));

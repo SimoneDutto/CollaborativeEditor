@@ -394,6 +394,17 @@ void Socket::notificationsHandler(QByteArray data){
         /*Inserire nel modello questa lettera e aggiornare la UI*/
         emit readyInsert(position, newLetterValue, externalIndex, siteID, siteCounter, format, alignFlag);
     }
+    else if(type.compare("COLLISION")==0) {
+        QString letterID = object.value("letterID").toString();
+        int externalIndex = object.value("externalIndex").toInt();
+        QJsonArray positionArray = object.value("position").toArray();
+        QVector<int> position;
+        if(!positionArray.isEmpty()) {
+            for(auto pos : positionArray)
+                position.append(pos.toInt());
+        }
+        this->fileh->collisionAlert(letterID, externalIndex, position);
+    }
     else if (type.compare("DELETE")==0) {
         QString deletedLetterID = object.value("letterID").toString();
         int siteCounter = object.value("siteCounter").toInt();

@@ -234,6 +234,15 @@ void FileHandler::remoteInsert(QJsonArray position, QChar newLetterValue, int ex
     emit readyRemoteInsert(newLetterValue, externalIndex-1, format, alignment);
 }
 
+void FileHandler::collisionAlert(QString letterID, int newIndex, QVector<int> newPosition) {
+    for(Letter* l : this->letters) {
+        if(l->getLetterID().compare(letterID)==0) {
+            l->setNewPosition(newPosition);
+            break;
+        }
+    }
+}
+
 void FileHandler::remoteDelete(QString deletedLetterID) {
     int externalIndex = 0;
 
