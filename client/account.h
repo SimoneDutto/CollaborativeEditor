@@ -24,7 +24,6 @@ public:
 private slots:
     void on_pushButton_clicked();
     void on_setImage_clicked();
-    void on_discardImage_clicked();
 
 signals:
     void updateInfoClient(QString psw, QString path);

@@ -101,14 +101,6 @@ void NewOpen::setImage(){
     QString imageName = QString::number(socket->getClientID())+".png";
     QPixmap userPixmap = QPixmap(imageName);
 
-    QIcon *discard_icon= new QIcon(":/rec/icone/icons8-punta-della-matita-96.png");
-    ui->discardImage->setIcon(*discard_icon);
-    ui->discardImage->setIconSize(QSize(18, 18));
-
-    QString styleSheet = "QPushButton {background-color: white; border-style: solid; border-width: 1px; border-radius: 15px; border-color: rgb(0, 0, 0);} QPushButton:hover {background-color: rgb(233, 233, 233)} QPushButton:pressed {background-color: rgb(181, 181, 181)}";
-    ui->discardImage->setStyleSheet(styleSheet);
-
-
     if(userPixmap != QPixmap()){
         QPixmap scaled = userPixmap.scaled(ui->myicon->width(), ui->myicon->height(), Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
         ui->myicon->setPixmap(scaled);
@@ -195,12 +187,6 @@ void NewOpen::changeClientImage(QString imageName){
 
     else ui->myicon->setText(socket->getClientUsername().at(0).toUpper());
 
-}
-
-void NewOpen::on_discardImage_clicked()
-{
-    account = new Account(this->socket, this, this->windowTitle());
-    account->show();
 }
 
 void NewOpen::on_actionLog_Out_triggered()
