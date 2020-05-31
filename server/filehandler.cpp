@@ -24,7 +24,7 @@ void FileHandler::insertActiveUser(QTcpSocket* user, int siteCounter, QString us
             qDebug() << "Invio ";
             qint32 msg_size = QJsonDocument(json).toJson().size();
             QByteArray toSend;
-            u->write(toSend.number(msg_size), sizeof (long int));
+            u->write(toSend.number(msg_size), sizeof (quint64));
             u->waitForBytesWritten();
             if(u->write(QJsonDocument(json).toJson()) == -1){
                 qDebug() << "File info failed to send";
@@ -70,7 +70,7 @@ void FileHandler::removeActiveUser(QTcpSocket *user, QString username, int userI
             qDebug() << "Invio ";
             qint32 msg_size = QJsonDocument(json).toJson().size();
             QByteArray toSend;
-            u->write(toSend.number(msg_size), sizeof (long int));
+            u->write(toSend.number(msg_size), sizeof (quint64));
             u->waitForBytesWritten();
             if(u->write(QJsonDocument(json).toJson()) == -1){
                 qDebug() << "File info failed to send";
