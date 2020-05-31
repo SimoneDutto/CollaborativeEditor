@@ -281,7 +281,7 @@ void MyServer::sendFileChunk(QByteArray chunk, QTcpSocket* socket, int remaining
         //qDebug() << "Invio file";
         qDebug() << "size: " << QJsonDocument(object).toJson().size();
         //qDebug() << "file with content: " << object;
-        socket->write(toSend.number(QJsonDocument(object).toJson().size()), sizeof (long int));
+        socket->write(toSend.number(QJsonDocument(object).toJson().size()), sizeof(quint64));
         socket->waitForBytesWritten();
         socket->write(QJsonDocument(object).toJson());
         socket->waitForBytesWritten();
