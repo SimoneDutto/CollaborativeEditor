@@ -787,12 +787,18 @@ void MainWindow::changeViewAfterInsert(QChar l, int pos, QTextCharFormat format,
     disconnect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
 
     QTextCursor cursor(ui->textEdit->textCursor());
+    int oldPos = cursor.position();
     cursor.setPosition(pos);
     //ui->textEdit->setAlignment(alignment);
     cursor.insertText(l, format);
     QTextBlockFormat blockFormat = cursor.blockFormat();
     blockFormat.setAlignment(alignment);
     cursor.mergeBlockFormat(blockFormat);
+    if(oldPos <= pos){
+        cursor.setPosition(oldPos);
+    }else{
+       cursor.setPosition(oldPos+1);
+    }
     ui->textEdit->setTextCursor(cursor);
     qDebug() <<"here";
     qDebug() << cursor.block().text();
