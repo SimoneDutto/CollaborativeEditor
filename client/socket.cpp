@@ -10,6 +10,7 @@
 inline qint32 ArrayToInt(QByteArray source);
 const QString SERVER_IP = "192.168.1.54";
 
+
 Socket::Socket(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::Socket)
@@ -32,7 +33,7 @@ Socket::Socket(const QString &host, quint16 port)
     connect(this, SIGNAL(bufferReady(QByteArray)), SLOT(notificationsHandler(QByteArray)));
     //connect(this, SIGNAL(noConnection()), this, SLOT(notConnected()));
 
-    socket->connectToHost(SERVER_IP, port);
+    socket->connectToHost(host, port);
 
     if(socket->waitForConnected(3000))
     {
