@@ -89,6 +89,11 @@ MainWindow::MainWindow(Socket *sock, QWidget *parent, QString nome) :
     ui->user3->hide();
     ui->counter->hide();
 
+    /* Etichette degli utenti online */
+    ui->l_user1->hide();
+    ui->l_user2->hide();
+    ui->l_user3->hide();
+
     /* Aggiungo nome e icona dell'utente */
 
     QString username = socket->getClientUsername();
@@ -870,18 +875,24 @@ void MainWindow::addUserConnection(QString username, QColor color){
         ui->user1->setStyleSheet(styleSheet.arg(color.name()));
         ui->user1->setText(username.at(0).toUpper());
         ui->user1->show();
+        ui->l_user1->setText(username);
+        ui->l_user1->show();
     }
 
     else if(numberUsersOnline == 2){  //Personalizzo ed accendo la label user2
         ui->user2->setStyleSheet(styleSheet.arg(color.name()));
         ui->user2->setText(username.at(0).toUpper());
         ui->user2->show();
+        ui->l_user2->setText(username);
+        ui->l_user2->show();
     }
 
     else if(numberUsersOnline == 3){  //Personalizzo ed accendo la label user3
         ui->user3->setStyleSheet(styleSheet.arg(color.name()));
         ui->user3->setText(username.at(0).toUpper());
         ui->user3->show();
+        ui->l_user3->setText(username);
+        ui->l_user3->show();
     }
 
     else {  //Incrementare il contatore
@@ -897,36 +908,37 @@ void MainWindow::removeUserDisconnect(QString name, int userID){
 
     int numberUsersOnline = socket->getUserColor().size();
 
-
     if(numberUsersOnline == 0){  //Spengo la label user1
         ui->user1->hide();
+        ui->l_user1->hide();
         this->timer->stop();
     }
 
     else if(numberUsersOnline == 1){  //Spengo la label user2
-        if(ui->user1->text() == name.at(0).toUpper()){
+        if(ui->l_user1->text() == name){
             ui->user1->setText(ui->user2->text());
+            ui->l_user1->setText(ui->l_user2->text());
         }
 
         ui->user2->hide();
+        ui->l_user2->hide();
     }
 
     else if(numberUsersOnline == 2){  //Spengo la label user3
-
-        QString user2string = ui->user2->text();
-        QString user3string = ui->user3->text();
-        QString user1string = ui->user1->text();
-
-        if(ui->user2->text() == name.at(0).toUpper()){
+        if(ui->l_user2->text() == name){
             ui->user2->setText(ui->user3->text());
+            ui->l_user2->setText(ui->l_user3->text());
         }
 
-        else if(ui->user1->text() == name.at(0).toUpper()){
+        else if(ui->l_user1->text() == name){
             ui->user1->setText(ui->user2->text());
             ui->user2->setText(ui->user3->text());
+            ui->l_user1->setText(ui->l_user2->text());
+            ui->l_user2->setText(ui->l_user3->text());
         }
 
         ui->user3->hide();
+        ui->l_user3->hide();
     }
 
     else {
