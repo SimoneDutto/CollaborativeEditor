@@ -665,6 +665,7 @@ void MainWindow::on_textEdit_textChanged()
             emit myInsert(externalIndex, newLetterValue, socket->getClientID(), cursor.charFormat(), this->getFlag(ui->textEdit->alignment()));
 
             emit sendCursorChange(externalIndex);
+            disconnect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
             QTextCharFormat fmt2;
             fmt2.setBackground(Qt::white);
 
@@ -672,6 +673,7 @@ void MainWindow::on_textEdit_textChanged()
             cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
             //qDebug() << "testo from Start: " << cursor.selectedText();
             cursor.mergeCharFormat(fmt2);
+            connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
 
         }
     }
@@ -684,7 +686,6 @@ void MainWindow::on_textEdit_textChanged()
             letterCounter -= deletedLetters;
             emit myDelete(externalIndex+1, externalIndex+deletedLetters);
         }
-
         if(ui->textEdit->toPlainText().size()==0){
             ui->textEdit->setCurrentCharFormat(this->firstLetter);
 
@@ -794,13 +795,13 @@ void MainWindow::destroyMainC(QString filename){
 void MainWindow::changeViewAfterInsert(QChar l, int pos, QTextCharFormat format, Qt::AlignmentFlag alignment)
 {
     disconnect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
-    disconnect( socket, SIGNAL(userCursor(QPair<int,int>,QColor)),this, SLOT(on_cursor_triggered(QPair<int,int>,QColor)));
+    /*disconnect( socket, SIGNAL(userCursor(QPair<int,int>,QColor)),this, SLOT(on_cursor_triggered(QPair<int,int>,QColor)));
     disconnect( socket, SIGNAL(userCursor(QPair<int,int>,QColor)),
              this, SLOT(on_cursor_triggered(QPair<int,int>,QColor)));
     disconnect( this, SIGNAL(sendCursorChange(int)),
              fHandler, SLOT(localCursorChange(int)));
     disconnect( this, SIGNAL(sendCursorSelection(int,int)),
-             socket, SLOT(sendCursorSelectionToServer(int,int)));
+             socket, SLOT(sendCursorSelectionToServer(int,int)));*/
     QTextCursor cursor(ui->textEdit->textCursor());
     int oldPos = cursor.position();
     cursor.setPosition(pos);
@@ -828,14 +829,14 @@ void MainWindow::changeViewAfterInsert(QChar l, int pos, QTextCharFormat format,
 
 
 
-    connect( socket, SIGNAL(userCursor(QPair<int,int>,QColor)),
+    /*connect( socket, SIGNAL(userCursor(QPair<int,int>,QColor)),
              this, SLOT(on_cursor_triggered(QPair<int,int>,QColor)));
     connect( this, SIGNAL(sendCursorChange(int)),
              fHandler, SLOT(localCursorChange(int)));
     connect( this, SIGNAL(sendCursorSelection(int,int)),
-             socket, SLOT(sendCursorSelectionToServer(int,int)));
+             socket, SLOT(sendCursorSelectionToServer(int,int)));*/
     connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
-    connect( socket, SIGNAL(userCursor(QPair<int,int>,QColor)), this, SLOT(on_cursor_triggered(QPair<int,int>,QColor)));
+    //connect( socket, SIGNAL(userCursor(QPair<int,int>,QColor)), this, SLOT(on_cursor_triggered(QPair<int,int>,QColor)));
 }
 
 void MainWindow::changeViewAfterDelete(int pos)
@@ -955,7 +956,7 @@ void MainWindow::on_textEdit_cursorPositionChanged() {
     QTextCursor cursor(ui->textEdit->textCursor());
     int pos = cursor.position();
     // emit segnale per notificare altri utenti del cambiamento
-    if(!cursor.hasSelection() && pos <= ui->textEdit->toPlainText().size())
+    if(!cursor.hasSelection() && pos <= ui->textEdit->toPlainText().size() && ui->textEdit->toPlainText().size() <= letterCounter)
         emit sendCursorChange(pos);
 
     int start = cursor.selectionStart();
@@ -1727,7 +1728,7 @@ void MainWindow::on_textEdit_selectionChanged()
     int start = cursor.selectionStart();
     int end = cursor.selectionEnd();
     if(start == end) {
-        emit sendCursorChange(start);
+       // emit sendCursorChange(start);
         return;
     }
     qDebug() << "testo selezionato: " << cursor.selectedText();
