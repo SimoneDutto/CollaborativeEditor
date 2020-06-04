@@ -8,7 +8,7 @@ int main(int argc, char *argv[])
     QScopedPointer<QCoreApplication> app(new QCoreApplication(argc, argv));
     QScopedPointer<MyServer> server(new MyServer());
 
-    if (!server->listen(QHostAddress::LocalHost, 4001))
+    if (!server->listen(QHostAddress::Any, 4001))
         return 1;
 
     //qDebug() << "App path : " << app->applicationDirPath();

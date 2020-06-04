@@ -118,7 +118,9 @@ bool Letter::comesFirst(Letter other) {
 }
 
 void Letter::setNewFractionals(QVector<int> newFractionals) {
-    this->fractionalIndexes = newFractionals;
+    this->fractionalIndexes.clear();
+    for(int pos : newFractionals)
+        this->fractionalIndexes.append(pos);
 }
 
 QJsonObject Letter::toJSon(){

@@ -92,7 +92,8 @@ void FileHandler::removeActiveUser(QTcpSocket *user, QString username, int userI
  * - inserimento equivalente da parte di utenti diversi.
  * */
 void FileHandler::remoteInsert(QJsonArray position, QChar newLetterValue, int externalIndex,
-                               int siteID, int siteCounter, QByteArray message, QTcpSocket *client, QTextCharFormat format, Qt::AlignmentFlag alignment) {
+                               int siteID, int siteCounter, QByteArray message, QTcpSocket *client, QTextCharFormat format, Qt::AlignmentFlag alignment,
+                               bool modifiedLetter, QString modifiedID, QJsonArray newposition) {
     // Get index and fractionals vector
     QVector<int> fractionals;
 
@@ -104,7 +105,7 @@ void FileHandler::remoteInsert(QJsonArray position, QChar newLetterValue, int ex
         if(this->usersSiteCounters.contains(client)) {
             QMap<QTcpSocket*, int>::iterator i = this->usersSiteCounters.find(client);
             i.value() = siteCounter;
-            qDebug() << "Site counter updated after insert = " << siteCounter;
+            // qDebug() << "Site counter updated after insert = " << siteCounter;
         }
 
         for(auto fractional : position) {
@@ -114,36 +115,64 @@ void FileHandler::remoteInsert(QJsonArray position, QChar newLetterValue, int ex
         QString letterID = QString::number(siteID).append("-").append(QString::number(siteCounter));
         Letter *newLetter = new Letter(newLetterValue, fractionals, letterID, format, alignment);
 
-        if(externalIndex <= this->letters.size()) {
-            qDebug() << "check...";
-            qDebug() << this->letters[externalIndex-1]->getLetterValue();
-            if(newLetter->hasSameFractionals(*(this->letters[externalIndex-1]))) {
-                qDebug() << "SAME FRACTIONALS";
-                if(newLetterValue == this->letters[externalIndex-1]->getLetterValue())
-                    // stessa lettera inserita nella stessa posizione da utenti diversi => ignora insert
-                    return;
-                //else if (siteID > this->letters[externalIndex-1]->getSiteID()) {  // lettera diversa inserita nella stessa posizione => inserimento in ordine di siteID
-                else {  // Lettera diversa inserita nella stessa posizione: viene inserita alla destra della lettera gia inserita
-                    // modifica externalIndex + posizione frazionale
-                    fractionals = this->modifyPositionIndexes(fractionals, externalIndex);
-                    newLetter->setNewFractionals(fractionals);
-                    this->letters.insert(this->letters.begin()+externalIndex, newLetter);
-
-                    // propaga informazione con indice modificato
-                    emit remoteInsertNotify(this->users, message, true, externalIndex+1, fractionals, client);
-
-                    // informa client di cambio indici
-                    emit changedIndexes(client, newLetter->getLetterID(), fractionals, externalIndex);
-
-                    return;
+        if(modifiedLetter) {
+            QVector<int> newpos;
+            for(auto pos : newposition)
+                newpos.append(pos.toInt());
+            for(Letter* l : this->letters) {
+                if(l->getLetterID().compare(modifiedID)==0) {
+                    l->setNewFractionals(newpos);
+                    break;
                 }
             }
         }
 
-        this->letters.insert(this->letters.begin()+externalIndex-1, newLetter);
+        bool modifiedIndexes = false;
+        if(externalIndex <= this->letters.size()) {
+            qDebug() << "check for collision...";
+            if(newLetter->hasSameFractionals(*(this->letters[externalIndex-1]))) {
+                qDebug() << "SAME FRACTIONALS";
+                /*if(newLetterValue == this->letters[externalIndex-1]->getLetterValue())
+                    // stessa lettera inserita nella stessa posizione da utenti diversi => ignora insert
+                    return;*/
+                //else if (siteID > this->letters[externalIndex-1]->getSiteID()) {  // lettera diversa inserita nella stessa posizione => inserimento in ordine di siteID
+                // Lettera diversa inserita nella stessa posizione: viene inserita alla destra della lettera gia inserita
+                    // modifica externalIndex + posizione frazionale
+                    fractionals = this->modifyPositionIndexes(fractionals, externalIndex);
+                    qDebug() << fractionals;
+                    newLetter->setNewFractionals(fractionals);
+
+                    //this->letters.insert(this->letters.begin()+externalIndex, newLetter);
+
+                    // propaga informazione con indice modificato
+                    // emit remoteInsertNotify(this->users, message, true, externalIndex+1, fractionals, client);
+
+
+                    modifiedIndexes = true;
+            }
+        }
+
+        int index = 0;
+        bool inserted = false;
+        for(Letter* l : this->letters) {
+            if(l->comesFirst(*newLetter)) {
+                index++;
+            } else {
+                this->letters.insert(this->letters.begin()+index, newLetter);
+                inserted = true;
+                break;
+            }
+        }
+
+        if(!inserted)
+            this->letters.insert(this->letters.begin()+index, newLetter);
+        //this->letters.insert(this->letters.begin()+externalIndex-1, newLetter);
+
+        if(modifiedIndexes)     // informa client di cambio indici
+            emit changedIndexes(client, newLetter->getLetterID(), fractionals, index);
 
         // Notifica gli altri client inviando lo stesso messaggio
-        emit remoteInsertNotify(this->users, message, false, 0, fractionals, client);
+        emit remoteInsertNotify(this->users, message, modifiedIndexes, index, fractionals, client);
     }
 }
 

@@ -30,7 +30,7 @@ public:
     explicit FileHandler(const QVector<Letter*>&& lett, int fileid, QObject *parent = nullptr);
 
     void remoteInsert(QJsonArray position, QChar newLetterValue, int externalIndex, int siteID, int siteCounter,  QByteArray message, QTcpSocket *client,
-                      QTextCharFormat format, Qt::AlignmentFlag alignment);
+                      QTextCharFormat format, Qt::AlignmentFlag alignment, bool modifiedLetter, QString modifiedID, QJsonArray newposition);
     void remoteDelete(QString deletedLetterID,  QByteArray message, QTcpSocket* client, int siteCounter);
     void changeStyle(QString initialIndex, QString lastIndex, QString format, QString font, QTcpSocket* client, QByteArray message);
     void changeAlign(Qt::AlignmentFlag align, QString startID, QString lastID, QTcpSocket* client, QByteArray message);

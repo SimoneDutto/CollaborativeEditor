@@ -8,6 +8,7 @@
 #define DATA_SIZE 1024
 
 inline qint32 ArrayToInt(QByteArray source);
+const QString SERVER_IP = "192.168.43.90";
 
 Socket::Socket(QWidget *parent) :
     QDialog(parent),
@@ -31,7 +32,7 @@ Socket::Socket(const QString &host, quint16 port)
     connect(this, SIGNAL(bufferReady(QByteArray)), SLOT(notificationsHandler(QByteArray)));
     //connect(this, SIGNAL(noConnection()), this, SLOT(notConnected()));
 
-    socket->connectToHost(host, port);
+    socket->connectToHost(SERVER_IP, port);
 
     if(socket->waitForConnected(3000))
     {
@@ -330,8 +331,8 @@ void Socket::notificationsHandler(QByteArray data){
             json_buffer.clear();
 
             /*Creo il FileHandler*/
-            connect( this->fileh, SIGNAL(localInsertNotify(QChar, QJsonArray, int, int, int, QTextCharFormat, Qt::AlignmentFlag)),
-                     this, SLOT(sendInsert(QChar, QJsonArray, int, int, int, QTextCharFormat, Qt::AlignmentFlag)));
+            connect( this->fileh, SIGNAL(localInsertNotify(Letter*,int,int,int,bool,Letter*)),
+                     this, SLOT(sendInsert(Letter*,int,int,int,bool,Letter*)));
             connect( this->fileh, SIGNAL(localDeleteNotify(QString, int, int)), this, SLOT(sendDelete(QString, int, int)) );
             connect( this->fileh, SIGNAL(localStyleChangeNotify(QString, QString, int, QString, QString)),
                      this, SLOT(sendChangeStyle(QString, QString, int, QString, QString)));
@@ -389,9 +390,16 @@ void Socket::notificationsHandler(QByteArray data){
         int align = object.value("align").toInt();
         Qt::AlignmentFlag alignFlag = static_cast<Qt::AlignmentFlag>(align);
 
+        bool modifiedLetter = object.value("modifiedStart").toBool();
+        QString modifiedID;
+        QJsonArray newPosition;
+        if(modifiedLetter) {
+            modifiedID = object.value("modifiedLetterID").toString();
+            newPosition = object.value("newposition").toArray();
+        }
 
         /*Inserire nel modello questa lettera e aggiornare la UI*/
-        emit readyInsert(position, newLetterValue, externalIndex, siteID, siteCounter, format, alignFlag);
+        emit readyInsert(position, newLetterValue, externalIndex, siteID, siteCounter, format, alignFlag, modifiedLetter, modifiedID, newPosition);
     }
     else if(type.compare("COLLISION")==0) {
         QString letterID = object.value("letterID").toString();
@@ -421,8 +429,8 @@ void Socket::notificationsHandler(QByteArray data){
             this->fileh->getVectorFile().clear();
             emit writeURI(object.value("URI").toString());
             /*Creo il FileHandler*/
-            connect( this->fileh, SIGNAL(localInsertNotify(QChar, QJsonArray, int, int, int, QTextCharFormat, Qt::AlignmentFlag)),
-                     this, SLOT(sendInsert(QChar, QJsonArray, int, int, int, QTextCharFormat, Qt::AlignmentFlag)) );
+            connect( this->fileh, SIGNAL(localInsertNotify(Letter*,int,int,int,bool,Letter*)),
+                     this, SLOT(sendInsert(Letter*,int,int,int,bool,Letter*)) );
             connect( this->fileh, SIGNAL(localDeleteNotify(QString, int, int)), this, SLOT(sendDelete(QString, int, int)) );
             connect( this->fileh, SIGNAL(localStyleChangeNotify(QString, QString, int, QString, QString)),
                      this, SLOT(sendChangeStyle(QString, QString, int, QString, QString)));
@@ -545,20 +553,32 @@ void Socket::notificationsHandler(QByteArray data){
 }
 
 
-int Socket::sendInsert(QChar newLetterValue, QJsonArray position, int siteID, int siteCounter, int externalIndex, QTextCharFormat format, Qt::AlignmentFlag align)
+int Socket::sendInsert(Letter* newLetter, int siteID, int siteCounter, int externalIndex, bool modified, Letter* modifiedLetter)
 {
     /*RICHIESTA*/
     QJsonObject obj;
+    QJsonArray positionJsonArray;
+    QVector<int> position = newLetter->getFractionalIndexes();
+    std::copy (position.begin(), position.end(), std::back_inserter(positionJsonArray));
+
     obj.insert("type", "INSERT");
     obj.insert("fileid", this->fileh->getFileId());
-    obj.insert("letter", QJsonValue(newLetterValue));
-    obj.insert("position", QJsonValue(position));
-    obj.insert("font", QJsonValue(format.font().toString()));
-    obj.insert("align", QJsonValue(align));
-    obj.insert("color", QJsonValue(format.foreground().color().name()));
+    obj.insert("letter", QJsonValue(newLetter->getValue()));
+    obj.insert("position", QJsonValue(positionJsonArray));
+    obj.insert("font", QJsonValue(newLetter->getFormat().font().toString()));
+    obj.insert("align", QJsonValue(newLetter->getAlignment()));
+    obj.insert("color", QJsonValue(newLetter->getFormat().foreground().color().name()));
     obj.insert("siteID", siteID);
     obj.insert("siteCounter", siteCounter);
     obj.insert("externalIndex", externalIndex);
+    obj.insert("modifiedStart", QJsonValue(modified));
+    if(modified) {
+        obj.insert("modifiedLetterID", modifiedLetter->getLetterID());
+        QVector<int> newPosition = modifiedLetter->getFractionalIndexes();
+        QJsonArray newArray;
+        std::copy(newPosition.begin(), newPosition.end(), std::back_inserter(newArray));
+        obj.insert("newposition", QJsonValue(newArray));
+    }
 
     return this->sendNotification(obj);
 }

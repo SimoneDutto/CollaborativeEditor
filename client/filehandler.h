@@ -44,14 +44,16 @@ public slots:
     void localCursorChange(int position);
     void localAlignChange(Qt::AlignmentFlag alignment, int cursorPosition, QString startID, QString lastID); // paragrafo preso dal cursore
 
-    void remoteInsert(QJsonArray position, QChar newLetterValue, int externalIndex, int siteID, int siteCounter, QTextCharFormat format, Qt::AlignmentFlag alignment);
+    void remoteInsert(QJsonArray position, QChar newLetterValue, int externalIndex, int siteID, int siteCounter, QTextCharFormat format, Qt::AlignmentFlag alignment,
+                      bool modifiedLetter, QString modifiedID, QJsonArray newposition);
     void remoteDelete(QString deletedLetterID);
     void remoteStyleChange(QString firstLetterID, QString lastLetterID, QString changedStyle, QString font);
     void remoteAlignChange(Qt::AlignmentFlag alignment, int cursorPosition, QString startID, QString lastID);
     void remoteColorChange(QString startID, QString lastID, QColor color);
 
 signals:
-    void localInsertNotify(QChar newLetterValue, QJsonArray position, int siteID, int siteCounter, int externalIndex, QTextCharFormat format, Qt::AlignmentFlag align);
+    void localInsertNotify(Letter *newLetter, int siteID, int siteCounter, int externalIndex, bool modified, Letter *modifiedLetter);
+    //void localInsertNotify(QChar newLetterValue, QJsonArray position, int siteID, int siteCounter, int externalIndex, QTextCharFormat format, Qt::AlignmentFlag align);
     void localDeleteNotify(QString deletedLetterID, int fileid, int siteCounter);
     void localStyleChangeNotify(QString firstLetterID, QString lastLetterID, int fileID, QString changedStyle, QString font);
     void localCursorChangeNotify(int position);

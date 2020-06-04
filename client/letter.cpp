@@ -124,11 +124,20 @@ bool Letter::comesFirst(Letter other) {
 
     if(this->getIndex() < other.getIndex())
         comesFirst = true;
+    else if(this->getIndex() > other.getIndex())
+        comesFirst = false;
     else {
         if(this->getNumberOfFractionals() < other.getNumberOfFractionals())
             comesFirst = true;
         else if(this->getNumberOfFractionals() == other.getNumberOfFractionals()) {
             for(int i=0; i<this->getNumberOfFractionals(); i++) {
+                if(this->fractionalIndexes[i] < other.getFractionalIndexes()[i]) {
+                    comesFirst = true;
+                    break;
+                }
+            }
+        } else {
+            for(int i=0; i<other.getNumberOfFractionals(); i++) {
                 if(this->fractionalIndexes[i] < other.getFractionalIndexes()[i]) {
                     comesFirst = true;
                     break;
@@ -140,7 +149,9 @@ bool Letter::comesFirst(Letter other) {
 }
 
 void Letter::setNewPosition(QVector<int> position) {
-    this->fractionalIndexes = position;
+    this->fractionalIndexes.clear();
+    for(int pos : position)
+        this->fractionalIndexes.append(pos);
 }
 void Letter::setFormat(QTextCharFormat format){
     this->format=format;
