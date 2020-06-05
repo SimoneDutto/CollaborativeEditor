@@ -41,6 +41,8 @@ void FileSystem::createFile(QString filename, QTcpSocket *socket){
         qDebug() << "disconnessione di un client da un file";
         FileHandler *fh = files.at(file->second);
         fh->removeActiveUser(socket, sock_username.at(socket), sock_id.at(socket));
+        if(!fh->thereAreUsers()) files.erase(file->second);
+        sock_file.erase(file->first);
     }
     QSqlQuery query;
 
@@ -212,6 +214,8 @@ void FileSystem::sendFile(int fileid, QTcpSocket *socket){
         // disconnessione di un client da un file
         FileHandler *fh = files.at(file->second);
         fh->removeActiveUser(socket, sock_username.at(socket), sock_id.at(socket));
+        if(!fh->thereAreUsers()) files.erase(file->second);
+        sock_file.erase(file->first);
     }
     QSqlQuery query;
     int siteCounter=0;
@@ -698,6 +702,7 @@ void FileSystem::disconnectClient(QTcpSocket* socket){
     this->updateFileSiteCounter(fileID, userID, fh->getSiteCounter(socket));
 
     fh->removeActiveUser(socket, username, it->second);
+    if(!fh->thereAreUsers()) files.erase(fileID);
     sock_file.erase(socket);
 }
 

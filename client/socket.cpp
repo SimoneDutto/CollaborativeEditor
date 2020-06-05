@@ -10,6 +10,8 @@
 inline qint32 ArrayToInt(QByteArray source);
 const QString SERVER_IP = "192.168.1.13";
 
+const QString SERVER_IP = "192.168.1.81";
+
 Socket::Socket(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::Socket)
