@@ -168,6 +168,10 @@ void FileHandler::remoteInsert(QJsonArray position, QChar newLetterValue, int ex
             this->letters.insert(this->letters.begin()+index, newLetter);
         //this->letters.insert(this->letters.begin()+externalIndex-1, newLetter);
 
+
+        for(Letter *l : this->letters)
+            qDebug() << l->getLetterValue();
+
         if(modifiedIndexes)     // informa client di cambio indici
             emit changedIndexes(client, newLetter->getLetterID(), fractionals, index);
 
