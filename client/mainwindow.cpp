@@ -1796,8 +1796,8 @@ void MainWindow::changeViewAfterSelection(int start, int end, QColor colore)
     }
     cursor.setPosition(end);
     for(int i = start; i<=end; i++){
-        cursor.mergeCharFormat(fmt);
         cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
+        cursor.mergeCharFormat(fmt);
          qDebug() << "testo left: " << cursor.selectedText();
     }
     connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
@@ -1820,12 +1820,17 @@ void MainWindow::insertPastedText(QString html, QString text){
     }
     qDebug() << html;
     ui->textEdit->insertHtml(html);
+    QTextCharFormat fmt;
 
     if (receivers(SIGNAL(myInsert(int,QChar,int,QTextCharFormat,Qt::AlignmentFlag))) > 0) {
         for(int i = 0; i < text.size(); i++){
             letterCounter++;
             externalIndex++;
             cursor.setPosition(externalIndex);
+            fmt = cursor.charFormat();
+            fmt.setBackground(Qt::white);
+            cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
+            cursor.mergeCharFormat(fmt);
             QTextBlockFormat block = cursor.blockFormat();
             qDebug() << "CHAR FORMAT" << block.alignment();
             myInsert(externalIndex, text.at(i), socket->getClientID(), cursor.charFormat(), this->getFlag(block.alignment()));
