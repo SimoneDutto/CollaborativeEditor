@@ -458,10 +458,24 @@ void FileSystem::checkLogin(QString username, QString password, QTcpSocket *sock
                QJsonObject item_data;
                QString name = query.value("filename").toString();
                int fileid = query.value("fileid").toInt();
+               QSqlQuery q;
+               q.prepare("SELECT COUNT(*) FROM files WHERE fileid=(:fileid)");
+               q.bindValue(":fileid", fileid);
+               int count=1;
+               if (q.exec())
+               {
+                   if (q.next())
+                   {
+                         count = q.value(0).toInt();
+                   }
+               }
+               else{
+                   qDebug() << "non funzionerò mai";
+               }
                qDebug() << name;
                item_data.insert("filename", QJsonValue(name));
                item_data.insert("fileid", QJsonValue(fileid));
-
+               item_data.insert("count", count);
                file_array.push_back(QJsonValue(item_data));
             }
             final_object.insert(QString("files"), QJsonValue(file_array));

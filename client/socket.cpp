@@ -8,7 +8,7 @@
 #define DATA_SIZE 1024
 
 inline qint32 ArrayToInt(QByteArray source);
-const QString SERVER_IP = "192.168.1.172";
+const QString SERVER_IP = "192.168.2.116";
 
 Socket::Socket(QWidget *parent) :
     QDialog(parent),
@@ -177,7 +177,10 @@ void Socket::checkLoginAndGetListFileName(QJsonObject object)
     {
         QString filename = v.toObject().value("filename").toString();
         int fileid = v.toObject().value("fileid").toInt();
-
+        int count = v.toObject().value("count").toInt();
+        if(count > 1){
+            filename.append("~shared");
+        }
         this->mapFiles.insert(filename, fileid);
     }
     emit loginSuccess();
