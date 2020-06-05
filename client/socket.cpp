@@ -8,7 +8,7 @@
 #define DATA_SIZE 1024
 
 inline qint32 ArrayToInt(QByteArray source);
-const QString SERVER_IP = "192.168.1.54";
+const QString SERVER_IP = "192.168.1.172";
 
 Socket::Socket(QWidget *parent) :
     QDialog(parent),
@@ -427,6 +427,7 @@ void Socket::notificationsHandler(QByteArray data){
             this->fileh->setFileId(id);
             this->fileh->setSize(0);
             this->fileh->getVectorFile().clear();
+            this->mapFiles.insert(filename, id);
             emit writeURI(object.value("URI").toString());
             /*Creo il FileHandler*/
             connect( this->fileh, SIGNAL(localInsertNotify(Letter*,int,int,int,bool,Letter*)),
