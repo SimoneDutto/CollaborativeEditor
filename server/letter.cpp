@@ -112,6 +112,13 @@ bool Letter::comesFirst(Letter other) {
                     break;
                 }
             }
+        } else {
+            for(int i=0; i<other.getNumberOfFractionals(); i++) {
+                if(this->fractionalIndexes[i] < other.getFractionalIndexes()[i]) {
+                    comesFirst = true;
+                    break;
+                }
+            }
         }
     }
     return comesFirst;
