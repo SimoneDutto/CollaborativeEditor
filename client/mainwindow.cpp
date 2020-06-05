@@ -930,7 +930,7 @@ void MainWindow::addUserConnection(QString username, QColor color){
     }
 
     else {  //Incrementare il contatore
-        ui->counter->setText("+" + QString::number(numberUsersOnline));
+        ui->counter->setText("+" + QString::number(numberUsersOnline-3));
         ui->counter->show();
     }
 
