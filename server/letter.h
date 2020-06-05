@@ -41,6 +41,7 @@ public:
     QBrush getColor();
     void addFractionalDigit(int value);
     bool hasSameFractionals(Letter other);
+    void setNewFractionals(QVector<int> newFractionals);
     bool comesFirst(Letter other);
     QJsonObject toJSon();
 

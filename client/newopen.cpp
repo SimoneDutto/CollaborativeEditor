@@ -58,8 +58,13 @@ NewOpen::NewOpen(Socket *sock, FileHandler *fHandler, QWidget *parent) :
     ui->pushButton_2->setStyleSheet("color: white; background-color: #706d82;  border-radius:5px");
     ui->pushButton_3->setStyleSheet("color: white; background-color: #706d82;  border-radius:5px");
 
+    styleSheet = "QLabel { background-color: rgb(255, 252, 247); color: black; border-style: solid; border-width: 2px; border-radius: 6px; border-color: orange; font: ; }";
+    ui->myicon->setStyleSheet(styleSheet);
+    QFont font("Arial", 30);
+    ui->myicon->setFont(font);
     QString username = socket->getClientUsername();
     ui->username->setText(username);
+    ui->myicon->setText(username.at(0).toUpper());
 
     for (QString s : this->socket->getMapFiles().keys()){
         ui->listWidget->addItem(s);
@@ -198,12 +203,6 @@ void NewOpen::changeClientImage(QString imageName){
 
 }
 
-void NewOpen::on_discardImage_clicked()
-{
-    account = new Account(this->socket, this, this->windowTitle());
-    account->show();
-}
-
 void NewOpen::on_actionLog_Out_triggered()
 {
     emit logOut();
@@ -211,3 +210,9 @@ void NewOpen::on_actionLog_Out_triggered()
     QProcess::startDetached(qApp->arguments()[0], qApp->arguments());
 }
 
+
+void NewOpen::on_discardImage_clicked()
+{
+    account = new Account(this->socket, this, this->windowTitle());
+    account->show();
+}

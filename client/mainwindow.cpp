@@ -89,6 +89,14 @@ MainWindow::MainWindow(Socket *sock, QWidget *parent, QString nome) :
     ui->user3->hide();
     ui->counter->hide();
 
+    /* Etichette degli utenti online */
+    ui->l_user1->hide();
+    ui->l_user1->setStyleSheet("color:white");
+    ui->l_user2->hide();
+    ui->l_user2->setStyleSheet("color:white");
+    ui->l_user3->hide();
+    ui->l_user3->setStyleSheet("color:white");
+
     /* Aggiungo nome e icona dell'utente */
 
     QString username = socket->getClientUsername();
@@ -162,8 +170,8 @@ MainWindow::MainWindow(Socket *sock, QWidget *parent, QString nome) :
 
     /* CONNECT per segnali entranti, applicare sulla GUI le modifiche che arrivano sul socket */
 
-    connect( socket, SIGNAL(readyInsert(QJsonArray, QChar, int, int, int, QTextCharFormat, Qt::AlignmentFlag)),
-              fHandler,  SLOT(remoteInsert(QJsonArray, QChar, int, int, int, QTextCharFormat, Qt::AlignmentFlag)));
+    connect( socket, SIGNAL(readyInsert(QJsonArray, QChar, int, int, int, QTextCharFormat, Qt::AlignmentFlag, bool, QString, QJsonArray)),
+              fHandler,  SLOT(remoteInsert(QJsonArray, QChar, int, int, int, QTextCharFormat, Qt::AlignmentFlag, bool, QString, QJsonArray)));
     connect( socket, SIGNAL(readyDelete(QString)),
               fHandler, SLOT(remoteDelete(QString)));
     connect( socket, SIGNAL(readyFile(QMap<int,int>,QMap<int,QColor>)),  this, SLOT(fileIsHere(QMap<int,int>,QMap<int,QColor>)));
@@ -663,7 +671,18 @@ void MainWindow::on_textEdit_textChanged()
             QChar newLetterValue = ui->textEdit->toPlainText().at(externalIndex-1);
             letterCounter++;
             emit myInsert(externalIndex, newLetterValue, socket->getClientID(), cursor.charFormat(), this->getFlag(ui->textEdit->alignment()));
+
             emit sendCursorChange(externalIndex);
+            disconnect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
+            QTextCharFormat fmt2;
+            fmt2.setBackground(Qt::white);
+
+            cursor.setPosition(externalIndex);
+            cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
+            //qDebug() << "testo from Start: " << cursor.selectedText();
+            cursor.mergeCharFormat(fmt2);
+            connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
+
         }
     }
     else if (numberOfLetters <= letterCounter){
@@ -675,7 +694,6 @@ void MainWindow::on_textEdit_textChanged()
             letterCounter -= deletedLetters;
             emit myDelete(externalIndex+1, externalIndex+deletedLetters);
         }
-
         if(ui->textEdit->toPlainText().size()==0){
             ui->textEdit->setCurrentCharFormat(this->firstLetter);
 
@@ -785,18 +803,34 @@ void MainWindow::destroyMainC(QString filename){
 void MainWindow::changeViewAfterInsert(QChar l, int pos, QTextCharFormat format, Qt::AlignmentFlag alignment)
 {
     disconnect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
-
+    /*disconnect( socket, SIGNAL(userCursor(QPair<int,int>,QColor)),this, SLOT(on_cursor_triggered(QPair<int,int>,QColor)));
+    disconnect( socket, SIGNAL(userCursor(QPair<int,int>,QColor)),
+             this, SLOT(on_cursor_triggered(QPair<int,int>,QColor)));
+    disconnect( this, SIGNAL(sendCursorChange(int)),
+             fHandler, SLOT(localCursorChange(int)));
+    disconnect( this, SIGNAL(sendCursorSelection(int,int)),
+             socket, SLOT(sendCursorSelectionToServer(int,int)));*/
     QTextCursor cursor(ui->textEdit->textCursor());
+
+    //int prevPos = cursor.position();
+    int oldPos = cursor.position();
+
     cursor.setPosition(pos);
     //ui->textEdit->setAlignment(alignment);
     cursor.insertText(l, format);
     QTextBlockFormat blockFormat = cursor.blockFormat();
     blockFormat.setAlignment(alignment);
     cursor.mergeBlockFormat(blockFormat);
+    if(oldPos <= pos){
+        cursor.setPosition(oldPos);
+    }else{
+       cursor.setPosition(oldPos+1);
+    }
     ui->textEdit->setTextCursor(cursor);
     qDebug() <<"here";
     qDebug() << cursor.block().text();
     qDebug() << ui->textEdit->alignment();
+    //cursor.setPosition(prevPos);
     letterCounter++;
 
     //CONTROLLO SE ARRIVA IL FORMATO GIUSTO
@@ -805,7 +839,16 @@ void MainWindow::changeViewAfterInsert(QChar l, int pos, QTextCharFormat format,
     qDebug() << "Sottolineato" << format.fontUnderline();
     qDebug() << "Corsivo" << format.fontItalic();*/
 
+
+
+    /*connect( socket, SIGNAL(userCursor(QPair<int,int>,QColor)),
+             this, SLOT(on_cursor_triggered(QPair<int,int>,QColor)));
+    connect( this, SIGNAL(sendCursorChange(int)),
+             fHandler, SLOT(localCursorChange(int)));
+    connect( this, SIGNAL(sendCursorSelection(int,int)),
+             socket, SLOT(sendCursorSelectionToServer(int,int)));*/
     connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
+    //connect( socket, SIGNAL(userCursor(QPair<int,int>,QColor)), this, SLOT(on_cursor_triggered(QPair<int,int>,QColor)));
 }
 
 void MainWindow::changeViewAfterDelete(int pos)
@@ -866,18 +909,24 @@ void MainWindow::addUserConnection(QString username, QColor color){
         ui->user1->setStyleSheet(styleSheet.arg(color.name()));
         ui->user1->setText(username.at(0).toUpper());
         ui->user1->show();
+        ui->l_user1->setText(username);
+        ui->l_user1->show();
     }
 
     else if(numberUsersOnline == 2){  //Personalizzo ed accendo la label user2
         ui->user2->setStyleSheet(styleSheet.arg(color.name()));
         ui->user2->setText(username.at(0).toUpper());
         ui->user2->show();
+        ui->l_user2->setText(username);
+        ui->l_user2->show();
     }
 
     else if(numberUsersOnline == 3){  //Personalizzo ed accendo la label user3
-        ui->user2->setStyleSheet(styleSheet.arg(color.name()));
-        ui->user2->setText(username.at(0).toUpper());
-        ui->user2->show();
+        ui->user3->setStyleSheet(styleSheet.arg(color.name()));
+        ui->user3->setText(username.at(0).toUpper());
+        ui->user3->show();
+        ui->l_user3->setText(username);
+        ui->l_user3->show();
     }
 
     else {  //Incrementare il contatore
@@ -889,21 +938,40 @@ void MainWindow::addUserConnection(QString username, QColor color){
 
 }
 
-void MainWindow::removeUserDisconnect(QString, int userID){
-
+void MainWindow::removeUserDisconnect(QString name, int userID){
 
     int numberUsersOnline = socket->getUserColor().size();
 
     if(numberUsersOnline == 0){  //Spengo la label user1
         ui->user1->hide();
+        ui->l_user1->hide();
     }
 
     else if(numberUsersOnline == 1){  //Spengo la label user2
+        if(ui->l_user1->text() == name){
+            ui->user1->setText(ui->user2->text());
+            ui->l_user1->setText(ui->l_user2->text());
+        }
+
         ui->user2->hide();
+        ui->l_user2->hide();
     }
 
     else if(numberUsersOnline == 2){  //Spengo la label user3
+        if(ui->l_user2->text() == name){
+            ui->user2->setText(ui->user3->text());
+            ui->l_user2->setText(ui->l_user3->text());
+        }
+
+        else if(ui->l_user1->text() == name){
+            ui->user1->setText(ui->user2->text());
+            ui->user2->setText(ui->user3->text());
+            ui->l_user1->setText(ui->l_user2->text());
+            ui->l_user2->setText(ui->l_user3->text());
+        }
+
         ui->user3->hide();
+        ui->l_user3->hide();
     }
 
     else {
@@ -925,7 +993,7 @@ void MainWindow::on_textEdit_cursorPositionChanged() {
     QTextCursor cursor(ui->textEdit->textCursor());
     int pos = cursor.position();
     // emit segnale per notificare altri utenti del cambiamento
-    if(!cursor.hasSelection() && pos <= ui->textEdit->toPlainText().size())
+    if(!cursor.hasSelection() && pos <= ui->textEdit->toPlainText().size() && ui->textEdit->toPlainText().size() <= letterCounter)
         emit sendCursorChange(pos);
 
     int start = cursor.selectionStart();
@@ -1429,27 +1497,62 @@ void MainWindow::on_cursor_triggered(QPair<int,int> idpos, QColor col)
             id_colore_cursore.append(qMakePair(qMakePair(idpos.first,col), idpos.second));
 
         std::sort(id_colore_cursore.begin(), id_colore_cursore.end(), sorting);
-
+        auto vettore = this->fHandler->getVectorFile();
         QColor colore = id_colore_cursore.value(0).first.second;
         int pos = id_colore_cursore.value(0).second;
 
-        if (id_colore_cursore.isEmpty()) pos = 0;
+        if (idpos.second < 0) {
+            pos = 0;
+            colore = Qt::white;
+        }
         qDebug() << pos << id_colore_cursore.size() << id_colore_cursore.value(0);
 
         fmt.setBackground(colore);
 
-        cursor.setPosition(pos);
-        cursor.movePosition(QTextCursor::Start, QTextCursor::KeepAnchor);
-        //qDebug() << "testo from Start: " << cursor.selectedText();
-        cursor.mergeCharFormat(fmt2);
-        cursor.setPosition(pos);
-        cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
-        //qDebug() << "testo to End: " << cursor.selectedText();
-        cursor.mergeCharFormat(fmt2);
-        cursor.setPosition(pos);
-        cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
-        //qDebug() << "testo left: " << cursor.selectedText();
-        cursor.mergeCharFormat(fmt);
+        if((pos == 0 && pos <= ui->textEdit->toPlainText().size()))
+        {
+            cursor.setPosition(pos);
+            cursor.movePosition(QTextCursor::Start, QTextCursor::KeepAnchor);
+            //qDebug() << "testo from Start: " << cursor.selectedText();
+            cursor.mergeCharFormat(fmt2);
+            cursor.setPosition(pos);
+            cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+            //qDebug() << "testo to End: " << cursor.selectedText();
+            cursor.mergeCharFormat(fmt2);
+            cursor.setPosition(pos);
+            cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor);
+            //qDebug() << "testo left: " << cursor.selectedText();
+            cursor.mergeCharFormat(fmt);
+        }
+        else if(pos <= ui->textEdit->toPlainText().size() && (vettore.at(pos-1)->getValue() == "\n")){
+            cursor.setPosition(pos);
+            cursor.movePosition(QTextCursor::Start, QTextCursor::KeepAnchor);
+            //qDebug() << "testo from Start: " << cursor.selectedText();
+            cursor.mergeCharFormat(fmt2);
+            cursor.setPosition(pos);
+            cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+            //qDebug() << "testo to End: " << cursor.selectedText();
+            cursor.mergeCharFormat(fmt2);
+            cursor.setPosition(pos);
+            cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor);
+            //qDebug() << "testo left: " << cursor.selectedText();
+            cursor.mergeCharFormat(fmt);
+        }
+        else{
+            cursor.setPosition(pos);
+                    cursor.movePosition(QTextCursor::Start, QTextCursor::KeepAnchor);
+                    //qDebug() << "testo from Start: " << cursor.selectedText();
+                    cursor.mergeCharFormat(fmt2);
+                    cursor.setPosition(pos);
+                    cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+                    //qDebug() << "testo to End: " << cursor.selectedText();
+                    cursor.mergeCharFormat(fmt2);
+                    cursor.setPosition(pos);
+                    cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
+                    //qDebug() << "testo left: " << cursor.selectedText();
+                    cursor.mergeCharFormat(fmt);
+        }
+
 
         for(int i = 1; i < id_colore_cursore.size(); i++){
             QColor colore = id_colore_cursore.value(i).first.second;
@@ -1457,12 +1560,26 @@ void MainWindow::on_cursor_triggered(QPair<int,int> idpos, QColor col)
 
             fmt.setBackground(colore);
 
-            cursor.setPosition(pos);
-            cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
-            cursor.mergeCharFormat(fmt2);
-            cursor.setPosition(pos);
-            cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
-            cursor.mergeCharFormat(fmt);
+            if((pos == 0 || (vettore.at(pos-1)->getValue() == "\n")) && pos <= ui->textEdit->toPlainText().size())
+            {
+                cursor.setPosition(pos);
+                cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+                //qDebug() << "testo to End: " << cursor.selectedText();
+                cursor.mergeCharFormat(fmt2);
+                cursor.setPosition(pos);
+                cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor);
+                //qDebug() << "testo left: " << cursor.selectedText();
+                cursor.mergeCharFormat(fmt);
+            }
+            else{
+                cursor.setPosition(pos);
+                cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+                cursor.mergeCharFormat(fmt2);
+                cursor.setPosition(pos);
+                cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
+                cursor.mergeCharFormat(fmt);
+            }
+
         //}
     }
     connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
@@ -1584,6 +1701,9 @@ void MainWindow::on_actionLight_triggered()
     pal.setColor(QPalette::WindowText, Qt::black);
     pal.setColor(QPalette::ButtonText, Qt::black);
     ui->username->setStyleSheet("color:black");
+    ui->l_user1->setStyleSheet("color:black");
+    ui->l_user2->setStyleSheet("color:black");
+    ui->l_user3->setStyleSheet("color:black");
     this->setAutoFillBackground(true);
     this->setPalette(pal);
     this->show();
@@ -1614,6 +1734,9 @@ void MainWindow::on_actionDark_triggered()
     pal.setColor(QPalette::WindowText, Qt::white);
     pal.setColor(QPalette::ButtonText, Qt::white);
     ui->username->setStyleSheet("color:white");
+    ui->l_user1->setStyleSheet("color:white");
+    ui->l_user2->setStyleSheet("color:white");
+    ui->l_user3->setStyleSheet("color:white");
     this->setAutoFillBackground(true);
     this->setPalette(pal);
     this->show();
@@ -1648,7 +1771,7 @@ void MainWindow::on_textEdit_selectionChanged()
     int start = cursor.selectionStart();
     int end = cursor.selectionEnd();
     if(start == end) {
-        emit sendCursorChange(start);
+       // emit sendCursorChange(start);
         return;
     }
     qDebug() << "testo selezionato: " << cursor.selectedText();
@@ -1673,8 +1796,8 @@ void MainWindow::changeViewAfterSelection(int start, int end, QColor colore)
     }
     cursor.setPosition(end);
     for(int i = start; i<=end; i++){
-        cursor.mergeCharFormat(fmt);
         cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
+        cursor.mergeCharFormat(fmt);
          qDebug() << "testo left: " << cursor.selectedText();
     }
     connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
@@ -1697,12 +1820,17 @@ void MainWindow::insertPastedText(QString html, QString text){
     }
     qDebug() << html;
     ui->textEdit->insertHtml(html);
+    QTextCharFormat fmt;
 
     if (receivers(SIGNAL(myInsert(int,QChar,int,QTextCharFormat,Qt::AlignmentFlag))) > 0) {
         for(int i = 0; i < text.size(); i++){
             letterCounter++;
             externalIndex++;
             cursor.setPosition(externalIndex);
+            fmt = cursor.charFormat();
+            fmt.setBackground(Qt::white);
+            cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
+            cursor.mergeCharFormat(fmt);
             QTextBlockFormat block = cursor.blockFormat();
             qDebug() << "CHAR FORMAT" << block.alignment();
             myInsert(externalIndex, text.at(i), socket->getClientID(), cursor.charFormat(), this->getFlag(block.alignment()));
@@ -1712,5 +1840,4 @@ void MainWindow::insertPastedText(QString html, QString text){
 
     connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
 }
-
 

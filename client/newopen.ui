@@ -258,28 +258,6 @@
     <bool>true</bool>
    </property>
   </widget>
-  <widget class="QPushButton" name="discardImage">
-   <property name="enabled">
-    <bool>true</bool>
-   </property>
-   <property name="geometry">
-    <rect>
-     <x>600</x>
-     <y>160</y>
-     <width>30</width>
-     <height>30</height>
-    </rect>
-   </property>
-   <property name="mouseTracking">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string/>
-   </property>
-   <property name="flat">
-    <bool>true</bool>
-   </property>
-  </widget>
   <widget class="ClickableLabel" name="label">
    <property name="geometry">
     <rect>
@@ -320,6 +298,28 @@
     <string>Logout</string>
    </property>
   </widget>
+  <widget class="QPushButton" name="discardImage">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="geometry">
+    <rect>
+     <x>600</x>
+     <y>160</y>
+     <width>30</width>
+     <height>30</height>
+    </rect>
+   </property>
+   <property name="mouseTracking">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+   <property name="flat">
+    <bool>true</bool>
+   </property>
+  </widget>
   <zorder>label_3</zorder>
   <zorder>listWidget</zorder>
   <zorder>pushButton</zorder>
@@ -333,9 +333,9 @@
   <zorder>username</zorder>
   <zorder>label_2</zorder>
   <zorder>myicon</zorder>
-  <zorder>discardImage</zorder>
   <zorder>label</zorder>
   <zorder>label_4</zorder>
+  <zorder>discardImage</zorder>
  </widget>
  <customwidgets>
   <customwidget>

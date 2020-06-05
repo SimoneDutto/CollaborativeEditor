@@ -102,6 +102,8 @@ bool Letter::comesFirst(Letter other) {
 
     if(this->getIndex() < other.getIndex())
         comesFirst = true;
+    else if(this->getIndex() > other.getIndex())
+        comesFirst = false;
     else {
         if(this->getNumberOfFractionals() < other.getNumberOfFractionals())
             comesFirst = true;
@@ -112,9 +114,23 @@ bool Letter::comesFirst(Letter other) {
                     break;
                 }
             }
+        } else {
+
+            for(int i=0; i<other.getNumberOfFractionals(); i++) {
+                if(this->fractionalIndexes[i] < other.getFractionalIndexes()[i]) {
+                    comesFirst = true;
+                    break;
+                }
+            }
         }
     }
     return comesFirst;
+}
+
+void Letter::setNewFractionals(QVector<int> newFractionals) {
+    this->fractionalIndexes.clear();
+    for(int pos : newFractionals)
+        this->fractionalIndexes.append(pos);
 }
 
 QJsonObject Letter::toJSon(){

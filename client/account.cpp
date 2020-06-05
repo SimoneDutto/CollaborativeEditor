@@ -40,15 +40,6 @@ Account::Account(Socket *sock, QWidget *parent, QString name) :
     QString styleSheet = "QPushButton {background-color: white; border-style: solid; border-width: 1px; border-radius: 15px; border-color: rgb(0, 0, 0);} QPushButton:hover {background-color: rgb(233, 233, 233)} QPushButton:pressed {background-color: rgb(181, 181, 181)}";
     ui->setImage->setStyleSheet(styleSheet);
 
-    /* Discard Button */
-    QIcon *discard_icon= new QIcon(":/rec/icone/discard_icon.png");
-    ui->discardImage->setIcon(*discard_icon);
-    ui->discardImage->setIconSize(QSize(18, 18));
-
-    styleSheet = "QPushButton {background-color: white; border-style: solid; border-width: 1px; border-radius: 15px; border-color: rgb(0, 0, 0);} QPushButton:hover {background-color: rgb(233, 233, 233)} QPushButton:pressed {background-color: rgb(181, 181, 181)}";
-    ui->discardImage->setStyleSheet(styleSheet);
-
-
     /* Imposto la User Image e nome utente*/
     ui->username->setText(socket->getClientUsername());
 
@@ -70,7 +61,6 @@ Account::Account(Socket *sock, QWidget *parent, QString name) :
     else {
         oldImage = "";
         ui->userImage->setText(socket->getClientUsername().at(0).toUpper()); //Si dovrebbe impostare la propria iniziale
-        ui->discardImage->hide();
     }
 
     /* Connect */
@@ -143,20 +133,8 @@ void Account::on_setImage_clicked()
         QPixmap userPixmap = QPixmap(iconName);
         QPixmap scaled = userPixmap.scaled(ui->userImage->width(), ui->userImage->height(), Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
         ui->userImage->setPixmap(scaled);
-
-        ui->discardImage->show();
         this->pathUserImage = iconName;
         this->imageChanged = true;
     }
     emit updateClientImageOnMainWindow(iconName);
-}
-
-void Account::on_discardImage_clicked(){
-    ui->userImage->clear();
-    ui->userImage->setText(socket->getClientUsername().at(0).toUpper());
-    ui->discardImage->hide();
-    this->pathUserImage="";
-    this->imageChanged = true;
-    qDebug() << "bro";
-    emit updateClientImageOnMainWindow("");
 }

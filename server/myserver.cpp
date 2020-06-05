@@ -60,8 +60,9 @@ void MyServer::readBuffer(){
 
     while (socket->bytesAvailable() > 0 || buffer->data.size() != 0 )
     {
-       qDebug() << "Leggo dal socket";
+       //qDebug() << "Leggo dal socket";
        buffer->data.append(socket->readAll());
+       qDebug() << buffer->data;
        while ((buffer->dim == 0 && buffer->data.size() >= 8) || (buffer->dim > 0 && buffer->data.size() >= buffer->dim)) //While can process data, process it
        {
            if (buffer->dim == 0 && buffer->data.size() >= 8) //if size of data has received completely, then store it on our global variable
@@ -151,7 +152,15 @@ void MyServer::handleNotifications(QTcpSocket *socket, QByteArray data)
             int align = rootObject.value("align").toInt();
             Qt::AlignmentFlag alignFlag = static_cast<Qt::AlignmentFlag>(align);
 
-            fHandler->remoteInsert(position, newLetterValue, externalIndex, siteID, siteCounter, data, socket, format, alignFlag);
+            bool modifiedLetter = rootObject.value("modifiedStart").toBool();
+            QString modifiedID;
+            QJsonArray newPosition;
+            if(modifiedLetter) {
+                modifiedID = rootObject.value("modifiedLetterID").toString();
+                newPosition = rootObject.value("newposition").toArray();
+            }
+
+            fHandler->remoteInsert(position, newLetterValue, externalIndex, siteID, siteCounter, data, socket, format, alignFlag, modifiedLetter, modifiedID, newPosition);
         }
     }
     else if(type.compare("DELETE")==0){

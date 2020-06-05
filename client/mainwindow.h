@@ -76,7 +76,6 @@ private slots:
     void on_textEdit_selectionChanged();
     void destroyMain(QString);
     void destroyMainC(QString filename);
-
     void changeTitle(QString name);
 
 
