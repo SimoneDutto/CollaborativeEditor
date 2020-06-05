@@ -8,7 +8,8 @@
 #define DATA_SIZE 1024
 
 inline qint32 ArrayToInt(QByteArray source);
-const QString SERVER_IP = "192.168.1.13";
+const QString SERVER_IP = "192.168.1.54";
+
 
 const QString SERVER_IP = "192.168.1.81";
 
@@ -34,7 +35,7 @@ Socket::Socket(const QString &host, quint16 port)
     connect(this, SIGNAL(bufferReady(QByteArray)), SLOT(notificationsHandler(QByteArray)));
     //connect(this, SIGNAL(noConnection()), this, SLOT(notConnected()));
 
-    socket->connectToHost(SERVER_IP, port);
+    socket->connectToHost(host, port);
 
     if(socket->waitForConnected(3000))
     {
