@@ -94,26 +94,7 @@
     <string>Upload picture</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="discardImage">
-   <property name="enabled">
-    <bool>true</bool>
-   </property>
-   <property name="geometry">
-    <rect>
-     <x>228</x>
-     <y>134</y>
-     <width>30</width>
-     <height>30</height>
-    </rect>
-   </property>
-   <property name="mouseTracking">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string/>
-   </property>
-  </widget>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>100</x>
