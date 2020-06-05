@@ -91,8 +91,11 @@ MainWindow::MainWindow(Socket *sock, QWidget *parent, QString nome) :
 
     /* Etichette degli utenti online */
     ui->l_user1->hide();
+    ui->l_user1->setStyleSheet("color:white");
     ui->l_user2->hide();
+    ui->l_user2->setStyleSheet("color:white");
     ui->l_user3->hide();
+    ui->l_user3->setStyleSheet("color:white");
 
     /* Aggiungo nome e icona dell'utente */
 
@@ -231,10 +234,6 @@ MainWindow::MainWindow(Socket *sock, QWidget *parent, QString nome) :
     connect( this, SIGNAL(openThisFile(QString)),
              this->socket, SLOT(sendOpenFile(QString)));
     connect(socket, SIGNAL(fileCreated(QString)), this, SLOT(changeTitle(QString)));
-
-    /* CONNECT del timer */
-    this->timer = new QTimer(this);
-    connect(this->timer, SIGNAL(timeout()), this, SLOT(timerHandler()));
 }
 
 MainWindow::~MainWindow()
@@ -903,9 +902,6 @@ void MainWindow::changeViewAfterStyle(QString firstID, QString lastID) {
 
 void MainWindow::addUserConnection(QString username, QColor color){
 
-    /* Accendo il timer */
-    this->timer->start(500);
-
     int numberUsersOnline = socket->getUserColor().size();
     QString styleSheet = "QLabel { background-color: rgb(255, 252, 247); color: black; border-style: solid; border-width: 3px; border-radius: 15px; border-color: %1; font: ; }";
 
@@ -949,7 +945,6 @@ void MainWindow::removeUserDisconnect(QString name, int userID){
     if(numberUsersOnline == 0){  //Spengo la label user1
         ui->user1->hide();
         ui->l_user1->hide();
-        this->timer->stop();
     }
 
     else if(numberUsersOnline == 1){  //Spengo la label user2
@@ -1833,40 +1828,5 @@ void MainWindow::insertPastedText(QString html, QString text){
     }
 
     connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
-}
-
-void MainWindow::timerHandler(){
-    int size = ui->textEdit->toPlainText().size();
-    auto cursor = ui->textEdit->textCursor();
-
-    for(auto cursore : this->id_colore_cursore){
-        int pos = cursore.second;
-        cursor.setPosition(pos);
-        auto format = cursor.charFormat();
-
-        if(format.background().color() == Qt::white){
-            format.setBackground(QBrush(cursore.first.second));
-        }
-
-        else {
-            format.setBackground(QBrush(Qt::white));
-        }
-
-        cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
-        cursor.mergeCharFormat(format);
-
-        /* Colore a destra rimane */
-        if(pos < size){
-            cursor.setPosition(pos+1);
-            auto no_format = cursor.charFormat();
-            if(format.background().color() == cursore.first.second){
-                format.setBackground(QBrush(Qt::white));
-                cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
-                cursor.mergeCharFormat(format);
-            }
-        }
-    }
-
-    this->timer->start(500);
 }
 
