@@ -66,8 +66,23 @@ NewOpen::NewOpen(Socket *sock, FileHandler *fHandler, QWidget *parent) :
     ui->username->setText(username);
     ui->myicon->setText(username.at(0).toUpper());
 
+    ui->shared_color->setStyleSheet("border-style: solid; border-width: 1px; border-radius: 5px; border-color: black; background-color: #5dbcd2");
+    ui->private_color->setStyleSheet("border-style: solid; border-width: 1px; border-radius: 5px; border-color: black; background-color: #d1d1d6");
+
+
     for (QString s : this->socket->getMapFiles().keys()){
-        ui->listWidget->addItem(s);
+        auto check = s.split("~shared");
+
+        if(check.length()<2){
+            ui->listWidget->addItem(s);
+        }
+
+        else {
+            QListWidgetItem* item = new QListWidgetItem;
+            item->setText(check.at(0));
+            item->setBackground(QColor(93, 188, 210));
+            ui->listWidget->addItem(item);
+        }
     }
 
     connect( this, SIGNAL(openThisFile(QString)),
@@ -177,8 +192,7 @@ void NewOpen::on_pushButton_3_clicked() //Bottone: uri
 
 void NewOpen::uriIsOk(QString uri){
     ui->listWidget->addItem(uri);
-    ui->listWidget->findItems(uri,Qt::MatchExactly).first()->setBackground(QColor(52,199,89));
-
+    ui->listWidget->findItems(uri,Qt::MatchExactly).first()->setBackground(QColor(99, 220, 250));
 }
 
 void NewOpen::uriIsNotOk(){

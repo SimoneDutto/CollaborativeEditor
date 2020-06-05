@@ -1827,10 +1827,15 @@ void MainWindow::insertPastedText(QString html, QString text){
             letterCounter++;
             externalIndex++;
             cursor.setPosition(externalIndex);
-            fmt = cursor.charFormat();
-            fmt.setBackground(Qt::white);
-            cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
-            cursor.mergeCharFormat(fmt);
+
+            if(cursor.charFormat().background() != Qt::white){
+                fmt = cursor.charFormat();
+                fmt.setBackground(Qt::white);
+                cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
+                cursor.mergeCharFormat(fmt);
+                cursor.setPosition(externalIndex);
+            }
+
             QTextBlockFormat block = cursor.blockFormat();
             qDebug() << "CHAR FORMAT" << block.alignment();
             myInsert(externalIndex, text.at(i), socket->getClientID(), cursor.charFormat(), this->getFlag(block.alignment()));
