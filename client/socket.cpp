@@ -8,7 +8,7 @@
 #define DATA_SIZE 1024
 
 inline qint32 ArrayToInt(QByteArray source);
-const QString SERVER_IP = "192.168.1.172";
+const QString SERVER_IP = "192.168.1.7";
 
 Socket::Socket(QWidget *parent) :
     QDialog(parent),
@@ -496,7 +496,7 @@ void Socket::notificationsHandler(QByteArray data){
     else if(type.compare("ACCESS_RESPONSE")==0){
         int fileid = object.value("fileid").toInt();
         QString filename = object.value("filename").toString();
-        if(fileid > 0){
+        if(fileid >= 0){
             this->mapFiles.insert(filename, fileid);
             emit uriIsOk(filename);
         }
