@@ -63,12 +63,13 @@ signals:
     void dataRead(QByteArray chunk, QTcpSocket* socket, int remainingSize, QString type);
 
 private slots:
-    void sendInsert(QVector<QTcpSocket*> users, QByteArray message, bool modifiedIndex, int newIndex, QTcpSocket* client);
+    void sendInsert(QVector<QTcpSocket*> users, QByteArray message, bool modifiedIndex, int newIndex, QVector<int> newPosition, QTcpSocket* client);
     void sendDelete(QVector<QTcpSocket*> users, QByteArray message, QTcpSocket* client);
     void sendStyleChange(QVector<QTcpSocket*> users, QByteArray message, QTcpSocket* client);
     void sendAlignChange(QVector<QTcpSocket*> users, QByteArray message, QTcpSocket* client);
     void sendCursorChange(QVector<QTcpSocket*> users, QByteArray message, QTcpSocket* client);
     void sendColorChange(QVector<QTcpSocket*> users, QByteArray message, QTcpSocket* client);
+    void sendChangedIndexes(QTcpSocket* client, QString letterID, QVector<int> position, int externalIndex);
 };
 
 #endif // FILESYSTEM_H

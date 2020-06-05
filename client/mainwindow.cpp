@@ -167,8 +167,8 @@ MainWindow::MainWindow(Socket *sock, QWidget *parent, QString nome) :
 
     /* CONNECT per segnali entranti, applicare sulla GUI le modifiche che arrivano sul socket */
 
-    connect( socket, SIGNAL(readyInsert(QJsonArray, QChar, int, int, int, QTextCharFormat, Qt::AlignmentFlag)),
-              fHandler,  SLOT(remoteInsert(QJsonArray, QChar, int, int, int, QTextCharFormat, Qt::AlignmentFlag)));
+    connect( socket, SIGNAL(readyInsert(QJsonArray, QChar, int, int, int, QTextCharFormat, Qt::AlignmentFlag, bool, QString, QJsonArray)),
+              fHandler,  SLOT(remoteInsert(QJsonArray, QChar, int, int, int, QTextCharFormat, Qt::AlignmentFlag, bool, QString, QJsonArray)));
     connect( socket, SIGNAL(readyDelete(QString)),
               fHandler, SLOT(remoteDelete(QString)));
     connect( socket, SIGNAL(readyFile(QMap<int,int>,QMap<int,QColor>)),  this, SLOT(fileIsHere(QMap<int,int>,QMap<int,QColor>)));
@@ -812,7 +812,10 @@ void MainWindow::changeViewAfterInsert(QChar l, int pos, QTextCharFormat format,
     disconnect( this, SIGNAL(sendCursorSelection(int,int)),
              socket, SLOT(sendCursorSelectionToServer(int,int)));*/
     QTextCursor cursor(ui->textEdit->textCursor());
+
+    //int prevPos = cursor.position();
     int oldPos = cursor.position();
+
     cursor.setPosition(pos);
     //ui->textEdit->setAlignment(alignment);
     cursor.insertText(l, format);
@@ -828,6 +831,7 @@ void MainWindow::changeViewAfterInsert(QChar l, int pos, QTextCharFormat format,
     qDebug() <<"here";
     qDebug() << cursor.block().text();
     qDebug() << ui->textEdit->alignment();
+    //cursor.setPosition(prevPos);
     letterCounter++;
 
     //CONTROLLO SE ARRIVA IL FORMATO GIUSTO

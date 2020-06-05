@@ -36,6 +36,7 @@ public:
     void addFractionalDigit(int value);
     bool hasSameFractionals(Letter other);
     bool comesFirst(Letter other);
+    void setNewPosition(QVector<int> position);
     void setFormat(QTextCharFormat format);
     void setStyleFromString(QString format, QString font);
     void setAlignment(Qt::AlignmentFlag alignment);
