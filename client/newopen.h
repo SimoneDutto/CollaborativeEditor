@@ -27,8 +27,6 @@ private slots:
     void uriIsOk(QString uri);
     void uriIsNotOk();
     void changeClientImage(QString path);
-
-    void on_discardImage_clicked();
     void on_actionLog_Out_triggered();
     void setImage();
     //void createNewFile(QString filename);

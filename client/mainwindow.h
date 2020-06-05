@@ -10,6 +10,7 @@
 #include "onlineuser.h"
 #include "clickablelabel.h"
 #include "usersletterswindow.h"
+#include <QTimer>
 
 namespace Ui {
 class MainWindow;
@@ -76,7 +77,7 @@ private slots:
     void on_textEdit_selectionChanged();
     void destroyMain(QString);
     void destroyMainC(QString filename);
-
+    void timerHandler();
     void changeTitle(QString name);
 
 
@@ -94,6 +95,7 @@ private:
     QPalette pal = palette();
     QTextCharFormat firstLetter;
     Qt::AlignmentFlag getFlag(Qt::Alignment align);
+    QTimer *timer;
 
 
 signals:
