@@ -1701,6 +1701,9 @@ void MainWindow::on_actionLight_triggered()
     pal.setColor(QPalette::WindowText, Qt::black);
     pal.setColor(QPalette::ButtonText, Qt::black);
     ui->username->setStyleSheet("color:black");
+    ui->l_user1->setStyleSheet("color:black");
+    ui->l_user2->setStyleSheet("color:black");
+    ui->l_user3->setStyleSheet("color:black");
     this->setAutoFillBackground(true);
     this->setPalette(pal);
     this->show();
@@ -1731,6 +1734,9 @@ void MainWindow::on_actionDark_triggered()
     pal.setColor(QPalette::WindowText, Qt::white);
     pal.setColor(QPalette::ButtonText, Qt::white);
     ui->username->setStyleSheet("color:white");
+    ui->l_user1->setStyleSheet("color:white");
+    ui->l_user2->setStyleSheet("color:white");
+    ui->l_user3->setStyleSheet("color:white");
     this->setAutoFillBackground(true);
     this->setPalette(pal);
     this->show();
