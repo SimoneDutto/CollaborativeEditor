@@ -177,7 +177,10 @@ void Socket::checkLoginAndGetListFileName(QJsonObject object)
     {
         QString filename = v.toObject().value("filename").toString();
         int fileid = v.toObject().value("fileid").toInt();
-
+        int count = v.toObject().value("count").toInt();
+        if(count > 1){
+            filename.append("~shared");
+        }
         this->mapFiles.insert(filename, fileid);
     }
     emit loginSuccess();
