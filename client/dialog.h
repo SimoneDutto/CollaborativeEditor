@@ -20,10 +20,6 @@ public:
 private slots:
     void on_pushButton_clicked();
 
-    void on_pushButton_2_clicked();
-    void uriIsOk(QString uri);
-    void uriIsNotOk();
-
 private:
     Ui::Dialog *ui;
     Socket *socket;
@@ -31,7 +27,6 @@ private:
 
 signals:
     void openThisFile(QString fileName);
-    void checkUri(QString uri);
     void destroyM(QString);
 };
 
