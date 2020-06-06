@@ -357,15 +357,12 @@ void FileHandler::remoteDelete(QString deletedLetterID) {
     for (Letter *l : this->letters) {
         if(l->getLetterID().compare(deletedLetterID) == 0) {
             this->letters.remove(externalIndex);
+            /*Aggiornare la GUI*/
+            emit readyRemoteDelete(externalIndex+1);
             break;
         }
        externalIndex++;
     }
-
-    externalIndex++;    // align externalIndex with GUI rapresentation
-
-    /*Aggiornare la GUI*/
-    emit readyRemoteDelete(externalIndex);
 }
 
 

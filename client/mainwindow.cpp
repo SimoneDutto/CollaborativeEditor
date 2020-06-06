@@ -1467,10 +1467,6 @@ void MainWindow::on_cursor_triggered(QPair<int,int> idpos, QColor col)
     fmt2.setBackground(Qt::white);
 
     QTextCursor cursor = ui->textEdit->textCursor();
-    /*if(cursor.hasSelection()) {
-        connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
-        return;
-    }*/
 
     // controllo che nella mappa colore-cursore non sia gia presente il colore
     bool trovato = false;
