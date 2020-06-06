@@ -88,6 +88,8 @@ MainWindow::MainWindow(Socket *sock, QWidget *parent, QString nome) :
     ui->user2->hide();
     ui->user3->hide();
     ui->counter->hide();
+    styleSheet = "QPushButton {color: black; background-color: white; border-style: solid; border-width: 2px; border-radius: 15px; border-color: black;} QPushButton:hover {background-color: rgb(233, 233, 233)} QPushButton:pressed {background-color: rgb(181, 181, 181)}";
+    ui->counter->setStyleSheet(styleSheet);
 
     /* Etichette degli utenti online */
     ui->l_user1->hide();
