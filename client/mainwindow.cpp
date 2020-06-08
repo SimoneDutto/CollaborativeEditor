@@ -1763,7 +1763,7 @@ void MainWindow::changeAlignment(Qt::AlignmentFlag alignment, int cursorPosition
 
 }
 
-void MainWindow::on_textEdit_selectionChanged()
+/*void MainWindow::on_textEdit_selectionChanged()
 {
     QTextCursor cursor = ui->textEdit->textCursor();
     int start = cursor.selectionStart();
@@ -1799,7 +1799,7 @@ void MainWindow::changeViewAfterSelection(int start, int end, QColor colore)
          qDebug() << "testo left: " << cursor.selectedText();
     }
     connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
-}
+}*/
 
 void MainWindow::insertPastedText(QString html, QString text){
     disconnect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
