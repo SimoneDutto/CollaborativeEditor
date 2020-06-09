@@ -88,6 +88,8 @@ MainWindow::MainWindow(Socket *sock, QWidget *parent, QString nome) :
     ui->user2->hide();
     ui->user3->hide();
     ui->counter->hide();
+    styleSheet = "QPushButton {color: black; background-color: white; border-style: solid; border-width: 2px; border-radius: 15px; border-color: black;} QPushButton:hover {background-color: rgb(233, 233, 233)} QPushButton:pressed {background-color: rgb(181, 181, 181)}";
+    ui->counter->setStyleSheet(styleSheet);
 
     /* Etichette degli utenti online */
     ui->l_user1->hide();
@@ -930,7 +932,7 @@ void MainWindow::addUserConnection(QString username, QColor color){
     }
 
     else {  //Incrementare il contatore
-        ui->counter->setText("+" + QString::number(numberUsersOnline));
+        ui->counter->setText("+" + QString::number(numberUsersOnline-3));
         ui->counter->show();
     }
 
@@ -1467,10 +1469,6 @@ void MainWindow::on_cursor_triggered(QPair<int,int> idpos, QColor col)
     fmt2.setBackground(Qt::white);
 
     QTextCursor cursor = ui->textEdit->textCursor();
-    /*if(cursor.hasSelection()) {
-        connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
-        return;
-    }*/
 
     // controllo che nella mappa colore-cursore non sia gia presente il colore
     bool trovato = false;
@@ -1765,7 +1763,7 @@ void MainWindow::changeAlignment(Qt::AlignmentFlag alignment, int cursorPosition
 
 }
 
-void MainWindow::on_textEdit_selectionChanged()
+/*void MainWindow::on_textEdit_selectionChanged()
 {
     QTextCursor cursor = ui->textEdit->textCursor();
     int start = cursor.selectionStart();
@@ -1801,7 +1799,7 @@ void MainWindow::changeViewAfterSelection(int start, int end, QColor colore)
          qDebug() << "testo left: " << cursor.selectedText();
     }
     connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
-}
+}*/
 
 void MainWindow::insertPastedText(QString html, QString text){
     disconnect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
@@ -1827,10 +1825,15 @@ void MainWindow::insertPastedText(QString html, QString text){
             letterCounter++;
             externalIndex++;
             cursor.setPosition(externalIndex);
-            fmt = cursor.charFormat();
-            fmt.setBackground(Qt::white);
-            cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
-            cursor.mergeCharFormat(fmt);
+
+            if(cursor.charFormat().background() != Qt::white){
+                fmt = cursor.charFormat();
+                fmt.setBackground(Qt::white);
+                cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
+                cursor.mergeCharFormat(fmt);
+                cursor.setPosition(externalIndex);
+            }
+
             QTextBlockFormat block = cursor.blockFormat();
             qDebug() << "CHAR FORMAT" << block.alignment();
             myInsert(externalIndex, text.at(i), socket->getClientID(), cursor.charFormat(), this->getFlag(block.alignment()));

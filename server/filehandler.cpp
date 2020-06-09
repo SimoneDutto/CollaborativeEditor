@@ -206,12 +206,12 @@ void FileHandler::remoteDelete(QString deletedLetterID,  QByteArray message, QTc
     for (Letter *l : this->letters) {
         if(l->getLetterID().compare(deletedLetterID) == 0) {
             this->letters.remove(i);
+            // Notifica gli altri client inviando lo stesso messaggio
+            emit remoteDeleteNotify(this->users, message, client);
             break;
         }
         i++;
     }
-    // Notifica gli altri client inviando lo stesso messaggio
-    emit remoteDeleteNotify(this->users, message, client);
 }
 
 void FileHandler::changeStyle(QString initialIndex, QString lastIndex, QString format, QString font, QTcpSocket *client, QByteArray message) {

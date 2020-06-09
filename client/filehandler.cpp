@@ -139,32 +139,7 @@ QVector<int> FileHandler::calculateInternalIndex(QVector<int> prevPos, QVector<i
                     }
 
                 }
-                /*bool inserted = false;
-                lastFractionalNext = nextPos[n-1];
-                while(!inserted) {
-                    lastFractionalPrev = prevPos[n-1];
-                    newIndex = int(lastFractionalNext/2 + lastFractionalPrev/2);
-                    if(newIndex != lastFractionalPrev) {
-                        position.append(newIndex);
-                        inserted = true;
-                    } else {
-                        if(lastFractionalPrev+1 != INT_MAX) {
-                            position.append(lastFractionalPrev+1);
-                            inserted = true;
-                        } else {
-                            position.append(lastFractionalPrev);
-                            if(prevPos.size() == n) {
-                                position.append(INT_MAX/2);
-                                inserted = true;
-                            } else {
-                                n++;
-                                lastFractionalNext = INT_MAX;
-                            }
-                        }
-                    }
-                }*/
             }
-
         }
     }
     qDebug() << "Position calculated: ";
@@ -382,15 +357,12 @@ void FileHandler::remoteDelete(QString deletedLetterID) {
     for (Letter *l : this->letters) {
         if(l->getLetterID().compare(deletedLetterID) == 0) {
             this->letters.remove(externalIndex);
+            /*Aggiornare la GUI*/
+            emit readyRemoteDelete(externalIndex+1);
             break;
         }
        externalIndex++;
     }
-
-    externalIndex++;    // align externalIndex with GUI rapresentation
-
-    /*Aggiornare la GUI*/
-    emit readyRemoteDelete(externalIndex);
 }
 
 

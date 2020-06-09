@@ -73,13 +73,13 @@ private slots:
     void on_actionDark_triggered();
     void changeViewAfterColor(int start, int end, QColor c);
     void insertPastedText(QString html, QString text);
-    void on_textEdit_selectionChanged();
+    //void on_textEdit_selectionChanged();
     void destroyMain(QString);
     void destroyMainC(QString filename);
     void changeTitle(QString name);
 
 
-    void changeViewAfterSelection(int start, int end, QColor colore);
+    //void changeViewAfterSelection(int start, int end, QColor colore);
 
 private:
     Ui::MainWindow *ui;
