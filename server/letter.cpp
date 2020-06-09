@@ -157,7 +157,7 @@ bool Letter::comesFirstLeft(Letter other, int pos_id) {
 
     if(this->fractionalIndexes.at(pos_id) < other.getFractionalIndexes().at(pos_id))
         return false;
-    else if(this->fractionalIndexes.at(pos_id) > getFractionalIndexes().at(pos_id))
+    else if(this->fractionalIndexes.at(pos_id) > other.getFractionalIndexes().at(pos_id))
         return true;
     else {
         if(other_nfractionals > pos_id+1 && this_nfractionals <= pos_id+1)

@@ -216,7 +216,7 @@ void Socket::readBuffer(){
     {
         qDebug() << "Leggo dal socket";
        buffer.append(socket->readAll());
-       while ((size == 0 && buffer.size() >= 8) || (size > 0 && buffer.size() >= size)) //While can process data, process it
+       while ((size == 0 && buffer.size() >= 8) || (size > 0 && static_cast<quint64>(buffer.size()) >= size)) //While can process data, process it
        {
            if (size == 0 && buffer.size() >= 8) //if size of data has received completely, then store it on our global variable
            {
@@ -226,8 +226,8 @@ void Socket::readBuffer(){
            }
            if (size > 0 && buffer.size() >= static_cast<int>(size)) // If data has received completely, then emit our SIGNAL with the data
            {
-               data = buffer.mid(0, static_cast<int>(size));
-               buffer.remove(0,static_cast<int>(size));
+               data = buffer.mid(0, static_cast<quint64>(size));
+               buffer.remove(0,static_cast<quint64>(size));
                size = 0;
                qDebug() << "Data: " << data.data();
                emit bufferReady(data);

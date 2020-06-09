@@ -112,7 +112,7 @@ void FileHandler::remoteInsert(QJsonArray position, QChar newLetterValue, int ex
 
         // Ricerca binaria della posizione della nuova lettera nel vettore
         int index = this->letters.size();
-        if(externalIndex > this->letters.size()/2) {
+        if(externalIndex > static_cast<int>(this->letters.size()/2)) {
             int i = this->letters.size()-1;
             for(auto l=this->letters.crbegin(); l!=this->letters.crend(); l++) {
                 bool comesFirst = this->letters[i--]->comesFirstRight(*newLetter, 0);
@@ -132,6 +132,7 @@ void FileHandler::remoteInsert(QJsonArray position, QChar newLetterValue, int ex
             }
         }
         this->letters.insert(this->letters.begin()+index, newLetter);
+        for (Letter *l : this->letters) qDebug() << l->getLetterValue();
         emit remoteInsertNotify(this->users, message, false, index, fractionals, client);
         //Letter *newLetter = new Letter(newLetterValue, fractionals, letterID, format, alignment);
 
