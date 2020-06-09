@@ -8,7 +8,7 @@
 #define DATA_SIZE 1024
 
 inline qint32 ArrayToInt(QByteArray source);
-const QString SERVER_IP = "192.168.1.22";
+const QString SERVER_IP = "192.168.1.7";
 
 
 Socket::Socket(QWidget *parent) :

@@ -23,7 +23,7 @@ FileHandler::FileHandler(QObject *parent)
 */
 
 
-QVector<int> FileHandler::calculateInternalIndex(QVector<int> prevPos, QVector<int> nextPos) {
+/*QVector<int> FileHandler::calculateInternalIndex(QVector<int> prevPos, QVector<int> nextPos) {
     QVector<int> position;
 
     // Set internal index
@@ -229,12 +229,74 @@ void FileHandler::localInsert(int externalIndex, QChar newLetterValue, int clien
     qDebug() << "Letter inserted in position:" << position << " (external index " << externalIndex <<")";
     this->letters.insert(this->letters.begin()+(externalIndex-1), newLetter);
 
-    /*Inviare notifica via socket*/
+    /*Inviare notifica via socket
 
     if(!collision)
         emit localInsertNotify(newLetter, clientID, siteCounter, externalIndex, false, nullptr);
     else emit localInsertNotify(newLetter, clientID, siteCounter, externalIndex, true, this->letters[1]);
     //emit localInsertNotify(newLetterValue, positionJsonArray, clientID, siteCounter, externalIndex, format, alignment);
+}*/
+
+QVector<int> generatePositionBetween(QVector<int> previous, QVector<int> next, QVector<int> new_pos) {
+    int pos1, pos2;
+    // Indici interi delle posizioni
+    pos1 = previous.at(0);
+    pos2 = next.at(0);
+
+    if(pos1 - pos2 == 0) {  // indici uguali -> indice frazionario
+        new_pos.append(pos1);
+        previous.remove(0);
+        next.remove(0);
+        if(previous.isEmpty()) {
+            new_pos.append(next.front()-1);
+            return new_pos;
+        }
+        return generatePositionBetween(previous, next, new_pos);
+    } else if (pos2 - pos1 == 1) {  // indici consecutivi
+        new_pos.append(pos1);
+        previous.remove(0);
+        if(previous.isEmpty()) {
+            new_pos.append(0);
+            return new_pos;
+        }
+        new_pos.append(previous.front()+1);
+        return new_pos;
+    } else if (pos2 - pos1 > 1) {
+        new_pos.append(previous.front()+1);
+        return new_pos;
+    }
+}
+
+void FileHandler::localInsert(int externalIndex, QChar newLetterValue, int clientID, QTextCharFormat format, Qt::AlignmentFlag alignment) {
+    QVector<int> position;
+
+    this->siteCounter++;
+    QString letterID = QString::number(clientID).append("-").append(QString::number(this->siteCounter));
+
+    if(this->letters.size() == 0) {
+        position.append(0);
+    } else if (externalIndex > this->letters.size()) {  // la lettera inserita si trova alla fine del file
+        Letter *lastLetter = this->letters.at(letters.size()-1);
+        int lastIndex = lastLetter->getIndex();
+        position.append(lastIndex+1);
+    } else if (externalIndex == 1) {    // la lettera inserita si trova all'inizio del file
+        int firstIndex = this->letters.at(0)->getIndex();
+        position.append(firstIndex-1);  // può essere negativo
+    } else {    // la lettera inserita si trova in mezzo al file
+        QVector<int> previousLetterPos, nextLetterPos;
+        previousLetterPos = this->letters.at(externalIndex-2)->getFractionalIndexes();
+        nextLetterPos = this->letters.at(externalIndex-1)->getFractionalIndexes();
+        position = generatePositionBetween(previousLetterPos, nextLetterPos, position);
+    }
+
+    Letter *newLetter = new Letter(newLetterValue, position, letterID, format, alignment);
+    this->letters.insert(this->letters.begin()+(externalIndex-1), newLetter);
+    qDebug() << "Position calculated: ";
+    for (auto p : position)
+        qDebug() << p <<"-";
+
+    // Inviare notifica al server
+    emit localInsertNotify(newLetter, clientID, siteCounter, externalIndex, false, nullptr);
 }
 
 void FileHandler::localDelete(int firstExternalIndex, int lastExternalIndex) {
@@ -299,7 +361,40 @@ void FileHandler::remoteInsert(QJsonArray position, QChar newLetterValue, int ex
                                bool modifiedLetter, QString modifiedLetterID, QJsonArray newposition) {
 
     // Get index and fractionals vector
-    QVector<int> fractionals, newpos;
+    QVector<int> fractionals;
+
+
+    if(!position.isEmpty()) {
+        for(auto fractional : position) {
+            fractionals.append(fractional.toInt());
+        }
+
+        QString letterID = QString::number(siteID).append("-").append(QString::number(siteCounter));
+        Letter *newLetter = new Letter(newLetterValue, fractionals, letterID, format, alignment);
+
+        // Ricerca binaria della posizione della nuova lettera nel vettore
+        int index = this->letters.size();
+        if(externalIndex > this->letters.size()/2) {
+            int i = this->letters.size()-1;
+            for(auto l=this->letters.crbegin(); l!=this->letters.crend(); l++) {
+                bool comesFirst = this->letters[i--]->comesFirstRight(*newLetter, 0);
+                if(!comesFirst)
+                    index--;
+                else break;
+            }
+        } else {
+            int id = 0;
+            for(Letter* l : this->letters) {
+                bool comesFirst = l->comesFirstLeft(*newLetter, 0);
+                id++;
+                if(comesFirst){
+                    index = id-1;
+                    break;
+                }
+            }
+        }
+        this->letters.insert(this->letters.begin()+index, newLetter);
+    /*QVector<int> fractionals, newpos;
 
     if(modifiedLetter) {
         for(auto pos: newposition)
@@ -335,7 +430,7 @@ void FileHandler::remoteInsert(QJsonArray position, QChar newLetterValue, int ex
             }
         }
         if(!inserted)
-            this->letters.insert(this->letters.begin()+index, newLetter);
+            this->letters.insert(this->letters.begin()+index, newLetter);*/
         /*Aggiornare la GUI*/
         emit readyRemoteInsert(newLetterValue, index, format, alignment);
         //this->letters.insert(this->letters.begin()+externalIndex-1, new Letter(newLetterValue, fractionals, letterID, format, alignment));

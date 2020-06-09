@@ -82,6 +82,7 @@ void FileHandler::removeActiveUser(QTcpSocket *user, QString username, int userI
 
 }
 
+
 /**
  * Metodo che gestisce inserimento remoto di una lettera:
  * - ricava indice INTERNO della lettera inserita
@@ -98,15 +99,9 @@ void FileHandler::remoteInsert(QJsonArray position, QChar newLetterValue, int ex
     QVector<int> fractionals;
 
 
-    if(!position.isEmpty()) {
-        //int index = position.at(0).toInt();
-        //position.removeAt(0);
-
-        if(this->usersSiteCounters.contains(client)) {
-            QMap<QTcpSocket*, int>::iterator i = this->usersSiteCounters.find(client);
-            i.value() = siteCounter;
-            // qDebug() << "Site counter updated after insert = " << siteCounter;
-        }
+    if(!position.isEmpty() && this->usersSiteCounters.contains(client)) {
+        QMap<QTcpSocket*, int>::iterator i = this->usersSiteCounters.find(client);
+        i.value() = siteCounter;
 
         for(auto fractional : position) {
             fractionals.append(fractional.toInt());
@@ -115,7 +110,32 @@ void FileHandler::remoteInsert(QJsonArray position, QChar newLetterValue, int ex
         QString letterID = QString::number(siteID).append("-").append(QString::number(siteCounter));
         Letter *newLetter = new Letter(newLetterValue, fractionals, letterID, format, alignment);
 
-        if(modifiedLetter) {
+        // Ricerca binaria della posizione della nuova lettera nel vettore
+        int index = this->letters.size();
+        if(externalIndex > this->letters.size()/2) {
+            int i = this->letters.size()-1;
+            for(auto l=this->letters.crbegin(); l!=this->letters.crend(); l++) {
+                bool comesFirst = this->letters[i--]->comesFirstRight(*newLetter, 0);
+                if(!comesFirst)
+                    index--;
+                else break;
+            }
+        } else {
+            int id = 0;
+            for(Letter* l : this->letters) {
+                bool comesFirst = l->comesFirstLeft(*newLetter, 0);
+                id++;
+                if(comesFirst){
+                    index = id-1;
+                    break;
+                }
+            }
+        }
+        this->letters.insert(this->letters.begin()+index, newLetter);
+        emit remoteInsertNotify(this->users, message, false, index, fractionals, client);
+        //Letter *newLetter = new Letter(newLetterValue, fractionals, letterID, format, alignment);
+
+        /*if(modifiedLetter) {
             QVector<int> newpos;
             for(auto pos : newposition)
                 newpos.append(pos.toInt());
@@ -134,7 +154,7 @@ void FileHandler::remoteInsert(QJsonArray position, QChar newLetterValue, int ex
                 qDebug() << "SAME FRACTIONALS";
                 /*if(newLetterValue == this->letters[externalIndex-1]->getLetterValue())
                     // stessa lettera inserita nella stessa posizione da utenti diversi => ignora insert
-                    return;*/
+                    return;
                 //else if (siteID > this->letters[externalIndex-1]->getSiteID()) {  // lettera diversa inserita nella stessa posizione => inserimento in ordine di siteID
                 // Lettera diversa inserita nella stessa posizione: viene inserita alla destra della lettera gia inserita
                     // modifica externalIndex + posizione frazionale
@@ -176,7 +196,7 @@ void FileHandler::remoteInsert(QJsonArray position, QChar newLetterValue, int ex
             emit changedIndexes(client, newLetter->getLetterID(), fractionals, index);
 
         // Notifica gli altri client inviando lo stesso messaggio
-        emit remoteInsertNotify(this->users, message, modifiedIndexes, index, fractionals, client);
+        emit remoteInsertNotify(this->users, message, modifiedIndexes, index, fractionals, client);*/
     }
 }
 

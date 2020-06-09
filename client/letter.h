@@ -35,7 +35,8 @@ public:
     void editIndex(int index, int value);
     void addFractionalDigit(int value);
     bool hasSameFractionals(Letter other);
-    bool comesFirst(Letter other);
+    bool comesFirstRight(Letter other, int pos_id);
+    bool comesFirstLeft(Letter other, int pos_id);
     void setNewPosition(QVector<int> position);
     void setFormat(QTextCharFormat format);
     void setStyleFromString(QString format, QString font);
