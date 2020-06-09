@@ -8,7 +8,7 @@
 #define DATA_SIZE 1024
 
 inline qint32 ArrayToInt(QByteArray source);
-const QString SERVER_IP = "192.168.1.54";
+const QString SERVER_IP = "192.168.1.22";
 
 
 Socket::Socket(QWidget *parent) :
@@ -23,7 +23,7 @@ Socket::Socket(const QString &host, quint16 port)
     socket = new QTcpSocket(this);
     //fileh = new FileHandler();
 
-    /* Setto le connect del socket */
+     /* Setto le connect del socket */
     connect( socket, SIGNAL(connected()), SLOT(socketConnected()) );
     connect( socket, SIGNAL(disconnected()), SLOT(socketConnectionClosed()) );
     //connect( socket, SIGNAL(error(SocketError socketError)), SLOT(socketError(int)) );
@@ -180,7 +180,10 @@ void Socket::checkLoginAndGetListFileName(QJsonObject object)
         int fileid = v.toObject().value("fileid").toInt();
         int count = v.toObject().value("count").toInt();
         if(count > 1){
-            filename.append("~shared");
+            mapShared.insert(filename, 1);
+        }
+        else{
+            mapShared.insert(filename, 0);
         }
         this->mapFiles.insert(filename, fileid);
     }
@@ -790,6 +793,9 @@ void Socket::isSigningUp(bool flag) {
 
 QMap<QString, int> Socket::getMapFiles(){
     return this->mapFiles;
+}
+QMap<QString, int> Socket::getMapShared(){
+    return this->mapShared;
 }
 
 QMap<QString, QColor> Socket::getUserColor(){
