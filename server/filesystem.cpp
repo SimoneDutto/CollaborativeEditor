@@ -631,22 +631,24 @@ void FileSystem::sendInsert(QVector<QTcpSocket*> users, QByteArray message, bool
     while (i.hasNext()){
         QTcpSocket* socket = i.next();
         if(socket == client) continue;
-        if(socket->state() == QAbstractSocket::ConnectedState) {
-            if(modifiedIndex) {
-                QByteArray msg = QJsonDocument(obj).toJson();
-                qDebug() << "Notifica inviata: " << msg.data();
-                socket->write(sendSize.number(msg.size()), sizeof (quint64));
+
+        if(modifiedIndex) {
+            sendJson(obj,socket);
+        } else {
+            qDebug() << "Notifica inviata: " << message.data();
+            if(socket->state() == QAbstractSocket::ConnectedState) {
+                qint32 msg_size = message.size();
+                QByteArray toSend;
+                socket->write(toSend.number(msg_size), sizeof (quint64));
                 socket->waitForBytesWritten();
-                socket->write(msg); //write size of data
-            } else {
-                qDebug() << "Notifica inviata: " << message.data();
-                socket->write(sendSize.number(message.size()), sizeof (quint64));
-                socket->waitForBytesWritten();
-                socket->write(message);
+                qint32 byteWritten = 0;
+                while(byteWritten<msg_size){
+                    byteWritten += socket->write(message);
+                    socket->waitForBytesWritten();
+                }
             }
-            socket->waitForBytesWritten(1000);
-            sendSize.clear();
         }
+        sendSize.clear();
     }
 }
 
@@ -702,10 +704,15 @@ void FileSystem::forwardNotificationToClients(QVector<QTcpSocket *> users, QByte
         QTcpSocket* socket = i.next();
         if(socket == client) continue;
         if(socket->state() == QAbstractSocket::ConnectedState) {
-            socket->write(sendSize.number(message.size()), sizeof (quint64));
+            qint32 msg_size = message.size();
+            QByteArray toSend;
+            socket->write(toSend.number(msg_size), sizeof (quint64));
             socket->waitForBytesWritten();
-            socket->write(message);
-            socket->waitForBytesWritten(1000);
+            qint32 byteWritten = 0;
+            while(byteWritten<msg_size){
+                byteWritten += socket->write(message);
+                socket->waitForBytesWritten();
+            }
         }
     }
 }
@@ -812,11 +819,11 @@ void FileSystem::sendJson(QJsonObject json, QTcpSocket* socket){
         QByteArray toSend;
         socket->write(toSend.number(msg_size), sizeof (quint64));
         socket->waitForBytesWritten();
-        if(socket->write(QJsonDocument(json).toJson()) == -1){
-            qDebug() << "File info failed to send";
-            return;
-        } //write the data itself
-        socket->waitForBytesWritten();
+        qint32 byteWritten = 0;
+        while(byteWritten<msg_size){
+            byteWritten += socket->write(QJsonDocument(json).toJson());
+            socket->waitForBytesWritten();
+        }
     }
 
 }

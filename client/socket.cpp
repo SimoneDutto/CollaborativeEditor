@@ -705,7 +705,7 @@ int Socket::sendNotification(QJsonObject obj) {
         QByteArray toSend;
         socket->write(toSend.number(msg_size), sizeof (quint64));
         socket->waitForBytesWritten();
-        quint64 byteWritten = 0;
+        qint32 byteWritten = 0;
         while(byteWritten<msg_size){
             byteWritten += socket->write(QJsonDocument(obj).toJson());
             socket->waitForBytesWritten();
