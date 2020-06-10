@@ -1837,7 +1837,6 @@ void MainWindow::insertPastedText(QString html, QString text){
 
             QTextBlockFormat block = cursor.blockFormat();
             qDebug() << "CHAR FORMAT" << block.alignment();
-            QThread::msleep(1);
             emit myInsert(externalIndex, text.at(i), socket->getClientID(), cursor.charFormat(), this->getFlag(block.alignment()));
         }
         emit sendCursorChange(externalIndex);
