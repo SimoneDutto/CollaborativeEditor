@@ -333,8 +333,14 @@ void FileHandler::localStyleChange(QMap<QString,QTextCharFormat> letterFormatMap
 void FileHandler::localCursorChange(int position) {
     if(this->cursor != position) {
         this->cursor = position;
-        /* Notify server */
-        emit localCursorChangeNotify(position);
+        if(position <= this->letters.size()) {
+            QString letterID;
+            if(position > 0)
+                letterID = this->letters[position-1]->getLetterID();
+            else letterID = this->letters[0]->getLetterID();
+            /* Notify server */
+            emit localCursorChangeNotify(position, letterID);
+        }
     }
 }
 

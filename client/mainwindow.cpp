@@ -216,7 +216,7 @@ MainWindow::MainWindow(Socket *sock, QWidget *parent, QString nome) :
              this, SLOT(changeViewAfterColor(int,int,QColor)));
 
     /* CONNECT per cursore */
-    connect( socket, SIGNAL(userCursor(QPair<int,int>,QColor)),
+    connect( socket, SIGNAL(userCursor(QPair<int,int>,QColor,QString)),
              this, SLOT(on_cursor_triggered(QPair<int,int>,QColor)));
     connect( this, SIGNAL(sendCursorChange(int)),
              fHandler, SLOT(localCursorChange(int)));
@@ -1458,7 +1458,7 @@ void MainWindow::notConnected(){
 }
 
 
-void MainWindow::on_cursor_triggered(QPair<int,int> idpos, QColor col)
+void MainWindow::on_cursor_triggered(QPair<int,int> idpos, QColor col, QString letterID)
 {
     // controllo che nella mappa colorecursore non sia gia presente l'id
 

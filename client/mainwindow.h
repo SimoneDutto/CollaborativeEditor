@@ -66,7 +66,7 @@ private slots:
     void on_actionAlign_to_Center_triggered();
     void on_actionAlign_to_Justify_triggered();
     void notConnected();
-    void on_cursor_triggered(QPair<int,int> idpos, QColor col);
+    void on_cursor_triggered(QPair<int,int> idpos, QColor col, QString letterID);
     void changeClientImage(QString path);
     void on_actionhistory_triggered();
     void on_actionLight_triggered();
