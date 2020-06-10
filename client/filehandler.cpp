@@ -432,7 +432,7 @@ void FileHandler::remoteInsert(QJsonArray position, QChar newLetterValue, int ex
         if(!inserted)
             this->letters.insert(this->letters.begin()+index, newLetter);*/
         /*Aggiornare la GUI*/
-       // emit readyRemoteInsert(newLetterValue, index, format, alignment);
+        emit readyRemoteInsert(newLetterValue, index, format, alignment);
         //this->letters.insert(this->letters.begin()+externalIndex-1, new Letter(newLetterValue, fractionals, letterID, format, alignment));
     }
 }

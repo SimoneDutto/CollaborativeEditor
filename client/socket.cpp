@@ -408,7 +408,6 @@ void Socket::notificationsHandler(QByteArray data){
 
         /*Inserire nel modello questa lettera e aggiornare la UI*/
         emit readyInsert(position, newLetterValue, externalIndex, siteID, siteCounter, format, alignFlag, modifiedLetter, modifiedID, newPosition);
-        emit readyFile(userCursors, userIDColor);
     }
     else if(type.compare("COLLISION")==0) {
         QString letterID = object.value("letterID").toString();
