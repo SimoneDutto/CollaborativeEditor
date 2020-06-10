@@ -815,12 +815,15 @@ void MainWindow::changeViewAfterInsert(QChar l, int pos, QTextCharFormat format,
              socket, SLOT(sendCursorSelectionToServer(int,int)));*/
     QTextCursor cursor(ui->textEdit->textCursor());
     auto vett = this->fHandler->getVectorFile();
-    for (int i = 0; i< vett.size(); i++){
-        if(vett[i]->getLetterID().compare(letterID) == 0){
-            pos = i;
-            break;
+    if(pos<vett.size() && vett[pos]->getLetterID().compare(letterID) !=0){
+        for (int i = vett.size()-1; i >= 0; i--){
+            if(vett[i]->getLetterID().compare(letterID) == 0){
+                pos = i;
+                break;
+            }
         }
     }
+
     //int prevPos = cursor.position();
     int oldPos = cursor.position();
 
