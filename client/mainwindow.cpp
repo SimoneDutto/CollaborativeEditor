@@ -178,8 +178,8 @@ MainWindow::MainWindow(Socket *sock, QWidget *parent, QString nome) :
     connect( socket, SIGNAL(readyDelete(QString)),
               fHandler, SLOT(remoteDelete(QString)));
     connect( socket, SIGNAL(readyFile(QMap<int,int>,QMap<int,QColor>)),  this, SLOT(fileIsHere(QMap<int,int>,QMap<int,QColor>)));
-    connect( fHandler, SIGNAL(readyRemoteInsert(QChar, int, QTextCharFormat, Qt::AlignmentFlag)),
-             this, SLOT(changeViewAfterInsert(QChar, int, QTextCharFormat, Qt::AlignmentFlag)));
+    connect( fHandler, SIGNAL(readyRemoteInsert(QChar, int, QTextCharFormat, Qt::AlignmentFlag, QString)),
+             this, SLOT(changeViewAfterInsert(QChar, int, QTextCharFormat, Qt::AlignmentFlag, QString)));
     connect( fHandler, SIGNAL(readyRemoteDelete(int)),
              this, SLOT(changeViewAfterDelete(int)));
     connect( socket, SIGNAL(UserConnect(QString, QColor)),
@@ -217,7 +217,7 @@ MainWindow::MainWindow(Socket *sock, QWidget *parent, QString nome) :
 
     /* CONNECT per cursore */
     connect( socket, SIGNAL(userCursor(QPair<int,int>,QColor,QString)),
-             this, SLOT(on_cursor_triggered(QPair<int,int>,QColor)));
+             this, SLOT(on_cursor_triggered(QPair<int,int>,QColor, QString)));
     connect( this, SIGNAL(sendCursorChange(int)),
              fHandler, SLOT(localCursorChange(int)));
     connect( this, SIGNAL(sendCursorSelection(int,int)),
@@ -803,7 +803,7 @@ void MainWindow::destroyMainC(QString filename){
     this->deleteLater();
 }
 
-void MainWindow::changeViewAfterInsert(QChar l, int pos, QTextCharFormat format, Qt::AlignmentFlag alignment)
+void MainWindow::changeViewAfterInsert(QChar l, int pos, QTextCharFormat format, Qt::AlignmentFlag alignment, QString letterID)
 {
     disconnect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
     /*disconnect( socket, SIGNAL(userCursor(QPair<int,int>,QColor)),this, SLOT(on_cursor_triggered(QPair<int,int>,QColor)));
@@ -814,7 +814,13 @@ void MainWindow::changeViewAfterInsert(QChar l, int pos, QTextCharFormat format,
     disconnect( this, SIGNAL(sendCursorSelection(int,int)),
              socket, SLOT(sendCursorSelectionToServer(int,int)));*/
     QTextCursor cursor(ui->textEdit->textCursor());
-
+    auto vett = this->fHandler->getVectorFile();
+    for (int i = 0; i< vett.size(); i++){
+        if(vett[i]->getLetterID().compare(letterID) == 0){
+            pos = i;
+            break;
+        }
+    }
     //int prevPos = cursor.position();
     int oldPos = cursor.position();
 

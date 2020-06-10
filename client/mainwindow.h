@@ -44,7 +44,7 @@ private slots:
     void on_textEdit_textChanged();
     void on_lineEdit_editingFinished();
     void fileIsHere(QMap<int,int>, QMap<int,QColor>);
-    void changeViewAfterInsert(QChar l, int pos, QTextCharFormat format, Qt::AlignmentFlag);
+    void changeViewAfterInsert(QChar l, int pos, QTextCharFormat format, Qt::AlignmentFlag, QString);
     void changeViewAfterDelete(int externalIndex);
     void changeViewAfterStyle(QString firstLetterID, QString lastLetterID);
     void addUserConnection(QString username, QColor colorUser);

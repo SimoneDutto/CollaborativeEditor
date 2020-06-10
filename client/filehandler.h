@@ -59,7 +59,7 @@ signals:
     void localCursorChangeNotify(int position, QString id);
     void localAlignChangeNotify(Qt::AlignmentFlag align, int cursorPosition, QString startID, QString lastID);
 
-    void readyRemoteInsert(QChar newLetter, int externalIndex, QTextCharFormat format, Qt::AlignmentFlag alignment);
+    void readyRemoteInsert(QChar newLetter, int externalIndex, QTextCharFormat format, Qt::AlignmentFlag alignment, QString);
     void readyRemoteDelete(int externalIndex);
     void readyRemoteStyleChange(QString firstLetterID, QString lastLetterID);
     void readyRemoteAlignChange(Qt::AlignmentFlag align, int cursorPosition);
