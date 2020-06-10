@@ -285,14 +285,17 @@ void MyServer::sendFileChunk(QByteArray chunk, QTcpSocket* socket, int remaining
     object.insert("type", type);
     object.insert("chunk", s_data);
     object.insert("remaining", remainingSize);
-    if(socket->state() == QAbstractSocket::ConnectedState)
-    {
-        //qDebug() << "Invio file";
-        qDebug() << "size: " << QJsonDocument(object).toJson().size();
-        //qDebug() << "file with content: " << object;
-        socket->write(toSend.number(QJsonDocument(object).toJson().size()), sizeof(quint64));
+
+    if(socket->state() == QAbstractSocket::ConnectedState){
+        qint32 msg_size = QJsonDocument(object).toJson().size();
+        QByteArray toSend;
+        socket->write(toSend.number(msg_size), sizeof (quint64));
         socket->waitForBytesWritten();
-        socket->write(QJsonDocument(object).toJson());
-        socket->waitForBytesWritten();
+        qint32 byteWritten = 0;
+        while(byteWritten<msg_size){
+            byteWritten += socket->write(QJsonDocument(object).toJson());
+            socket->waitForBytesWritten();
+        }
     }
+
 }

@@ -9,7 +9,7 @@
 #define DATA_SIZE 1024
 
 inline qint32 ArrayToInt(QByteArray source);
-const QString SERVER_IP = "192.168.1.4";
+const QString SERVER_IP = "192.168.1.54";
 
 
 Socket::Socket(QWidget *parent) :
@@ -215,7 +215,7 @@ void Socket::readBuffer(){
 
     while (socket->bytesAvailable() > 0 || buffer.size() != 0 )
     {
-        qDebug() << "Leggo dal socket";
+       // qDebug() << "Leggo dal socket";
        buffer.append(socket->readAll());
        while ((size == 0 && buffer.size() >= 8) || (size > 0 && static_cast<quint64>(buffer.size()) >= size)) //While can process data, process it
        {
