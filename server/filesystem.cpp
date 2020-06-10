@@ -1,6 +1,7 @@
 #include "filesystem.h"
 #include <QCryptographicHash>
 #include <QtEndian>
+#include <QThread>
 
 #define STR_SALT_KEY "qwerty"
 #define SALT_FILE "2410"
@@ -287,6 +288,7 @@ void FileSystem::sendFile(int fileid, QTcpSocket *socket){
             qDebug() << "--------------------------------------------------";
             qDebug() << splitToSend.mid(from, chunk).data();
             qDebug() << "--------------------------------------------------";
+            QThread::msleep(5);
             if(remaining > 0)
                 emit dataRead(splitToSend.mid(from, chunk), socket, remaining, "FILE");
             else if (remaining == 0)
@@ -332,7 +334,9 @@ void FileSystem::sendFile(int fileid, QTcpSocket *socket){
             remaining -= chunk;
             buffer_tot.append(qa);
             qDebug() << "emitting dataRead(), remaining = " << remaining << "chunk = " << chunk;
+            QThread::msleep(5);
             emit dataRead(qa, socket, remaining, "FILE");
+
         }
         inFile.close();
 

@@ -22,6 +22,7 @@
 #include <QFontDatabase>
 #include <QTextBlock>
 #include <QTextDocumentFragment>
+#include <QThread>
 
 
 MainWindow::MainWindow(Socket *sock, QWidget *parent, QString nome) :
@@ -1836,7 +1837,8 @@ void MainWindow::insertPastedText(QString html, QString text){
 
             QTextBlockFormat block = cursor.blockFormat();
             qDebug() << "CHAR FORMAT" << block.alignment();
-            myInsert(externalIndex, text.at(i), socket->getClientID(), cursor.charFormat(), this->getFlag(block.alignment()));
+            QThread::msleep(1);
+            emit myInsert(externalIndex, text.at(i), socket->getClientID(), cursor.charFormat(), this->getFlag(block.alignment()));
         }
         emit sendCursorChange(externalIndex);
     }

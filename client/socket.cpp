@@ -4,11 +4,12 @@
 #include <QtEndian>
 #include <QDataStream>
 #include <QImageWriter>
+#include <QThread>
 
 #define DATA_SIZE 1024
 
 inline qint32 ArrayToInt(QByteArray source);
-const QString SERVER_IP = "192.168.1.7";
+const QString SERVER_IP = "192.168.1.54";
 
 
 Socket::Socket(QWidget *parent) :
@@ -704,11 +705,14 @@ int Socket::sendNotification(QJsonObject obj) {
         QByteArray toSend;
         socket->write(toSend.number(msg_size), sizeof (quint64));
         socket->waitForBytesWritten();
-        socket->write(QJsonDocument(obj).toJson());
-        socket->waitForBytesWritten();
+        quint64 byteWritten = 0;
+        while(byteWritten<msg_size){
+            byteWritten += socket->write(QJsonDocument(obj).toJson());
+            socket->waitForBytesWritten();
+        }
         qDebug() << "Richiesta:\n" << QJsonDocument(obj).toJson().data();
     }
-    return socket->waitForBytesWritten(1000);
+    return 0;
 }
 
 void Socket::socketConnected()

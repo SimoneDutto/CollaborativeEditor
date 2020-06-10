@@ -34,7 +34,7 @@ void MyServer::onNewConnection()
     QTcpSocket *socket = m_server->nextPendingConnection();
     if (!socket)
         return;
-
+    socket->setSocketOption(QAbstractSocket::LowDelayOption, 1);
     qDebug("New connection from %s:%d.",
            qPrintable(socket->peerAddress().toString()), socket->peerPort());
 
