@@ -8,7 +8,7 @@
 #define DATA_SIZE 1024
 
 inline qint32 ArrayToInt(QByteArray source);
-const QString SERVER_IP = "192.168.1.54";
+const QString SERVER_IP = "192.168.1.7";
 
 
 Socket::Socket(QWidget *parent) :
@@ -23,7 +23,7 @@ Socket::Socket(const QString &host, quint16 port)
     socket = new QTcpSocket(this);
     //fileh = new FileHandler();
 
-    /* Setto le connect del socket */
+     /* Setto le connect del socket */
     connect( socket, SIGNAL(connected()), SLOT(socketConnected()) );
     connect( socket, SIGNAL(disconnected()), SLOT(socketConnectionClosed()) );
     //connect( socket, SIGNAL(error(SocketError socketError)), SLOT(socketError(int)) );
@@ -180,7 +180,10 @@ void Socket::checkLoginAndGetListFileName(QJsonObject object)
         int fileid = v.toObject().value("fileid").toInt();
         int count = v.toObject().value("count").toInt();
         if(count > 1){
-            filename.append("~shared");
+            mapShared.insert(filename, 1);
+        }
+        else{
+            mapShared.insert(filename, 0);
         }
         this->mapFiles.insert(filename, fileid);
     }
@@ -213,7 +216,7 @@ void Socket::readBuffer(){
     {
         qDebug() << "Leggo dal socket";
        buffer.append(socket->readAll());
-       while ((size == 0 && buffer.size() >= 8) || (size > 0 && buffer.size() >= size)) //While can process data, process it
+       while ((size == 0 && buffer.size() >= 8) || (size > 0 && static_cast<quint64>(buffer.size()) >= size)) //While can process data, process it
        {
            if (size == 0 && buffer.size() >= 8) //if size of data has received completely, then store it on our global variable
            {
@@ -223,8 +226,8 @@ void Socket::readBuffer(){
            }
            if (size > 0 && buffer.size() >= static_cast<int>(size)) // If data has received completely, then emit our SIGNAL with the data
            {
-               data = buffer.mid(0, static_cast<int>(size));
-               buffer.remove(0,static_cast<int>(size));
+               data = buffer.mid(0, static_cast<quint64>(size));
+               buffer.remove(0,static_cast<quint64>(size));
                size = 0;
                qDebug() << "Data: " << data.data();
                emit bufferReady(data);
@@ -790,6 +793,9 @@ void Socket::isSigningUp(bool flag) {
 
 QMap<QString, int> Socket::getMapFiles(){
     return this->mapFiles;
+}
+QMap<QString, int> Socket::getMapShared(){
+    return this->mapShared;
 }
 
 QMap<QString, QColor> Socket::getUserColor(){

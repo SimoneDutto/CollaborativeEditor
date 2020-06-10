@@ -221,8 +221,8 @@ MainWindow::MainWindow(Socket *sock, QWidget *parent, QString nome) :
              fHandler, SLOT(localCursorChange(int)));
     connect( this, SIGNAL(sendCursorSelection(int,int)),
              socket, SLOT(sendCursorSelectionToServer(int,int)));
-    connect( socket, SIGNAL(cursorSelection(int,int,QColor)),
-             this, SLOT(changeViewAfterSelection(int,int,QColor)));
+    //connect( socket, SIGNAL(cursorSelection(int,int,QColor)),
+             //this, SLOT(changeViewAfterSelection(int,int,QColor)));
 
     /* CONNECT per collegare le ClickableLabel */
     connect( ui->user1, SIGNAL(clicked()),

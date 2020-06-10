@@ -32,6 +32,7 @@ public:
     int getClientID();
     QString getClientUsername();
     QMap<QString, int> getMapFiles();
+    QMap<QString, int> getMapShared();
     QMap<QString, QColor> getUserColor();
     bool isConnected();
     void isSigningUp(bool flag);
@@ -49,6 +50,7 @@ private:
     int clientID;
     QString username;
     QMap<QString, int> mapFiles;
+    QMap<QString, int> mapShared;
     QMap<QString, QColor> userColor;
     QMap<int, QColor> userIDColor;
     QMap<int, int> userCursors;

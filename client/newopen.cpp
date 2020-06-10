@@ -69,17 +69,14 @@ NewOpen::NewOpen(Socket *sock, FileHandler *fHandler, QWidget *parent) :
     ui->shared_color->setStyleSheet("border-style: solid; border-width: 1px; border-radius: 5px; border-color: black; background-color: #5dbcd2");
     ui->private_color->setStyleSheet("border-style: solid; border-width: 1px; border-radius: 5px; border-color: black; background-color: #d1d1d6");
 
-
+    QMap<QString, int> shared = this->socket->getMapShared();
     for (QString s : this->socket->getMapFiles().keys()){
-        auto check = s.split("~shared");
-
-        if(check.length()<2){
+        if(shared.value(s)==0){
             ui->listWidget->addItem(s);
         }
-
         else {
             QListWidgetItem* item = new QListWidgetItem;
-            item->setText(check.at(0));
+            item->setText(s);
             item->setBackground(QColor(93, 188, 210));
             ui->listWidget->addItem(item);
         }
