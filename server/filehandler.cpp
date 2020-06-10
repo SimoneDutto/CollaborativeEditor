@@ -216,22 +216,23 @@ QVector<int> FileHandler::modifyPositionIndexes(QVector<int> currentIndexes, int
 }
 
 void FileHandler::remoteDelete(QString deletedLetterID,  QByteArray message, QTcpSocket* client, int siteCounter) {
-    int i = 0;
+    int index = 0;
 
     if(this->usersSiteCounters.contains(client)) {
         QMap<QTcpSocket*, int>::iterator i = this->usersSiteCounters.find(client);
         i.value() = siteCounter;
         qDebug() << "Site counter updated after delete = " << siteCounter;
-    }
-
-    for (Letter *l : this->letters) {
-        if(l->getLetterID().compare(deletedLetterID) == 0) {
-            this->letters.remove(i);
+        for (int i=0; i<this->letters.size(); i++) {
+            if(this->letters[i]->getLetterID().compare(deletedLetterID) == 0) {
+                index = i;
+                break;
+            }
+        }
+        if(index >= 0) {
+            this->letters.remove(index);
             // Notifica gli altri client inviando lo stesso messaggio
             emit remoteDeleteNotify(this->users, message, client);
-            break;
         }
-        i++;
     }
 }
 

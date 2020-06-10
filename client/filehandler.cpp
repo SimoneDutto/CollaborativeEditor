@@ -447,16 +447,18 @@ void FileHandler::collisionAlert(QString letterID, int newIndex, QVector<int> ne
 }
 
 void FileHandler::remoteDelete(QString deletedLetterID) {
-    int externalIndex = 0;
+    int index = -1;
 
-    for (Letter *l : this->letters) {
-        if(l->getLetterID().compare(deletedLetterID) == 0) {
-            this->letters.remove(externalIndex);
-            /*Aggiornare la GUI*/
-            emit readyRemoteDelete(externalIndex+1);
+    for (int i=0; i<this->letters.size(); i++) {
+        if(this->letters[i]->getLetterID().compare(deletedLetterID) == 0) {
+            index = i;
             break;
         }
-       externalIndex++;
+    }
+    if(index >= 0) {
+        this->letters.remove(index);
+        /*Aggiornare la GUI*/
+        emit readyRemoteDelete(index+1);
     }
 }
 
