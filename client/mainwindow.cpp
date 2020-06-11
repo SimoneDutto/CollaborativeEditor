@@ -1845,9 +1845,10 @@ void MainWindow::insertPastedText(QString html, QString text){
             if(cursor.charFormat().background() != Qt::white){
                 fmt = cursor.charFormat();
                 fmt.setBackground(Qt::white);
+                cursor.setPosition(externalIndex);
                 cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
                 cursor.mergeCharFormat(fmt);
-                cursor.setPosition(externalIndex);
+
             }
 
             QTextBlockFormat block = cursor.blockFormat();
