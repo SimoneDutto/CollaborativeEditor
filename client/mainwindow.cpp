@@ -868,15 +868,11 @@ void MainWindow::changeViewAfterDelete(int pos)
     disconnect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
 
         QTextCursor cursor(ui->textEdit->textCursor());
-        if(letterCounter == 1) {
-            cursor.select(QTextCursor::WordUnderCursor);
-            cursor.removeSelectedText();
-        }
-        else {
+
         cursor.setPosition(pos);
         cursor.deletePreviousChar();
         qDebug() << "Devo cancellare la lettera in pos: " << pos;
-    }
+
 
     letterCounter--;
     connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
@@ -1519,6 +1515,9 @@ void MainWindow::on_cursor_triggered(QPair<int,int> idpos, QColor col, QString l
             pos = 0;
             colore = Qt::white;
         }
+        else if (idpos.second > ui->textEdit->toPlainText().size())
+            pos = letterCounter;
+
         qDebug() << pos << id_colore_cursore.size() << id_colore_cursore.value(0);
 
         fmt.setBackground(colore);
@@ -1552,6 +1551,7 @@ void MainWindow::on_cursor_triggered(QPair<int,int> idpos, QColor col, QString l
             //qDebug() << "testo left: " << cursor.selectedText();
             cursor.mergeCharFormat(fmt);
         }
+
         else{
             cursor.setPosition(pos);
                     cursor.movePosition(QTextCursor::Start, QTextCursor::KeepAnchor);
