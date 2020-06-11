@@ -866,11 +866,13 @@ void MainWindow::changeViewAfterInsert(QChar l, int pos, QTextCharFormat format,
 void MainWindow::changeViewAfterDelete(int pos)
 {
     disconnect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
-
-    QTextCursor cursor(ui->textEdit->textCursor());
-    cursor.setPosition(pos);
-    cursor.deletePreviousChar();
-    qDebug() << "Devo cancellare la lettera in pos: " << pos;
+    if(ui->textEdit->toPlainText().size() == 1) ui->textEdit->clear();
+    else {
+        QTextCursor cursor(ui->textEdit->textCursor());
+        cursor.setPosition(pos);
+        cursor.deletePreviousChar();
+        qDebug() << "Devo cancellare la lettera in pos: " << pos;
+    }
 
     letterCounter--;
     connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
