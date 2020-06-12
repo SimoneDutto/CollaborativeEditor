@@ -1,5 +1,6 @@
 #include "filehandler.h"
 #include <QDebug>
+#include <QThread>
 
 FileHandler::FileHandler(QObject *parent)
   : QObject(parent), siteCounter(0), cursor(0)
@@ -310,6 +311,7 @@ void FileHandler::localDelete(int firstExternalIndex, int lastExternalIndex) {
         this->letters.remove(i-1);
         this->siteCounter++;
         /*Inviare notifica via socket*/
+        QThread::msleep(1);
         emit localDeleteNotify(letterID, this->fileid, this->siteCounter);
     }
 }

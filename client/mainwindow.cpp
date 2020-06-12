@@ -865,17 +865,20 @@ void MainWindow::changeViewAfterInsert(QChar l, int pos, QTextCharFormat format,
 
 void MainWindow::changeViewAfterDelete(int pos)
 {
+    if(letterCounter >= 1){
     disconnect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
 
         QTextCursor cursor(ui->textEdit->textCursor());
 
         cursor.setPosition(pos);
         cursor.deletePreviousChar();
+
         qDebug() << "Devo cancellare la lettera in pos: " << pos;
 
 
     letterCounter--;
     connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
+    }
 }
 
 
@@ -1853,6 +1856,7 @@ void MainWindow::insertPastedText(QString html, QString text){
 
             QTextBlockFormat block = cursor.blockFormat();
             qDebug() << "CHAR FORMAT" << block.alignment();
+            QThread::msleep(1);
             emit myInsert(externalIndex, text.at(i), socket->getClientID(), cursor.charFormat(), this->getFlag(block.alignment()));
         }
         emit sendCursorChange(externalIndex);
