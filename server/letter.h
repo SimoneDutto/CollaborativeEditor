@@ -42,7 +42,8 @@ public:
     void addFractionalDigit(int value);
     bool hasSameFractionals(Letter other);
     void setNewFractionals(QVector<int> newFractionals);
-    bool comesFirst(Letter other);
+    bool comesFirstRight(Letter other, int pos_id);
+    bool comesFirstLeft(Letter other, int pos_id);
     QJsonObject toJSon();
 
 };

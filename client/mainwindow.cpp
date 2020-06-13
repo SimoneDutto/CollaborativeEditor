@@ -22,6 +22,7 @@
 #include <QFontDatabase>
 #include <QTextBlock>
 #include <QTextDocumentFragment>
+#include <QThread>
 
 
 MainWindow::MainWindow(Socket *sock, QWidget *parent, QString nome) :
@@ -177,8 +178,8 @@ MainWindow::MainWindow(Socket *sock, QWidget *parent, QString nome) :
     connect( socket, SIGNAL(readyDelete(QString)),
               fHandler, SLOT(remoteDelete(QString)));
     connect( socket, SIGNAL(readyFile(QMap<int,int>,QMap<int,QColor>)),  this, SLOT(fileIsHere(QMap<int,int>,QMap<int,QColor>)));
-    connect( fHandler, SIGNAL(readyRemoteInsert(QChar, int, QTextCharFormat, Qt::AlignmentFlag)),
-             this, SLOT(changeViewAfterInsert(QChar, int, QTextCharFormat, Qt::AlignmentFlag)));
+    connect( fHandler, SIGNAL(readyRemoteInsert(QChar, int, QTextCharFormat, Qt::AlignmentFlag, QString)),
+             this, SLOT(changeViewAfterInsert(QChar, int, QTextCharFormat, Qt::AlignmentFlag, QString)));
     connect( fHandler, SIGNAL(readyRemoteDelete(int)),
              this, SLOT(changeViewAfterDelete(int)));
     connect( socket, SIGNAL(UserConnect(QString, QColor)),
@@ -215,8 +216,8 @@ MainWindow::MainWindow(Socket *sock, QWidget *parent, QString nome) :
              this, SLOT(changeViewAfterColor(int,int,QColor)));
 
     /* CONNECT per cursore */
-    connect( socket, SIGNAL(userCursor(QPair<int,int>,QColor)),
-             this, SLOT(on_cursor_triggered(QPair<int,int>,QColor)));
+    connect( socket, SIGNAL(userCursor(QPair<int,int>,QColor,QString)),
+             this, SLOT(on_cursor_triggered(QPair<int,int>,QColor, QString)));
     connect( this, SIGNAL(sendCursorChange(int)),
              fHandler, SLOT(localCursorChange(int)));
     connect( this, SIGNAL(sendCursorSelection(int,int)),
@@ -802,7 +803,7 @@ void MainWindow::destroyMainC(QString filename){
     this->deleteLater();
 }
 
-void MainWindow::changeViewAfterInsert(QChar l, int pos, QTextCharFormat format, Qt::AlignmentFlag alignment)
+void MainWindow::changeViewAfterInsert(QChar l, int pos, QTextCharFormat format, Qt::AlignmentFlag alignment, QString letterID)
 {
     disconnect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
     /*disconnect( socket, SIGNAL(userCursor(QPair<int,int>,QColor)),this, SLOT(on_cursor_triggered(QPair<int,int>,QColor)));
@@ -813,6 +814,15 @@ void MainWindow::changeViewAfterInsert(QChar l, int pos, QTextCharFormat format,
     disconnect( this, SIGNAL(sendCursorSelection(int,int)),
              socket, SLOT(sendCursorSelectionToServer(int,int)));*/
     QTextCursor cursor(ui->textEdit->textCursor());
+    auto vett = this->fHandler->getVectorFile();
+    if(pos<vett.size() && vett[pos]->getLetterID().compare(letterID) !=0){
+        for (int i = vett.size()-1; i >= 0; i--){
+            if(vett[i]->getLetterID().compare(letterID) == 0){
+                pos = i;
+                break;
+            }
+        }
+    }
 
     //int prevPos = cursor.position();
     int oldPos = cursor.position();
@@ -855,15 +865,20 @@ void MainWindow::changeViewAfterInsert(QChar l, int pos, QTextCharFormat format,
 
 void MainWindow::changeViewAfterDelete(int pos)
 {
+    if(letterCounter >= 1){
     disconnect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
 
-    QTextCursor cursor(ui->textEdit->textCursor());
-    cursor.setPosition(pos);
-    cursor.deletePreviousChar();
-    qDebug() << "Devo cancellare la lettera in pos: " << pos;
+        QTextCursor cursor(ui->textEdit->textCursor());
+
+        cursor.setPosition(pos);
+        cursor.deletePreviousChar();
+
+        qDebug() << "Devo cancellare la lettera in pos: " << pos;
+
 
     letterCounter--;
     connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
+    }
 }
 
 
@@ -1457,7 +1472,7 @@ void MainWindow::notConnected(){
 }
 
 
-void MainWindow::on_cursor_triggered(QPair<int,int> idpos, QColor col)
+void MainWindow::on_cursor_triggered(QPair<int,int> idpos, QColor col, QString letterID)
 {
     // controllo che nella mappa colorecursore non sia gia presente l'id
 
@@ -1503,6 +1518,9 @@ void MainWindow::on_cursor_triggered(QPair<int,int> idpos, QColor col)
             pos = 0;
             colore = Qt::white;
         }
+        else if (idpos.second > ui->textEdit->toPlainText().size())
+            pos = letterCounter;
+
         qDebug() << pos << id_colore_cursore.size() << id_colore_cursore.value(0);
 
         fmt.setBackground(colore);
@@ -1536,6 +1554,7 @@ void MainWindow::on_cursor_triggered(QPair<int,int> idpos, QColor col)
             //qDebug() << "testo left: " << cursor.selectedText();
             cursor.mergeCharFormat(fmt);
         }
+
         else{
             cursor.setPosition(pos);
                     cursor.movePosition(QTextCursor::Start, QTextCursor::KeepAnchor);
@@ -1829,14 +1848,16 @@ void MainWindow::insertPastedText(QString html, QString text){
             if(cursor.charFormat().background() != Qt::white){
                 fmt = cursor.charFormat();
                 fmt.setBackground(Qt::white);
+                cursor.setPosition(externalIndex);
                 cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
                 cursor.mergeCharFormat(fmt);
-                cursor.setPosition(externalIndex);
+
             }
 
             QTextBlockFormat block = cursor.blockFormat();
             qDebug() << "CHAR FORMAT" << block.alignment();
-            myInsert(externalIndex, text.at(i), socket->getClientID(), cursor.charFormat(), this->getFlag(block.alignment()));
+            QThread::msleep(1);
+            emit myInsert(externalIndex, text.at(i), socket->getClientID(), cursor.charFormat(), this->getFlag(block.alignment()));
         }
         emit sendCursorChange(externalIndex);
     }

@@ -34,7 +34,7 @@ void MyServer::onNewConnection()
     QTcpSocket *socket = m_server->nextPendingConnection();
     if (!socket)
         return;
-
+    socket->setSocketOption(QAbstractSocket::LowDelayOption, 1);
     qDebug("New connection from %s:%d.",
            qPrintable(socket->peerAddress().toString()), socket->peerPort());
 
@@ -63,7 +63,7 @@ void MyServer::readBuffer(){
        //qDebug() << "Leggo dal socket";
        buffer->data.append(socket->readAll());
        qDebug() << buffer->data;
-       while ((buffer->dim == 0 && buffer->data.size() >= 8) || (buffer->dim > 0 && buffer->data.size() >= buffer->dim)) //While can process data, process it
+       while ((buffer->dim == 0 && buffer->data.size() >= 8) || (buffer->dim > 0 && static_cast<quint64>(buffer->data.size()) >= buffer->dim)) //While can process data, process it
        {
            if (buffer->dim == 0 && buffer->data.size() >= 8) //if size of data has received completely, then store it on our global variable
            {
@@ -71,10 +71,10 @@ void MyServer::readBuffer(){
                qDebug() << "Size: " << buffer->dim;
                buffer->data.remove(0, 8);
            }
-           if (buffer->dim > 0 && buffer->data.size() >= buffer->dim) // If data has received completely, then emit our SIGNAL with the data
+           if (buffer->dim > 0 && static_cast<quint64>(buffer->data.size()) >= buffer->dim) // If data has received completely, then emit our SIGNAL with the data
            {
-               data = buffer->data.mid(0, static_cast<int>(buffer->dim));
-               buffer->data.remove(0, static_cast<int>(buffer->dim));
+               data = buffer->data.mid(0, static_cast<quint64>(buffer->dim));
+               buffer->data.remove(0, static_cast<quint64>(buffer->dim));
                buffer->dim = 0;
                //qDebug() << "Data: " << data.data();
                emit bufferReady(socket, data);
@@ -285,14 +285,17 @@ void MyServer::sendFileChunk(QByteArray chunk, QTcpSocket* socket, int remaining
     object.insert("type", type);
     object.insert("chunk", s_data);
     object.insert("remaining", remainingSize);
-    if(socket->state() == QAbstractSocket::ConnectedState)
-    {
-        //qDebug() << "Invio file";
-        qDebug() << "size: " << QJsonDocument(object).toJson().size();
-        //qDebug() << "file with content: " << object;
-        socket->write(toSend.number(QJsonDocument(object).toJson().size()), sizeof(quint64));
+
+    if(socket->state() == QAbstractSocket::ConnectedState){
+        qint32 msg_size = QJsonDocument(object).toJson().size();
+        QByteArray toSend;
+        socket->write(toSend.number(msg_size), sizeof (quint64));
         socket->waitForBytesWritten();
-        socket->write(QJsonDocument(object).toJson());
-        socket->waitForBytesWritten();
+        qint32 byteWritten = 0;
+        while(byteWritten<msg_size){
+            byteWritten += socket->write(QJsonDocument(object).toJson());
+            socket->waitForBytesWritten();
+        }
     }
+
 }

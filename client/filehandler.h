@@ -56,10 +56,10 @@ signals:
     //void localInsertNotify(QChar newLetterValue, QJsonArray position, int siteID, int siteCounter, int externalIndex, QTextCharFormat format, Qt::AlignmentFlag align);
     void localDeleteNotify(QString deletedLetterID, int fileid, int siteCounter);
     void localStyleChangeNotify(QString firstLetterID, QString lastLetterID, int fileID, QString changedStyle, QString font);
-    void localCursorChangeNotify(int position);
+    void localCursorChangeNotify(int position, QString id);
     void localAlignChangeNotify(Qt::AlignmentFlag align, int cursorPosition, QString startID, QString lastID);
 
-    void readyRemoteInsert(QChar newLetter, int externalIndex, QTextCharFormat format, Qt::AlignmentFlag alignment);
+    void readyRemoteInsert(QChar newLetter, int externalIndex, QTextCharFormat format, Qt::AlignmentFlag alignment, QString);
     void readyRemoteDelete(int externalIndex);
     void readyRemoteStyleChange(QString firstLetterID, QString lastLetterID);
     void readyRemoteAlignChange(Qt::AlignmentFlag align, int cursorPosition);

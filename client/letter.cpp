@@ -119,15 +119,28 @@ bool Letter::hasSameFractionals(Letter other) {
     } else return false;
 }
 
-bool Letter::comesFirst(Letter other) {
-    bool comesFirst = false;
+bool Letter::comesFirstRight(Letter other, int pos_id) {
+    int this_nfractionals = this->getNumberOfFractionals(), other_nfractionals = other.getNumberOfFractionals();
 
-    if(this->getIndex() < other.getIndex())
-        comesFirst = true;
-    else if(this->getIndex() > other.getIndex())
-        comesFirst = false;
+    if(this->fractionalIndexes.at(pos_id) < other.getFractionalIndexes().at(pos_id))
+        return true;
+    else if(this->fractionalIndexes.at(pos_id) > other.getFractionalIndexes().at(pos_id))
+        return false;
     else {
-        if(this->getNumberOfFractionals() < other.getNumberOfFractionals())
+        if(other_nfractionals > pos_id+1 && this_nfractionals <= pos_id+1)
+            return true;
+        else if (other_nfractionals <= pos_id+1 && this_nfractionals > pos_id+1)
+            return false;
+        else if (other_nfractionals > pos_id+1 && this_nfractionals > pos_id+1)
+            return this->comesFirstRight(other, pos_id+1);
+        else {
+            QStringList this_ids = this->letterID.split("-"), other_ids = other.letterID.split("-");
+            int this_id = this_ids.at(0).toInt(), this_cnt = this_ids.at(1).toInt(), other_id = other_ids.at(0).toInt(), other_cnt = other_ids.at(1).toInt();
+            if(this_id < other_id || (!(this_id < other_id) && this_cnt < other_cnt))
+                return true;
+            else return false;
+        }
+        /*if(this->getNumberOfFractionals() < other.getNumberOfFractionals())
             comesFirst = true;
         else if(this->getNumberOfFractionals() == other.getNumberOfFractionals()) {
             for(int i=0; i<this->getNumberOfFractionals(); i++) {
@@ -143,10 +156,34 @@ bool Letter::comesFirst(Letter other) {
                     break;
                 }
             }
+        }*/
+    }
+}
+
+bool Letter::comesFirstLeft(Letter other, int pos_id) {
+    int this_nfractionals = this->getNumberOfFractionals(), other_nfractionals = other.getNumberOfFractionals();
+
+    if(this->fractionalIndexes.at(pos_id) < other.getFractionalIndexes().at(pos_id))
+        return false;
+    else if(this->fractionalIndexes.at(pos_id) > other.getFractionalIndexes().at(pos_id))
+        return true;
+    else {
+        if(other_nfractionals > pos_id+1 && this_nfractionals <= pos_id+1)
+            return false;
+        else if (other_nfractionals <= pos_id+1 && this_nfractionals > pos_id+1)
+            return true;
+        else if (other_nfractionals > pos_id+1 && this_nfractionals > pos_id+1)
+            return this->comesFirstLeft(other, pos_id+1);
+        else {
+            QStringList this_ids = this->letterID.split("-"), other_ids = other.letterID.split("-");
+            int this_id = this_ids.at(0).toInt(), this_cnt = this_ids.at(1).toInt(), other_id = other_ids.at(0).toInt(), other_cnt = other_ids.at(1).toInt();
+            if(this_id < other_id || (!(this_id < other_id) && this_cnt < other_cnt))
+                return false;
+            else return true;
         }
     }
-    return comesFirst;
 }
+
 
 void Letter::setNewPosition(QVector<int> position) {
     this->fractionalIndexes.clear();

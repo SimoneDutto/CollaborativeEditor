@@ -4,11 +4,12 @@
 #include <QtEndian>
 #include <QDataStream>
 #include <QImageWriter>
+#include <QThread>
 
 #define DATA_SIZE 1024
 
 inline qint32 ArrayToInt(QByteArray source);
-const QString SERVER_IP = "192.168.1.22";
+const QString SERVER_IP = "192.168.1.54";
 
 
 Socket::Socket(QWidget *parent) :
@@ -216,7 +217,7 @@ void Socket::readBuffer(){
     {
         qDebug() << "Leggo dal socket";
        buffer.append(socket->readAll());
-       while ((size == 0 && buffer.size() >= 8) || (size > 0 && buffer.size() >= size)) //While can process data, process it
+       while ((size == 0 && buffer.size() >= 8) || (size > 0 && static_cast<quint64>(buffer.size()) >= size)) //While can process data, process it
        {
            if (size == 0 && buffer.size() >= 8) //if size of data has received completely, then store it on our global variable
            {
@@ -226,8 +227,8 @@ void Socket::readBuffer(){
            }
            if (size > 0 && buffer.size() >= static_cast<int>(size)) // If data has received completely, then emit our SIGNAL with the data
            {
-               data = buffer.mid(0, static_cast<int>(size));
-               buffer.remove(0,static_cast<int>(size));
+               data = buffer.mid(0, static_cast<quint64>(size));
+               buffer.remove(0,static_cast<quint64>(size));
                size = 0;
                qDebug() << "Data: " << data.data();
                emit bufferReady(data);
@@ -343,8 +344,8 @@ void Socket::notificationsHandler(QByteArray data){
             connect( this->fileh, SIGNAL(localDeleteNotify(QString, int, int)), this, SLOT(sendDelete(QString, int, int)) );
             connect( this->fileh, SIGNAL(localStyleChangeNotify(QString, QString, int, QString, QString)),
                      this, SLOT(sendChangeStyle(QString, QString, int, QString, QString)));
-            connect( this->fileh, SIGNAL(localCursorChangeNotify(int)),
-                     this, SLOT(sendCursor(int)));
+            connect( this->fileh, SIGNAL(localCursorChangeNotify(int,QString)),
+                     this, SLOT(sendCursor(int,QString)));
             connect( this->fileh, SIGNAL(localAlignChangeNotify(Qt::AlignmentFlag,int,QString,QString)),
                      this, SLOT(sendAlignment(Qt::AlignmentFlag,int,QString,QString)));
 
@@ -442,8 +443,8 @@ void Socket::notificationsHandler(QByteArray data){
             connect( this->fileh, SIGNAL(localDeleteNotify(QString, int, int)), this, SLOT(sendDelete(QString, int, int)) );
             connect( this->fileh, SIGNAL(localStyleChangeNotify(QString, QString, int, QString, QString)),
                      this, SLOT(sendChangeStyle(QString, QString, int, QString, QString)));
-            connect( this->fileh, SIGNAL(localCursorChangeNotify(int)),
-                     this, SLOT(sendCursor(int)));
+            connect( this->fileh, SIGNAL(localCursorChangeNotify(int,QString)),
+                     this, SLOT(sendCursor(int,QString)));
             connect( this->fileh, SIGNAL(localAlignChangeNotify(Qt::AlignmentFlag,int,QString,QString)),
                      this, SLOT(sendAlignment(Qt::AlignmentFlag,int,QString,QString)));
             qDebug() << "Il file è stato creato correttamente!";
@@ -489,7 +490,7 @@ void Socket::notificationsHandler(QByteArray data){
         userIDColor.insert(userID, random);
         userCursors.insert(userID, cursor);
         emit UserConnect(username, random);
-        emit userCursor(qMakePair(userID,cursor), random);
+        emit userCursor(qMakePair(userID,cursor), random, nullptr);
     }
     else if(type.compare("USER_DISCONNECT")==0){
         QString username = object.value("username").toString();
@@ -497,7 +498,7 @@ void Socket::notificationsHandler(QByteArray data){
         userColor.remove(username);
         userIDColor.remove(userID);
         userCursors.remove(userID);
-        emit userCursor(qMakePair(userID,-1), nullptr);
+        emit userCursor(qMakePair(userID,-1), nullptr, nullptr);
         emit UserDisconnect(username, userID);
     }
     else if(type.compare("ACCESS_RESPONSE")==0){
@@ -518,9 +519,10 @@ void Socket::notificationsHandler(QByteArray data){
             QColor color = userIDColor.value(userID);
             if(object.contains("position")) {
                 int position = object.value("position").toInt();
+                QString letterID = object.value("letterID").toString();
                 if(userCursors[userID] != position) {
                     userCursors[userID] = position;
-                    emit userCursor(qMakePair(userID, position), color);
+                    emit userCursor(qMakePair(userID, position), color, letterID);
                 }
             } else if(object.contains("start") && object.contains("end")) {
                 // selection
@@ -651,11 +653,12 @@ int Socket::sendChangeStyle(QString firstLetterID, QString lastLetterID, int fil
     return this->sendNotification(obj);
 }
 
-int Socket::sendCursor(int position) {
+int Socket::sendCursor(int position, QString letterID) {
     QJsonObject obj;
     obj.insert("type", "CURSOR");
     obj.insert("userID", clientID);
     obj.insert("position", position);
+    obj.insert("letterID", letterID);
     obj.insert("fileid", fileh->getFileId());
 
     return this->sendNotification(obj);
@@ -704,11 +707,14 @@ int Socket::sendNotification(QJsonObject obj) {
         QByteArray toSend;
         socket->write(toSend.number(msg_size), sizeof (quint64));
         socket->waitForBytesWritten();
-        socket->write(QJsonDocument(obj).toJson());
-        socket->waitForBytesWritten();
+        qint32 byteWritten = 0;
+        while(byteWritten<msg_size){
+            byteWritten += socket->write(QJsonDocument(obj).toJson());
+            socket->waitForBytesWritten();
+        }
         qDebug() << "Richiesta:\n" << QJsonDocument(obj).toJson().data();
     }
-    return socket->waitForBytesWritten(1000);
+    return 0;
 }
 
 void Socket::socketConnected()

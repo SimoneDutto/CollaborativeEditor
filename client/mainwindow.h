@@ -44,7 +44,7 @@ private slots:
     void on_textEdit_textChanged();
     void on_lineEdit_editingFinished();
     void fileIsHere(QMap<int,int>, QMap<int,QColor>);
-    void changeViewAfterInsert(QChar l, int pos, QTextCharFormat format, Qt::AlignmentFlag);
+    void changeViewAfterInsert(QChar l, int pos, QTextCharFormat format, Qt::AlignmentFlag, QString);
     void changeViewAfterDelete(int externalIndex);
     void changeViewAfterStyle(QString firstLetterID, QString lastLetterID);
     void addUserConnection(QString username, QColor colorUser);
@@ -66,7 +66,7 @@ private slots:
     void on_actionAlign_to_Center_triggered();
     void on_actionAlign_to_Justify_triggered();
     void notConnected();
-    void on_cursor_triggered(QPair<int,int> idpos, QColor col);
+    void on_cursor_triggered(QPair<int,int> idpos, QColor col, QString letterID);
     void changeClientImage(QString path);
     void on_actionhistory_triggered();
     void on_actionLight_triggered();
