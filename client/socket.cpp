@@ -5,7 +5,7 @@
 #include <QDataStream>
 #include <QImageWriter>
 #include <QThread>
-
+// Commond data chunk for TCP
 #define DATA_SIZE 1024
 
 inline qint32 ArrayToInt(QByteArray source);

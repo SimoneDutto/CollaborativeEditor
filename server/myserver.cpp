@@ -7,6 +7,8 @@
 #include <QTcpServer>
 #include <QDataStream>
 
+//Add Multi-thread support
+
 MyServer::MyServer(QObject *parent) :
     QObject(parent),
     m_server(new QTcpServer(this))
