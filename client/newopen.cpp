@@ -156,16 +156,6 @@ void NewOpen::on_pushButton_2_clicked() //Bottone: new Document
 
 }
 
-//void NewOpen::createNewFile(QString newfile){
-//    if(newfile.compare("null")==0){
-//        mainwindow->hide();
-//        QMessageBox::warning(this, "Ops...", "Name already inserted");
-//        mainwindow->deleteLater();
-//        return;
-//    }
-
-//    hide();
-//}
 void NewOpen::on_pushButton_clicked() //Bottone: open Document
 {
     disconnect(socket, SIGNAL(uriIsOk(QString)),

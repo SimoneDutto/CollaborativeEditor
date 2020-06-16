@@ -411,15 +411,6 @@ void FileSystem::sendFile(int fileid, QTcpSocket *socket){
 
 }
 
-/*QByteArray FileSystem::IntToArray(qint32 source) //Use qint32 to ensure that the number have 4 bytes
-{
-    //Avoid use of cast, this is the Qt way to serialize objects
-    QByteArray temp;
-    QDataStream data(&temp, QIODevice::ReadWrite);
-    data << source;
-    return temp;
-}*/
-
 void FileSystem::checkLogin(QString username, QString password, QTcpSocket *socket){
 
     QSqlQuery query;
@@ -734,11 +725,6 @@ std::map<int, FileHandler*> FileSystem::getFiles() {
     return this->files;
 }
 
-/*int FileSystem::getSocketID(QTcpSocket *socket){
-    if(this->sock_id.(socket))
-        return sock_id.value(socket);
-    else return -1;
-}*/
 
 void FileSystem::disconnectClient(QTcpSocket* socket){
     auto it = sock_id.find(socket);

@@ -91,18 +91,6 @@ int Letter::getNumberOfFractionals() {
     return this->fractionalIndexes.size();
 }
 
-/*void Letter::setStyle(QString style) {
-    if(style.compare("Normal") == 0)
-        this->style = Normal;
-    else if(style.compare("Bold") == 0)
-        this->style = Bold;
-    else if(style.compare("Italic") == 0)
-        this->style = Italic;
-    else if(style.compare("Underlined") == 0)
-        this->style = Underlined;
-}*/
-
-
 void Letter::addFractionalDigit(int value) {
     this->fractionalIndexes.append(value);
 }
@@ -140,23 +128,6 @@ bool Letter::comesFirstRight(Letter other, int pos_id) {
                 return true;
             else return false;
         }
-        /*if(this->getNumberOfFractionals() < other.getNumberOfFractionals())
-            comesFirst = true;
-        else if(this->getNumberOfFractionals() == other.getNumberOfFractionals()) {
-            for(int i=0; i<this->getNumberOfFractionals(); i++) {
-                if(this->fractionalIndexes[i] < other.getFractionalIndexes()[i]) {
-                    comesFirst = true;
-                    break;
-                }
-            }
-        } else {
-            for(int i=0; i<other.getNumberOfFractionals(); i++) {
-                if(this->fractionalIndexes[i] < other.getFractionalIndexes()[i]) {
-                    comesFirst = true;
-                    break;
-                }
-            }
-        }*/
     }
 }
 

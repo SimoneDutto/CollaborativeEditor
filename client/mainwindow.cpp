@@ -48,8 +48,6 @@ MainWindow::MainWindow(Socket *sock, QWidget *parent, QString nome) :
     ui->textEdit->setStyleSheet("QTextEdit { padding:20}");
     ui->textEdit->setAcceptRichText(true);
     // set picture
-    /*QPixmap pix("path -- TO DO");
-    ui->user1->setPixmap(pix);*/
 
     QIcon *discard_icon= new QIcon(":/rec/icone/icons8-punta-della-matita-96.png");
     ui->discardImage->setIcon(*discard_icon);
@@ -62,7 +60,6 @@ MainWindow::MainWindow(Socket *sock, QWidget *parent, QString nome) :
     ui->label_2->setStyleSheet("background-color:lightgray; color:black");
     ui->username->setStyleSheet("color:white");
     ui->label_2->setTextInteractionFlags(Qt::TextSelectableByMouse);
-    //ui->label->setStyleSheet("background-color:lightgray");
 
     auto availableSize = qApp->desktop();
        int width = availableSize->width();
@@ -79,7 +76,6 @@ MainWindow::MainWindow(Socket *sock, QWidget *parent, QString nome) :
                qApp->desktop()->rect()
            )
        );
-    //ui->lineEdit->setText(nome);
 
     /* Personalizzo e aggiungo le label degli utenti connessi */
     styleSheet = QString("QGroupBox {border: 0px;}");
@@ -264,58 +260,9 @@ void MainWindow::on_actionNew_triggered()
 
 void MainWindow::on_actionOpen_triggered()
 {
-    //QString file_name = QFileDialog::getOpenFileName(this,"Open the file");
     dialog = new Dialog(this->socket, this);
     dialog->show();
-
-//    QFile file(file_name);
-//    file_path = file_name;
-//    if(!file.open(QFile::ReadOnly | QFile::Text)){
-//        QMessageBox::warning(this, "..", "file not open");
-//        return;
-//    }
-//    QTextStream in(&file);
-//    QString text = in.readAll();
-//    ui->textEdit->setText(text);
-//    file.close();
 }
-
-//void MainWindow::on_actionSave_triggered()
-//{
-//    if(file_path == ""){
-//        on_actionSave_As_triggered();
-//        return;
-//    }else{
-//    QFile file(file_path);
-//    if(!file.open(QFile::WriteOnly | QFile::Text)){
-//        QMessageBox::warning(this, "..", "file not saved!");
-//        return;
-//    }
-//    QTextStream out(&file);
-//    QString text = ui->textEdit->toPlainText();
-//    out << text;
-//   file.flush();
-//    file.close();
-//    }
-//}
-
-//void MainWindow::on_actionSave_As_triggered()
-//{
-//    QString file_name = QFileDialog::getSaveFileName(this,"Save the file");
-//    QFile file(file_name);
-//    file_path = file_name;
-//    if(!file.open(QFile::WriteOnly | QFile::Text)){
-//        QMessageBox::warning(this, "..", "file not saved!");
-//        return;
-//    }
-//    QTextStream out(&file);
-//    QString text = ui->textEdit->toPlainText();
-//    out << text;
-//    file.flush();
-//    file.close();
-//}
-
-
 
 
 void MainWindow::on_actionAbout_us_triggered()
@@ -358,13 +305,6 @@ void MainWindow::on_actionBold_triggered()
 
         qDebug() << "Seleziono un testo per grassetto";
 
-        //qDebug() << cursor.selection().toHtml();
-
-        /*if(ui->textEdit->fontWeight()==50)
-            ui->textEdit->setFontWeight(75);
-        else
-            ui->textEdit->setFontWeight(50);*/
-
         /* Aggiorno il modello */
         QMap<QString, QTextCharFormat> formatCharMap;
         auto vettore = this->fHandler->getVectorFile();
@@ -385,7 +325,6 @@ void MainWindow::on_actionBold_triggered()
             cursor.setPosition(i+1);
             auto letterFormat = cursor.charFormat();
             qDebug() << letterFormat.font() << letterFormat.fontWeight() << "---" << letterFormat.fontUnderline() << "---" << letterFormat.fontItalic();
-            //vettore.at(i)->setFormat(letterFormat);
             qDebug() << "LetterID = " << vettore.at(i)->getLetterID();
             formatCharMap.insert(vettore.at(i)->getLetterID(), letterFormat);
         }
@@ -541,35 +480,12 @@ void MainWindow::on_actionUnderlined_triggered()
 void MainWindow::on_actionFont_triggered()
 {
     bool ok;
-    /*QMap<QString, QTextCharFormat> formatCharMap;
-    auto vettore = this->fHandler->getVectorFile();
-    auto cursor = ui->textEdit->textCursor();
-
-    if(cursor.selectionStart() - cursor.selectionEnd() == 0) {
-        // TODO @Vito: gestire il cambio del font scritto sull'editor corrispondente alla lettera dopo il cambio di cursore (es da Arial a Calibri)
-        return;
-    }*/
 
     QFont font = QFontDialog::getFont(&ok, this);
     if(!ok)
         return;
     ui->textEdit->setFont(font);
     qDebug() << "Font: " << font.toString();
-
-    /*int start = cursor.selectionStart();
-    int end = cursor.selectionEnd()-1;
-
-    for(int i=start; i<=end; i++){
-        /* Se testo selezionato misto, allora settare, altrimenti se tutto settato, togliere
-        cursor.setPosition(i+1);
-        auto letterFormat = cursor.charFormat();
-        formatCharMap.insert(vettore.at(i)->getLetterID(), letterFormat);
-    }
-
-    QString startID = vettore.at(start)->getLetterID();
-    QString lastID = vettore.at(end)->getLetterID();
-
-    emit styleChange(formatCharMap, startID, lastID, false, false, false, font.toString());*/
 }
 
 void MainWindow::on_actionColor_triggered()
@@ -649,8 +565,6 @@ void MainWindow::on_actionBackground_Color_triggered()
         vettore.at(i)->setBack(color);
     }
 
-    //emit backgroundColorChanged(formatCharMap, startID, lastID, color);
-
     connect( this, SIGNAL(myInsert(int, QChar, int, QTextCharFormat, Qt::AlignmentFlag)),
               fHandler, SLOT(localInsert(int, QChar, int, QTextCharFormat, Qt::AlignmentFlag)));
     connect( this, SIGNAL(myDelete(int,int)),
@@ -663,7 +577,6 @@ void MainWindow::on_textEdit_textChanged()
     QTextCursor cursor(ui->textEdit->textCursor());
     int externalIndex = cursor.position();
     int numberOfLetters = ui->textEdit->toPlainText().size();
-    /*qDebug() << "External index = " << externalIndex;*/
     qDebug() << "here" << numberOfLetters << letterCounter;
 
     if(numberOfLetters > letterCounter) {   // Compare actual number of letters in editor to the previous situation
@@ -846,21 +759,8 @@ void MainWindow::changeViewAfterInsert(QChar l, int pos, QTextCharFormat format,
     letterCounter++;
 
     //CONTROLLO SE ARRIVA IL FORMATO GIUSTO
-    /*qDebug() << "Lettera che sto inserendo: " << l;
-    qDebug() << "Grassetto" << format.fontWeight();
-    qDebug() << "Sottolineato" << format.fontUnderline();
-    qDebug() << "Corsivo" << format.fontItalic();*/
 
-
-
-    /*connect( socket, SIGNAL(userCursor(QPair<int,int>,QColor)),
-             this, SLOT(on_cursor_triggered(QPair<int,int>,QColor)));
-    connect( this, SIGNAL(sendCursorChange(int)),
-             fHandler, SLOT(localCursorChange(int)));
-    connect( this, SIGNAL(sendCursorSelection(int,int)),
-             socket, SLOT(sendCursorSelectionToServer(int,int)));*/
     connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
-    //connect( socket, SIGNAL(userCursor(QPair<int,int>,QColor)), this, SLOT(on_cursor_triggered(QPair<int,int>,QColor)));
 }
 
 void MainWindow::changeViewAfterDelete(int pos)
@@ -903,13 +803,6 @@ void MainWindow::changeViewAfterStyle(QString firstID, QString lastID) {
             blockFormat.setAlignment(l->getAlignment());
             cursor.mergeBlockFormat(blockFormat);
             ui->textEdit->setTextCursor(cursor);
-
-
-            //CONTROLLO SE ARRIVA IL FORMATO GIUSTO
-            /*qDebug() << "Lettera cambio stile: " << l->getValue();
-            qDebug() << "Grassetto" << l->getFormat().fontWeight();
-            qDebug() << "Sottolineato" << l->getFormat().fontUnderline();
-            qDebug() << "Corsivo" << l->getFormat().fontItalic();*/
         }
 
         if(l->getLetterID() == lastID) break;
@@ -1149,12 +1042,6 @@ void MainWindow::on_actionEdit_Profile_triggered()
 
 }
 
-/*void MainWindow::on_actionGet_URI_triggered()
-{
-    // ricavare URI da passare al costruttore
-    uri = new Uri(socket,this,"QUI USCIRA' L'URI");
-    uri->show();
-}*/
 
 void MainWindow::on_actionExport_as_PDF_triggered()
 {
@@ -1504,100 +1391,97 @@ void MainWindow::on_cursor_triggered(QPair<int,int> idpos, QColor col, QString l
 
     }
 
-    //if(idpos.second >= 0) {
-        //altrimenti lo aggiungo
-        if (trovato == false)
-            id_colore_cursore.append(qMakePair(qMakePair(idpos.first,col), idpos.second));
+    //altrimenti lo aggiungo
+    if (trovato == false)
+        id_colore_cursore.append(qMakePair(qMakePair(idpos.first,col), idpos.second));
 
-        std::sort(id_colore_cursore.begin(), id_colore_cursore.end(), sorting);
-        auto vettore = this->fHandler->getVectorFile();
-        QColor colore = id_colore_cursore.value(0).first.second;
-        int pos = id_colore_cursore.value(0).second;
+    std::sort(id_colore_cursore.begin(), id_colore_cursore.end(), sorting);
+    auto vettore = this->fHandler->getVectorFile();
+    QColor colore = id_colore_cursore.value(0).first.second;
+    int pos = id_colore_cursore.value(0).second;
 
-        if (idpos.second < 0) {
-            pos = 0;
-            colore = Qt::white;
-        }
-        else if (idpos.second > ui->textEdit->toPlainText().size())
-            pos = letterCounter;
+    if (idpos.second < 0) {
+        pos = 0;
+        colore = Qt::white;
+    }
+    else if (idpos.second > ui->textEdit->toPlainText().size())
+        pos = letterCounter;
 
-        qDebug() << pos << id_colore_cursore.size() << id_colore_cursore.value(0);
+    qDebug() << pos << id_colore_cursore.size() << id_colore_cursore.value(0);
 
-        fmt.setBackground(colore);
+    fmt.setBackground(colore);
 
-        if((pos == 0 && pos <= ui->textEdit->toPlainText().size()))
-        {
-            cursor.setPosition(pos);
-            cursor.movePosition(QTextCursor::Start, QTextCursor::KeepAnchor);
-            //qDebug() << "testo from Start: " << cursor.selectedText();
-            cursor.mergeCharFormat(fmt2);
-            cursor.setPosition(pos);
-            cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
-            //qDebug() << "testo to End: " << cursor.selectedText();
-            cursor.mergeCharFormat(fmt2);
-            cursor.setPosition(pos);
-            cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor);
-            //qDebug() << "testo left: " << cursor.selectedText();
-            cursor.mergeCharFormat(fmt);
-        }
-        else if(pos <= ui->textEdit->toPlainText().size() && (vettore.at(pos-1)->getValue() == "\n")){
-            cursor.setPosition(pos);
-            cursor.movePosition(QTextCursor::Start, QTextCursor::KeepAnchor);
-            //qDebug() << "testo from Start: " << cursor.selectedText();
-            cursor.mergeCharFormat(fmt2);
-            cursor.setPosition(pos);
-            cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
-            //qDebug() << "testo to End: " << cursor.selectedText();
-            cursor.mergeCharFormat(fmt2);
-            cursor.setPosition(pos);
-            cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor);
-            //qDebug() << "testo left: " << cursor.selectedText();
-            cursor.mergeCharFormat(fmt);
-        }
+    if((pos == 0 && pos <= ui->textEdit->toPlainText().size()))
+    {
+        cursor.setPosition(pos);
+        cursor.movePosition(QTextCursor::Start, QTextCursor::KeepAnchor);
+        //qDebug() << "testo from Start: " << cursor.selectedText();
+        cursor.mergeCharFormat(fmt2);
+        cursor.setPosition(pos);
+        cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+        //qDebug() << "testo to End: " << cursor.selectedText();
+        cursor.mergeCharFormat(fmt2);
+        cursor.setPosition(pos);
+        cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor);
+        //qDebug() << "testo left: " << cursor.selectedText();
+        cursor.mergeCharFormat(fmt);
+    }
+    else if(pos <= ui->textEdit->toPlainText().size() && (vettore.at(pos-1)->getValue() == "\n")){
+        cursor.setPosition(pos);
+        cursor.movePosition(QTextCursor::Start, QTextCursor::KeepAnchor);
+        //qDebug() << "testo from Start: " << cursor.selectedText();
+        cursor.mergeCharFormat(fmt2);
+        cursor.setPosition(pos);
+        cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+        //qDebug() << "testo to End: " << cursor.selectedText();
+        cursor.mergeCharFormat(fmt2);
+        cursor.setPosition(pos);
+        cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor);
+        //qDebug() << "testo left: " << cursor.selectedText();
+        cursor.mergeCharFormat(fmt);
+    }
 
-        else{
-            cursor.setPosition(pos);
-                    cursor.movePosition(QTextCursor::Start, QTextCursor::KeepAnchor);
-                    //qDebug() << "testo from Start: " << cursor.selectedText();
-                    cursor.mergeCharFormat(fmt2);
-                    cursor.setPosition(pos);
-                    cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
-                    //qDebug() << "testo to End: " << cursor.selectedText();
-                    cursor.mergeCharFormat(fmt2);
-                    cursor.setPosition(pos);
-                    cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
-                    //qDebug() << "testo left: " << cursor.selectedText();
-                    cursor.mergeCharFormat(fmt);
-        }
-
-
-        for(int i = 1; i < id_colore_cursore.size(); i++){
-            QColor colore = id_colore_cursore.value(i).first.second;
-            int pos = id_colore_cursore.value(i).second;
-
-            fmt.setBackground(colore);
-
-            if((pos == 0 || (vettore.at(pos-1)->getValue() == "\n")) && pos <= ui->textEdit->toPlainText().size())
-            {
+    else{
+        cursor.setPosition(pos);
+                cursor.movePosition(QTextCursor::Start, QTextCursor::KeepAnchor);
+                //qDebug() << "testo from Start: " << cursor.selectedText();
+                cursor.mergeCharFormat(fmt2);
                 cursor.setPosition(pos);
                 cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
                 //qDebug() << "testo to End: " << cursor.selectedText();
                 cursor.mergeCharFormat(fmt2);
                 cursor.setPosition(pos);
-                cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor);
+                cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
                 //qDebug() << "testo left: " << cursor.selectedText();
                 cursor.mergeCharFormat(fmt);
-            }
-            else{
-                cursor.setPosition(pos);
-                cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
-                cursor.mergeCharFormat(fmt2);
-                cursor.setPosition(pos);
-                cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
-                cursor.mergeCharFormat(fmt);
-            }
+    }
 
-        //}
+
+    for(int i = 1; i < id_colore_cursore.size(); i++){
+        QColor colore = id_colore_cursore.value(i).first.second;
+        int pos = id_colore_cursore.value(i).second;
+
+        fmt.setBackground(colore);
+
+        if((pos == 0 || (vettore.at(pos-1)->getValue() == "\n")) && pos <= ui->textEdit->toPlainText().size())
+        {
+            cursor.setPosition(pos);
+            cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+            //qDebug() << "testo to End: " << cursor.selectedText();
+            cursor.mergeCharFormat(fmt2);
+            cursor.setPosition(pos);
+            cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor);
+            //qDebug() << "testo left: " << cursor.selectedText();
+            cursor.mergeCharFormat(fmt);
+        }
+        else{
+            cursor.setPosition(pos);
+            cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+            cursor.mergeCharFormat(fmt2);
+            cursor.setPosition(pos);
+            cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
+            cursor.mergeCharFormat(fmt);
+        }
     }
     connect(ui->textEdit, SIGNAL(textChanged()), this, SLOT(on_textEdit_textChanged()));
 }

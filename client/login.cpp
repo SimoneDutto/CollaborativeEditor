@@ -71,8 +71,6 @@ void Login::resumeLogin()
     this->close();
     newopen = new NewOpen(this->socket, this->socket->getFHandler());
     newopen->setAttribute(Qt::WA_DeleteOnClose, true);
-    //mainWindow = new MainWindow(this->socket, this->socket->getFHandler(), this);
-    //mainWindow->show();
     newopen ->show();
 }
 

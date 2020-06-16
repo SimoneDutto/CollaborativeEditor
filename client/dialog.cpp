@@ -58,9 +58,6 @@ void Dialog::on_pushButton_clicked()
 {
     QString filenamec= ui->listWidget->currentItem()->text();
     emit destroyM(filenamec);
-//    mainwindow = new MainWindow(this->socket, this->socket->getFHandler(), this, filenamec);
-//    hide();
-//    mainwindow->show();
     hide();
 }
 

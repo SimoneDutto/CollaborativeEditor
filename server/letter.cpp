@@ -8,14 +8,6 @@ Letter::Letter(QChar letter, QVector<int> fractionals, QString letterID, QTextCh
     format(format),
     alignment(alignment) {}
 
-/*Letter::Letter(const Letter& other) {
-    this->letter = other.letter;
-    this->letterID = other.letterID;
-    for(auto f : other.fractionalIndexes)
-       this->fractionalIndexes.append(f);
-}*/
-
-
 QChar Letter::getLetterValue() {
     return this->letter;
 }
@@ -44,17 +36,6 @@ int Letter::getSiteID() {
 int Letter::getNumberOfFractionals() {
     return this->fractionalIndexes.size();
 }
-
-/*void Letter::setStyle(QString style) {
-    if(style.compare("Normal") == 0)
-        this->style = Normal;
-    else if(style.compare("Bold") == 0)
-        this->style = Bold;
-    else if(style.compare("Italic") == 0)
-        this->style = Italic;
-    else if(style.compare("Underlined") == 0)
-        this->style = Underlined;
-}*/
 
 QTextCharFormat Letter::getFormat() {
     return this->format;
@@ -96,36 +77,6 @@ bool Letter::hasSameFractionals(Letter other) {
         return true;
     } else return false;
 }
-
-/*bool Letter::comesFirst(Letter other) {
-    bool comesFirst = false;
-
-    if(this->getIndex() < other.getIndex())
-        comesFirst = true;
-    else if(this->getIndex() > other.getIndex())
-        comesFirst = false;
-    else {
-        if(this->getNumberOfFractionals() < other.getNumberOfFractionals())
-            comesFirst = true;
-        else if(this->getNumberOfFractionals() == other.getNumberOfFractionals()) {
-            for(int i=0; i<this->getNumberOfFractionals(); i++) {
-                if(this->fractionalIndexes[i] < other.getFractionalIndexes()[i]) {
-                    comesFirst = true;
-                    break;
-                }
-            }
-        } else {
-
-            for(int i=0; i<other.getNumberOfFractionals(); i++) {
-                if(this->fractionalIndexes[i] < other.getFractionalIndexes()[i]) {
-                    comesFirst = true;
-                    break;
-                }
-            }
-        }
-    }
-    return comesFirst;
-}*/
 
 bool Letter::comesFirstRight(Letter other, int pos_id) {
     int this_nfractionals = this->getNumberOfFractionals(), other_nfractionals = other.getNumberOfFractionals();

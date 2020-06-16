@@ -53,9 +53,6 @@ void Form::on_pushButton_clicked()
     else{
 
         emit destroyMa(filename);
-    //    mainwindow = new MainWindow(this->socket, this->socket->getFHandler(), this, filenamec);
-    //    hide();
-    //    mainwindow->show();
         hide();
     }
 

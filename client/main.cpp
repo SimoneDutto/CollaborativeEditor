@@ -13,7 +13,5 @@ int main(int argc, char *argv[])
     w.show();
     a.setWindowIcon(QIcon(":rec/icone/logo_transparent copy.png"));
 
-    //MainWindow m(&sock);
-    //m.show();
     return a.exec();
 }

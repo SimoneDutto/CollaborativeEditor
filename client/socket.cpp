@@ -49,17 +49,6 @@ Socket::Socket(const QString &host, quint16 port)
     }
 }
 
-/*void Socket::setSignals() {
-    disconnect( socket, SIGNAL(readyRead()), this, SLOT(setSignals()) );
-
-    if(this->isDoingSignUp)
-        connect( socket, SIGNAL(bufferReady(QByteArray)),  SLOT(checkSignUp(QByteArray)) );
-    else connect( socket, SIGNAL(bufferReady(QByteArray)),  SLOT(checkLoginAndGetListFileName(QByteArray)) );
-
-    QByteArray data = socket->readAll();
-    emit bufferReady(data);
-}*/
-
 void Socket::sendChange(QString psw, QString path){
     QJsonObject obj;
     QByteArray toSend;
@@ -362,14 +351,6 @@ void Socket::notificationsHandler(QByteArray data){
         if(remaining == 0){
             QImage img(2048,1024,QImage::Format_Indexed8);
             img = QImage::fromData(QByteArray::fromBase64(icon_buffer),"png");
-//            QString imagePath(QStringLiteral("path/image.jpeg"));
-//            if(img.save(QString::number(clientID),"png")){
-//                qDebug() << "Icon saved";
-//            }
-//            else{
-
-//                qDebug() << "Icon not save";
-//            }
             QImageWriter writer(QString::number(clientID)+".png");
             writer.write(img);
             qDebug() << writer.error();
@@ -531,22 +512,7 @@ void Socket::notificationsHandler(QByteArray data){
                 emit cursorSelection(start, end, color);
             }
         }
-    }
-
-    /*else if (type.compare("SIGNUP_RESPONSE")==0) {
-        bool successful = object.value("success").toBool();
-        QString message = object.value("msg").toString();
-        if(!successful) {
-            if(message.compare("INVALID_USERNAME"))
-                emit invalidUsername();
-            else if (message.compare("SERVER_FAILURE")) // emit segnale sign up not successful
-                emit signUpError();
-        } else
-            // emit segnale sign up successful
-            qDebug() << "Sign up successful";
-            emit signUpSuccess();
-    }*/
-   
+    } 
     else if(type.compare("LOGIN")==0){
         checkLoginAndGetListFileName(object);
     }
@@ -556,8 +522,6 @@ void Socket::notificationsHandler(QByteArray data){
     else if (type.compare("HISTORY")==0){
          getUsernames(object);
     }
-    //if(socket->bytesAvailable())
-      //  emit myReadyRead();
     qDebug() << "Finished!";
     emit socket->readyRead();
 }

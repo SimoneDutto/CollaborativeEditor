@@ -19,7 +19,7 @@ OnlineUser::OnlineUser(Socket *sock, QWidget *parent) :
 
     QMap<QString, QColor> usersOnline = socket->getUserColor();
 
-    /* User a caso per testing
+    /* User per testing
     usersOnline.insert(1, QColor("black"));
     usersOnline.insert(2, QColor("red"));
     usersOnline.insert(3, QColor("green"));
